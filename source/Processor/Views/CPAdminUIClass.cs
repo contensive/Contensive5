@@ -459,7 +459,7 @@ namespace Contensive.Processor {
         /// <param name="cp"></param>
         /// <param name="portalFeatureGuid"></param>
         /// <returns></returns>
-        public override string getPortalFeatureLink(string portalGuid, string portalFeatureGuid) {
+        public override string GetPortalFeatureLink(string portalGuid, string portalFeatureGuid) {
             return $"{cp.GetAppConfig().adminRoute}?addonGuid={cp.Utils.EncodeRequestVariable(Constants.guidAddonPortalFramework)}&setPortalGuid={cp.Utils.EncodeRequestVariable(portalGuid)}&dstfeatureguid={cp.Utils.EncodeRequestVariable(portalFeatureGuid)}";
         }
         // 
@@ -471,11 +471,11 @@ namespace Contensive.Processor {
         /// <param name="portalFeatureGuid"></param>
         /// <param name="accountId"></param>
         /// <returns></returns>
-        public override string redirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend) {
+        public override string RedirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend) {
             // 
             // -- setup redirect and return blank, the flag for return to parent Addon
             linkAppend = string.IsNullOrEmpty(linkAppend) ? "" : linkAppend.StartsWith("&") ? linkAppend : "&" + linkAppend;
-            cp.Response.Redirect(getPortalFeatureLink( portalGuid, portalFeatureGuid) + linkAppend);
+            cp.Response.Redirect(GetPortalFeatureLink( portalGuid, portalFeatureGuid) + linkAppend);
             return "";
         }
         // 
@@ -487,8 +487,8 @@ namespace Contensive.Processor {
         /// <param name="portalFeatureGuid"></param>
         /// <param name="accountId"></param>
         /// <returns></returns>
-        public override string redirectToPortalFeature(string portalGuid, string portalFeatureGuid) {
-            cp.Response.Redirect(getPortalFeatureLink(portalGuid, portalFeatureGuid));
+        public override string RedirectToPortalFeature(string portalGuid, string portalFeatureGuid) {
+            cp.Response.Redirect(GetPortalFeatureLink(portalGuid, portalFeatureGuid));
             return "";
         }
         // 
@@ -501,7 +501,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public override bool endpointContainsPortal() {
+        public override bool EndpointContainsPortal() {
             //
             // -- return is from c5 adminui callback
             string callbackAddonGuid = cp.Doc.GetText("callbackAddonGuid");

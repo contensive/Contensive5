@@ -83,7 +83,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     // -- if no default feature, add'overview' to the nav and link to no feature, which will display dashboard
                     portalBuilder.addNav();
                     portalBuilder.navCaption = "Overview";
-                    portalBuilder.navLink = CP.AdminUI.getPortalFeatureLink(portalData.guid, "");
+                    portalBuilder.navLink = CP.AdminUI.GetPortalFeatureLink(portalData.guid, "");
                 }
                 //
                 // -- built top-level nav

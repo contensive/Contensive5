@@ -34,7 +34,12 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
             throw new NotImplementedException();
         }
-
+        public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria) {
+            throw new NotImplementedException();
+        }
+        public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption) {
+            throw new NotImplementedException();
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

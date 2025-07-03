@@ -21,15 +21,75 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         public abstract void addFilterGroup(string caption);
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="selected"></param>
         public abstract void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected);
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="selected"></param>
         public abstract void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected);
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
         public abstract void addFilterTextInput(string caption, string htmlName, string htmlValue);
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlDateValue"></param>
         public abstract void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue);
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group. This is a select input with a list of options.
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="options"></param>
         public abstract void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group. This is a select input built from the data in a table.
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="content"></param>
+        /// <param name="sqlCriteria"></param>
+        public abstract void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group. This is a select input built from the data in a table. 
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="content">The name of the content (table metadata)</param>
+        /// <param name="sqlCriteria"></param>
+        /// <param name="nonCaption">If provided, an entry will be added allowing the user to select no option</param>
+        public abstract void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -401,141 +461,142 @@ namespace Contensive.BaseClasses.LayoutBuilder {
             this.selected = selected;
         }
     }
-    //
-    // ----------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// Use an Interface to define the request for a filter group. This is used to create a filter group in the layout builder.
-    /// Then use intereface versioning to incrementally update the filter group request.
-    /// </summary>
-    public abstract class LayoutBuilderBaseFilterGroupRequest {
-        /// <summary>
-        /// The caption for this filter group. An option group has a caption and a list of filter inputs
-        /// </summary>
-        public abstract string caption { get; set; }
-        /// <summary>
-        /// list of inputs for this filter group. An option group has a caption and a list of filter inputs
-        /// </summary>
-        public abstract List<LayoutBuilderBaseFilterGroupRequest_FilterInput> filterInput { get; set; }
-    }
-    //
-    // ----------------------------------------------------------------------------------------------------
+    ////
+    //// ----------------------------------------------------------------------------------------------------
+    ///// <summary>
+    ///// Use an Interface to define the request for a filter group. This is used to create a filter group in the layout builder.
+    ///// Then use intereface versioning to incrementally update the filter group request.
+    ///// </summary>
+    //public abstract class LayoutBuilderBaseFilterGroupRequest {
+    //    /// <summary>
+    //    /// The caption for this filter group. An option group has a caption and a list of filter inputs
+    //    /// </summary>
+    //    public abstract string caption { get; set; }
+    //    /// <summary>
+    //    /// list of inputs for this filter group. An option group has a caption and a list of filter inputs
+    //    /// </summary>
+    //    public abstract List<LayoutBuilderBaseFilterGroupRequest_FilterInput> filterInput { get; set; }
+    //}
+    ////
+    //// ----------------------------------------------------------------------------------------------------
 
-    public abstract class LayoutBuilderBaseFilterGroupRequest_FilterInput {
-        public abstract bool filterIsCheckbox { get; set; }
-        public abstract bool filterIsSelect { get; set; }
-        public abstract bool filterIsText { get; set; }
-        public abstract bool filterIsDate { get; set; }
-        public abstract string filterCaption { get; set; }
-        /// <summary>
-        /// for checkbox and radio, true if selected.
-        /// </summary>
-        public abstract bool filterSelected { get; set; }
-        /// <summary>
-        /// for checkbox, always 1. For other types the value of the filter.
-        /// </summary>
-        public abstract bool filterValue { get; set; }
-        /// <summary>
-        /// if the filter option is a select, this is the list of options for the select
-        /// </summary>
-        public abstract List<LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption> selectOptions { get; set; }
-    }
+    //public abstract class LayoutBuilderBaseFilterGroupRequest_FilterInput {
+    //    public abstract bool filterIsCheckbox { get; set; }
+    //    public abstract bool filterIsRadio { get; set; }
+    //    public abstract bool filterIsSelect { get; set; }
+    //    public abstract bool filterIsText { get; set; }
+    //    public abstract bool filterIsDate { get; set; }
+    //    public abstract string filterCaption { get; set; }
+    //    /// <summary>
+    //    /// for checkbox and radio, true if selected.
+    //    /// </summary>
+    //    public abstract bool filterSelected { get; set; }
+    //    /// <summary>
+    //    /// for checkbox, always 1. For other types the value of the filter.
+    //    /// </summary>
+    //    public abstract bool filterValue { get; set; }
+    //    /// <summary>
+    //    /// if the filter option is a select, this is the list of options for the select
+    //    /// </summary>
+    //    public abstract List<LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption> selectOptions { get; set; }
+    //}
 
-    //
-    // ----------------------------------------------------------------------------------------------------
-    /// <summary>
-    /// if the filter option is a select, this is the value of the selected option.
-    /// </summary>
-    public abstract class LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption {
-        /// <summary>
-        /// the select optons value
-        /// </summary>
-        public abstract string filterSelectOptionValue { get; set; }
-        /// <summary>
-        /// the select options caption
-        /// </summary>
-        public abstract string filterSelectOptionName { get; set; }
-    }
+    ////
+    //// ----------------------------------------------------------------------------------------------------
+    ///// <summary>
+    ///// if the filter option is a select, this is the value of the selected option.
+    ///// </summary>
+    //public abstract class LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption {
+    //    /// <summary>
+    //    /// the select optons value
+    //    /// </summary>
+    //    public abstract string filterSelectOptionValue { get; set; }
+    //    /// <summary>
+    //    /// the select options caption
+    //    /// </summary>
+    //    public abstract string filterSelectOptionName { get; set; }
+    //}
 
 
-    internal class sample {
-        //
-        // ======================================================================================================
-        //
-        // -- pattern from Claude, passing an object argument into a cp method, with versioning for interfaces
-        // -- after recommending an interface, that forced a factorypattern to create the request argument, which then recommended an abstract base class
-        //
-        // -- define the request class interface
-        //
-        private interface IRequestClass {
-            string Name { get; }
-            int Version { get; }
-        }
-        //
-        // -- possible future revision
-        //
-        private interface IRequestClassV2 : IRequestClass {
-            string NewProperty { get; }
-            DateTime CreatedDate { get; }
-        }
-        //
-        // -- a concrete class in the main application that implements the interface, this is returned by the factory method
-        //
-        private class RequestClass : IRequestClass {
-            public string Name { get; set; } = "DefaultName";
-            public int Version { get; set; } = 1;
-            // Optional: New properties for newer versions
-            public string FilterType { get; set; } = "DefaultType";
-            public string Value { get; set; } = "DefaultValue";
-        }
-        //
-        // addon base defining an addFilter method that passes the interface
-        //
-        private abstract class AddonBase {
-            public abstract void AddFilter(IRequestClass request);
+    //internal class sample {
+    //    //
+    //    // ======================================================================================================
+    //    //
+    //    // -- pattern from Claude, passing an object argument into a cp method, with versioning for interfaces
+    //    // -- after recommending an interface, that forced a factorypattern to create the request argument, which then recommended an abstract base class
+    //    //
+    //    // -- define the request class interface
+    //    //
+    //    private interface IRequestClass {
+    //        string Name { get; }
+    //        int Version { get; }
+    //    }
+    //    //
+    //    // -- possible future revision
+    //    //
+    //    private interface IRequestClassV2 : IRequestClass {
+    //        string NewProperty { get; }
+    //        DateTime CreatedDate { get; }
+    //    }
+    //    //
+    //    // -- a concrete class in the main application that implements the interface, this is returned by the factory method
+    //    //
+    //    private class RequestClass : IRequestClass {
+    //        public string Name { get; set; } = "DefaultName";
+    //        public int Version { get; set; } = 1;
+    //        // Optional: New properties for newer versions
+    //        public string FilterType { get; set; } = "DefaultType";
+    //        public string Value { get; set; } = "DefaultValue";
+    //    }
+    //    //
+    //    // addon base defining an addFilter method that passes the interface
+    //    //
+    //    private abstract class AddonBase {
+    //        public abstract void AddFilter(IRequestClass request);
 
-            // Helper method for addons that want to use newer features
-            protected IRequestClassV2 AsV2(IRequestClass request) => request as IRequestClassV2;
-        }
-        //
-        // -- then addons implement versioning
-        //
-        private class MyAddon : AddonBase {
-            public override void AddFilter(IRequestClass request) {
-                // Works with any version
-                Console.WriteLine($"Processing: {request.Name}");
+    //        // Helper method for addons that want to use newer features
+    //        protected IRequestClassV2 AsV2(IRequestClass request) => request as IRequestClassV2;
+    //    }
+    //    //
+    //    // -- then addons implement versioning
+    //    //
+    //    private class MyAddon : AddonBase {
+    //        public override void AddFilter(IRequestClass request) {
+    //            // Works with any version
+    //            Console.WriteLine($"Processing: {request.Name}");
 
-                // Optional: Use newer features if available
-                if (AsV2(request) is IRequestClassV2 v2) {
-                    Console.WriteLine($"Created: {v2.CreatedDate}");
-                }
-            }
-        }
-        //
-        // -- but the addon cant create an instance of the request class, co implement a factory pattern
-        // -- that creates the request object
-        //
-        //
-        // -- but the addon cant create an instance of the request class, co implement a factory pattern
-        // -- that creates the request object
-        // Your CP class in the main application
-        private class CP : AddonBase {
-            public override void AddFilter(IRequestClass request) {
-                throw new NotImplementedException();
-            }
+    //            // Optional: Use newer features if available
+    //            if (AsV2(request) is IRequestClassV2 v2) {
+    //                Console.WriteLine($"Created: {v2.CreatedDate}");
+    //            }
+    //        }
+    //    }
+    //    //
+    //    // -- but the addon cant create an instance of the request class, co implement a factory pattern
+    //    // -- that creates the request object
+    //    //
+    //    //
+    //    // -- but the addon cant create an instance of the request class, co implement a factory pattern
+    //    // -- that creates the request object
+    //    // Your CP class in the main application
+    //    private class CP : AddonBase {
+    //        public override void AddFilter(IRequestClass request) {
+    //            throw new NotImplementedException();
+    //        }
 
-            // Factory method for addons to create request objects
-            private IRequestClass CreateRequest() {
-                return new RequestClass(); // Your concrete implementation
-            }
+    //        // Factory method for addons to create request objects
+    //        private IRequestClass CreateRequest() {
+    //            return new RequestClass(); // Your concrete implementation
+    //        }
 
-            // Or with initial values
-            private IRequestClass CreateRequest(string filterType, string value) {
-                return new RequestClass {
-                    FilterType = filterType,
-                    Value = value
-                };
-            }
-        }
+    //        // Or with initial values
+    //        private IRequestClass CreateRequest(string filterType, string value) {
+    //            return new RequestClass {
+    //                FilterType = filterType,
+    //                Value = value
+    //            };
+    //        }
+    //    }
 
-    }
+    //}
 }

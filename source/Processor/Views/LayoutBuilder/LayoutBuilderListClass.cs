@@ -3,6 +3,7 @@ using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -181,6 +182,12 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
             layoutBuilderBase.addFilterSelect(caption, htmlName, options);
+        }
+        public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria) {
+            layoutBuilderBase.addFilterSelectContent(caption, htmlName, htmlValue, content, sqlCriteria);
+        }
+        public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption) {
+            layoutBuilderBase.addFilterSelectContent(caption, htmlName, htmlValue, content, sqlCriteria, nonCaption);
         }
 
         //

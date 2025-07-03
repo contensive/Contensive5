@@ -5,6 +5,7 @@ using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Windows.Controls.Primitives;
 
 namespace Contensive.Processor.LayoutBuilder {
@@ -277,6 +278,35 @@ namespace Contensive.Processor.LayoutBuilder {
                 filterSelectOptions = options
             });
         }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption) {
+            string table = cp.Content.GetTable(content);
+            if(string.IsNullOrEmpty(table)) {
+                throw new Exception("LayoutBuilderClass.addFilterSelectContent: content not found: " + content);
+            }
+            sqlCriteria = string.IsNullOrEmpty(sqlCriteria) ? "" : $"and({sqlCriteria})";
+            using DataTable dt = cp.Db.ExecuteQuery($"select id, name from {table} where (active>0){sqlCriteria} order by name;");
+            if (dt.Rows.Count == 0) {
+                throw new Exception("LayoutBuilderClass.addFilterSelectContent: no rows returned for content: " + content);
+            }
+            List<NameValueSelected> options = [];
+            if (!string.IsNullOrEmpty(nonCaption)) {
+                options.Add(new NameValueSelected(cp.Utils.EncodeText(nonCaption), "", (htmlValue == 0)));
+            }
+            foreach (DataRow row in dt.Rows) {
+                options.Add(new NameValueSelected(cp.Utils.EncodeText(row["name"].ToString()), row["id"].ToString(), (row["id"].ToString() == htmlValue.ToString())));
+            }
+            addFilterSelect(caption, htmlName, options);
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria) {
+            addFilterSelectContent(caption, htmlName, htmlValue, content, sqlCriteria, "");
+        }
+
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

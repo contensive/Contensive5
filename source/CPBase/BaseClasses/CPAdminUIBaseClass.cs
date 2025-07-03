@@ -813,7 +813,7 @@ namespace Contensive.BaseClasses {
         /// <param name="portalGuid"></param>
         /// <param name="portalFeatureGuid"></param>
         /// <returns></returns>
-        public abstract string getPortalFeatureLink(string portalGuid, string portalFeatureGuid);
+        public abstract string GetPortalFeatureLink(string portalGuid, string portalFeatureGuid);
         // 
         //====================================================================================================
         /// <summary>
@@ -826,7 +826,7 @@ namespace Contensive.BaseClasses {
         /// <param name="portalFeatureGuid"></param>
         /// <param name="linkAppend"></param>
         /// <returns></returns>
-        public abstract string redirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend);
+        public abstract string RedirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend);
         // 
         //====================================================================================================
         /// <summary>
@@ -838,7 +838,7 @@ namespace Contensive.BaseClasses {
         /// <param name="portalGuid"></param>
         /// <param name="portalFeatureGuid"></param>
         /// <returns></returns>
-        public abstract string redirectToPortalFeature(string portalGuid, string portalFeatureGuid);
+        public abstract string RedirectToPortalFeature(string portalGuid, string portalFeatureGuid);
         // 
         // ===================================================================================
         /// <summary>
@@ -848,7 +848,7 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public abstract bool endpointContainsPortal();
+        public abstract bool EndpointContainsPortal();
         //
         //==========================================================================================
         //
