@@ -220,10 +220,10 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsCheckbox = true,
                 filterCaption = caption,
-                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
-                filterSelected = selected,
-                filterName = htmlName,
-                filterValue = htmlValue
+                filterHtmlId = $"filter{cp.Utils.GetRandomString(4)}",
+                selected = selected,
+                name = htmlName,
+                value = htmlValue
             });
         }
 
@@ -234,10 +234,10 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsRadio = true,
                 filterCaption = caption,
-                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
-                filterSelected = selected,
-                filterName = htmlName,
-                filterValue = htmlValue
+                filterHtmlId = $"filter{cp.Utils.GetRandomString(4)}",
+                selected = selected,
+                name = htmlName,
+                value = htmlValue
             });
         }
 
@@ -248,9 +248,9 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsText = true,
                 filterCaption = caption,
-                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
-                filterName = htmlName,
-                filterValue = htmlValue
+                filterHtmlId = $"filter{cp.Utils.GetRandomString(4)}",
+                name = htmlName,
+                value = htmlValue
             });
         }
 
@@ -261,9 +261,9 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsDate = true,
                 filterCaption = caption,
-                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
-                filterName = htmlName,
-                filterValue = (htmlDateValue ?? DateTime.MinValue).Equals(DateTime.MinValue) ? "" : htmlDateValue.Value.ToString("yyyy-MM-dd")
+                filterHtmlId = $"filter{cp.Utils.GetRandomString(4)}",
+                name = htmlName,
+                value = (htmlDateValue ?? DateTime.MinValue).Equals(DateTime.MinValue) ? "" : htmlDateValue.Value.ToString("yyyy-MM-dd")
             });
         }
 
@@ -273,8 +273,8 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[^1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsSelect = true,
                 filterCaption = caption,
-                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
-                filterName = htmlName,
+                filterHtmlId = $"filter{cp.Utils.GetRandomString(4)}",
+                name = htmlName,
                 filterSelectOptions = options
             });
         }
@@ -556,19 +556,19 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// a unique string for this filter input
         /// </summary>
-        public string filterInputId { get; set; }
-        /// <summary>
-        /// for checkbox and radio, true if selected.
-        /// </summary>
-        public bool filterSelected { get; set; }
+        public string filterHtmlId { get; set; }
         /// <summary>
         /// the html name of the filter input.
         /// </summary>
-        public string filterName { get; set; }
+        public string name { get; set; }
         /// <summary>
         /// the html value for this input. for checkbox, always 1. For other types the value of the filter.
         /// </summary>
-        public string filterValue { get; set; }
+        public string value { get; set; }
+        /// <summary>
+        /// for checkbox and radio, true if selected.
+        /// </summary>
+        public bool selected { get; set; }
         /// <summary>
         /// if the filter option is a select, this is the list of options for the select.
         /// NameValueSelected is definied in the BaseClasses

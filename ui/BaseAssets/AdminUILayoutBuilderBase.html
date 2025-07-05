@@ -813,6 +813,7 @@
 									<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filters
 								</a>
 								<div class="dropdown-menu dropdown-menu-start" aria-labelledby="filterDropdown">
+									<button type="submit" name="button" value="Apply Filter" id="js-afwApplyFilterButton" class="btn btn-primary mr-1 me-1 btn-sm ">Apply Filter</button>
 									{{#includeResetFilterButton}}
 										<a href="" class="text-center small"><i class="fa-solid fa-xmark text-danger"></i> Remove All</a>
 									{{/includeResetFilterButton}}
@@ -820,71 +821,63 @@
 										<h6 class="dropdown-header">{{filterGroupCaption}}</h6>
 										{{#filterInputs}}
 											<div class="dropdown-item">
+											
+												{{#filterIsSelect}}													
+													<!--
+														select
+													-->
+													<label class="form-check-label" for="{{filterHtmlId}}">
+														{{filterCaption}}
+													</label>
+													<select class="form-select" name="{{name}}" id="{{filterHtmlId}}" aria-label="{{filterCaption}}">
+														{{#filterSelectOptions}}
+															{{#selected}}<option value="{{value}}" selected>{{name}}</option>{{/selected}}
+															{{^selected}}<option value="{{value}}">{{name}}</option>{{/selected}}
+														{{/filterSelectOptions}}
+													</select>													
+												{{/filterIsSelect}}
+												
 												{{#filterIsCheckbox}}
 													<div class="form-check">
 														<!--
 															checkbox
 														-->
-														{{#filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}" checked>{{/filterSelected}}
-														{{^filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}">{{/filterSelected}}
-														<label class="form-check-label" for="{{filterInputId}}">
+														{{#selected}}<input class="form-check-input" type="checkbox" value="{{value}}" name="{{name}}" id="{{filterHtmlId}}" checked>{{/selected}}
+														{{^selected}}<input class="form-check-input" type="checkbox" value="{{value}}" name="{{name}}" id="{{filterHtmlId}}">{{/selected}}
+														<label class="form-check-label" for="{{filterHtmlId}}">
 															{{filterCaption}}
 														</label>
 													</div>
 												{{/filterIsCheckbox}}
-
 											
-												{{#filterIsSelect}}
-													
-													<!--
-														select
-													-->
-													<select class="form-select" id="{{filterInputId}}" aria-label="{{filterCaption}}">
-														{{#filterSelectOptions}}
-															{{#filterSelected}}<option value="{{filterSelectOptionValue}}" selected>{{filterSelectOptionName}}</option>{{/filterSelected}}
-															{{^filterSelected}}<option value="{{filterSelectOptionValue}}">{{filterSelectOptionName}}</option>{{/filterSelected}}
-														{{/filterSelectOptions}}
-													</select>
-													
-												{{/filterIsSelect}}
-											
-
-											
-												{{#filterIsDate}}
+												{{#filterIsRadio}}
 													<!--
 														radio
 													-->
-													<div>radio input, 
-														caption {{filterCaption}}, 
-														id {{filterInputId}}, 
-														name {{filterName}}, 
-														filterValue {{filterValue}}
+													<div class="form-check">
+														{{#selected}}<input class="form-check-input" type="radio" name="{{name}}" value="{{value}}" id="{{filterHtmlId}}" checked>{{/selected}}
+														{{^selected}}<input class="form-check-input" type="radio" name="{{name}}" value="{{value}}" id="{{filterHtmlId}}">{{/selected}}
+														<label class="form-check-label" for="{{filterHtmlId}}">{{filterCaption}}</label>
 													</div>
-												{{/filterIsDate}}
+												{{/filterIsRadio}}
 
 												{{#filterIsDate}}
 													<!--
 														date
 													-->
-													<div>date input, 
-														caption {{filterCaption}}, 
-														id {{filterInputId}}, 
-														name {{filterName}}, 
-														filterValue {{filterValue}}
+													<div>
+														<label for="{{filterHtmlId}}" class="form-label">{{filterCaption}}</label>
+														<input type="date" class="form-control" name="{{name}}" value="{{value}}" id="{{filterHtmlId}}">
 													</div>
 												{{/filterIsDate}}
-											
-
 										
 												{{#filterIsText}}
 													<!--
 														text
 													-->
-													<div class="filter-text">text input,
-														caption {{filterCaption}},
-														id {{filterInputId}}, 
-														name {{filterName}}, 
-														filterValue {{filterValue}}
+													<div>
+														<label for="{{filterHtmlId}}" class="form-label">{{filterCaption}}</label>
+														<input type="text" class="form-control" name="{{name}}" value="{{value}}" id="{{filterHtmlId}}">
 													</div>
 												{{/filterIsText}}
 												
@@ -916,6 +909,14 @@
 	</div>
 </div>
 <script>
+	
+	//document.addEventListener('DOMContentLoaded', function(event) {
+	//	console.log("AdminUILayoutBuilderBase, binding");
+	//	$('.afw').on('click','#js-afwApplyFilterButton',function(p){
+	//		console.log("js-afwApplyFilterButton, click");
+	//		submitAfwAjaxListForm();
+	//	});
+	//});	
 	// -- This html snippet is wrapped with a form tag
 	// -- this method submits an ajax call to the client-programs method (hidden in baseAjaxUrl)
 	// -- and stores the resulting html in the elementId argument

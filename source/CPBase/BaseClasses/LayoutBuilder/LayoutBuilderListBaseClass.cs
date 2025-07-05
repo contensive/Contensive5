@@ -58,15 +58,15 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// 
         /// </summary>
-        public abstract string formId { get; set; }
+        [Obsolete("Deprecated. use addHidden() to add a formId hidden tag", false)] public abstract string formId { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public abstract string guid { get; set; }
+        [Obsolete("Deprecated. Saved reports are no longer supported.", false)] public abstract string guid { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public abstract string name { get; set; }
+        [Obsolete("Deprecated. Saved reports are no longer supported.", false)] public abstract string name { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //

@@ -18,7 +18,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// used for pagination and export. Setter included to support older legacy code that used cp parameter in getHtml(cp).
         /// </summary>
-        private CPClass cp { get; set; }
+        private new CPClass cp { get; set; }
         //
         /// <summary>
         /// the base layout builder used to assemble the components of this builder.
@@ -571,14 +571,14 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Had previously been the guid of the saved report record.
         /// </summary>
-        [Obsolete("Deprecated. Had previously been the guid of the saved report record.", false)]
+        [Obsolete("Deprecated. Saved reports are no longer supported.", false)]
         public override string guid { get; set; } = "";
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Had previously been the name of the saved report record.
         /// </summary>
-        [Obsolete("Deprecated. Had previously been the name of the saved report record.", false)]
+        [Obsolete("Deprecated. Saved reports are no longer supported.", false)]
         public override string name { get; set; } = "";
         //
         // ----------------------------------------------------------------------------------------------------

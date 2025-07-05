@@ -158,13 +158,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public abstract string styleSheet { get; }
+        [Obsolete("move javascript and styles to layouts", false)] public abstract string styleSheet { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public abstract string javascript { get; }
+        [Obsolete("move javascript and styles to layouts", false)] public abstract string javascript { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -451,15 +451,10 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// A simple class to hold a name value pair with a selected flag. Used to create a list of options for a select input in the filter group.
     /// </summary>
-    public class NameValueSelected {
-        public string name { get; set; }
-        public string value { get; set; }
-        public bool selected { get; set; }
-        public NameValueSelected(string name, string value, bool selected) {
-            this.name = name;
-            this.value = value;
-            this.selected = selected;
-        }
+    public class NameValueSelected(string name, string value, bool selected) {
+        public string name { get; set; } = name;
+        public string value { get; set; } = value;
+        public bool selected { get; set; } = selected;
     }
     ////
     //// ----------------------------------------------------------------------------------------------------
