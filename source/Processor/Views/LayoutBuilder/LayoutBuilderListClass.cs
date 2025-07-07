@@ -368,6 +368,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 if (renderData.allowPagination) {
                     _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
                 }
+                if (addCsvDownloadCurrentPage ) {
+                    addFormButton(Constants.ButtonRequestDownload);
+                }
                 //
                 // -- render the body of the list view
                 string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);

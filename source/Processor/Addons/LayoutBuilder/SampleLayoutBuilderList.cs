@@ -42,7 +42,6 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 layoutBuilder.htmlAfterBody = "";
                 layoutBuilder.htmlBeforeBody = "";
                 layoutBuilder.htmlLeftOfBody = "";
-                layoutBuilder.name = "";
                 layoutBuilder.paginationPageSizeDefault = 50;
                 layoutBuilder.recordCount = 0;
                 layoutBuilder.infoMessage = "";
