@@ -282,21 +282,24 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption) {
+            List<NameValueSelected> options = [];
+            if (!string.IsNullOrEmpty(nonCaption)) {
+                options.Add(new NameValueSelected(cp.Utils.EncodeText(nonCaption), "", (htmlValue == 0)));
+            }
             string table = cp.Content.GetTable(content);
             if(string.IsNullOrEmpty(table)) {
                 throw new Exception("LayoutBuilderClass.addFilterSelectContent: content not found: " + content);
             }
             sqlCriteria = string.IsNullOrEmpty(sqlCriteria) ? "" : $"and({sqlCriteria})";
-            using DataTable dt = cp.Db.ExecuteQuery($"select id, name from {table} where (active>0){sqlCriteria} order by name;");
-            if (dt.Rows.Count == 0) {
-                throw new Exception("LayoutBuilderClass.addFilterSelectContent: no rows returned for content: " + content);
-            }
-            List<NameValueSelected> options = [];
-            if (!string.IsNullOrEmpty(nonCaption)) {
-                options.Add(new NameValueSelected(cp.Utils.EncodeText(nonCaption), "", (htmlValue == 0)));
-            }
+            using DataTable dt = cp.Db.ExecuteQuery($"select id,name from {table} where (active>0){sqlCriteria} order by name;");
+            bool anyRowSelected = false;
             foreach (DataRow row in dt.Rows) {
-                options.Add(new NameValueSelected(cp.Utils.EncodeText(row["name"].ToString()), row["id"].ToString(), (row["id"].ToString() == htmlValue.ToString())));
+                bool rowSelected = row["id"].ToString() == htmlValue.ToString();
+                anyRowSelected = anyRowSelected || rowSelected;
+                options.Add(new NameValueSelected(cp.Utils.EncodeText(row["name"].ToString()), row["id"].ToString(), rowSelected));
+            }
+            if(!anyRowSelected && string.IsNullOrEmpty(nonCaption)) {
+                options.Add(new NameValueSelected("No Options Available", "", false));
             }
             addFilterSelect(caption, htmlName, options);
         }
