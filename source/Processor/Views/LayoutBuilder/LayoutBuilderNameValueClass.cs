@@ -29,6 +29,24 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// tmp. convert to match -list pattern
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public override void addActiveFilter(string caption, string name, string value) {
+            if (string.IsNullOrEmpty(caption)) { return; }
+            activeFilters ??= [];
+            activeFilters.Add(new LayoutBuilder_ActiveFilter() {
+                activeFilterCaption = caption,
+                activeFilterName = name,
+                activeFilterValue = value
+            });
+        }
+        private List<LayoutBuilder_ActiveFilter> activeFilters = null;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// tmp. If the layoutBuilderBase filter works, convert this to match -list pattern, create a LayoutBase during constructor and pass the filter calls through. Then the getHtml does not need to pass local values to the base, they are there
         /// </summary>
         /// <param name="caption"></param>
@@ -424,7 +442,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlLeftOfBody = htmlLeftOfBody,
                 htmlBeforeBody = htmlBeforeBody,
                 htmlAfterBody = htmlAfterBody,
-                portalSubNavTitle = portalSubNavTitle
+                portalSubNavTitle = portalSubNavTitle,
+                activeFilters = activeFilters,
             };
             return layoutBase.getHtml();
         }
@@ -528,7 +547,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
         /// </summary>
-        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string baseUrl { get; }
+        [Obsolete("Deprecated. Instead use cp.adminUI.GetPortalFeatureLink()", false)] public override string baseUrl { get; }
         //
         /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page

@@ -17,6 +17,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// add a clickable button to the UI that will remove a filter from the active filters list.
+        /// </summary>
+        public abstract void addActiveFilter(string caption, string name, string value);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Creates a new filter group. Filter groups have a caption followed by a list of filter inputs
         /// </summary>
         public abstract void addFilterGroup(string caption);

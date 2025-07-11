@@ -28,6 +28,8 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public bool includeFilter { get; set; } = false;
         //
+        public List<LayoutBuilder_ActiveFilter> activeFilters { get; set; } = [];   
+        //
         // ----------------------------------------------------------------------------------------------------
         //
         public bool includeResetFilterButton { get; set; }
@@ -197,6 +199,18 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- add dependency on jQuery BlockUI 
             cp.Addon.ExecuteDependency(Constants.addonGuidJQueryBlockUI);
             return result;
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override void addActiveFilter(string caption, string name, string value) {
+            if (string.IsNullOrEmpty(caption)) { return; }
+            activeFilters ??= [];
+            activeFilters.Add(new LayoutBuilder_ActiveFilter() {
+                activeFilterCaption = caption,
+                activeFilterName = name,
+                activeFilterValue = value
+            });
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -528,6 +542,22 @@ namespace Contensive.Processor.LayoutBuilder {
         [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string baseUrl { get; }
         //
         [Obsolete("Deprecated. Use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
+    }
+    //
+    public class LayoutBuilder_ActiveFilter {
+        /// <summary>
+        /// when a filter is added, an activeFilter is added.
+        /// The caption is the name of the filter that appears
+        /// </summary>
+        public string activeFilterCaption { get; set; } = "";
+        /// <summary>
+        /// the name of the filter is the button html name
+        /// </summary>
+        public string activeFilterName { get; set; } = "";
+        /// <summary>
+        /// the name of the filter is the button html value
+        /// </summary>
+        public string activeFilterValue { get; set; } = "";
     }
     //
     // =====================================================================================================

@@ -40,6 +40,17 @@ namespace Contensive.Processor.LayoutBuilder {
             includeForm = true;
         }
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// tmp. convert to match -list pattern
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public override void addActiveFilter(string caption, string name, string value) {
+            layoutBuilderBase.addActiveFilter(caption, name, value);
+        }
+        //
         // ====================================================================================================
         // privates
         //

@@ -808,7 +808,7 @@
 					{{#csvDownloadFilename}}<p class="afwDescription" id="afwDescription my-2"><a href="{{csvDownloadFilename}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
 					-->
 					<div class="afwBeforeHtml my-2">
-						<div class="d-flex justify-content-between align-items-center">
+						<div class="d-flex justify-content-start align-items-center">
 							{{#includeFilter}}
 							<div class="dropdown dropdown-filter">
 								<a class="filter-btn" role="button" id="filterDropdown" data-bs-toggle="dropdown"  data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
@@ -889,6 +889,9 @@
 								</div>
 							</div>
 							{{/includeFilter}}
+							{{#activeFilters}}
+							<button type="submit" name="{{activeFilterName}}" value="{{activeFilterValue}}" class="border rounded p-1">{{activeFilterCaption}}</button>
+							{{/activeFilters}}
 							{{{htmlBeforeBody}}}
 						</div>							
 					</div>

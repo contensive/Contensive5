@@ -14,6 +14,24 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// tmp. convert to match -list pattern
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public override void addActiveFilter(string caption, string name, string value) {
+            if (string.IsNullOrEmpty(caption)) { return; }
+            activeFilters ??= [];
+            activeFilters.Add(new LayoutBuilder_ActiveFilter() {
+                activeFilterCaption = caption,
+                activeFilterName = name,
+                activeFilterValue = value
+            });
+        }
+        private List<LayoutBuilder_ActiveFilter> activeFilters = null;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// tmp. If the layoutBuilderBase filter works, convert this to match -list pattern, create a LayoutBase during constructor and pass the filter calls through. Then the getHtml does not need to pass local values to the base, they are there
         /// </summary>
         /// <param name="caption"></param>
@@ -190,7 +208,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 successMessage = successMessage,
                 htmlAfterBody = htmlAfterBody,
                 htmlBeforeBody = htmlBeforeBody,
-                htmlLeftOfBody = htmlLeftOfBody
+                htmlLeftOfBody = htmlLeftOfBody,
+                activeFilters = activeFilters,
             };
             string result = layoutBase.getHtml();
             //
