@@ -280,6 +280,22 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// In the pagination section, this phrase replaces the word 'records' in '# records found'
+        /// </summary>
+        public override string paginationRecordAlias {
+            get {
+                if (_paginationRecordAlias != null) { return _paginationRecordAlias; }
+                _paginationRecordAlias = "records";
+                return _paginationRecordAlias;
+            }
+            set {
+                _paginationRecordAlias = value;
+            }
+        }
+        private string _paginationRecordAlias;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// if allowPagination false, this will will be 9999999. 
         /// If allowPagination true, this is the number of rows in the display, and should be used as the pageSize in the query
         /// </summary>
@@ -372,7 +388,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 RenderData renderData = new() {
                     grid = getGridHtml(),
                     allowSearch = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid),
-                    allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid) && (recordCount > paginationPageSize)
+                    allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid) && (recordCount > paginationPageSize),
+                    rowsFoundMessage = $"{recordCount} {paginationRecordAlias} found"
                 };
                 //
                 // -- prepend navigation to before-table
@@ -493,15 +510,15 @@ namespace Contensive.Processor.LayoutBuilder {
                                 if (!string.IsNullOrEmpty(classAttribute2)) {
                                     classAttribute2 = " class=\"" + classAttribute2 + "\"";
                                 }
-                                string rowContent = localReportCells[rowPtr, colPtr];
+                                string cellContent = localReportCells[rowPtr, colPtr];
                                 if ((colPtrLastVisible == colPtr) && rowEllipseMenuDict.ContainsKey(rowPtr)) {
                                     //
                                     // -- add ellipse menu
                                     Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel ellipseMenu = new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel {
                                         menuId = rowPtr,
-                                        content = rowContent,
+                                        content = cellContent,
                                         hasMenu = true,
-                                        menuList = new List<Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel>()
+                                        menuList = []
                                     };
                                     foreach (var menuItem in rowEllipseMenuDict[rowPtr]) {
                                         ellipseMenu.menuList.Add(new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel {
@@ -509,9 +526,9 @@ namespace Contensive.Processor.LayoutBuilder {
                                             menuHref = menuItem.url
                                         });
                                     }
-                                    rowContent = cp.Mustache.Render(Processor.Properties.Resources.ellipseMenu, ellipseMenu);
+                                    cellContent = cp.Mustache.Render(Processor.Properties.Resources.ellipseMenu, ellipseMenu);
                                 }
-                                row += Constants.cr + "<td" + classAttribute2 + ">" + rowContent + "</td>";
+                                row += Constants.cr + "<td" + classAttribute2 + ">" + cellContent + "</td>";
                             }
                             if (addCsvDownloadCurrentPage && !localExcludeRowFromDownload[rowPtr]) {
                                 if (columns[colPtr].downloadable) {
@@ -1364,6 +1381,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public string grid { get; set; }
         public bool allowSearch { set; get; }
         public bool allowPagination { set; get; }
+        public string rowsFoundMessage { set; get; }
 
     }
     public class RenderData_Link {

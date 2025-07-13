@@ -36,6 +36,10 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         public abstract int paginationPageNumber { get; }
         /// <summary>
+        /// In the pagination section, this phrase replaces the word 'records' in '# records found'
+        /// </summary>
+        public abstract string  paginationRecordAlias { get; set; }
+        /// <summary>
         /// adds this name/url as an ellipse menu item to the current column
         /// </summary>
         /// <param name="name"></param>

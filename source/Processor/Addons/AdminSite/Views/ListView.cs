@@ -345,8 +345,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             }
-            RenderData renderData = new();
-            renderData.allowPagination = true;
+            RenderData renderData = new() {
+                allowPagination = true,
+                rowsFoundMessage = $"{recordCnt} records found"
+            };
             string pageNavigation = getPageNavigation(core, renderData, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt);
             //
             // -- TitleBar

@@ -265,25 +265,25 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- description to the left of pagination
-                string renderData_content = "";
-                switch (recordCnt) {
-                    case 0: {
-                            renderData_content = "no records, page";
-                            break;
-                        }
-                    case 1: {
-                            renderData_content = "1 record, page";
-                            break;
-                        }
-                    default: {
-                            renderData_content = recordCnt + " records, page";
-                            break;
-                        }
-                }
+                //string renderData_content = $"{renderData.rowsFoundMessage}, page";
+                //switch (recordCnt) {
+                //    case 0: {
+                //            //renderData_content += ", page";
+                //            break;
+                //        }
+                //    case 1: {
+                //            renderData_content += ", page";
+                //            break;
+                //        }
+                //    default: {
+                //            renderData_content += ", page";
+                //            break;
+                //        }
+                //}
                 renderData.links = [];
                 renderData.links.Add( new RenderData_Link { 
                         css = "caption", 
-                        content = renderData_content
+                        content = $"{renderData.rowsFoundMessage}, page"
                 });
                 //
                 // -- add link to first page
@@ -342,7 +342,7 @@ namespace Contensive.Processor.Controllers {
                     + ""
                     + "<div class=\"text-end ccJumpCon\">"
                     + " <ul>"
-                    + "     <li class=\"caption\">" + renderData_content + ", page</li>"
+                    + $"     <li class=\"caption\">{renderData.rowsFoundMessage}, page</li>"
                     +       listItemHtml
                     + " </ul>"
                     + "</div>"

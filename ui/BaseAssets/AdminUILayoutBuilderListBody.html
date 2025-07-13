@@ -29,6 +29,11 @@
 				</div>       
 			</div>
 		{{/allowSearch}}
+		{{^allowPagination}}
+		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
+			<div class="text-end">{{rowsFoundMessage}}</div>
+		</div>   
+		{{/allowPagination}}
 		{{#allowPagination}}
 		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
 			<div class="text-end ccJumpCon"> 

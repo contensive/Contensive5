@@ -19,7 +19,10 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// add a clickable button to the UI that will remove a filter from the active filters list.
         /// </summary>
-        public abstract void addActiveFilter(string caption, string name, string value);
+        /// <param name="caption">The caption that appears on the button. This would typically be a caption that tells the user about the filter, like if the filter selects a meeting, this might be name of the meeting.</param>
+        /// <param name="removeFilterRequestName">The request name that will be submitted when this button is pressed. This would typically by 'remoteFilter'.</param>
+        /// <param name="requestNameToClear">When this button is pressed, the code should read the remoteFilterRequestName and if not empty, clear or ignore the requestName matching this string. For example if the filter selects a meeting, this might be the meeting requestName, like meetingId.</param>
+        public abstract void addActiveFilter(string caption, string removeFilterRequestName, string requestNameToClear);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
