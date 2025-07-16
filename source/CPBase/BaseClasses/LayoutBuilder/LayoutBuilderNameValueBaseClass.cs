@@ -5,7 +5,15 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         public LayoutBuilderNameValueBaseClass(CPBaseClass cp) : base(cp) { }
         /// <summary>
-        /// After populating the current rowName, rowValue, rowHelp, and rowHtmlId properties, addRow to create a new row, and populate its rowName, rowValue, rowHelp, rowHtmlId
+        /// Add a new row to a form with a header, then add rowName, rowValue and rowHelp. Then add a second column with addColumn or a new row with addRow.
+        /// </summary>
+        public abstract void addRow(string rowHeading, string instructions);
+        /// <summary>
+        /// Add a new row to a form without a header, then add rowName, rowValue and rowHelp. Then add a second column with addColumn or a new row with addRow.
+        /// </summary>
+        public abstract void addRow(string rowHeading);
+        /// <summary>
+        /// Add a new row to a form without a header, then add rowName, rowValue and rowHelp. Then add a second column with addColumn or a new row with addRow.
         /// </summary>
         public abstract void addRow();
         /// <summary>

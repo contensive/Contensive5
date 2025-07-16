@@ -2,6 +2,10 @@
 </style>
 <div class="container-fluid px-0">	
 	{{#rowList}}
+		{{#rowHeading}}
+		<h4>{{rowHeading}}</h4>
+		{{#instructions}}<p>{{instructions}}</p>{{/instructions}}
+		{{/rowHeading}}
 		{{#rowHas1Column}}
 			{{#rowColumnList}}
 				<div class="py-3" id="{{columnHtmlId}}">

@@ -234,14 +234,22 @@ namespace Contensive.Processor.LayoutBuilder {
         // add a row
         // ----------------------------------------------------------------------------------------------------
         //
-        public override void addRow() {
+        public override void addRow(string rowHeading, string instructions) {
             rowList.Add(new LayoutBuilderNameValueClass_RowClass() {
                 rowColumnList = [],
                 rowHas1Column = true,
-                rowHas2Columns = false
+                rowHas2Columns = false,
+                rowHeading = rowHeading,
+                instructions = instructions
             });
             rowList.Last().rowColumnList.Add(new LayoutBuilderNameValueClass_RowClass_ColumnClass());
         }
+        //
+        public override void addRow(string rowHeading)
+            => addRow(rowHeading, "");
+        //
+        public override void addRow()
+            => addRow("","");
         //
         // ----------------------------------------------------------------------------------------------------
         // add a column to the row
@@ -571,6 +579,8 @@ namespace Contensive.Processor.LayoutBuilder {
         //public string rowValue { get; set; } = "";
         //public string rowHelp { get; set; } = "";
         //public string rowHtmlId { get; set; } = "";
+        public string rowHeading { get; set; } = "";
+        public string instructions { get; set; } = "";
         public bool rowHas1Column { get; set; } = true;
         public bool rowHas2Columns { get; set; } = false;
         public bool rowHas4Columns { get; set; } = false;
