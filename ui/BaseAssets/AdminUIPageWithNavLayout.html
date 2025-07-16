@@ -78,9 +78,17 @@
       border-radius: 0.35rem;
     }
     .navbar-nav .dropdown-menu {
-    position: static;
-    float: none;
-  }
+      position: static;
+      float: none;
+    }
+
+    #subnav a {
+      font-size: 15px;
+    }
+    #subnav a.active {
+      font-weight: 600;
+      color: black;
+    }
 
 /*
   portal styles
@@ -654,17 +662,17 @@
 		padding: 0 0.75em;
 	}
 
-	.afwNavbar .navbar-nav .nav-item:not(:last-child) .nav-link {
+	/* .afwNavbar .navbar-nav .nav-item:not(:last-child) .nav-link {
 		border-right: 1px solid rgba(255,255,255,.3);
-	}
+	} */
 
 	.afwSubNavbar .navbar-nav .nav-item .nav-link {
 		padding: 0 0.75em;
 	}
 
-	.afwSubNavbar .navbar-nav .nav-item:not(:last-child) .nav-link {
+	/* .afwSubNavbar .navbar-nav .nav-item:not(:last-child) .nav-link {
 		border-right: 1px solid rgba(0,0,0,.3);
-	}
+	} */
 }
 /*
 	bootstrap colors additions
@@ -745,7 +753,7 @@
   {{^subNavItemListEmpty}}
   <div class="">
     <div class="d-flex align-items-center justify-content-between mb-2 rounded-2 p-2 mt-4 px-3">
-      <a class="navbar-brand  text-primary" href="#"><h5 class="fw-bold m-0">{{subNavTitle}}</h5></a>
+      <a class="navbar-brand  text-primary" href="#"><h5 class="fw-bolder m-0 fs-6">{{subNavTitle}}</h5></a>
       <nav class="afwSubNavbar navbar navbar-expand-lg p-0">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#subnav" data-bs-target="#subnav" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -753,12 +761,12 @@
         <div class="collapse navbar-collapse" id="subnav">
           <ul class="navbar-nav mr-auto me-auto">
             {{#subNavItemList}}
-            <li class="nav-item {{#subActive}}active{{/subActive}} {{#subIsPortalLink}}afwNavPortalLink{{/subIsPortalLink}}">
+            <li class="nav-item {{#subIsPortalLink}}afwNavPortalLink{{/subIsPortalLink}}">
               {{#subLink}}
-              <a class="nav-link py-0" href="{{subLink}}" target="{{subLinkTarget}}">{{subCaption}}</a>
+              <a class="nav-link py-0 {{#subActive}}active{{/subActive}}" href="{{subLink}}" target="{{subLinkTarget}}">{{subCaption}}</a>
               {{/subLink}}
               {{^subLink}}
-              <a class="nav-link py-0" href="#" onclick="return false">{{subCaption}}</a>
+              <a class="nav-link py-0 {{#subActive}}active{{/subActive}}" href="#" onclick="return false">{{subCaption}}</a>
               {{/subLink}}
             </li>
 			      {{/subNavItemList}}
