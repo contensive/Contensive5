@@ -21,13 +21,19 @@ namespace Contensive.Processor.Controllers {
             string returnString = "";
             try {
                 using var cs = new CsModel(core);
-                string sql = "select distinct c.addonId" +
-                    " from ((ccAddonEvents e" +
-                    " left join ccAddonEventCatchers c on c.eventId=e.id)" +
-                    " left join ccAggregateFunctions a on a.id=c.addonid)" +
-                    " where" +
-                    " e.name=" + DbController.encodeSQLText(eventName);
-                sql += " order by c.addonid desc";
+                string sql = @$"
+                    select 
+                        distinct a.id 
+                    from 
+                        ccAddonEvents e 
+                        left join ccAddonEventCatchers c on c.eventId=e.id 
+                        left join ccAggregateFunctions a on a.id=c.addonid
+                    where 
+                        e.name={DbController.encodeSQLText(eventName)}
+                        and(a.id is not null)
+                    order by 
+                        a.id desc
+                    ";
                 if (!cs.openSql(sql)) {
                     //
                     // event not found
@@ -41,13 +47,15 @@ namespace Contensive.Processor.Controllers {
                         int addonid = cs.getInteger("addonid");
                         if (addonid != 0) {
                             var addon = core.cacheRuntime.addonCache.create(addonid);
-                            //
-                            core.cpParent.Log.Trace($"EventController.throwEventByName, calling addon [{addon.id}, {addon.name}] for event [{eventName}]");
-                            //
-                            returnString += core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
-                                addonType = CPUtilsBaseClass.addonContext.ContextSimple,
-                                errorContextMessage = "calling handler addon id [" + addonid + "] for event [" + eventName + "]"
-                            });
+                            if (addon != null) {
+                                //
+                                core.cpParent.Log.Trace($"EventController.throwEventByName, calling addon [{addon.id}, {addon.name}] for event [{eventName}]");
+                                //
+                                returnString += core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
+                                    addonType = CPUtilsBaseClass.addonContext.ContextSimple,
+                                    errorContextMessage = "calling handler addon id [" + addonid + "] for event [" + eventName + "]"
+                                });
+                            }
                         }
                         cs.goNext();
                     }
