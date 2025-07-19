@@ -4289,11 +4289,13 @@
       <field Name="datacontentid"></field>
     </Record>
     
-
+<!--
+    tmp block install until it is ready 
 	<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Comm">
 		<field Name="defaultfeatureid"></field>
 		<field Name="icon">BaseAssets/dashboardIcons/communications.svg</field>
 	</Record>
+    -->
 
 
 		<Record Content="portal features" Guid="{4C8AF610-AB0B-4091-9997-CE90A9874E7F}" Name="Dash Widget Pages To Review">

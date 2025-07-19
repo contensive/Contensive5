@@ -179,6 +179,24 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterGroup(string caption) {
             layoutBuilderBase.addFilterGroup(caption);
         }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override bool getFilterBoolean(string filterHtmlName, bool defaultValue) {
+            return layoutBuilderBase.getFilterBoolean(filterHtmlName, defaultValue);
+        }
+        public override int getFilterInteger(string filterHtmlName, int defaultValue) {
+            return layoutBuilderBase.getFilterInteger(filterHtmlName, defaultValue);
+        }
+        public override string getFilterText(string filterHtmlName, string defaultValue) {
+            return layoutBuilderBase.getFilterText(filterHtmlName, defaultValue);
+        }
+        public override DateTime getFilterDate(string filterHtmlName, DateTime defaultValue) {
+            return layoutBuilderBase.getFilterDate(filterHtmlName, defaultValue);
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
             layoutBuilderBase.addFilterCheckbox(caption, htmlName, htmlValue, selected);
         }

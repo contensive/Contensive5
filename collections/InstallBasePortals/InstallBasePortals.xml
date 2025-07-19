@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<Collection name="InstallBasePortals" guid="{7b9f511b-405e-4f2f-9736-23aea133e6c4}" system="yes" updatable="Yes" blockNavigatorNode="Yes" onInstallAddonGuid="">
+	<!-- 
+		Account Manager
+	-->
+	<ImportCollection name="Ecommerce">{8dbe6b55-18db-44eb-9a4a-5cbba84df35a}</ImportCollection>
+	<!-- 
+		Add-ons
+	-->
+	<ImportCollection name="Add-on Manager">{A3E58089-74FC-4FB3-B847-0AD22B51AA72}</ImportCollection>
+	<!-- 
+		comm (c5)
+		tmp block install until it is ready
+	-->
+	<!-- 
+		content management (c5)
+	-->
+	<!-- 
+		CRM
+		tmp block install until it is ready
+	<ImportCollection name="CRM">{790be14e-e889-4538-9451-db94b7e5f474}</ImportCollection>
+	-->
+	<!-- 
+		Distance Learning
+	-->
+	<ImportCollection name="Distance Learning">{6A50A171-9B44-4E2E-87C7-59EC7BB0FB28}</ImportCollection>
+	<!-- 
+		Forms
+	-->
+	<ImportCollection name="Form Wizard">{B5D1FE5B-71EC-403D-90E8-01AE7F8E18AD}</ImportCollection>
+	<!-- 
+		Marketing Analytics
+		tmp block install until it is ready
+	<ImportCollection name="Marketing Analytics">{be602ffd-f1a9-4932-988a-1d4d2658568b}</ImportCollection>
+	-->
+	<!-- 
+		Meeting Manager
+	-->
+	<ImportCollection name="Meeting Manager">{dbd5df63-b5e1-4bf6-aecd-23454f173c8f}</ImportCollection>
+	<!-- 
+		Membership Manager
+	-->
+	<ImportCollection name="Membership Manager">{a70e12ed-28ff-4f11-94db-40eaaf01d372}</ImportCollection>
+</Collection>

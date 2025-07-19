@@ -32,73 +32,117 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Get a boolean filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterCheckbox().
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public abstract bool getFilterBoolean(string filterHtmlName, bool defaultValue);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Get a string filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterTextInput(), addFilterRadio()
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public abstract string getFilterText(string filterHtmlName, string defaultValue);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Get a string filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterInteger(), addFilterSelect(), addFilterSelectContent().
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public abstract int getFilterInteger(string filterHtmlName, int defaultValue);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Get a string filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterDate().
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public abstract DateTime getFilterDate(string filterHtmlName, DateTime defaultValue);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Add a filter to the current filter group
         /// </summary>
         /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
+        /// <param name="filterHtmlName"></param>
         /// <param name="htmlValue"></param>
         /// <param name="selected"></param>
-        public abstract void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected);
+        public abstract void addFilterCheckbox(string caption, string filterHtmlName, string htmlValue, bool selected);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group.
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="filterHtmlName">The name attribute of the html radio element.</param>
+        /// <param name="filterValue"></param>
+        /// <param name="filterSelected"></param>
+        public abstract void addFilterRadio(string caption, string filterHtmlName, string filterValue, bool filterSelected);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add a filter to the current filter group
         /// </summary>
         /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
-        /// <param name="htmlValue"></param>
-        /// <param name="selected"></param>
-        public abstract void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected);
+        /// <param name="filterHtmlName"></param>
+        /// <param name="filterValue"></param>
+        public abstract void addFilterTextInput(string caption, string filterHtmlName, string filterValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add a filter to the current filter group
         /// </summary>
         /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
-        /// <param name="htmlValue"></param>
-        public abstract void addFilterTextInput(string caption, string htmlName, string htmlValue);
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Add a filter to the current filter group
-        /// </summary>
-        /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
-        /// <param name="htmlDateValue"></param>
-        public abstract void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue);
+        /// <param name="filterHtmlName"></param>
+        /// <param name="filterValue"></param>
+        public abstract void addFilterDateInput(string caption, string filterHtmlName, DateTime? filterValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add a filter to the current filter group. This is a select input with a list of options.
         /// </summary>
         /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
+        /// <param name="filterHtmlName"></param>
         /// <param name="options"></param>
-        public abstract void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options);
+        public abstract void addFilterSelect(string caption, string filterHtmlName, List<NameValueSelected> options);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add a filter to the current filter group. This is a select input built from the data in a table.
         /// </summary>
         /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
-        /// <param name="htmlValue"></param>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="filterValue"></param>
         /// <param name="content"></param>
         /// <param name="sqlCriteria"></param>
-        public abstract void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria);
+        public abstract void addFilterSelectContent(string caption, string filterHtmlName, int filterValue, string content, string sqlCriteria);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add a filter to the current filter group. This is a select input built from the data in a table. 
         /// </summary>
         /// <param name="caption"></param>
-        /// <param name="htmlName"></param>
-        /// <param name="htmlValue"></param>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="filterValue"></param>
         /// <param name="content">The name of the content (table metadata)</param>
         /// <param name="sqlCriteria"></param>
         /// <param name="nonCaption">If provided, an entry will be added allowing the user to select no option</param>
-        public abstract void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption);
+        public abstract void addFilterSelectContent(string caption, string filterHtmlName, int filterValue, string content, string sqlCriteria, string nonCaption);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

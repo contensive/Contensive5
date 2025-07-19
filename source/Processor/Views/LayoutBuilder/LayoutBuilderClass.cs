@@ -226,7 +226,71 @@ namespace Contensive.Processor.LayoutBuilder {
             });
             includeFilter = true;
         }
-
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Read a checkbox filter back
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override bool getFilterBoolean(string filterHtmlName, bool defaultValue) {
+            if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
+                cp.Visit.SetProperty(filterHtmlName, false);
+                return false;
+            }
+            bool visitResult = cp.Visit.GetBoolean(filterHtmlName, defaultValue);
+            if(!cp.Doc.IsProperty(filterHtmlName)) {  return visitResult; }
+            bool result = cp.Doc.GetBoolean(filterHtmlName, defaultValue);
+            cp.Visit.SetProperty(filterHtmlName, result);
+            return result;
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override string getFilterText(string filterHtmlName, string defaultValue) {
+            if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
+                cp.Visit.SetProperty(filterHtmlName, false);
+                return defaultValue;
+            }
+            string visitResult = cp.Visit.GetText(filterHtmlName, defaultValue);
+            if (!cp.Doc.IsProperty(filterHtmlName)) { return visitResult; }
+            string result = cp.Doc.GetText(filterHtmlName, defaultValue);
+            cp.Visit.SetProperty(filterHtmlName, result);
+            return result;
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override int getFilterInteger(string filterHtmlName, int defaultValue) {
+            if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
+                cp.Visit.SetProperty(filterHtmlName, false);
+                return defaultValue;
+            }
+            int visitResult = cp.Visit.GetInteger(filterHtmlName, defaultValue);
+            if (!cp.Doc.IsProperty(filterHtmlName)) { return visitResult; }
+            int result = cp.Doc.GetInteger(filterHtmlName, defaultValue);
+            cp.Visit.SetProperty(filterHtmlName, result);
+            return result;
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override DateTime getFilterDate(string filterHtmlName, DateTime defaultValue) {
+            if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
+                cp.Visit.SetProperty(filterHtmlName, false);
+                return defaultValue;
+            }
+            DateTime visitResult = cp.Visit.GetDate(filterHtmlName, defaultValue);
+            if (!cp.Doc.IsProperty(filterHtmlName)) { return visitResult; }
+            DateTime result = cp.Doc.GetDate(filterHtmlName, defaultValue);
+            cp.Visit.SetProperty(filterHtmlName, result);
+            return result;
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
@@ -239,8 +303,15 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = htmlValue
             });
+            if(selected) {
+                //
+                // -- filter is selected, add the remove-filter button
+                addActiveFilter(caption, "removeFilter", htmlName);
+            }
         }
-
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
@@ -254,7 +325,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 value = htmlValue
             });
         }
-
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override void addFilterTextInput(string caption, string htmlName, string htmlValue) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
@@ -267,7 +340,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 value = htmlValue
             });
         }
-
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
@@ -280,7 +355,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 value = (htmlDateValue ?? DateTime.MinValue).Equals(DateTime.MinValue) ? "" : htmlDateValue.Value.ToString("yyyy-MM-dd")
             });
         }
-
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
@@ -503,6 +580,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
         }
+
         //
         [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)]
         public override string refreshQueryString { get; set; }
