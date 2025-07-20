@@ -182,17 +182,17 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public override bool getFilterBoolean(string filterHtmlName, bool defaultValue) {
-            return layoutBuilderBase.getFilterBoolean(filterHtmlName, defaultValue);
+        public override bool getFilterBoolean(string filterHtmlName, string viewName) {
+            return layoutBuilderBase.getFilterBoolean(filterHtmlName, viewName);
         }
-        public override int getFilterInteger(string filterHtmlName, int defaultValue) {
-            return layoutBuilderBase.getFilterInteger(filterHtmlName, defaultValue);
+        public override int getFilterInteger(string filterHtmlName, string viewName) {
+            return layoutBuilderBase.getFilterInteger(filterHtmlName, viewName);
         }
-        public override string getFilterText(string filterHtmlName, string defaultValue) {
-            return layoutBuilderBase.getFilterText(filterHtmlName, defaultValue);
+        public override string getFilterText(string filterHtmlName, string viewName) {
+            return layoutBuilderBase.getFilterText(filterHtmlName, viewName);
         }
-        public override DateTime getFilterDate(string filterHtmlName, DateTime defaultValue) {
-            return layoutBuilderBase.getFilterDate(filterHtmlName, defaultValue);
+        public override DateTime? getFilterDate(string filterHtmlName, string viewName) {
+            return layoutBuilderBase.getFilterDate(filterHtmlName, viewName);
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -321,7 +321,7 @@ namespace Contensive.Processor.LayoutBuilder {
             get {
                 if (_paginationPageSize != null) { return (int)_paginationPageSize; }
                 _paginationPageSize = paginationPageSizeDefault;
-                if (_paginationPageSize==0) { _paginationPageSize = 9999999; }
+                if (_paginationPageSize == 0) { _paginationPageSize = 9999999; }
                 return (int)_paginationPageSize;
             }
         }
@@ -414,7 +414,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 if (renderData.allowPagination) {
                     _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
                 }
-                if (addCsvDownloadCurrentPage ) {
+                if (addCsvDownloadCurrentPage) {
                     addFormButton(Constants.ButtonRequestDownload);
                 }
                 //
@@ -1038,7 +1038,8 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         // ----------------------------------------------------------------------------------------------------
-        [Obsolete("Deprecated. use warningMessage.",false)] public override string warning {
+        [Obsolete("Deprecated. use warningMessage.", false)]
+        public override string warning {
             get {
                 return layoutBuilderBase.warningMessage;
             }
@@ -1350,7 +1351,8 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string formActionQueryString { get; set; }
         //
-        [Obsolete("Deprecated. Use includeform to block the form tag.", false)] public override bool blockFormTag {
+        [Obsolete("Deprecated. Use includeform to block the form tag.", false)]
+        public override bool blockFormTag {
             get {
                 return !layoutBuilderBase.includeForm;
             }
@@ -1359,7 +1361,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        [Obsolete("Deprecated. No longer needed.", false)] 
+        [Obsolete("Deprecated. No longer needed.", false)]
         public override string refreshQueryString { get; set; }
         //
         [Obsolete("Deprecated. Use CP.AdminUI.getPortalFeatureLink()", false)]

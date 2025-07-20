@@ -6,7 +6,7 @@ using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Windows.Controls.Primitives;
+using System.Runtime.CompilerServices;
 
 namespace Contensive.Processor.LayoutBuilder {
     /// <summary>
@@ -28,7 +28,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public bool includeFilter { get; set; } = false;
         //
-        public List<LayoutBuilder_ActiveFilter> activeFilters { get; set; } = [];   
+        public List<LayoutBuilder_ActiveFilter> activeFilters { get; set; } = [];
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -235,58 +235,70 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override bool getFilterBoolean(string filterHtmlName, bool defaultValue) {
+        public override bool getFilterBoolean(string filterHtmlName, string viewName) {
+            string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
                 cp.Visit.SetProperty(filterHtmlName, false);
                 return false;
             }
-            bool visitResult = cp.Visit.GetBoolean(filterHtmlName, defaultValue);
-            if(!cp.Doc.IsProperty(filterHtmlName)) {  return visitResult; }
-            bool result = cp.Doc.GetBoolean(filterHtmlName, defaultValue);
+            bool visitResult = cp.Visit.GetBoolean(filterHtmlName);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
+                return visitResult; 
+            }
+            bool result = cp.Doc.GetBoolean(filterHtmlName);
             cp.Visit.SetProperty(filterHtmlName, result);
             return result;
         }
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public override string getFilterText(string filterHtmlName, string defaultValue) {
+        public override string getFilterText(string filterHtmlName, string viewName) {
+            string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(filterHtmlName, false);
-                return defaultValue;
+                cp.Visit.SetProperty(propertyName, false);
+                return "";
             }
-            string visitResult = cp.Visit.GetText(filterHtmlName, defaultValue);
-            if (!cp.Doc.IsProperty(filterHtmlName)) { return visitResult; }
-            string result = cp.Doc.GetText(filterHtmlName, defaultValue);
-            cp.Visit.SetProperty(filterHtmlName, result);
+            string visitResult = cp.Visit.GetText(propertyName);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
+                return visitResult; 
+            }
+            string result = cp.Doc.GetText(filterHtmlName);
+            cp.Visit.SetProperty(propertyName, result);
             return result;
         }
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public override int getFilterInteger(string filterHtmlName, int defaultValue) {
+        public override int getFilterInteger(string filterHtmlName, string viewName) {
+            string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(filterHtmlName, false);
-                return defaultValue;
+                cp.Visit.SetProperty(propertyName, false);
+                return 0;
             }
-            int visitResult = cp.Visit.GetInteger(filterHtmlName, defaultValue);
-            if (!cp.Doc.IsProperty(filterHtmlName)) { return visitResult; }
-            int result = cp.Doc.GetInteger(filterHtmlName, defaultValue);
-            cp.Visit.SetProperty(filterHtmlName, result);
+            int visitResult = cp.Visit.GetInteger(propertyName);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
+                return visitResult; 
+            }
+            int result = cp.Doc.GetInteger(filterHtmlName);
+            cp.Visit.SetProperty(propertyName, result);
             return result;
         }
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public override DateTime getFilterDate(string filterHtmlName, DateTime defaultValue) {
+        public override DateTime? getFilterDate(string filterHtmlName, string viewName) {
+            string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(filterHtmlName, false);
-                return defaultValue;
+                cp.Visit.SetProperty(propertyName, false);
+                return null;
             }
-            DateTime visitResult = cp.Visit.GetDate(filterHtmlName, defaultValue);
-            if (!cp.Doc.IsProperty(filterHtmlName)) { return visitResult; }
-            DateTime result = cp.Doc.GetDate(filterHtmlName, defaultValue);
-            cp.Visit.SetProperty(filterHtmlName, result);
-            return result;
+            DateTime? visitResult = cp.Visit.GetDate(propertyName);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
+                return visitResult == DateTime.MinValue ? null : visitResult; 
+            }
+            DateTime? result = cp.Doc.GetDate(filterHtmlName);
+            cp.Visit.SetProperty(propertyName, result ?? DateTime.MinValue);
+            return result == DateTime.MinValue ? null : result;
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -303,11 +315,15 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = htmlValue
             });
-            if(selected) {
+            if (selected) {
                 //
                 // -- filter is selected, add the remove-filter button
                 addActiveFilter(caption, "removeFilter", htmlName);
             }
+            //
+            // -- add hidden that can be detected in submitted form if checkbox is not selected
+            // -- when an unchecked checkbox is submitted, it is not detected by isProperty(). 
+            addFormHidden($"{htmlName}-checkbox", "1");
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -324,6 +340,11 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = htmlValue
             });
+            if (selected) {
+                //
+                // -- filter is selected, add the remove-filter button
+                addActiveFilter(caption, "removeFilter", htmlName);
+            }
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -339,6 +360,11 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = htmlValue
             });
+            if (!string.IsNullOrEmpty(htmlValue)) {
+                //
+                // -- filter is selected, add the remove-filter button
+                addActiveFilter(caption, "removeFilter", htmlName);
+            }
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -354,6 +380,11 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = (htmlDateValue ?? DateTime.MinValue).Equals(DateTime.MinValue) ? "" : htmlDateValue.Value.ToString("yyyy-MM-dd")
             });
+            if (htmlDateValue != null) {
+                //
+                // -- filter is selected, add the remove-filter button
+                addActiveFilter(caption, "removeFilter", htmlName);
+            }
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -368,18 +399,24 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 filterSelectOptions = options
             });
+            NameValueSelected selectedOption = options.Find((x) => x.selected);
+            if(selectedOption!=null && !string.IsNullOrEmpty(selectedOption.value)) {
+                int maxLength = 20;
+                string selectedOptionName = selectedOption.name.Length <= maxLength ? selectedOption.name : selectedOption.name[..maxLength];
+                addActiveFilter($"{caption}:{selectedOptionName}", "removeFilter", htmlName);
+            }
         }
         //
         // ----------------------------------------------------------------------------------------------------
         //
         public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria, string nonCaption) {
+            string table = cp.Content.GetTable(content);
+            if (string.IsNullOrEmpty(table)) {
+                throw new Exception("LayoutBuilderClass.addFilterSelectContent: content not found: " + content);
+            }
             List<NameValueSelected> options = [];
             if (!string.IsNullOrEmpty(nonCaption)) {
-                options.Add(new NameValueSelected(cp.Utils.EncodeText(nonCaption), "", (htmlValue == 0)));
-            }
-            string table = cp.Content.GetTable(content);
-            if(string.IsNullOrEmpty(table)) {
-                throw new Exception("LayoutBuilderClass.addFilterSelectContent: content not found: " + content);
+                options.Add(new NameValueSelected(cp.Utils.EncodeText(nonCaption), "", false));
             }
             sqlCriteria = string.IsNullOrEmpty(sqlCriteria) ? "" : $"and({sqlCriteria})";
             using DataTable dt = cp.Db.ExecuteQuery($"select id,name from {table} where (active>0){sqlCriteria} order by name;");
@@ -389,7 +426,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 anyRowSelected = anyRowSelected || rowSelected;
                 options.Add(new NameValueSelected(cp.Utils.EncodeText(row["name"].ToString()), row["id"].ToString(), rowSelected));
             }
-            if(!anyRowSelected && string.IsNullOrEmpty(nonCaption)) {
+            if (options.Count == 0) {
                 options.Add(new NameValueSelected("No Options Available", "", false));
             }
             addFilterSelect(caption, htmlName, options);
