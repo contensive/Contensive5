@@ -238,15 +238,15 @@ namespace Contensive.Processor.LayoutBuilder {
         public override bool getFilterBoolean(string filterHtmlName, string viewName) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(filterHtmlName, false);
+                cp.Visit.SetProperty(propertyName, false);
                 return false;
             }
-            bool visitResult = cp.Visit.GetBoolean(filterHtmlName);
+            bool visitResult = cp.Visit.GetBoolean(propertyName);
             if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
                 return visitResult; 
             }
             bool result = cp.Doc.GetBoolean(filterHtmlName);
-            cp.Visit.SetProperty(filterHtmlName, result);
+            cp.Visit.SetProperty(propertyName, result);
             return result;
         }
         //
