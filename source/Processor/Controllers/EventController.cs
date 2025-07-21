@@ -44,7 +44,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- event found, check if there are addons to run
                     while (cs.ok()) {
-                        int addonid = cs.getInteger("addonid");
+                        int addonid = cs.getInteger("id");
                         if (addonid != 0) {
                             var addon = core.cacheRuntime.addonCache.create(addonid);
                             if (addon != null) {
