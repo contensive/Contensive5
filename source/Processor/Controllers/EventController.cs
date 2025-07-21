@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
                         left join ccAggregateFunctions a on a.id=c.addonid
                     where 
                         e.name={DbController.encodeSQLText(eventName)}
-                        and(a.id is not null)
+                        --and(a.id is not null)
                     order by 
                         a.id desc
                     ";
