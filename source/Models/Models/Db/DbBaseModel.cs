@@ -1269,7 +1269,8 @@ namespace Contensive.Models.Db {
         // 
         // ============================================================================================
         /// <summary>
-        /// Update the model 
+        /// Update the model with data from the current cp.Doc properties where the cp.Doc property name matches the model property name.
+        /// The cp.Doc properties are populated from the request Get and Post, server variables and can be written to by the application.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="model"></param>

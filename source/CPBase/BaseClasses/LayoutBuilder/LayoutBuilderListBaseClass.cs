@@ -149,7 +149,11 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public abstract void setCell(DateTime? content, DateTime? downloadContent);
         //
         // ----------------------------------------------------------------------------------------------------
-        //
+        /// <summary>
+        /// if true, the current page gets a download button.
+        /// When view_model.addCsvDownloadCurrentPage is set true, the user gets a popup saying a download is requested and to wait
+        /// The ajax call requests the download and when it is ready, the user gets the dowload.
+        /// </summary>
         public abstract bool addCsvDownloadCurrentPage { get; set; }
 
         //

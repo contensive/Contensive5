@@ -415,7 +415,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
                 }
                 if (addCsvDownloadCurrentPage) {
-                    addFormButton(Constants.ButtonRequestDownload);
+                    addFormButton(Constants.ButtonRequestDownload,Constants.RequestNameButton, "js-downloadButton");
                 }
                 //
                 // -- render the body of the list view

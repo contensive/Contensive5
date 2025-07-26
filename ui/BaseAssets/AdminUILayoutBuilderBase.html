@@ -916,14 +916,6 @@
 	</div>
 </div>
 <script>
-	
-	//document.addEventListener('DOMContentLoaded', function(event) {
-	//	console.log("AdminUILayoutBuilderBase, binding");
-	//	$('.afw').on('click','#js-afwApplyFilterButton',function(p){
-	//		console.log("js-afwApplyFilterButton, click");
-	//		submitAfwAjaxListForm();
-	//	});
-	//});	
 	// -- This html snippet is wrapped with a form tag
 	// -- this method submits an ajax call to the client-programs method (hidden in baseAjaxUrl)
 	// -- and stores the resulting html in the elementId argument
@@ -948,4 +940,34 @@
 			}
 		});
 	}
+	// -- if download button enabled, bind to alert, ajax post, and handle download
+	document.addEventListener('DOMContentLoaded', function(event) {
+		console.log("AdminUILayoutBuilderBase, binding");
+		$('.afw').on('click','#js-downloadButton',function(e){
+			e.preventDefault();
+			console.log("js-downloadButton, click");
+			$('#js-afwFormContent').block();
+			let baseAjaxUrl = "/LayoutBuilderCallback";
+			baseAjaxUrl += '?downloadRequest=1&'+$( "#js-afwFormContent" ).closest("form").serialize();
+			console.log(`LayoutBuilder Base, call ajax, baseAjaxUrl: ${baseAjaxUrl}`);
+			$.ajax({
+				url: baseAjaxUrl, 
+				success: function(result){
+					console.log(`LayoutBuilderCallback success`);
+					//
+					// -- success
+					//
+					$('#js-afwFormContent').unblock();
+					console.log(`LayoutBuilderCallback success, post unblock`);
+				},
+				error: function(result){
+					console.log(`LayoutBuilderCallback error`);
+					$('#js-afwFormContent').unblock();
+				}
+			});
+
+			alert("js-downloadButton, click");
+			return false;
+		});
+	});
 </script>
