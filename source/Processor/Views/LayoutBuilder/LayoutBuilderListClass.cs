@@ -42,6 +42,32 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// set to true to display the download button.
+        /// If the user clicks the download button, an ajax request is made that calls the client addon (must be set in .callbackAddonGuid).
+        /// For the LayoutBuilderList, pagination will be disabled and rows/columns should be set as they do in non-download cases.
+        /// Rows as .downloadable will be included in the resulting csv, which is returned in getHtml instead of the html form, which the ajax method then returns and is handled by the calling javscript.
+        /// </summary>
+        public override bool allowDownloadButton {
+            get {
+                return layoutBuilderBase.allowDownloadButton;
+            }
+            set {
+                layoutBuilderBase.allowDownloadButton = value;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// For this LayoutBuilderList implementation, requestDownload can be ignored. The creation of the download is handled by the getHtml() method.
+        /// </summary>
+        public override bool requestDownload {
+            get {
+                return layoutBuilderBase.requestDownload;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// tmp. convert to match -list pattern
         /// </summary>
         /// <param name="caption"></param>
@@ -320,6 +346,11 @@ namespace Contensive.Processor.LayoutBuilder {
         public override int paginationPageSize {
             get {
                 if (_paginationPageSize != null) { return (int)_paginationPageSize; }
+                if (cp.Request.GetBoolean("downloadRequest")) {
+                    // -- if download request, set page size to max
+                    _paginationPageSize = 9999999;
+                    return (int)_paginationPageSize;
+                }
                 _paginationPageSize = paginationPageSizeDefault;
                 if (_paginationPageSize == 0) { _paginationPageSize = 9999999; }
                 return (int)_paginationPageSize;
@@ -337,6 +368,10 @@ namespace Contensive.Processor.LayoutBuilder {
             get {
                 if (_paginationPageNumber != null) { return (int)_paginationPageNumber; }
                 if (cp == null) {
+                    _paginationPageNumber = 1;
+                    return (int)_paginationPageNumber;
+                }
+                if (cp.Request.GetBoolean("downloadRequest")) {
                     _paginationPageNumber = 1;
                     return (int)_paginationPageNumber;
                 }
@@ -371,9 +406,9 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// create csv download as form is build
+        /// Deprecated. See allowDownloadButton for download details
         /// </summary>
-        public override bool addCsvDownloadCurrentPage { get; set; } = false;
+        [Obsolete("Deprecated. See allowDownloadButton for download details.", false)] public override bool addCsvDownloadCurrentPage { get; set; } = false;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -401,6 +436,12 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml() {
             int hint = 0;
             try {
+                if (allowDownloadButton && requestDownload) {
+                    //
+                    // -- this is a download request, return the csv download
+                    return getCsvDownloadFilename();
+                }
+
                 //
                 // -- page navigation
                 RenderData renderData = new() {
@@ -414,9 +455,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 if (renderData.allowPagination) {
                     _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
                 }
-                if (addCsvDownloadCurrentPage) {
-                    addFormButton(Constants.ButtonRequestDownload,Constants.RequestNameButton, "js-downloadButton");
-                }
                 //
                 // -- render the body of the list view
                 string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);
@@ -425,6 +463,185 @@ namespace Contensive.Processor.LayoutBuilder {
                 return layoutBuilderBase.getHtml();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "hint [" + hint + "]");
+                throw;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// return the csv download filename
+        /// Built 
+        /// </summary>
+        /// <param name="renderData"></param>
+        /// <param name="bodyPagination"></param>
+        private string getCsvDownloadFilename() {
+            int hint = 0;
+            try {
+                int colPtrDownload;
+                StringBuilder tableHeader = new();
+                string csvDownloadContent = "";
+                if (captionIncluded) {
+                    //
+                    // -- build grid headers
+                    //tableHeader.Append("<thead><tr>");
+                    //for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
+                    //    if (columns[colPtr].visible) {
+                    //        string classAttribute = columns[colPtr].captionClass;
+                    //        if (classAttribute != "") {
+                    //            classAttribute = " class=\"" + classAttribute + "\"";
+                    //        }
+                    //        string content = columns[colPtr].caption;
+                    //        string sortField = columns[colPtr].name;
+                    //        if (content == "") {
+                    //            content = "&nbsp;";
+                    //        } else if (columns[colPtr].sortable) {
+                    //            content = $"<a class=\"columnSort\" data-columnSort=\"{sortField}\" href=\"#\">" + content + "</a>";
+                    //        }
+                    //        string styleAttribute = "";
+                    //        if (columns[colPtr].columnWidthPercent > 0) {
+                    //            styleAttribute = " style=\"width:" + columns[colPtr].columnWidthPercent.ToString() + "%;\"";
+                    //        }
+                    //        tableHeader.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
+                    //    }
+                    //}
+                    //tableHeader.Append("</tr></thead>");
+                    //
+                    // -- build download headers (might be different from display)
+                    colPtrDownload = 0;
+                    for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
+                        if (columns[colPtr].downloadable) {
+                            if (colPtrDownload == 0) {
+                                csvDownloadContent += "\"" + columns[colPtr].caption.Replace("\"", "\"\"") + "\"";
+                            } else {
+                                csvDownloadContent += ",\"" + columns[colPtr].caption.Replace("\"", "\"\"") + "\"";
+                            }
+                            colPtrDownload += 1;
+                        }
+                    }
+                }
+                hint = 30;
+                //
+                // body
+                //
+                //StringBuilder tableBodyRows = new();
+                //if (localIsEmptyReport) {
+                //    hint = 40;
+                //    tableBodyRows.Append(""
+                //        + "<tr>"
+                //        + "<td style=\"text-align:left\" colspan=\"" + (columnMax + 1) + "\">[empty]</td>"
+                //        + "</tr>");
+                //} else if (reportTooLong) {
+                //    //
+                //    // -- report is too long
+                //    string classAttribute = columns[0].cellClass;
+                //    if (classAttribute != "") {
+                //        classAttribute = " class=\"" + classAttribute + "\"";
+                //    }
+                //    tableBodyRows.Append(""
+                //        + "<tr>"
+                //        + "<td style=\"text-align:left\" " + classAttribute + " colspan=\"" + (columnMax + 1) + "\">There are too many rows in this report. Please consider filtering the data.</td>"
+                //        + "</tr>");
+                //} else 
+                {
+                    hint = 50;
+                    //
+                    // -- if ellipse needed, determine last visible column
+                    int colPtrLastVisible = -1;
+                    for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
+                        if (columns[colPtr].visible) {
+                            colPtrLastVisible = colPtr;
+                        }
+                    }
+                    //
+                    // -- output the grid
+                    for (int rowPtr = 0; rowPtr <= rowCnt; rowPtr++) {
+                        string row = "";
+                        colPtrDownload = 0;
+                        //int colVisibleCnt = 0;
+                        for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
+                            //if (columns[colPtr].visible) {
+                            //    colVisibleCnt++;
+                            //    string classAttribute2 = columns[colPtr].cellClass;
+                            //    if (!string.IsNullOrEmpty(classAttribute2)) {
+                            //        classAttribute2 = " class=\"" + classAttribute2 + "\"";
+                            //    }
+                            //    string cellContent = localReportCells[rowPtr, colPtr];
+                            //    if ((colPtrLastVisible == colPtr) && rowEllipseMenuDict.ContainsKey(rowPtr)) {
+                            //        //
+                            //        // -- add ellipse menu
+                            //        Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel ellipseMenu = new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel {
+                            //            menuId = rowPtr,
+                            //            content = cellContent,
+                            //            hasMenu = true,
+                            //            menuList = []
+                            //        };
+                            //        foreach (var menuItem in rowEllipseMenuDict[rowPtr]) {
+                            //            ellipseMenu.menuList.Add(new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel {
+                            //                menuName = menuItem.name,
+                            //                menuHref = menuItem.url
+                            //            });
+                            //        }
+                            //        cellContent = cp.Mustache.Render(Processor.Properties.Resources.ellipseMenu, ellipseMenu);
+                            //    }
+                            //    row += Constants.cr + "<td" + classAttribute2 + ">" + cellContent + "</td>";
+                            //}
+                            if (allowDownloadButton && requestDownload && !localExcludeRowFromDownload[rowPtr]) {
+                                if (columns[colPtr].downloadable) {
+                                    if (colPtrDownload == 0) {
+                                        csvDownloadContent += Environment.NewLine;
+                                    } else {
+                                        csvDownloadContent += ",";
+                                    }
+                                    if (!string.IsNullOrEmpty(localDownloadData[rowPtr, colPtr])) {
+                                        csvDownloadContent += "\"" + localDownloadData[rowPtr, colPtr].Replace("\"", "\"\"") + "\"";
+                                    }
+                                    colPtrDownload += 1;
+                                }
+                            }
+                        }
+                        //string classAttribute = localRowClasses[rowPtr];
+                        //if (rowPtr % 2 != 0) {
+                        //    classAttribute += " afwOdd";
+                        //}
+                        //if (classAttribute != "") {
+                        //    classAttribute = " class=\"" + classAttribute + "\"";
+                        //}
+                        //tableBodyRows.Append($"<tr {classAttribute}>{row}</tr>");
+                    }
+                }
+                string pathFilename="";
+                //
+                // todo implement cp.db.CreateCsv()
+                // 5.1 -- download
+                CPCSBaseClass csDownloads = cp.CSNew();
+                if (csDownloads.Insert("downloads")) {
+                    pathFilename = csDownloads.GetFilename("filename", "export.csv");
+                    cp.CdnFiles.Save(pathFilename, csvDownloadContent);
+                    csDownloads.SetField("name", "Download for [" + title + "], requested by [" + cp.User.Name + "]");
+                    csDownloads.SetField("requestedBy", cp.User.Id.ToString());
+                    csDownloads.SetField("filename", pathFilename);
+                    csDownloads.SetField("dateRequested", DateTime.Now.ToString());
+                    csDownloads.SetField("datecompleted", DateTime.Now.ToString());
+                    csDownloads.SetField("resultmessage", "Completed");
+                    csDownloads.Save();
+                }
+                csDownloads.Close();
+                return cp.Http.CdnFilePathPrefixAbsolute + pathFilename;
+                //hint = 70;
+                //string dataGrid = ""
+                //    + "<div id=\"afwListReportDataGrid\">"
+                //    + "<table class=\"afwListReportTable\">"
+                //    + tableHeader.ToString()
+                //    + "<tbody>"
+                //    + tableBodyRows.ToString()
+                //    + "</tbody>"
+                //    + "</table>"
+                //    + "</div>"
+                //    + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
+                //    + "";
+                //return dataGrid;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex, $"hint {hint}");
                 throw;
             }
         }
@@ -469,7 +686,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     tableHeader.Append("</tr></thead>");
                     //
                     // -- build download headers (might be different from display)
-                    if (addCsvDownloadCurrentPage) {
+                    if (allowDownloadButton && requestDownload) {
                         colPtrDownload = 0;
                         for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                             if (columns[colPtr].downloadable) {
@@ -548,7 +765,7 @@ namespace Contensive.Processor.LayoutBuilder {
                                 }
                                 row += Constants.cr + "<td" + classAttribute2 + ">" + cellContent + "</td>";
                             }
-                            if (addCsvDownloadCurrentPage && !localExcludeRowFromDownload[rowPtr]) {
+                            if (allowDownloadButton && requestDownload && !localExcludeRowFromDownload[rowPtr]) {
                                 if (columns[colPtr].downloadable) {
                                     if (colPtrDownload == 0) {
                                         csvDownloadContent += Environment.NewLine;
@@ -573,17 +790,17 @@ namespace Contensive.Processor.LayoutBuilder {
                     }
                 }
                 hint = 60;
-                if (addCsvDownloadCurrentPage) {
+                if (allowDownloadButton && requestDownload) {
                     //
                     // todo implement cp.db.CreateCsv()
                     // 5.1 -- download
                     CPCSBaseClass csDownloads = cp.CSNew();
                     if (csDownloads.Insert("downloads")) {
-                        csvDownloadFilename = csDownloads.GetFilename("filename", "export.csv");
-                        cp.CdnFiles.Save(csvDownloadFilename, csvDownloadContent);
+                        string pathFilename = csDownloads.GetFilename("filename", "export.csv");
+                        cp.CdnFiles.Save(pathFilename, csvDownloadContent);
                         csDownloads.SetField("name", "Download for [" + title + "], requested by [" + cp.User.Name + "]");
                         csDownloads.SetField("requestedBy", cp.User.Id.ToString());
-                        csDownloads.SetField("filename", csvDownloadFilename);
+                        csDownloads.SetField("filename", pathFilename);
                         csDownloads.SetField("dateRequested", DateTime.Now.ToString());
                         csDownloads.SetField("datecompleted", DateTime.Now.ToString());
                         csDownloads.SetField("resultmessage", "Completed");
@@ -1131,12 +1348,12 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
+        [Obsolete("Deprecated. To implement a download see allowDownloadButton.", false)]
         public override string csvDownloadFilename {
             get {
-                return layoutBuilderBase.csvDownloadFilename;
+                return "";
             }
             set {
-                layoutBuilderBase.csvDownloadFilename = value;
             }
         }
         //

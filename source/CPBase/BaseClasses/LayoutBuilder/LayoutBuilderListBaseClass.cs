@@ -5,9 +5,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// A tabular list of data rows with filters on the left.
     /// </summary>
-    public abstract class LayoutBuilderListBaseClass : LayoutBuilderBaseClass {
-        //
-        public LayoutBuilderListBaseClass(CPBaseClass cp) : base(cp) { }
+    public abstract class LayoutBuilderListBaseClass(CPBaseClass cp) : LayoutBuilderBaseClass(cp) {
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.
@@ -150,11 +148,9 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// if true, the current page gets a download button.
-        /// When view_model.addCsvDownloadCurrentPage is set true, the user gets a popup saying a download is requested and to wait
-        /// The ajax call requests the download and when it is ready, the user gets the dowload.
+        ///  See allowDownloadButton for download details.  
         /// </summary>
-        public abstract bool addCsvDownloadCurrentPage { get; set; }
+        [Obsolete("Deprecated. See allowDownloadButton for download details.", false)] public abstract bool addCsvDownloadCurrentPage { get; set; }
 
         //
         [Obsolete("Deprecated. Use addFormHidden()", false)]

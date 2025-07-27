@@ -796,7 +796,7 @@
 			<div class="border bg-white rounded-2 p-3 shadow-sm {{#tabContentBody}}tabCntBd{{/tabContentBody}}">
 				<div class="d-lg-flex justify-content-between align-items-center mb-3 border-bottom">
 					{{#title}}<h2 class="h4 m-0 pb-2">{{{title}}}</h2>{{/title}}
-					{{#buttonList}}<div class="ms-auto mb-2">{{{buttonList}}}</div>{{/buttonList}}	
+					{{#buttonList}}<div class="ms-auto mb-1">{{{buttonList}}}</div>{{/buttonList}}	
 				</div>
 				<div class="mb-3 ">
 					{{#successMessage}}<div class="p-3 mb-2 bg-success text-white my-2">{{{successMessage}}}</div>{{/successMessage}}
@@ -942,31 +942,28 @@
 	}
 	// -- if download button enabled, bind to alert, ajax post, and handle download
 	document.addEventListener('DOMContentLoaded', function(event) {
-		console.log("AdminUILayoutBuilderBase, binding");
 		$('.afw').on('click','#js-downloadButton',function(e){
 			e.preventDefault();
-			console.log("js-downloadButton, click");
 			$('#js-afwFormContent').block();
 			let baseAjaxUrl = "/LayoutBuilderCallback";
 			baseAjaxUrl += '?downloadRequest=1&'+$( "#js-afwFormContent" ).closest("form").serialize();
-			console.log(`LayoutBuilder Base, call ajax, baseAjaxUrl: ${baseAjaxUrl}`);
 			$.ajax({
 				url: baseAjaxUrl, 
-				success: function(result){
-					console.log(`LayoutBuilderCallback success`);
-					//
-					// -- success
-					//
+				success: function(downloadUrl){
 					$('#js-afwFormContent').unblock();
-					console.log(`LayoutBuilderCallback success, post unblock`);
+					const anchor = document.createElement('a');
+        			anchor.href = downloadUrl;
+        			anchor.download = 'data-export.csv';
+        			document.body.appendChild(anchor);
+        			anchor.click();
+        			document.body.removeChild(anchor);
+					//window.open(downloadUrl, '_blank');
 				},
 				error: function(result){
 					console.log(`LayoutBuilderCallback error`);
 					$('#js-afwFormContent').unblock();
 				}
 			});
-
-			alert("js-downloadButton, click");
 			return false;
 		});
 	});

@@ -23,6 +23,25 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// set to true to display the download button.
+        /// If the user clicks the download button, an ajax request is made that calls the client addon (must be set in .callbackAddonGuid).
+        /// For the LayoutBuilderList, pagination will be disabled and rows/columns should be set as they do in non-download cases.
+        /// Rows as .downloadable will be included in the resulting csv, which is returned in getHtml instead of the html form, which the ajax method then returns and is handled by the calling javscript.
+        /// </summary>
+        public override bool allowDownloadButton { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// For this LayoutBuilderList implementation, requestDownload can be ignored. The creation of the download is handled by the getHtml() method.
+        /// </summary>
+        public override bool requestDownload {
+            get {
+                return cp.Request.GetBoolean("downloadRequest");
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// if true, the layout will include a filter group. 
         /// This is used to determine if the layout should include a filter group or not.
         /// </summary>
@@ -113,9 +132,11 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// pathFilename of a file in cdnFiles.
+        /// If set, the [Request Download] 
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
-        public override string csvDownloadFilename { get; set; }
+        [Obsolete("Deprecated. To implement a download see allowDownloadButton.", false)] public override string csvDownloadFilename { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -171,6 +192,17 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <returns></returns>
         public override string getHtml() {
             //
+            // -- if download requested, return the csv download
+            if (allowDownloadButton && requestDownload) {
+                //cp.Doc.SetProperty("contentDisposition", "attachment; filename=\"" + csvDownloadFilename + "\"");
+                //cp.Doc.SetProperty("contentType", "text/csv");
+                //cp.Doc.SetProperty("contentEncoding", "utf-8");
+                return "Download error, this form supports download (allowDownloadButton is true), but requestDownload is set and the form did not return the data.";
+            }
+            if (allowDownloadButton) {
+                addFormButton(Constants.ButtonRequestDownload, Constants.RequestNameButton,"js-downloadButton");
+            }
+            //
             // add user errors
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
             if (!string.IsNullOrEmpty(userErrors)) {
@@ -190,7 +222,7 @@ namespace Contensive.Processor.LayoutBuilder {
             //
             // -- wrap with form
             if (includeForm) {
-                result = cp.Html.Form(result, "", "", "afwForm");
+                result = cp.Html.Form(result, "", "", $"afwForm");
             }
             //
             // -- set the optional title of the portal subnav
@@ -255,7 +287,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getFilterText(string filterHtmlName, string viewName) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(propertyName, false);
+                cp.Visit.SetProperty(propertyName, "");
                 return "";
             }
             string visitResult = cp.Visit.GetText(propertyName);
@@ -272,7 +304,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override int getFilterInteger(string filterHtmlName, string viewName) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(propertyName, false);
+                cp.Visit.SetProperty(propertyName, 0);
                 return 0;
             }
             int visitResult = cp.Visit.GetInteger(propertyName);
@@ -289,7 +321,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override DateTime? getFilterDate(string filterHtmlName, string viewName) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
-                cp.Visit.SetProperty(propertyName, false);
+                cp.Visit.SetProperty(propertyName, null);
                 return null;
             }
             DateTime? visitResult = cp.Visit.GetDate(propertyName);
@@ -368,7 +400,12 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         // ----------------------------------------------------------------------------------------------------
-        //
+        /// <summary>
+        /// add a filter if the input is not null and not DateTime.MinValue.
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlDateValue"></param>
         public override void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
@@ -380,10 +417,10 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = (htmlDateValue ?? DateTime.MinValue).Equals(DateTime.MinValue) ? "" : htmlDateValue.Value.ToString("yyyy-MM-dd")
             });
-            if (htmlDateValue != null) {
+            if (htmlDateValue != null && !htmlDateValue.Equals(DateTime.MinValue)) {
                 //
                 // -- filter is selected, add the remove-filter button
-                addActiveFilter(caption, "removeFilter", htmlName);
+                addActiveFilter($"{caption}:{((DateTime)htmlDateValue).ToShortDateString()}", "removeFilter", htmlName);
             }
         }
         //

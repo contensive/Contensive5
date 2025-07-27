@@ -7,16 +7,31 @@ using System.Linq;
 using System.Windows.Documents;
 
 namespace Contensive.Processor.LayoutBuilder {
-    public class LayoutBuilderTabbedBodyClass : LayoutBuilderTabbedBodyBaseClass {
+    public class LayoutBuilderTabbedBodyClass(CPBaseClass cp) : LayoutBuilderTabbedBodyBaseClass(cp) {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// used for pagination and export. Setter included to support older legacy code that used cp parameter in getHtml(cp).
         /// </summary>
-        private CPClass cp { get; set; }
+        private CPClass cp { get; set; } = (CPClass)cp;
         //
-        public LayoutBuilderTabbedBodyClass(CPBaseClass cp) : base(cp) {
-            this.cp = (CPClass)cp;
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// set to true to display the download button.
+        /// If the user clicks the download button, an ajax request is made that calls the client addon (must be set in .callbackAddonGuid).
+        /// For the LayoutBuilderList, pagination will be disabled and rows/columns should be set as they do in non-download cases.
+        /// Rows as .downloadable will be included in the resulting csv, which is returned in getHtml instead of the html form, which the ajax method then returns and is handled by the calling javscript.
+        /// </summary>
+        public override bool allowDownloadButton { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// For this LayoutBuilderList implementation, requestDownload can be ignored. The creation of the download is handled by the getHtml() method.
+        /// </summary>
+        public override bool requestDownload {
+            get {
+                return cp.Request.GetBoolean("downloadRequest");
+            }
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -222,7 +237,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
-        public override string csvDownloadFilename { get; set; }
+        [Obsolete("Deprecated, see allowDownloadButton for details.", false)] public override string csvDownloadFilename { get; set; }
         //
         /// <summary>
         /// message displayed as a warning message. Not an error, but an issue of some type
@@ -342,7 +357,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
                 buttonList = buttonList,
-                csvDownloadFilename = "",
                 description = description,
                 hiddenList = hiddenList,
                 includeForm = includeForm,
@@ -359,6 +373,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlAfterBody = htmlAfterBody,
                 portalSubNavTitle = portalSubNavTitle,
                 activeFilters = activeFilters,
+                allowDownloadButton = allowDownloadButton
             };
             return layoutBase.getHtml();
             //-------------copied from namevalue

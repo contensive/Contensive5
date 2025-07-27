@@ -6,9 +6,26 @@ using System;
 using System.Collections.Generic;
 
 namespace Contensive.Processor.LayoutBuilder {
-    public class LayoutBuilderTwoColumnLeft : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass {
+    public class LayoutBuilderTwoColumnLeft(CPBaseClass cp) : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass(cp) {
         //
-        public LayoutBuilderTwoColumnLeft(CPBaseClass cp) : base(cp) { }
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// set to true to display the download button.
+        /// If the user clicks the download button, an ajax request is made that calls the client addon (must be set in .callbackAddonGuid).
+        /// For the LayoutBuilderList, pagination will be disabled and rows/columns should be set as they do in non-download cases.
+        /// Rows as .downloadable will be included in the resulting csv, which is returned in getHtml instead of the html form, which the ajax method then returns and is handled by the calling javscript.
+        /// </summary>
+        public override bool allowDownloadButton { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// For this LayoutBuilderList implementation, requestDownload can be ignored. The creation of the download is handled by the getHtml() method.
+        /// </summary>
+        public override bool requestDownload {
+            get {
+                return cp.Request.GetBoolean("downloadRequest");
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -153,7 +170,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
-        public override string csvDownloadFilename { get; set; }
+        [Obsolete("Deprecated, see allowDownloadButton for details.", false)] public override string csvDownloadFilename { get; set; }
         // 
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -173,7 +190,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
                 buttonList = buttonList,
-                csvDownloadFilename = csvDownloadFilename,
                 description = description,
                 hiddenList = hiddenList,
                 includeForm = includeForm,
@@ -187,6 +203,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlBeforeBody = htmlBeforeBody,
                 htmlLeftOfBody = htmlLeftOfBody,
                 activeFilters = activeFilters,
+                allowDownloadButton = allowDownloadButton
             };
             string result = layoutBase.getHtml();
             //

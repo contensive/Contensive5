@@ -63,8 +63,6 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                     //
                     // -- set the csv download filename creates a link at the top of the form for a download
                     // -- ?? how does this get populated
-                    layoutBuilder.csvDownloadFilename = "SampleLayoutBuilder.csv";
-                    cp.CdnFiles.Save(layoutBuilder.csvDownloadFilename, "a,b,c,d,e\n1,2,3,4,5");
                 }  else if (button == buttonWarn) {
                     //
                     // -- Warn example

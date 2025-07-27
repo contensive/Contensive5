@@ -243,9 +243,16 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// A virtual filename to a download of the report data. Leave blank to prevent download file
+        /// set to true to display the download button.
+        /// If the user clicks the download button, an ajax request is made that sets LayoutBuilder.requestDownload true and calls the derived class (your code that inherits this class). The addon that calls the layoutbulder should detect requestDownload. If false, return the normal form. If true return the download data instead of the html for the addon.
         /// </summary>
-        public abstract string csvDownloadFilename { get; set; }
+        public abstract bool allowDownloadButton { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// if the addon sets allowDownloadButton true, then it should monitor this property and return the download data if true.
+        /// </summary>
+        public abstract bool requestDownload { get; }
         // 
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -413,43 +420,42 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
 
-        public enum AfwStyles {
-            afwWidth10,
-            afwWidth20,
-            afwWidth30,
-            afwWidth40,
-            afwWidth50,
-            afwWidth60,
-            afwWidth70,
-            afwWidth80,
-            afwWidth90,
-            afwWidth100,
+        public static class AfwStyles {
+            public const string afwWidth10 = "afwWidth10 ";
+            public const string afwWidth20 = "afwWidth20 ";
+            public const string afwWidth30 = "afwWidth30 ";
+            public const string afwWidth40 = "afwWidth40 ";
+            public const string afwWidth50 = "afwWidth50 ";
+            public const string afwWidth60 = "afwWidth60 ";
+            public const string afwWidth70 = "afwWidth70 ";
+            public const string afwWidth80 = "afwWidth80 ";
+            public const string afwWidth90 = "afwWidth90 ";
+            public const string afwWidth100 = "afwWidth100 ";
             //
-            afwWidth10px,
-            afwWidth20px,
-            afwWidth30px,
-            afwWidth40px,
-            afwWidth50px,
-            afwWidth60px,
-            afwWidth70px,
-            afwWidth80px,
-            afwWidth90px,
+            public const string afwWidth10px = "afwWidth10px ";
+            public const string afwWidth20px = "afwWidth20px ";
+            public const string afwWidth30px = "afwWidth30px ";
+            public const string afwWidth40px = "afwWidth40px ";
+            public const string afwWidth50px = "afwWidth50px ";
+            public const string afwWidth60px = "afwWidth60px ";
+            public const string afwWidth70px = "afwWidth70px ";
+            public const string afwWidth80px = "afwWidth80px ";
+            public const string afwWidth90px = "afwWidth90px ";
+            public const string afwWidth100px = "afwWidth100px ";
+            public const string afwWidth200px = "afwWidth200px ";
+            public const string afwWidth300px = "afwWidth300px ";
+            public const string afwWidth400px = "afwWidth400px ";
+            public const string afwWidth500px = "afwWidth500px ";
             //
-            afwWidth100px,
-            afwWidth200px,
-            afwWidth300px,
-            afwWidth400px,
-            afwWidth500px,
+            public const string afwMarginLeft100px = "afwMarginLeft100px ";
+            public const string afwMarginLeft200px = "afwMarginLeft200px ";
+            public const string afwMarginLeft300px = "afwMarginLeft300px ";
+            public const string afwMarginLeft400px = "afwMarginLeft400px ";
+            public const string afwMarginLeft500px = "afwMarginLeft500px ";
             //
-            afwMarginLeft100px,
-            afwMarginLeft200px,
-            afwMarginLeft300px,
-            afwMarginLeft400px,
-            afwMarginLeft500px,
-            //
-            afwTextAlignRight,
-            afwTextAlignLeft,
-            afwTextAlignCenter
+            public const string afwTextAlignRight = "afwTextAlignRight ";
+            public const string afwTextAlignLeft = "afwTextAlignLeft ";
+            public const string afwTextAlignCenter = "afwTextAlignCenter ";
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -512,8 +518,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// LayoutBuilder layouts require html page redraw with an ajax method. 
         /// Set this to the url of the ajax method that returns the html for the form.
         /// </summary>
-        [Obsolete("Deprecated. use callbackAddonGuid", false)] public abstract string baseAjaxUrl { get; set; }
-
+        [Obsolete("Deprecated. For the system to call this addon during an ajax filter instead set callbackAddonGuid to the guid of the addon.", false)] public abstract string baseAjaxUrl { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// A virtual filename to a download of the report data. Leave blank to prevent download file
+        /// </summary>
+        [Obsolete("Deprecated. To create a download set .allowDownloadButton=true. Then monitor .downloadRequest and if tue return the download data. If downloadRequest is false, call getHtml().", false)] public abstract string csvDownloadFilename { get; set; }
     }
     //
     // ----------------------------------------------------------------------------------------------------

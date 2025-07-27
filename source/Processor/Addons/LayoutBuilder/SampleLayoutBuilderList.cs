@@ -3,6 +3,7 @@ using System;
 using System.Data;
 using System.Reflection;
 using System.Text;
+using static Contensive.BaseClasses.LayoutBuilder.LayoutBuilderBaseClass;
 //
 namespace Contensive.Processor.Addons.LayoutBuilder {
     /// <summary>
@@ -33,8 +34,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 layoutBuilder.description = "Description added before body created.";
                 layoutBuilder.callbackAddonGuid = "{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}";
                 layoutBuilder.portalSubNavTitle = "";
-                layoutBuilder.csvDownloadFilename = "CSVDownloadFile.csv";
-                layoutBuilder.addCsvDownloadCurrentPage = true;
+                layoutBuilder.allowDownloadButton = true;
                 layoutBuilder.includeBodyColor = true;
                 layoutBuilder.includeBodyPadding = true;
                 layoutBuilder.includeForm = true;
@@ -48,6 +48,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 layoutBuilder.successMessage = "";
                 layoutBuilder.warningMessage = "";
                 layoutBuilder.failMessage = "";
+                layoutBuilder.allowDownloadButton = true;
                 ////
                 //// -- validate arguments
                 //int personId = cp.Doc.GetInteger("personId");
@@ -74,8 +75,6 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                     //
                     // -- set the csv download filename creates a link at the top of the form for a download
                     // -- ?? how does this get populated
-                    layoutBuilder.csvDownloadFilename = "SampleLayoutBuilder.csv";
-                    cp.CdnFiles.Save(layoutBuilder.csvDownloadFilename, "a,b,c,d,e\n1,2,3,4,5");
                 } else if (button == buttonWarn) {
                     //
                     // -- Warn example
@@ -93,23 +92,35 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 cp.Doc.AddRefreshQueryString("someValueId", 10);
                 // 
                 layoutBuilder.columnCaption = "<input type=\"CheckBox\" name=\"abNotesRowHead\" value=\"0\" id=\"abSelectNotesAllNone\">";
-                layoutBuilder.columnCaptionClass = "afwWidth20px";
-                layoutBuilder.columnCellClass = "afwWidth20px";
-                // 
-                layoutBuilder.addColumn();
-                layoutBuilder.columnCaption = "Date Added";
-                layoutBuilder.columnCaptionClass = "afwWidth200px";
-                layoutBuilder.columnCellClass = "afwWidth200px";
+                layoutBuilder.columnCaptionClass = $"{AfwStyles.afwWidth20px} {AfwStyles.afwTextAlignCenter}";
+                layoutBuilder.columnCellClass = $"{AfwStyles.afwWidth20px} {AfwStyles.afwTextAlignCenter}";
+                layoutBuilder.columnDownloadable = false;
+                layoutBuilder.columnVisible = true;
+                layoutBuilder.columnSortable = false;
                 // 
                 layoutBuilder.addColumn();
                 layoutBuilder.columnCaption = "ID";
-                layoutBuilder.columnCaptionClass = "afwWidth200px";
-                layoutBuilder.columnCellClass = "afwWidth200px";
+                layoutBuilder.columnCaptionClass = $"{AfwStyles.afwWidth100px} {AfwStyles.afwTextAlignCenter}";
+                layoutBuilder.columnCellClass = $"{AfwStyles.afwWidth100px} {AfwStyles.afwTextAlignCenter}";
+                layoutBuilder.columnDownloadable = true;
+                layoutBuilder.columnVisible = true;
+                layoutBuilder.columnSortable = true;
+                // 
+                layoutBuilder.addColumn();
+                layoutBuilder.columnCaption = "Date Added";
+                layoutBuilder.columnCaptionClass = $"{AfwStyles.afwWidth200px} {AfwStyles.afwTextAlignCenter}";
+                layoutBuilder.columnCellClass = $"{AfwStyles.afwWidth200px} {AfwStyles.afwTextAlignLeft}";
+                layoutBuilder.columnDownloadable = true;
+                layoutBuilder.columnVisible = true;
+                layoutBuilder.columnSortable = true;
                 // 
                 layoutBuilder.addColumn();
                 layoutBuilder.columnCaption = "Name";
-                layoutBuilder.columnCaptionClass = "";
-                layoutBuilder.columnCellClass = "";
+                layoutBuilder.columnCaptionClass = $"{AfwStyles.afwTextAlignLeft}";
+                layoutBuilder.columnCellClass = $"{AfwStyles.afwTextAlignLeft}";
+                layoutBuilder.columnDownloadable = true;
+                layoutBuilder.columnVisible = true;
+                layoutBuilder.columnSortable = true;
                 //
                 // -- sql where clause
                 string sqlWhere = $"(1=1)";
@@ -125,7 +136,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 }
                 //
                 // -- sql for the page of data
-                string sql = $"select id,name from ccmembers where {sqlWhere}";
+                string sql = $"select id,dateAdded,name from ccmembers where {sqlWhere}";
                 //
                 // -- sort
                 sql += string.IsNullOrEmpty(layoutBuilder.sqlOrderBy) ? " order by name" : $" order by {layoutBuilder.sqlOrderBy}";
@@ -143,6 +154,8 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                             layoutBuilder.setCell(cp.Html.CheckBox("abNotesRow" + rowPtr).Replace(">", " class=\"abSelectNoteCheckbox\">") + cp.Html5.Hidden("abNotesRowId" + rowPtr, cp.Utils.EncodeInteger(row["id"]).ToString()));
                             // 
                             layoutBuilder.setCell(cp.Utils.EncodeInteger(row["id"]));
+                            // 
+                            layoutBuilder.setCell(cp.Utils.EncodeDate(row["dateAdded"]));
                             // 
                             layoutBuilder.setCell(cp.Utils.EncodeText(row["name"]));
                             //

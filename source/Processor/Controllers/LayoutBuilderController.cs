@@ -50,7 +50,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="htmlClass"></param>
         /// <returns></returns>
         public static string a(string buttonCaption, string link, string htmlId, string htmlClass) {
-            return "<a href=\"" + link + "\" id=\"" + htmlId + "\" class=\"btn btn-primary mr-1 me-1 btn-sm " + htmlClass + "\">" + buttonCaption + "</a>";
+            return "<a href=\"" + link + "\" id=\"" + htmlId + "\" class=\"btn btn-primary mr-1 me-1 mb-1 btn-sm " + htmlClass + "\">" + buttonCaption + "</a>";
         }
         //
         /// <summary>
@@ -63,7 +63,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getButton(string buttonName, string buttonValue, string buttonId, string buttonClass) {
             //afwButton 
-            return "<input type=\"submit\" name=\"" + buttonName + "\" value=\"" + buttonValue + "\" id=\"" + buttonId + "\" class=\"btn btn-primary mr-1 me-1 btn-sm " + buttonClass + "\">";
+            return "<input type=\"submit\" name=\"" + buttonName + "\" value=\"" + buttonValue + "\" id=\"" + buttonId + "\" class=\"btn btn-primary mr-1 me-1 mb-1 btn-sm " + buttonClass + "\">";
         }
         //
         public static string getButtonBar(List<string> buttons) {
