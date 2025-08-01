@@ -6,7 +6,9 @@ using Contensive.Processor.Controllers;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO.Packaging;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Contensive.Processor.LayoutBuilder {
     /// <summary>
@@ -475,75 +477,23 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="renderData"></param>
         /// <param name="bodyPagination"></param>
         private string getCsvDownloadFilename() {
-            int hint = 0;
+            int hint = 10;
             try {
-                int colPtrDownload;
-                StringBuilder tableHeader = new();
-                string csvDownloadContent = "";
+                StringBuilder csvDownloadContent = new();
                 if (captionIncluded) {
                     //
-                    // -- build grid headers
-                    //tableHeader.Append("<thead><tr>");
-                    //for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
-                    //    if (columns[colPtr].visible) {
-                    //        string classAttribute = columns[colPtr].captionClass;
-                    //        if (classAttribute != "") {
-                    //            classAttribute = " class=\"" + classAttribute + "\"";
-                    //        }
-                    //        string content = columns[colPtr].caption;
-                    //        string sortField = columns[colPtr].name;
-                    //        if (content == "") {
-                    //            content = "&nbsp;";
-                    //        } else if (columns[colPtr].sortable) {
-                    //            content = $"<a class=\"columnSort\" data-columnSort=\"{sortField}\" href=\"#\">" + content + "</a>";
-                    //        }
-                    //        string styleAttribute = "";
-                    //        if (columns[colPtr].columnWidthPercent > 0) {
-                    //            styleAttribute = " style=\"width:" + columns[colPtr].columnWidthPercent.ToString() + "%;\"";
-                    //        }
-                    //        tableHeader.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
-                    //    }
-                    //}
-                    //tableHeader.Append("</tr></thead>");
-                    //
                     // -- build download headers (might be different from display)
-                    colPtrDownload = 0;
+                    int colPtrDownload = 0;
                     for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                         if (columns[colPtr].downloadable) {
-                            if (colPtrDownload == 0) {
-                                csvDownloadContent += "\"" + columns[colPtr].caption.Replace("\"", "\"\"") + "\"";
-                            } else {
-                                csvDownloadContent += ",\"" + columns[colPtr].caption.Replace("\"", "\"\"") + "\"";
-                            }
+                            csvDownloadContent.Append(colPtrDownload == 0 ? "" : ",");
+                            csvDownloadContent.Append(getCsvField(csvDownloadContent.ToString(), columns[colPtr].caption));
                             colPtrDownload += 1;
                         }
                     }
                 }
-                hint = 30;
-                //
-                // body
-                //
-                //StringBuilder tableBodyRows = new();
-                //if (localIsEmptyReport) {
-                //    hint = 40;
-                //    tableBodyRows.Append(""
-                //        + "<tr>"
-                //        + "<td style=\"text-align:left\" colspan=\"" + (columnMax + 1) + "\">[empty]</td>"
-                //        + "</tr>");
-                //} else if (reportTooLong) {
-                //    //
-                //    // -- report is too long
-                //    string classAttribute = columns[0].cellClass;
-                //    if (classAttribute != "") {
-                //        classAttribute = " class=\"" + classAttribute + "\"";
-                //    }
-                //    tableBodyRows.Append(""
-                //        + "<tr>"
-                //        + "<td style=\"text-align:left\" " + classAttribute + " colspan=\"" + (columnMax + 1) + "\">There are too many rows in this report. Please consider filtering the data.</td>"
-                //        + "</tr>");
-                //} else 
+                hint = 20;
                 {
-                    hint = 50;
                     //
                     // -- if ellipse needed, determine last visible column
                     int colPtrLastVisible = -1;
@@ -553,70 +503,26 @@ namespace Contensive.Processor.LayoutBuilder {
                         }
                     }
                     //
-                    // -- output the grid
+                    // -- output the csv data rows
                     for (int rowPtr = 0; rowPtr <= rowCnt; rowPtr++) {
-                        string row = "";
-                        colPtrDownload = 0;
-                        //int colVisibleCnt = 0;
-                        for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
-                            //if (columns[colPtr].visible) {
-                            //    colVisibleCnt++;
-                            //    string classAttribute2 = columns[colPtr].cellClass;
-                            //    if (!string.IsNullOrEmpty(classAttribute2)) {
-                            //        classAttribute2 = " class=\"" + classAttribute2 + "\"";
-                            //    }
-                            //    string cellContent = localReportCells[rowPtr, colPtr];
-                            //    if ((colPtrLastVisible == colPtr) && rowEllipseMenuDict.ContainsKey(rowPtr)) {
-                            //        //
-                            //        // -- add ellipse menu
-                            //        Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel ellipseMenu = new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel {
-                            //            menuId = rowPtr,
-                            //            content = cellContent,
-                            //            hasMenu = true,
-                            //            menuList = []
-                            //        };
-                            //        foreach (var menuItem in rowEllipseMenuDict[rowPtr]) {
-                            //            ellipseMenu.menuList.Add(new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel {
-                            //                menuName = menuItem.name,
-                            //                menuHref = menuItem.url
-                            //            });
-                            //        }
-                            //        cellContent = cp.Mustache.Render(Processor.Properties.Resources.ellipseMenu, ellipseMenu);
-                            //    }
-                            //    row += Constants.cr + "<td" + classAttribute2 + ">" + cellContent + "</td>";
-                            //}
-                            if (allowDownloadButton && requestDownload && !localExcludeRowFromDownload[rowPtr]) {
+                        if (!localExcludeRowFromDownload[rowPtr]) {
+                            int colPtrDownload = 0;
+                            for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                                 if (columns[colPtr].downloadable) {
-                                    if (colPtrDownload == 0) {
-                                        csvDownloadContent += Environment.NewLine;
-                                    } else {
-                                        csvDownloadContent += ",";
-                                    }
-                                    if (!string.IsNullOrEmpty(localDownloadData[rowPtr, colPtr])) {
-                                        csvDownloadContent += "\"" + localDownloadData[rowPtr, colPtr].Replace("\"", "\"\"") + "\"";
-                                    }
+                                    csvDownloadContent.Append(colPtrDownload == 0 ? Environment.NewLine : ",");
+                                    csvDownloadContent.Append(getCsvField(csvDownloadContent.ToString(), localDownloadData[rowPtr, colPtr]));
                                     colPtrDownload += 1;
                                 }
                             }
                         }
-                        //string classAttribute = localRowClasses[rowPtr];
-                        //if (rowPtr % 2 != 0) {
-                        //    classAttribute += " afwOdd";
-                        //}
-                        //if (classAttribute != "") {
-                        //    classAttribute = " class=\"" + classAttribute + "\"";
-                        //}
-                        //tableBodyRows.Append($"<tr {classAttribute}>{row}</tr>");
                     }
                 }
-                string pathFilename="";
-                //
-                // todo implement cp.db.CreateCsv()
-                // 5.1 -- download
+                hint = 30;
+                string pathFilename = "";
                 CPCSBaseClass csDownloads = cp.CSNew();
                 if (csDownloads.Insert("downloads")) {
                     pathFilename = csDownloads.GetFilename("filename", "export.csv");
-                    cp.CdnFiles.Save(pathFilename, csvDownloadContent);
+                    cp.CdnFiles.Save(pathFilename, csvDownloadContent.ToString());
                     csDownloads.SetField("name", "Download for [" + title + "], requested by [" + cp.User.Name + "]");
                     csDownloads.SetField("requestedBy", cp.User.Id.ToString());
                     csDownloads.SetField("filename", pathFilename);
@@ -627,23 +533,23 @@ namespace Contensive.Processor.LayoutBuilder {
                 }
                 csDownloads.Close();
                 return cp.Http.CdnFilePathPrefixAbsolute + pathFilename;
-                //hint = 70;
-                //string dataGrid = ""
-                //    + "<div id=\"afwListReportDataGrid\">"
-                //    + "<table class=\"afwListReportTable\">"
-                //    + tableHeader.ToString()
-                //    + "<tbody>"
-                //    + tableBodyRows.ToString()
-                //    + "</tbody>"
-                //    + "</table>"
-                //    + "</div>"
-                //    + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
-                //    + "";
-                //return dataGrid;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"hint {hint}");
                 throw;
             }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// encode a field for a csv file
+        /// </summary>
+        /// <param name="csvDownloadContent"></param>
+        /// <param name="field"></param>
+        /// <returns></returns>
+        private static string getCsvField(string csvDownloadContent, string field) {
+            if (string.IsNullOrEmpty(field)) { return ""; }
+            if (Regex.IsMatch(field, @"[,""\r\n]")) { return "\"" + field.Replace("\"", "\"\"") + "\""; }
+            return field;
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -765,19 +671,19 @@ namespace Contensive.Processor.LayoutBuilder {
                                 }
                                 row += Constants.cr + "<td" + classAttribute2 + ">" + cellContent + "</td>";
                             }
-                            if (allowDownloadButton && requestDownload && !localExcludeRowFromDownload[rowPtr]) {
-                                if (columns[colPtr].downloadable) {
-                                    if (colPtrDownload == 0) {
-                                        csvDownloadContent += Environment.NewLine;
-                                    } else {
-                                        csvDownloadContent += ",";
-                                    }
-                                    if (!string.IsNullOrEmpty(localDownloadData[rowPtr, colPtr])) {
-                                        csvDownloadContent += "\"" + localDownloadData[rowPtr, colPtr].Replace("\"", "\"\"") + "\"";
-                                    }
-                                    colPtrDownload += 1;
-                                }
-                            }
+                            //if (allowDownloadButton && requestDownload && !localExcludeRowFromDownload[rowPtr]) {
+                            //    if (columns[colPtr].downloadable) {
+                            //        if (colPtrDownload == 0) {
+                            //            csvDownloadContent += Environment.NewLine;
+                            //        } else {
+                            //            csvDownloadContent += ",";
+                            //        }
+                            //        if (!string.IsNullOrEmpty(localDownloadData[rowPtr, colPtr])) {
+                            //            csvDownloadContent += "\"" + localDownloadData[rowPtr, colPtr].Replace("\"", "\"\"") + "\"";
+                            //        }
+                            //        colPtrDownload += 1;
+                            //    }
+                            //}
                         }
                         string classAttribute = localRowClasses[rowPtr];
                         if (rowPtr % 2 != 0) {
@@ -790,24 +696,24 @@ namespace Contensive.Processor.LayoutBuilder {
                     }
                 }
                 hint = 60;
-                if (allowDownloadButton && requestDownload) {
-                    //
-                    // todo implement cp.db.CreateCsv()
-                    // 5.1 -- download
-                    CPCSBaseClass csDownloads = cp.CSNew();
-                    if (csDownloads.Insert("downloads")) {
-                        string pathFilename = csDownloads.GetFilename("filename", "export.csv");
-                        cp.CdnFiles.Save(pathFilename, csvDownloadContent);
-                        csDownloads.SetField("name", "Download for [" + title + "], requested by [" + cp.User.Name + "]");
-                        csDownloads.SetField("requestedBy", cp.User.Id.ToString());
-                        csDownloads.SetField("filename", pathFilename);
-                        csDownloads.SetField("dateRequested", DateTime.Now.ToString());
-                        csDownloads.SetField("datecompleted", DateTime.Now.ToString());
-                        csDownloads.SetField("resultmessage", "Completed");
-                        csDownloads.Save();
-                    }
-                    csDownloads.Close();
-                }
+                //if (allowDownloadButton && requestDownload) {
+                //    //
+                //    // todo implement cp.db.CreateCsv()
+                //    // 5.1 -- download
+                //    CPCSBaseClass csDownloads = cp.CSNew();
+                //    if (csDownloads.Insert("downloads")) {
+                //        string pathFilename = csDownloads.GetFilename("filename", "export.csv");
+                //        cp.CdnFiles.Save(pathFilename, csvDownloadContent);
+                //        csDownloads.SetField("name", "Download for [" + title + "], requested by [" + cp.User.Name + "]");
+                //        csDownloads.SetField("requestedBy", cp.User.Id.ToString());
+                //        csDownloads.SetField("filename", pathFilename);
+                //        csDownloads.SetField("dateRequested", DateTime.Now.ToString());
+                //        csDownloads.SetField("datecompleted", DateTime.Now.ToString());
+                //        csDownloads.SetField("resultmessage", "Completed");
+                //        csDownloads.Save();
+                //    }
+                //    csDownloads.Close();
+                //}
                 hint = 70;
                 string dataGrid = ""
                     + "<div id=\"afwListReportDataGrid\">"
@@ -1102,6 +1008,46 @@ namespace Contensive.Processor.LayoutBuilder {
             if (columnPtr < columnMax) {
                 columnPtr += 1;
             }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public override void setCell(string reportContent, int downloadContent) {
+            setCell(reportContent, downloadContent.ToString());
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public override void setCell(string reportContent, double downloadContent) {
+            setCell(reportContent, downloadContent.ToString());
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public override void setCell(string reportContent, DateTime downloadContent) {
+            setCell(reportContent, downloadContent.ToString());
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public override void setCell(string reportContent, bool downloadContent) {
+            setCell(reportContent, downloadContent.ToString());
         }
         //
         // ----------------------------------------------------------------------------------------------------

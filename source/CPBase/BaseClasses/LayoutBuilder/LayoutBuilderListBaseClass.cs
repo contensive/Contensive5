@@ -122,9 +122,41 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public abstract void addRowClass(string styleClass);
         //
         // ----------------------------------------------------------------------------------------------------
-        //
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="content"></param>
         public abstract void setCell(string content);
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
         public abstract void setCell(string reportContent, string downloadContent);
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public abstract void setCell(string reportContent, int downloadContent);
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public abstract void setCell(string reportContent, double downloadContent);
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public abstract void setCell(string reportContent, DateTime downloadContent);
+        /// <summary>
+        /// set the cell content for the current row.
+        /// </summary>
+        /// <param name="reportContent"></param>
+        /// <param name="downloadContent"></param>
+        public abstract void setCell(string reportContent, bool downloadContent);
         //
         // ----------------------------------------------------------------------------------------------------
         //
