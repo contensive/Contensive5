@@ -20,7 +20,7 @@
 }
 </style>
 <div class="container-fluid">
-	<div class="row">
+	<div class="row {{^allowPagination}}d-flex justify-content-end{{/allowPagination}}">
 		{{#allowSearch}}
 			<div class="js-afwListReportSearchCon col-md-6 my-auto">
 				<div class="search-container">
@@ -30,9 +30,9 @@
 			</div>
 		{{/allowSearch}}
 		{{^allowPagination}}
-		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
-			<div class="text-end">{{rowsFoundMessage}}</div>
-		</div>   
+			<div class="js-afwListReportPaginationCon col-md-6 my-auto">
+				<div class="text-end">{{rowsFoundMessage}}</div>
+			</div>   
 		{{/allowPagination}}
 		{{#allowPagination}}
 		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
