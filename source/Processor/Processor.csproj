@@ -161,7 +161,7 @@
     <PackageReference Include="NLog" Version="5.4.0" />
     <PackageReference Include="NUglify" Version="1.21.13" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.10" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
