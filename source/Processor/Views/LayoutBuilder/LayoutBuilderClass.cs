@@ -171,6 +171,8 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <returns></returns>
         public override string getHtml() {
             //
+            cp.Log.Debug("LayoutBuilderClass.getHtml(), enter");
+            //
             // add user errors
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
             if (!string.IsNullOrEmpty(userErrors)) {
@@ -198,6 +200,9 @@ namespace Contensive.Processor.LayoutBuilder {
             //
             // -- add dependency on jQuery BlockUI 
             cp.Addon.ExecuteDependency(Constants.addonGuidJQueryBlockUI);
+            //
+            cp.Log.Debug("LayoutBuilderClass.getHtml(), exit");
+            //
             return result;
         }
         //
