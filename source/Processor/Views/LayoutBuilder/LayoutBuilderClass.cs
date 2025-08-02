@@ -230,6 +230,9 @@ namespace Contensive.Processor.LayoutBuilder {
             //
             // -- add dependency on jQuery BlockUI 
             cp.Addon.ExecuteDependency(Constants.addonGuidJQueryBlockUI);
+            //
+            cp.Log.Debug("LayoutBuilderClass.getHtml(), exit");
+            //
             return result;
         }
         //

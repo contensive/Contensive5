@@ -445,6 +445,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 }
 
                 //
+                cp.Log.Debug("LayoutBuilderListClass.getHtml(), enter");
+                //
                 // -- page navigation
                 RenderData renderData = new() {
                     grid = getGridHtml(),
@@ -458,9 +460,13 @@ namespace Contensive.Processor.LayoutBuilder {
                     _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
                 }
                 //
+                cp.Log.Debug("LayoutBuilderListClass.getHtml(), 500");
+                //
                 // -- render the body of the list view
                 string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);
                 layoutBuilderBase.body = cp.Mustache.Render(layout, renderData);
+                //
+                cp.Log.Debug("LayoutBuilderListClass.getHtml(), return layoutBuilderBase.getHtml()");
                 //
                 return layoutBuilderBase.getHtml();
             } catch (Exception ex) {
@@ -562,6 +568,9 @@ namespace Contensive.Processor.LayoutBuilder {
         private string getGridHtml() {
             int hint = 0;
             try {
+                //
+                cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), enter");
+                //
                 int colPtrDownload;
                 StringBuilder tableHeader = new();
                 string csvDownloadContent = "";
@@ -608,6 +617,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 }
                 hint = 30;
                 //
+                cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), 300");
+                //
+                //
                 // body
                 //
                 StringBuilder tableBodyRows = new();
@@ -629,6 +641,9 @@ namespace Contensive.Processor.LayoutBuilder {
                         + "<td style=\"text-align:left\" " + classAttribute + " colspan=\"" + (columnMax + 1) + "\">There are too many rows in this report. Please consider filtering the data.</td>"
                         + "</tr>");
                 } else {
+                    //
+                    cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), 400");
+                    //
                     hint = 50;
                     //
                     // -- if ellipse needed, determine last visible column
@@ -695,6 +710,9 @@ namespace Contensive.Processor.LayoutBuilder {
                         tableBodyRows.Append($"<tr {classAttribute}>{row}</tr>");
                     }
                 }
+                //
+                cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), 500");
+                //
                 hint = 60;
                 //if (allowDownloadButton && requestDownload) {
                 //    //
@@ -726,6 +744,9 @@ namespace Contensive.Processor.LayoutBuilder {
                     + "</div>"
                     + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
                     + "";
+                //
+                cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), exit");
+                //
                 return dataGrid;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"hint {hint}");
