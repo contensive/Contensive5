@@ -14,23 +14,25 @@
 						{{{columnValue}}}
 					</div>
 					{{#columnHelp}}
-					<div class=""><small class="form-text text-muted">{{{columnHelp}}}</small></div>
+					<p class="form-text text-muted small mt-1 mb-0">{{{columnHelp}}}</p>
 					{{/columnHelp}}
 				</div>	
 			{{/rowColumnList}}
 		{{/rowHas1Column}}
 		{{#rowHas2Columns}}
-			{{#rowColumnList}}
-				<div class="py-3" id="{{columnHtmlId}}">
-					<label for="{{columnHtmlId}}" class="form-label fw-bold mb-1">{{{columnName}}}</label>
-					<div class="ccTextEditMaxWidth">
-						{{{columnValue}}}
-					</div>
-					{{#columnHelp}}
-					<div class=""><small class="form-text text-muted">{{{columnHelp}}}</small></div>
-					{{/columnHelp}}
-				</div>	
-			{{/rowColumnList}}
+			<div class="row">
+				{{#rowColumnList}}
+					<div class="col-md-6 py-3" id="{{columnHtmlId}}">
+						<label for="{{columnHtmlId}}" class="form-label fw-bold mb-1">{{{columnName}}}</label>
+						<div class="ccTextEditMaxWidth">
+							{{{columnValue}}}
+						</div>
+						{{#columnHelp}}
+						<p class="form-text text-muted small mt-1 mb-0">{{{columnHelp}}}</p>
+						{{/columnHelp}}
+					</div>	
+				{{/rowColumnList}}
+			</div>
 		{{/rowHas2Columns}}
 	{{/rowList}}
 </div>
