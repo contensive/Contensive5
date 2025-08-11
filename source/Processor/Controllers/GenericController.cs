@@ -1318,45 +1318,47 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //========================================================================
-        //   Gets the next line from a string, and removes the line
         //
+        /// <summary>
+        /// Gets the next line from a string, and removes the line
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
         public static string getLine(ref string body) {
-            string returnFirstLine = body;
-            try {
-                int nextCR = strInstr(1, body, "\r");
-                int nextLF = strInstr(1, body, "\n");
-                if ((nextCR != 0) || (nextLF != 0)) {
-                    int eol = 0;
-                    int bol = 0;
-                    if (nextCR != 0) {
-                        if (nextLF != 0) {
-                            if (nextCR < nextLF) {
-                                eol = nextCR - 1;
-                                if (nextLF == nextCR + 1) {
-                                    bol = nextLF + 1;
-                                } else {
-                                    bol = nextCR + 1;
-                                }
-
-                            } else {
-                                eol = nextLF - 1;
-                                bol = nextLF + 1;
-                            }
-                        } else {
+            int nextCR = strInstr(1, body, "\r");
+            int nextLF = strInstr(1, body, "\n");
+            string returnFirstLine;
+            if ((nextCR != 0) || (nextLF != 0)) {
+                int eol;
+                int bol;
+                if (nextCR != 0) {
+                    if (nextLF != 0) {
+                        if (nextCR < nextLF) {
                             eol = nextCR - 1;
-                            bol = nextCR + 1;
+                            if (nextLF == nextCR + 1) {
+                                bol = nextLF + 1;
+                            } else {
+                                bol = nextCR + 1;
+                            }
+
+                        } else {
+                            eol = nextLF - 1;
+                            bol = nextLF + 1;
                         }
                     } else {
-                        eol = nextLF - 1;
-                        bol = nextLF + 1;
+                        eol = nextCR - 1;
+                        bol = nextCR + 1;
                     }
-                    returnFirstLine = body.left(eol);
-                    body = body.Substring(bol - 1);
                 } else {
-                    returnFirstLine = body;
-                    body = "";
+                    eol = nextLF - 1;
+                    bol = nextLF + 1;
                 }
-            } catch (Exception) { }
+                returnFirstLine = body.left(eol);
+                body = body[(bol - 1)..];
+            } else {
+                returnFirstLine = body;
+                body = "";
+            }
             return returnFirstLine;
         }
         //
