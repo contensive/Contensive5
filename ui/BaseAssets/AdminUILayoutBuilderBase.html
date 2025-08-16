@@ -794,10 +794,12 @@
 		<div class="{{#includeBodyColor}} bg-transparent {{/includeBodyColor}} {{#includeBodyPadding}}container-fluid mt-3{{/includeBodyPadding}} {{^includeBodyPadding}}{{/includeBodyPadding}}">		
 				
 			<div class="border bg-white rounded-2 p-3 shadow-sm {{#tabContentBody}}tabCntBd{{/tabContentBody}}">
-				<div class="d-lg-flex justify-content-between align-items-center mb-3 border-bottom">
-					{{#title}}<h2 class="h4 m-0 pb-2">{{{title}}}</h2>{{/title}}
-					{{#buttonList}}<div class="ms-auto mb-1">{{{buttonList}}}</div>{{/buttonList}}	
-				</div>
+				{{#hasTitleOrButtonList}}
+					<div class="d-lg-flex justify-content-between align-items-center mb-3 border-bottom">
+						{{#title}}<h2 class="h4 m-0 pb-2">{{{title}}}</h2>{{/title}}
+						{{#buttonList}}<div class="ms-auto mb-1">{{{buttonList}}}</div>{{/buttonList}}	
+					</div>
+				{{/hasTitleOrButtonList}}
 				<div class="mb-3 ">
 					{{#successMessage}}<div class="p-3 mb-2 bg-success text-white my-2">{{{successMessage}}}</div>{{/successMessage}}
 					{{#infoMessage}}<div class="p-3 mb-2 bg-info text-white my-2">{{infoMessage}}</div>{{/infoMessage}}

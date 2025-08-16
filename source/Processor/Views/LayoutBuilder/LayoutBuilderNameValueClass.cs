@@ -287,7 +287,11 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override void addColumn() {
-            rowList.Last().rowColumnList.Add(new LayoutBuilderNameValueClass_RowClass_ColumnClass());
+            var row = rowList.Last();
+            row.rowHas1Column = row.rowColumnList.Count == 0;
+            row.rowHas2Columns = row.rowColumnList.Count == 1;
+            row.rowHas4Columns = row.rowColumnList.Count > 1;
+            row.rowColumnList.Add(new LayoutBuilderNameValueClass_RowClass_ColumnClass());
         }
         //
         // ----------------------------------------------------------------------------------------------------

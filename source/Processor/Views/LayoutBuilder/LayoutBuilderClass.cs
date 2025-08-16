@@ -90,7 +90,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The headline at the top of the form
+        /// The headline at the top of the form.
         /// </summary>
         public override string title { get; set; } = "";
         //
@@ -143,6 +143,12 @@ namespace Contensive.Processor.LayoutBuilder {
         /// a list of buttons added with addButton().
         /// </summary>
         public string buttonList { get; set; } = "";
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// true if either title or buttonList is set.
+        /// </summary>
+        public bool hasTitleOrButtonList { get { return !string.IsNullOrEmpty(title) || !string.IsNullOrEmpty(buttonList); } }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
