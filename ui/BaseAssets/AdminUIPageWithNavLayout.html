@@ -786,13 +786,8 @@
         <div class="collapse navbar-collapse" id="subnav">
           <ul class="navbar-nav mr-auto me-auto">
             {{#childSubNavItemList}}
-            <li class="nav-item {{#subActive}}active{{/subActive}} {{#subIsPortalLink}}afwNavPortalLink{{/subIsPortalLink}}">
-              {{#subLink}}
-              <a class="nav-link py-0" href="{{subLink}}" target="{{subLinkTarget}}">{{subCaption}}</a>
-              {{/subLink}}
-              {{^subLink}}
-              <a class="nav-link py-0" href="#" onclick="return false">{{subCaption}}</a>
-              {{/subLink}}
+            <li class="nav-item {{#subIsPortalLink}}afwNavPortalLink{{/subIsPortalLink}}">
+              <a class="nav-link py-0 {{#subActive}}active{{/subActive}} " href="{{subLink}}{{^subLink}}#{{/subLink}}" target="{{subLinkTarget}}" onclick="{{^subLink}}return false{{/subLink}}">{{subCaption}}</a>
             </li>
 			      {{/childSubNavItemList}}
           </ul>
