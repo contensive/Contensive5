@@ -90,6 +90,50 @@
       color: black;
     }
 
+
+    /* breadcrumbs */
+
+      ul.ttlBdCm {
+        list-style: none;
+        padding: 0;
+      }
+
+      /* Display list items side by side */
+      ul.ttlBdCm li {
+        display: inline;
+        font-size: 14px;
+      }
+
+      /* Add a slash symbol (/) before/behind each list item */
+      ul.ttlBdCm li+li:before {
+        padding: 8px;
+      
+  display: inline-block;
+  content: "";
+  vertical-align: -.125em;
+  background-image: url("data:image/svg+xml,<svg viewBox='0 0 16 16'  fill='%23333' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708' clip-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+
+      }
+
+      /* Add a color to all links inside the list */
+      ul.ttlBdCm li p {
+        background-color: rgba(31, 113, 189, 0.186);
+        border-radius: 20px;
+        color: #0545a2;
+        padding: 5px 10px;
+        margin: 0;
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      /* Add a color on mouse-over */
+      /* ul.ttleBdCm li a:hover {
+        color: #01447e;
+        text-decoration: underline;
+      } */
+
 /*
   portal styles
 */
@@ -752,8 +796,14 @@
   
   {{^subNavItemListEmpty}}
   <div class="">
-    <div class="d-flex align-items-center justify-content-between mb-2 rounded-2 p-2 mt-4 px-3">
-      <a class="navbar-brand  text-primary" href="#"><h5 class="fw-bolder m-0 fs-6">{{{subNavTitle}}}</h5></a>
+    <div class="d-flex align-items-center justify-content-between mt-3 py-2 px-3">
+      <ul class="ttlBdCm d-flex align-items-center mb-0">
+        {{#subNavTitle}}
+          <li class="d-flex align-items-center">
+            <p>{{{subNavTitle}}}</p>
+          </li>
+        {{/subNavTitle}}
+      </ul>
       <nav class="afwSubNavbar navbar navbar-expand-lg p-0">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#subnav" data-bs-target="#subnav" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
