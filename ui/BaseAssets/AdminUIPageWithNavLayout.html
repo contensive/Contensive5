@@ -792,17 +792,16 @@
           </div>
         
       </nav>
-    </div>
-  
+    </div>  
   {{^subNavItemListEmpty}}
   <div class="">
     <div class="d-flex align-items-center justify-content-between mt-3 py-2 px-3">
       <ul class="ttlBdCm d-flex align-items-center mb-0">
-        {{#subNavTitle}}
+        {{#subNavTitleList}}
           <li class="d-flex align-items-center">
-            <p>{{{subNavTitle}}}</p>
+            <p>{{.}}</p>
           </li>
-        {{/subNavTitle}}
+        {{/subNavTitleList}}
       </ul>
       <nav class="afwSubNavbar navbar navbar-expand-lg p-0">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#subnav" data-bs-target="#subnav" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">

@@ -63,7 +63,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// if there are multiple subnav titles, they are pipe or crlf delimited
         /// </summary>
         public List<string> subNavTitleList { get; set; } = [];
-        [Obsolete("Use subNavTitleList instead. Deprecated.", false)] public string subNavTitle { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -161,7 +160,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                     title = title,
                     description = description,
                     body = body,
-                    subNavTitle = subNavTitle
+                    subNavTitleList = subNavTitleList
                 };
                 //
                 // -- build nav

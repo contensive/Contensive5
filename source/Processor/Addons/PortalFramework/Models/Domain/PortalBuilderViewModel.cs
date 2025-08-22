@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
         /// <summary>
         /// The bootstrap brand element of the subnav
         /// </summary>
-        public string subNavTitle { get; set; }
+        public List<string> subNavTitleList { get; set; } = [];
         public bool subNavItemListEmpty {
             get {
                 return subNavItemList.Count == 0;
