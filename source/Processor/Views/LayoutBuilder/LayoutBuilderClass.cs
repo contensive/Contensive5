@@ -128,7 +128,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
-        public override List<string> portalSubNavTitleList { get; set; }
+        public override List<string> portalSubNavTitleList { get; set; } = [];
         [Obsolete("Use portalSubNavTitleList instead. Deprecated.", false)] public override string portalSubNavTitle { 
             get {
                 if (portalSubNavTitleList != null && portalSubNavTitleList.Count > 0) {

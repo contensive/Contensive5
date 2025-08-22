@@ -73,7 +73,7 @@
 //        /// <summary>
 //        /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
 //        /// </summary>
-//        public List<string> portalSubNavTitleList { get; set; }
+//        public List<string> portalSubNavTitleList { get; set; } = [];
 //        //
 //        //-------------------------------------------------
 //        /// <summary>
