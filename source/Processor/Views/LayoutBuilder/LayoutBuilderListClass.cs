@@ -1300,16 +1300,23 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
+        public override List<string> portalSubNavTitleList { get; set; }
+        [Obsolete("Use portalSubNavTitleList instead. Deprecated.", false)]
         public override string portalSubNavTitle {
             get {
-                return _portalSubNavTitle;
+                if (portalSubNavTitleList != null && portalSubNavTitleList.Count > 0) {
+                    return string.Join(Environment.NewLine + " ", portalSubNavTitleList);
+                }
+                return "";
             }
             set {
-                _portalSubNavTitle = value;
-                cp.Doc.SetProperty("portalSubNavTitle", value);
+                if (string.IsNullOrEmpty(value)) {
+                    portalSubNavTitleList = [];
+                } else {
+                    portalSubNavTitleList = [.. value.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries)];
+                }
             }
         }
-        private string _portalSubNavTitle = "";
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

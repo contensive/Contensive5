@@ -48,7 +48,7 @@
 //        /// <summary>
 //        /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
 //        /// </summary>
-//        public abstract string portalSubNavTitle { get; set; }
+//        public abstract List,string> portalSubNavTitleList { get; set; }
 //        //
 //        //-------------------------------------------------
 //        // getResult

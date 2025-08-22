@@ -21,7 +21,7 @@
         {{#hasFilter}}
         <div class="d-flex align-items-center">
           <div class="dropdown">
-            <a class="" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="px-2" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-ellipsis-v text-muted" title="widget filter"></i>
             </a>
             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
@@ -36,8 +36,8 @@
 
       <div class="card-body d-flex align-items-center justify-content-center h-100 {{#url}}body-linked{{/url}}">
         <div class="text-center">
-            <div class="widgetNumber display-4 fw-bold mb-0 text-primary lh-1">{{number}}</div>
-            <div class="widgetSubhead fw-medium mb-1">{{subhead}}</div>        
+            <div class="widgetNumber display-4 fw-bold mb-0 text-primary lh-1">{{{number}}}</div>
+            <div class="widgetSubhead fw-medium mb-1">{{subhead}}</div>
         </div>
       </div>
       
@@ -55,7 +55,7 @@
 {{#url}}
 <script>
   document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
-    window.location.href = '{{url}}';
+    window.location.href = '{{{url}}}';
   });
   document.addEventListener('DOMContentLoaded', function (event) {
     console.log('dashboard widget number layout loaded: {{widgetHtmlId}}'); 

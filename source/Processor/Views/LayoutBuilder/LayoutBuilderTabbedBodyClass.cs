@@ -120,7 +120,24 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
-        public override string portalSubNavTitle { get; set; }
+        public override List<string> portalSubNavTitleList { get; set; } = [];
+        //
+        [Obsolete("Use portalSubNavTitleList instead. Deprecated.", false)]
+        public override string portalSubNavTitle {
+            get {
+                if (portalSubNavTitleList != null && portalSubNavTitleList.Count > 0) {
+                    return string.Join(Environment.NewLine + " ", portalSubNavTitleList);
+                }
+                return "";
+            }
+            set {
+                if (string.IsNullOrEmpty(value)) {
+                    portalSubNavTitleList = [];
+                } else {
+                    portalSubNavTitleList = [.. value.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries)];
+                }
+            }
+        }
         //
         /// <summary>
         /// Add hidden field. Also creates a form element wrapping the layout.
@@ -340,6 +357,9 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         public override string getHtml() {
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
+            if ((portalSubNavTitleList != null) && (portalSubNavTitleList.Count > 0)) {
+                cp.Doc.SetProperty("portalSubNavTitleList", string.Join("|", portalSubNavTitleList.Where(x => !string.IsNullOrEmpty(x))));
+            }
             //
             // -- add user errors
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
@@ -372,6 +392,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlBeforeBody = htmlBeforeBody,
                 htmlAfterBody = htmlAfterBody,
                 portalSubNavTitle = portalSubNavTitle,
+                portalSubNavTitleList = portalSubNavTitleList,
                 activeFilters = activeFilters,
                 allowDownloadButton = allowDownloadButton
             };

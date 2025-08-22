@@ -58,9 +58,12 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         //
         //====================================================================================================
         /// <summary>
-        /// optional title added to the subnav. Example, if the main nav item is a list of accounts. Click on an account takes user to a child feature. The subnav appears for the child features and the subNavTitle could be Account 92
+        /// optional title added to the subnav. 
+        /// Example, if the main nav item is a list of accounts. Click on an account takes user to a child feature. The subnav appears for the child features and the subNavTitle could be Account 92
+        /// if there are multiple subnav titles, they are pipe or crlf delimited
         /// </summary>
-        public string subNavTitle { get; set; }
+        public List<string> subNavTitleList { get; set; } = [];
+        [Obsolete("Use subNavTitleList instead. Deprecated.", false)] public string subNavTitle { get; set; }
         //
         //====================================================================================================
         /// <summary>

@@ -18,7 +18,7 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <div class="card-tool">
           <div class="card-grab d-flex align-items-center" title="drag widget">
-            {{#url}}<a href="{{url}}" class="body-linked" title="click to open link"></a>{{/url}}
+            {{#url}}<a href="{{{url}}}" class="body-linked" title="click to open link"></a>{{/url}}
             <!--{{^url}}<a href="#" class="body-linked" title="click to open link"></a>{{/url}}-->
             <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
             <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
@@ -27,7 +27,7 @@
         {{#hasFilter}}
         <div class="d-flex align-items-center">
           <div class="dropdown">
-            <a class="" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="px-2" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-ellipsis-v text-muted" title="widget filter"></i>
             </a>
             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
@@ -121,7 +121,7 @@
 {{#url}}
 <script>
   document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
-    window.location.href = '{{url}}';
+    window.location.href = '{{{url}}}';
   });
   document.addEventListener('DOMContentLoaded', function (event) {
     console.log('dashboard widget number layout loaded: {{widgetHtmlId}}'); 

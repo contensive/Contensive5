@@ -143,7 +143,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         body = CP.Addon.Execute(dstDataFeature.addonId);
                         //
                         // -- portal title is a doc property set in each portal-builder that populates the title in the subnav.
-                        portalBuilder.subNavTitle = CP.Doc.GetText("portalSubNavTitle");
+                        portalBuilder.subNavTitleList.AddRange(CP.Doc.GetText("portalSubNavTitleList").Split('|'));
                         //
                     } else if (dstDataFeature.dataContentId != 0) {
                         //

@@ -237,9 +237,10 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
+        /// Optional. If set, this value will populate the title in the subnav of the portalbuilder.
         /// </summary>
-        public abstract string portalSubNavTitle { get; set; }
+        public abstract List<string> portalSubNavTitleList { get; set; }
+        [Obsolete("Use portalSubNavTitleList instead. Deprecated.", false)] public abstract string portalSubNavTitle { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

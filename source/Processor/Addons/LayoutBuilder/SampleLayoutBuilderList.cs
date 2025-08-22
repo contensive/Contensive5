@@ -33,7 +33,6 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 layoutBuilder.title = "Layout Builder List Sample";
                 layoutBuilder.description = "Description added before body created.";
                 layoutBuilder.callbackAddonGuid = "{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}";
-                layoutBuilder.portalSubNavTitle = "";
                 layoutBuilder.allowDownloadButton = true;
                 layoutBuilder.includeBodyColor = true;
                 layoutBuilder.includeBodyPadding = true;
@@ -167,8 +166,8 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 // -- setup form last to include values created during rendering
                 layoutBuilder.description = "Description text added after body created.";
                 //
-                // -- if this layout appears in a portal and as a subsection of a portal feature (like account), set the portalSubNavTitle
-                layoutBuilder.portalSubNavTitle = "Subnav Title for layoutBuilderList";
+                // -- if this layout appears in a portal and as a subsection of a portal feature (like account), set the portalSubNavTitleList
+                layoutBuilder.portalSubNavTitleList.Add("Subnav Title for layoutBuilderList");
                 //
                 layoutBuilder.htmlAfterBody = $"" +
                     $"<style type=\"text/css\">" +
