@@ -20,11 +20,20 @@ A basic installation includes these typical use-cases:
 - An addon can be configured to execute from another addon, as an endpoint, as an asynchonous service task, or as a widget on a webpage that supports a drag-and-drop web management mechanism.
 - An addon can return content from static text, an embedded script or from a reference to a dotnet executable project.
 
-## Description of the Contensive Editing Environment
-- Contensive tracks database tables with in a table named 'ccTables'. Each record in the ccTables table represents a database table
-- Contensive creates an editing interface based on metadata in the ccContent table. Each record in the ccContent table is called a Content Definition (cdef). It contains a foreign key to the cctable table which holds the name of the actual database table used. Each cdef records represents a group of records in that database table. A database table may hold records for one or more cdef.
-- Each cdef record has a name that describes the group of records. For example, the table that holds data about users is the ccMembers table.
-- The editing environment stores metadata about each field in the database in a table ccFields. the ccFields table has a foreign key to the ccContent table.
+## Contensive Database Interface
+- Contensive provides a programming interface through the cp.db object, with methods like cp.db.execute( sqlQuery )
+- Contensive tracks database tables in a table named 'ccTables'. Each record in the ccTables table represents a database table.
+- Contensive creates an editing interface in the control panel based on metadata in the ccContent table. Each record in the ccContent table is called a Content Definition (cdef). It contains a foreign key to the cctable table which holds the name of the actual database table referenced. Metadata for each field in the table is stored in the ccfields table.
+- One table can store the records for one or more cdef metadata.
+- A cdef can have a parent cdef. The parent cdef by definition includes all the records of its child cdef.
+- Every record contains a group of standard fields:
+ - id -- an integer unique value
+ - name -- a string that represents the name of the record
+ - dateAdded -- the date time when the record was created
+ - createdBy -- the id of the ccmembers table of the user who created the record
+ - modifiedDate -- the date time when the record was last editing in the control panel
+ - modifiedBy -- the id of the ccmembers table of the user who last modified the record in the control panel
+ - contentControlId -- the id of the cccontent table of the cdef metadata record that describes the data in this record
 
 ## Contensive feature installation
 - Feature installation is described in a xml file called a collection.
