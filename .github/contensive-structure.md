@@ -1,4 +1,4 @@
-# Contensive Description
+# Contensive Structure
 
 ## Contensive Application
 Contensive is an web application that runs as a single IIS aspx application and creates a web api web application. 
