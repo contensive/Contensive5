@@ -1,10 +1,10 @@
-# 🤖 GitHub Copilot Agent – Code Update Best Practices
+# GitHub Copilot Agent – Code Update Best Practices
 
 This document outlines expectations and best practices for GitHub Copilot Agent when proposing or applying code changes. It ensures consistency, security, and maintainability across our codebase.
 
 ---
 
-## ✅ General Principles
+## General Principles
 
 - **Preserve intent**: Respect the original logic and design unless explicitly asked to refactor.
 - **Minimize disruption**: Avoid broad changes unless necessary. Prefer targeted, minimal diffs.
@@ -13,7 +13,14 @@ This document outlines expectations and best practices for GitHub Copilot Agent 
 
 ---
 
-## 🧼 Code Hygiene
+## Code Structure and Practices
+
+- **Terminology** use this file to understand the terminology of the system .github/contensive-terminology.md
+- **Structure** use this file to understand the structure of the system .github/contensive-structure.md
+
+---
+
+## Code Hygiene
 
 - **Follow existing formatting**: Match indentation, casing, and naming conventions.
 - **Avoid introducing unused code**: No dead code, commented-out blocks, or speculative additions.
@@ -21,7 +28,7 @@ This document outlines expectations and best practices for GitHub Copilot Agent 
 
 ---
 
-## 🔐 Security & Compliance
+## Security & Compliance
 
 - **Sanitize inputs**: Validate and sanitize any user or external input.
 - **Avoid hardcoded secrets**: Never introduce credentials, tokens, or keys in code.
@@ -29,7 +36,7 @@ This document outlines expectations and best practices for GitHub Copilot Agent 
 
 ---
 
-## ⚙️ Automation & Reliability
+## Automation & Reliability
 
 - **Prefer idempotent logic**: Ensure repeated executions yield consistent results.
 - **Use existing utilities**: Leverage helper functions or shared modules where available.
@@ -37,7 +44,7 @@ This document outlines expectations and best practices for GitHub Copilot Agent 
 
 ---
 
-## 🧪 Testing & Validation
+## Testing & Validation
 
 - **Update tests**: Modify or add unit/integration tests to reflect code changes.
 - **Don’t break existing tests**: Ensure all tests pass before proposing changes.
@@ -53,7 +60,7 @@ This document outlines expectations and best practices for GitHub Copilot Agent 
 
 ---
 
-## 🧠 Decision Flow
+## Decision Flow
 
 If unsure about a change:
 1. Propose it as a comment or suggestion.
@@ -62,7 +69,7 @@ If unsure about a change:
 
 ---
 
-## 📌 Notes
+## Notes
 
 - This file is located at `.github/copilot-guidelines.md` and is referenced by automation tools and PR templates.
 - Updates to this document should be reviewed and approved via pull request.
