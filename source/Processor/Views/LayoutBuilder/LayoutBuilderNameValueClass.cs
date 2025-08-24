@@ -497,21 +497,16 @@ namespace Contensive.Processor.LayoutBuilder {
                 failMessage = failMessage,
                 infoMessage = infoMessage,
                 successMessage = successMessage,
-                baseAjaxUrl = baseAjaxUrl,
                 callbackAddonGuid = callbackAddonGuid,
                 htmlLeftOfBody = htmlLeftOfBody,
                 htmlBeforeBody = htmlBeforeBody,
                 htmlAfterBody = htmlAfterBody,
-                portalSubNavTitle = portalSubNavTitle,
                 activeFilters = activeFilters,
-                allowDownloadButton = allowDownloadButton
+                allowDownloadButton = allowDownloadButton,
+                portalSubNavTitleList = portalSubNavTitleList,
             };
             return layoutBase.getHtml();
         }
-
-
-
-
         //
         // ====================================================================================================
         //

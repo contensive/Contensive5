@@ -386,18 +386,15 @@ namespace Contensive.Processor.LayoutBuilder {
                 failMessage = failMessage,
                 infoMessage = infoMessage,
                 successMessage = successMessage,
-                baseAjaxUrl = baseAjaxUrl,
                 callbackAddonGuid = callbackAddonGuid,
                 htmlLeftOfBody = htmlLeftOfBody,
                 htmlBeforeBody = htmlBeforeBody,
                 htmlAfterBody = htmlAfterBody,
-                portalSubNavTitle = portalSubNavTitle,
                 portalSubNavTitleList = portalSubNavTitleList,
                 activeFilters = activeFilters,
                 allowDownloadButton = allowDownloadButton
             };
             return layoutBase.getHtml();
-            //-------------copied from namevalue
         }
         //navStruct[] navs = new navStruct[tabSize];
         //int tabMax = -1;

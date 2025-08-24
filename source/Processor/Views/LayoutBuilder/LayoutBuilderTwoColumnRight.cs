@@ -255,13 +255,10 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlLeftOfBody = htmlLeftOfBody,
                 activeFilters = activeFilters,
                 allowDownloadButton = allowDownloadButton,
+                callbackAddonGuid = callbackAddonGuid,
+                portalSubNavTitleList = portalSubNavTitleList,
             };
-            string result = layoutBase.getHtml();
-            //
-            // -- set the optional title of the portal subnav
-            if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
-            if (portalSubNavTitleList != null && portalSubNavTitleList.Count > 0) { cp.Doc.SetProperty("portalSubNavTitleList", string.Join("|", portalSubNavTitleList.Where(x => !string.IsNullOrEmpty(x)))); }
-            return result;
+            return layoutBase.getHtml();
         }
         //
         // ----------------------------------------------------------------------------------------------------

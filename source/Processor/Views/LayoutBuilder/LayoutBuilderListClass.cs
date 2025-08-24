@@ -4,6 +4,7 @@ using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO.Packaging;
@@ -1300,21 +1301,21 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
-        public override List<string> portalSubNavTitleList { get; set; } = [];
+        public override List<string> portalSubNavTitleList {
+            get {
+                return layoutBuilderBase.portalSubNavTitleList;
+            }
+            set {
+                layoutBuilderBase.portalSubNavTitleList = value;
+            }
+        }
         [Obsolete("Use portalSubNavTitleList instead. Deprecated.", false)]
         public override string portalSubNavTitle {
             get {
-                if (portalSubNavTitleList != null && portalSubNavTitleList.Count > 0) {
-                    return string.Join(Environment.NewLine + " ", portalSubNavTitleList);
-                }
-                return "";
+                return layoutBuilderBase.portalSubNavTitle;
             }
             set {
-                if (string.IsNullOrEmpty(value)) {
-                    portalSubNavTitleList = [];
-                } else {
-                    portalSubNavTitleList = [.. value.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries)];
-                }
+                layoutBuilderBase.portalSubNavTitle = value;
             }
         }
         //
