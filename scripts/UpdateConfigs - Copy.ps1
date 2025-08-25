@@ -5,8 +5,8 @@ $configMappings = @(
     @{ ConfigPath = "C:\Git\Contensive5\source\iisDefaultSite\web.config"; DllPath = "C:\Git\Contensive5\source\iisDefaultSite\bin" }
 )
 
-# Function to get DLL assembly version map from a folder
-function Get-DllAssemblyVersions {
+# Function to get DLL version map from a folder
+function Get-DllVersions {
     param ([string]$dllDir)
 
     $dllVersions = @{}
@@ -14,12 +14,18 @@ function Get-DllAssemblyVersions {
 
     foreach ($dll in $dllFiles) {
         try {
-            $assemblyNameObj = [System.Reflection.AssemblyName]::GetAssemblyName($dll.FullName)
-            $assemblyName = $assemblyNameObj.Name
-            $assemblyVersion = $assemblyNameObj.Version.ToString()
-            $dllVersions[$assemblyName] = $assemblyVersion
+			# Load the assembly
+			# $assembly = [System.Reflection.Assembly]::LoadFrom($dll)
+
+			# Get the assembly version
+			# $dllVersions[$assemblyName] =  $assembly.GetName().Version.ToString()
+			
+			
+            $versionInfo = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($dll.FullName)
+            $assemblyName = [System.Reflection.AssemblyName]::GetAssemblyName($dll.FullName).Name
+            $dllVersions[$assemblyName] = $versionInfo.FileVersion
         } catch {
-            Write-Warning "Failed to read assembly version for $($dll.Name)"
+            Write-Warning "Failed to read version info for $($dll.Name)"
         }
     }
 
@@ -61,8 +67,8 @@ function Update-AppConfig {
 
 # Loop through each config + DLL path pair
 foreach ($mapping in $configMappings) {
-    $dllVersions = Get-DllAssemblyVersions -dllDir $mapping.DllPath
+    $dllVersions = Get-DllVersions -dllDir $mapping.DllPath
     Update-AppConfig -configPath $mapping.ConfigPath -dllVersions $dllVersions
 }
 
-Write-Host "`n✅ All config files updated with their respective DLL assembly versions."
+Write-Host "`n✅ All config files updated with their respective DLL versions."
