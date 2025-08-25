@@ -6,7 +6,11 @@
   "directories": {
     "test": "tests"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "npx playwright test",
+    "test:sprint9": "npx playwright test sprint9-login.spec.ts",
+    "setup:sprint9": "node tests/sprint9-login.setup.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/contensive/Contensive5.git"
