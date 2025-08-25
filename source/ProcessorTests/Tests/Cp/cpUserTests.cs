@@ -82,6 +82,8 @@ namespace Tests {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", false);
                 cp.Site.SetProperty("allow auto create password hash", false);
+                cp.core.siteProperties.clearAdminPasswordOnHash = true;
+                //
                 string testPassword = TestController.getRandomPassword(cp);
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);

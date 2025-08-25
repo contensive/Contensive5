@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="windows-1252"?>
-<Collection name="_AssemblyRedirectTests" guid="{5bd21fe5-e05e-4084-9c59-2a27073fe5a0}" system="No" updatable="Yes" blockNavigatorNode="No" onInstallAddonGuid="">
-	<HelpLink></HelpLink>
-	<Help></Help>
-	<Addon name="TestAddon" guid="{704ee51a-3bb6-4dee-8198-a225fb47dc98}" type="Add-on">
-		<DotNetClass><![CDATA[TestAddon.AddonClass]]></DotNetClass>
-	</Addon>
-</Collection>
