@@ -493,6 +493,7 @@ namespace Contensive.Processor.Controllers {
                                         collection.updatable = CollectionUpdatable;
                                         collection.blockNavigatorNode = CollectionblockNavigatorNode;
                                         collection.helpLink = CollectionHelpLink;
+                                        collection.modifiedDate = DateTime.Now;
                                         //
                                         MetadataController.deleteContentRecords(core, "Add-on Collection CDef Rules", "CollectionID=" + collection.id);
                                         MetadataController.deleteContentRecords(core, "Add-on Collection Parent Rules", "ParentID=" + collection.id);
