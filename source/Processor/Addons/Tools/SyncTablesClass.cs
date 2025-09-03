@@ -28,7 +28,6 @@ namespace Contensive.Processor.Addons.Tools {
         /// </summary>
         /// <returns></returns>
         public static string get(CoreController core) {
-            string returnValue = "";
             try {
                 Processor.Models.Domain.ContentMetadataModel metadata = null;
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();

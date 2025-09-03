@@ -1342,7 +1342,6 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFormHidden(string Name, string Value, string htmlId) {
             layoutBuilderBase.addFormHidden(Name, Value, htmlId);
         }
-        private string hiddenList = "";
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

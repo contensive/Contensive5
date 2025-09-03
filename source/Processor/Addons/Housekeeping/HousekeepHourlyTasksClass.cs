@@ -38,6 +38,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 AddonFolderClass.executeHourlyTasks(env);
                 //
                 // -- metadata
+                ContentClass.executeHourlyTasks(env);
                 ContentFieldClass.executeHourlyTasks(env);
                 //
                 // -- content

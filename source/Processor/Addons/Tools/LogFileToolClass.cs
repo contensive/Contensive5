@@ -76,9 +76,7 @@ namespace Contensive.Processor.Addons.Tools {
                 bool RowEven = false;
                 string FileSize = null;
                 string FileDate = null;
-                string FileURL = null;
                 string CellCopy = null;
-                string QueryString = null;
                 //
                 int AdminFormTool = core.docProperties.getInteger(RequestNameAdminForm);
                 //

@@ -15,7 +15,6 @@ namespace Contensive.Processor.Models.View {
     /// </summary>
     public class DashboardViewModel {
         //
-        private CPBaseClass cp;
         /// <summary>
         /// The portalGuid, set in a hidden and used in the ajax cmd
         /// </summary>

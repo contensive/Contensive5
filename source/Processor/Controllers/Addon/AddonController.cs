@@ -790,7 +790,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="contextErrorMessage"></param>
         /// <returns></returns>
         private string execute_formContent(AddonModel addon, string FormXML, ref bool return_ExitAddonBlankWithResponse, string contextErrorMessage) {
-            string result = "";
             try {
                 string Button = core.docProperties.getText(RequestNameButton);
                 StringBuilderLegacyController Content = new();

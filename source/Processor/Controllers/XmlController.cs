@@ -167,9 +167,6 @@ namespace Contensive.Processor.Controllers {
                 int ContentTableID;
                 string TableName;
                 string DataSourceName;
-                string DefaultSortMethod;
-                string EditorGroupName;
-                string ParentName;
                 int contentId = 0;
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
                 string contentName;

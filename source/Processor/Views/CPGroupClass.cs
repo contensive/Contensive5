@@ -28,7 +28,7 @@ namespace Contensive.Processor {
         /// Add a group
         /// </summary>
         /// <param name="groupName"></param>
-        public override void Add(string groupName)
+        [Obsolete("",false)] public override void Add(string groupName)
             => GroupController.add(core, groupName);
         //
         //====================================================================================================
@@ -37,7 +37,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="groupName"></param>
         /// <param name="groupCaption"></param>
-        public override void Add(string groupName, string groupCaption)
+        [Obsolete("",false)] public override void Add(string groupName, string groupCaption)
             => GroupController.add(core, groupName, groupCaption);
         //
         //====================================================================================================

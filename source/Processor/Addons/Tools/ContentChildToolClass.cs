@@ -28,7 +28,6 @@ namespace Contensive.Processor.Addons.Tools {
         //=============================================================================
         //
         public static  string get(CPClass cp) {
-            string result = "";
             try {
                 //
                 bool IsEmptyList = false;
@@ -42,7 +41,6 @@ namespace Contensive.Processor.Addons.Tools {
                 int GroupId = 0;
                 string NewGroupName = "";
                 string Button = null;
-                string Caption = null;
                 string statusMessage = "";
                 string ButtonList = "";
                 bool BlockForm = false;

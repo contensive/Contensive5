@@ -809,7 +809,6 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// return the link to the admin site portal feature
         /// </summary>
-        /// <param name="cp"></param>
         /// <param name="portalGuid"></param>
         /// <param name="portalFeatureGuid"></param>
         /// <returns></returns>
@@ -821,7 +820,6 @@ namespace Contensive.BaseClasses {
         /// Use this method to redirect to a portal feature if a features addon is running outside the portal.
         /// For example, if the AccountList addon is running outside the Accounts portal, redirect to the Accounts portal with the AccountList feature.
         /// </summary>
-        /// <param name="cp"></param>
         /// <param name="portalGuid"></param>
         /// <param name="portalFeatureGuid"></param>
         /// <param name="linkAppend"></param>
@@ -834,7 +832,6 @@ namespace Contensive.BaseClasses {
         /// Use this method to redirect to a portal feature if a features addon is running outside the portal.
         /// For example, if the AccountList addon is running outside the Accounts portal, redirect to the Accounts portal with the AccountList feature.
         /// </summary>
-        /// <param name="cp"></param>
         /// <param name="portalGuid"></param>
         /// <param name="portalFeatureGuid"></param>
         /// <returns></returns>
@@ -846,7 +843,6 @@ namespace Contensive.BaseClasses {
         /// return false if endpoint does not include the portalframework guid.
         /// use for 1-line validation check
         /// </summary>
-        /// <param name="cp"></param>
         /// <returns></returns>
         public abstract bool EndpointContainsPortal();
         //

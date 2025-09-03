@@ -37,7 +37,6 @@ namespace Contensive.Processor.Addons.Tools {
         /// <param name="cp"></param>
         /// <returns></returns>
         public static string get(CPClass cp) {
-            string returnHtml = "";
             CoreController core = cp.core;
             try {
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();

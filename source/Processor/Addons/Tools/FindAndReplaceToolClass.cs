@@ -29,7 +29,6 @@ namespace Contensive.Processor.Addons.Tools {
         //=============================================================================
         //
         public static string get(CoreController core) {
-            string result = "";
             try {
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
                 //

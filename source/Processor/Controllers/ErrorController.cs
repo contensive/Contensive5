@@ -53,8 +53,8 @@ namespace Contensive.Processor.Controllers {
                         returnHtmlList = "\r<ul class=\"ccExceptionList\">" + returnHtmlList + "\r</ul>";
                     }
                 }
-            } catch (Exception ex) {
-                throw (ex);
+            } catch (Exception) {
+                throw;
             }
             return returnHtmlList;
         }

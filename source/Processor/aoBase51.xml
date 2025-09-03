@@ -3083,8 +3083,12 @@
 	</CDef>
 
 	<!--
-    tools
-  --> 
+        reports
+    --> 
+
+	<!--
+        tools
+    --> 
 
   <Addon Name="LayoutBuilderCallback" Guid="{99F9CD56-4C99-4E47-9A28-C3350B54285F}" Type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.LayoutBuilderCallback]]></DotNetClass>
@@ -3202,13 +3206,6 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.DefineContentFieldsFromTableClass]]></DotNetClass>
     <Admin>Yes</Admin>
 		<Category><![CDATA[Advanced]]></Category>
-    <BlockEditTools>Yes</BlockEditTools>
-  </Addon>
-
-  <Addon Name="Users Online Report" Guid="{A5439430-ED28-4D72-A9ED-50FB36145955}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.UsersOnlineReportAddon]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[]]></Category>
     <BlockEditTools>Yes</BlockEditTools>
   </Addon>
 
@@ -3819,6 +3816,11 @@
 		<DashboardWidget>Yes</DashboardWidget>
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.PagesToReviewWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
+
+	<Addon Name="block bootstrap javascript focusin trap" Guid="{3e7f02cd-2642-4203-b8cc-5ba18268fb8e}" Type="Add-on">
+    <OnBodyEnd>Yes</OnBodyEnd>
+    <jsheadscriptsrc>/baseassets/block_bootstrap_javascript_focusin_trap.js</jsheadscriptsrc>
 	</Addon>
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />

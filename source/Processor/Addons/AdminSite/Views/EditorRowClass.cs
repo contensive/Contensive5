@@ -246,8 +246,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (useEditorAddon) {
                         //
                         // -- editor worked
-                        request.formFieldList += "," + request.field.nameLc; 
-                        response.editorWrapperClass = "ccTextEditMaxWidth";
+                        request.formFieldList += "," + request.field.nameLc;
+                        if (!request.field.fieldTypeId.isOneOf(CPContentBaseClass.FieldTypeIdEnum.LongText, CPContentBaseClass.FieldTypeIdEnum.HTML, CPContentBaseClass.FieldTypeIdEnum.HTMLCode, CPContentBaseClass.FieldTypeIdEnum.FileHTML, CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode)) {
+                            //
+                            // limit the width
+                            response.editorWrapperClass = "ccTextEditMaxWidth";
+                        }
                     } else {
                         //
                         // -- editor failed, determine if it is missing (or inactive). If missing, remove it from the members preferences

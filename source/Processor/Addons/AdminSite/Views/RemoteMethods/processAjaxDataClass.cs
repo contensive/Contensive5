@@ -41,8 +41,8 @@ namespace Contensive.Processor.Addons.AdminSite {
             string result = "";
             try {
                 logger.Error($"{core.logCommonMessage}", new GenericException("executeRoute_ProcessAjaxData deprecated"));
-            } catch (Exception ex) {
-                throw (ex);
+            } catch (Exception) {
+                throw;
             }
             return result;
         }

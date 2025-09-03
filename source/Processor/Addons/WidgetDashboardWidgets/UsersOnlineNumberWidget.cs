@@ -1,4 +1,5 @@
 ﻿using Contensive.BaseClasses;
+using Contensive.Processor.Addons.Reports;
 using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using System;
@@ -16,7 +17,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     description = "The number of users online over the past 30 minutes",
                     refreshSeconds = 5,
                     widgetType = WidgetTypeEnum.number,
-                    url = $"{cp.Site.GetText("adminurl")}?addonguid={Constants.guidUsersOnlineReportAddon}",
+                    url = $"{cp.Site.GetText("adminurl")}?addonguid={UsersOnlineReport.guidUsersOnlineReport}",
                 };
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

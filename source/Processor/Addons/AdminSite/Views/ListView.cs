@@ -122,7 +122,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // Refresh Query String
                             //
                             core.doc.addRefreshQueryString("tr", gridConfig.recordTop.ToString());
-                            core.doc.addRefreshQueryString("asf", adminData.dstFormId.ToString());
+                            core.doc.addRefreshQueryString(rnAdminSourceForm, adminData.dstFormId.ToString());
                             core.doc.addRefreshQueryString("cid", adminData.adminContent.id.ToString());
                             core.doc.addRefreshQueryString(RequestNameTitleExtension, GenericController.encodeRequestVariable(adminData.editViewTitleSuffix));
                             int WhereCount = 0;

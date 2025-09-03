@@ -4,10 +4,11 @@ using Contensive.Processor.Controllers;
 using NLog;
 using static Contensive.Processor.Constants;
 
-namespace Contensive.Processor.Addons.Tools {
-    public class UsersOnlineReportAddon : BaseClasses.AddonBaseClass {
+namespace Contensive.Processor.Addons.Reports {
+    public class UsersOnlineReport : BaseClasses.AddonBaseClass {
         //
-        internal const int AdminFormQuickStats = 18; // Quick Stats (from Admin root)
+        // constants
+        internal const string guidUsersOnlineReport = "{A5439430-ED28-4D72-A9ED-50FB36145955}";
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -27,7 +28,6 @@ namespace Contensive.Processor.Addons.Tools {
         //====================================================================================================
         //
         public static string get(CoreController core) {
-            string result = null;
             try {
                 //
                 // -- get the button clicked
@@ -54,9 +54,9 @@ namespace Contensive.Processor.Addons.Tools {
                         int VisitCount = csData.getInteger("VisitCount");
                         double PageCount = csData.getNumber("pageCount");
                         body.add("<tr>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "All Visits</span></td>");
-                        body.add("<td style=\"width:150px;border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "<a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=3&DateFrom=" + core.doc.profileStartTime + "&DateTo=" + core.doc.profileStartTime.ToShortDateString()) + "\">" + VisitCount + "</A>, " + string.Format("{0:N2}", PageCount) + " pages/visit.</span></td>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "This includes all visitors to the website, including guests, bots and administrators. Pages/visit includes page hits and not ajax or remote method hits.</span></td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>All Visits</td>");
+                        body.add("<td style=\"width:150px;border-bottom:1px solid #888;\" valign=top><a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=3&DateFrom=" + core.doc.profileStartTime + "&DateTo=" + core.doc.profileStartTime.ToShortDateString()) + "\">" + VisitCount + "</A>, " + string.Format("{0:N2}", PageCount) + " pages/visit.</td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>This includes all visitors to the website, including guests, bots and administrators. Pages/visit includes page hits and not ajax or remote method hits.</td>");
                         body.add("</tr>");
                     }
                 }
@@ -70,9 +70,9 @@ namespace Contensive.Processor.Addons.Tools {
                         int VisitCount = csData.getInteger("VisitCount");
                         double PageCount = csData.getNumber("pageCount");
                         body.add("<tr>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "Non-bot Visits</span></td>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "<a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=3&DateFrom=" + core.doc.profileStartTime.ToShortDateString() + "&DateTo=" + core.doc.profileStartTime.ToShortDateString()) + "\">" + VisitCount + "</A>, " + string.Format("{0:N2}", PageCount) + " pages/visit.</span></td>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "This excludes hits from visitors identified as bots. Pages/visit includes page hits and not ajax or remote method hits.</span></td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>Non-bot Visits</td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top><a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=3&DateFrom=" + core.doc.profileStartTime.ToShortDateString() + "&DateTo=" + core.doc.profileStartTime.ToShortDateString()) + "\">" + VisitCount + "</A>, " + string.Format("{0:N2}", PageCount) + " pages/visit.</td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>This excludes hits from visitors identified as bots. Pages/visit includes page hits and not ajax or remote method hits.</td>");
                         body.add("</tr>");
                     }
                 }
@@ -86,9 +86,9 @@ namespace Contensive.Processor.Addons.Tools {
                         int VisitCount = csData.getInteger("VisitCount");
                         double PageCount = csData.getNumber("pageCount");
                         body.add("<tr>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "Visits by New Visitors</span></td>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "<a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=3&ExcludeOldVisitors=1&DateFrom=" + core.doc.profileStartTime.ToShortDateString() + "&DateTo=" + core.doc.profileStartTime.ToShortDateString()) + "\">" + VisitCount + "</A>, " + string.Format("{0:N2}", PageCount) + " pages/visit.</span></td>");
-                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>" + SpanClassAdminNormal + "This includes only new visitors not identified as bots. Pages/visit includes page hits and not ajax or remote method hits.</span></td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>Visits by New Visitors</td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top><a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=3&ExcludeOldVisitors=1&DateFrom=" + core.doc.profileStartTime.ToShortDateString() + "&DateTo=" + core.doc.profileStartTime.ToShortDateString()) + "\">" + VisitCount + "</A>, " + string.Format("{0:N2}", PageCount) + " pages/visit.</td>");
+                        body.add("<td style=\"border-bottom:1px solid #888;\" valign=top>This includes only new visitors not identified as bots. Pages/visit includes page hits and not ajax or remote method hits.</td>");
                         body.add("</tr>");
                     }
                     csData.close();
@@ -110,23 +110,23 @@ namespace Contensive.Processor.Addons.Tools {
                         if (csData.ok()) {
                             Panel += "<table width=\"100%\" border=\"0\" cellspacing=\"1\" cellpadding=\"2\">";
                             Panel += "<tr bgcolor=\"#B0B0B0\">";
-                            Panel += "<td width=\"20%\" align=\"left\">" + SpanClassAdminNormal + "User</td>";
-                            Panel += "<td width=\"20%\" align=\"left\">" + SpanClassAdminNormal + "IP&nbsp;Address</td>";
-                            Panel += "<td width=\"20%\" align=\"left\">" + SpanClassAdminNormal + "Last&nbsp;Page&nbsp;Hit</td>";
-                            Panel += "<td width=\"10%\" align=\"right\">" + SpanClassAdminNormal + "Page&nbsp;Hits</td>";
-                            Panel += "<td width=\"10%\" align=\"right\">" + SpanClassAdminNormal + "Visit</td>";
-                            Panel += "<td width=\"30%\" align=\"left\">" + SpanClassAdminNormal + "Referer</td>";
+                            Panel += "<td width=\"20%\" align=\"left\">User</td>";
+                            Panel += "<td width=\"20%\" align=\"left\">IP&nbsp;Address</td>";
+                            Panel += "<td width=\"20%\" align=\"left\">Last&nbsp;Page&nbsp;Hit</td>";
+                            Panel += "<td width=\"10%\" align=\"right\">Page&nbsp;Hits</td>";
+                            Panel += "<td width=\"10%\" align=\"right\">Visit</td>";
+                            Panel += "<td width=\"30%\" align=\"left\">Referer</td>";
                             Panel += "</tr>";
                             string RowColor = "ccPanelRowEven";
                             while (csData.ok()) {
                                 int VisitID = csData.getInteger("VisitID");
                                 Panel += "<tr class=\"" + RowColor + "\">";
-                                Panel += "<td align=\"left\">" + SpanClassAdminNormal + "<a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=16&MemberID=" + csData.getInteger("MemberID")) + "\">" + csData.getText("MemberName") + "</A></span></td>";
-                                Panel += "<td align=\"left\">" + SpanClassAdminNormal + csData.getText("Remote_Addr") + "</span></td>";
-                                Panel += "<td align=\"left\">" + SpanClassAdminNormal + csData.getDate("LastVisitTime").ToString("") + "</span></td>";
-                                Panel += "<td align=\"right\">" + SpanClassAdminNormal + "<a target=\"_blank\" href=\"/" + core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=10&VisitID=" + VisitID + "\">" + csData.getText("PageVisits") + "</A></span></td>";
-                                Panel += "<td align=\"right\">" + SpanClassAdminNormal + "<a target=\"_blank\" href=\"/" + core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=17&VisitID=" + VisitID + "\">" + VisitID + "</A></span></td>";
-                                Panel += "<td align=\"left\">" + SpanClassAdminNormal + "&nbsp;" + csData.getText("referer") + "</span></td>";
+                                Panel += "<td align=\"left\"><a target=\"_blank\" href=\"/" + HtmlController.encodeHtml(core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormReports + "&rid=16&MemberID=" + csData.getInteger("MemberID")) + "\">" + csData.getText("MemberName") + "</A></td>";
+                                Panel += "<td align=\"left\">" + csData.getText("Remote_Addr") + "</td>";
+                                Panel += "<td align=\"left\">" + csData.getDate("LastVisitTime").ToString("") + "</td>";
+                                Panel += "<td align=\"right\">" + csData.getText("PageVisits") + "</td>";
+                                Panel += "<td align=\"right\">" + VisitID + "</td>";
+                                Panel += "<td align=\"left\">&nbsp;" + csData.getText("referer") + "</td>";
                                 Panel += "</tr>";
                                 if (RowColor == "ccPanelRowEven") {
                                     RowColor = "ccPanelRowOdd";
@@ -148,8 +148,8 @@ namespace Contensive.Processor.Addons.Tools {
                 layout.title = "Users Online report";
                 layout.description = "";
                 layout.body = HtmlController.form(core, body.text);
-                //
-                layout.addFormHidden("asf", AdminFormQuickStats);
+                ////
+                //layout.addFormHidden(rnAdminSourceForm, AdminFormQuickStats);
                 //
                 layout.addFormButton(ButtonCancel);
                 layout.addFormButton(ButtonRefresh);

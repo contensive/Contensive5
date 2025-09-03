@@ -795,7 +795,6 @@ namespace Contensive.Processor.Controllers {
                 bool emailAllowLinkEId = email.addLinkEId;
                 //
                 // --- Send message to the additional member
-                bool additionalMemberSent = false;
                 if (additionalMemberID != 0) {
                     confirmationMessage.Append(BR + "Primary Recipient:" + BR);
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, additionalMemberID);
@@ -846,7 +845,6 @@ namespace Contensive.Processor.Controllers {
                             string EmailStatus = "";
                             string queryStringForLinkAppend = "";
                             trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
-                            additionalMemberSent = true;
                             //
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                             //

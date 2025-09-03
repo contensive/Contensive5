@@ -56,10 +56,6 @@ namespace Contensive.Processor.Addons.Tools {
                 string Name = null;
                 string title = null;
                 string Description = null;
-                string ButtonCommaListLeft = null;
-                string ButtonCommaListRight = null;
-                int ContentPadding = 0;
-                string ContentSummary = "";
                 StringBuilderLegacyController Tab0 = new StringBuilderLegacyController();
                 StringBuilderLegacyController Tab1 = new StringBuilderLegacyController();
                 string Content = "";
@@ -74,9 +70,6 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 title = "Custom Report Tool";
                 Description = "Custom Reports are a way for you to create a snapshot of data to view or download. To request a report, select the Custom Reports tab, check the report(s) you want, and click the [Request Download] Button. When your report is ready, it will be available in the <a href=\"?" + rnAdminForm + "=30\">Download Manager</a>. To create a new custom report, select the Request New Report tab, enter a name and SQL statement, and click the Apply button.";
-                ContentPadding = 0;
-                //ButtonCommaListLeft = ButtonCancel + "," + ButtonDelete + "," + ButtonRequestDownload;
-                ButtonCommaListRight = "";
                 SQLFieldName = "SQLQuery";
                 //
                 if (!core.session.isAuthenticatedAdmin()) {

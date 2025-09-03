@@ -169,7 +169,6 @@
 								<xs:choice minOccurs="0" maxOccurs="unbounded">
 									<xs:element minOccurs="0" maxOccurs="1" name="Admin" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="DotNetClass" type="xs:string"  />
-									<xs:element minOccurs="0" maxOccurs="1" name="DashboardWidget" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="RemoteMethod"  type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="DashboardWidget"  type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="FormXML" type="xs:string"  />

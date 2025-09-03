@@ -16,7 +16,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static void processForms(CPClass cp, AdminDataModel adminData) {
             try {
                 if (adminData.srcFormId != 0) {
-                    string EditorStyleRulesFilename = null;
                     switch (adminData.srcFormId) {
                         case AdminFormReports: {
                                 //

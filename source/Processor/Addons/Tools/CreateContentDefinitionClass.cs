@@ -27,7 +27,6 @@ namespace Contensive.Processor.Addons.Tools {
         //====================================================================================================
         //
         public static string get(CoreController core ) {
-            string result = "";
             try {
                 //
                 int ContentId = 0;
