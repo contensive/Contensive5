@@ -33,15 +33,21 @@ namespace Contensive.WebApi {
             app.MapGet("/customers/{id}", (int id) => $"customer route that is an integer segment, {id}");
             //app.MapGet("/customers/{id}", (int id, string option) => $"customer route that is an integer segment, {id}, and option querystring {option}");
             app.MapGet("/customers/{id}/{thing}", (int id, string thing) => $"customer route with an integer then string segment,  {id}, {thing}");
-            //
-            app.MapGet("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
-                return adminRoute(request, response, iisContext);
-            });
-            app.MapPost("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
-                return adminRoute(request, response, iisContext);
-            });
+
+
+
+            //app.MapGet("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
+            //    return executeManagedRoute(request, response, iisContext);
+            //});
+            //app.MapPost("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
+            //    return executeManagedRoute(request, response, iisContext);
+            //});
 
             // -- query all dynamic routes
+            //
+            app.MapFallback((HttpRequest request, HttpResponse response, HttpContext iisContext) => {
+                return executeManagedRoute(request, response, iisContext);
+            });
 
 
             app.Run("http://localhost:5099");
@@ -49,7 +55,7 @@ namespace Contensive.WebApi {
         public static string someRoute() {
             return "method test";
         }
-        public static IResult adminRoute(HttpRequest request, HttpResponse response, HttpContext iisContext) {
+        public static IResult executeManagedRoute(HttpRequest request, HttpResponse response, HttpContext iisContext) {
 
             string appName = "c5test";
             HttpContextModel context = ConfigurationClass.buildContext(appName, iisContext);
@@ -60,7 +66,7 @@ namespace Contensive.WebApi {
                 // need to add request and set response -- ?middleware
                 //
                 // -- execute code ------------------------------------------------
-                content = cp.executeRoute("/admin");
+                content = cp.executeRoute();
                 // -- /execute code ------------------------------------------------
                 // 
                 // -- exit now if response headers sent. This technique is used to write binary

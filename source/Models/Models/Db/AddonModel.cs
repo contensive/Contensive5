@@ -75,7 +75,7 @@ namespace Contensive.Models.Db {
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }
         /// <summary>
-        /// The catgegory of addon. see navTypeIdEnum
+        /// The nav catgegory of addon. see navTypeIdEnum
         /// 1 = Add-on (misc, other, etc)
         /// 2 = Report
         /// 3 = Setting
