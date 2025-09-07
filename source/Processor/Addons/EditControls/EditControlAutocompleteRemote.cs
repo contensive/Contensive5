@@ -1,5 +1,8 @@
-﻿using Contensive.BaseClasses;
+﻿
+using Amazon.SimpleEmail;
+using Contensive.BaseClasses;
 using Contensive.Processor.Models.Domain.EditControl;
+using Microsoft.IdentityModel.Tokens;
 using NLog;
 using System;
 using System.Collections.Generic;

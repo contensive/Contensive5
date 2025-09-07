@@ -1353,8 +1353,8 @@ namespace Contensive.Processor.Controllers {
                     eol = nextLF - 1;
                     bol = nextLF + 1;
                 }
-                returnFirstLine = body.Substring(0, eol);
-                body = body.Substring(bol - 1);
+                returnFirstLine = body.left(eol);
+                body = body[(bol - 1)..];
             } else {
                 returnFirstLine = body;
                 body = "";
@@ -2038,86 +2038,86 @@ namespace Contensive.Processor.Controllers {
             }
             return returnList;
         }
-        ////
-        //// ====================================================================================================
-        ///// <summary>
-        ///// descramble a phrase using decryptTwoWay. If decryption fails, attempt legacy scramble. If no decryption works, return original scrambled source
-        ///// </summary>
-        ///// <param name="core"></param>
-        ///// <param name="Copy"></param>
-        ///// <returns></returns>
-        //public static string textDeScramble(CoreController core, string Copy) {
-        //    string result = "";
-        //    try {
-        //        result = SecurityController.decryptTwoWay(core, Copy);
-        //    } catch (Exception) {
-        //        //
-        //        if (!core.siteProperties.allowLegacyDescrambleFallback) {
-        //            //
-        //            throw;
-        //        } else {
-        //            //
-        //            // -- decryption failed, true legacy descramble
-        //            try {
-        //                int CPtr = 0;
-        //                string C = null;
-        //                int CValue = 0;
-        //                int crc = 0;
-        //                string Source = null;
-        //                int Base = 0;
-        //                const int CMin = 32;
-        //                const int CMax = 126;
-        //                //
-        //                // assume this one is not converted
-        //                //
-        //                Source = Copy;
-        //                Base = 50;
-        //                //
-        //                // First characger must be _
-        //                // Second character is the scramble version 'a' is the starting system
-        //                //
-        //                if (Source.left(2) != "_a") {
-        //                    result = Copy;
-        //                } else {
-        //                    Source = Source.Substring(2);
-        //                    //
-        //                    // cycle through all characters
-        //                    //
-        //                    for (CPtr = Source.Length - 1; CPtr >= 1; CPtr--) {
-        //                        C = Source.Substring(CPtr - 1, 1);
-        //                        CValue = Microsoft.VisualBasic.Strings.Asc(C);
-        //                        crc = crc + CValue;
-        //                        if ((CValue < CMin) || (CValue > CMax)) {
-        //                            //
-        //                            // if out of ascii bounds, just leave it in place
-        //                            //
-        //                        } else {
-        //                            CValue = CValue - Base;
-        //                            if (CValue < CMin) {
-        //                                CValue = CValue + CMax - CMin + 1;
-        //                            }
-        //                        }
-        //                        result += Microsoft.VisualBasic.Strings.Chr(CValue);
-        //                    }
-        //                    //
-        //                    // Test mod
-        //                    //
-        //                    if ((crc % 9).ToString(CultureInfo.InvariantCulture) != Source.Substring(Source.Length - 1, 1)) {
-        //                        //
-        //                        // do nothinge - set it back to the input
-        //                        //
-        //                        result = Copy;
-        //                    }
-        //                }
-        //            } catch (Exception ex) {
-        //                logger.Error(ex, $"{core.logCommonMessage}");
-        //                throw;
-        //            }
-        //        }
-        //    }
-        //    return result;
-        //}
-        ////
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// descramble a phrase using decryptTwoWay. If decryption fails, attempt legacy scramble. If no decryption works, return original scrambled source
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="Copy"></param>
+        /// <returns></returns>
+        public static string textDeScramble(CoreController core, string Copy) {
+            string result = "";
+            try {
+                result = SecurityController.decryptTwoWay(core, Copy);
+            } catch (Exception) {
+                //
+                if (!core.siteProperties.allowLegacyDescrambleFallback) {
+                    //
+                    throw;
+                } else {
+                    //
+                    // -- decryption failed, true legacy descramble
+                    try {
+                        int CPtr = 0;
+                        string C = null;
+                        int CValue = 0;
+                        int crc = 0;
+                        string Source = null;
+                        int Base = 0;
+                        const int CMin = 32;
+                        const int CMax = 126;
+                        //
+                        // assume this one is not converted
+                        //
+                        Source = Copy;
+                        Base = 50;
+                        //
+                        // First characger must be _
+                        // Second character is the scramble version 'a' is the starting system
+                        //
+                        if (Source.left(2) != "_a") {
+                            result = Copy;
+                        } else {
+                            Source = Source.Substring(2);
+                            //
+                            // cycle through all characters
+                            //
+                            for (CPtr = Source.Length - 1; CPtr >= 1; CPtr--) {
+                                C = Source.Substring(CPtr - 1, 1);
+                                CValue = Microsoft.VisualBasic.Strings.Asc(C);
+                                crc = crc + CValue;
+                                if ((CValue < CMin) || (CValue > CMax)) {
+                                    //
+                                    // if out of ascii bounds, just leave it in place
+                                    //
+                                } else {
+                                    CValue = CValue - Base;
+                                    if (CValue < CMin) {
+                                        CValue = CValue + CMax - CMin + 1;
+                                    }
+                                }
+                                result += Microsoft.VisualBasic.Strings.Chr(CValue);
+                            }
+                            //
+                            // Test mod
+                            //
+                            if ((crc % 9).ToString(CultureInfo.InvariantCulture) != Source.Substring(Source.Length - 1, 1)) {
+                                //
+                                // do nothinge - set it back to the input
+                                //
+                                result = Copy;
+                            }
+                        }
+                    } catch (Exception ex) {
+                        logger.Error(ex, $"{core.logCommonMessage}");
+                        throw;
+                    }
+                }
+            }
+            return result;
+        }
+        //
         //=============================================================================
         // 
         public static string textScramble(CoreController core, string Copy) {

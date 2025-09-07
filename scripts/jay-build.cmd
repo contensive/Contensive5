@@ -228,7 +228,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=netstandard2.0
+dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building Processor
    pause
@@ -263,7 +263,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
+dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
    echo failure pack Processor
    pause

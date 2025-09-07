@@ -25,7 +25,7 @@ namespace Contensive.Processor.Controllers {
                     if (CS.OpenRecord("Add-ons", addonid)) {
                         string addonName = CS.GetText("name");
                         bool processRunOnce = CS.GetBoolean("ProcessRunOnce");
-                        if (((addonName.ToLower() == "oninstall") || (addonName.ToLower() == "_oninstall")))
+                        if (((Strings.LCase(addonName) == "oninstall") || (Strings.LCase(addonName) == "_oninstall")))
                             processRunOnce = true;
                         // 
                         // content

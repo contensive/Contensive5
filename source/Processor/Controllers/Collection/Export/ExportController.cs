@@ -111,8 +111,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- remove any files not found
                 foreach (string pathFilename in removeFileList) {
-                    if (execUnixFileList.Contains(pathFilename)) { execUnixFileList.Remove(pathFilename); }
-                    ;
+                    if (execUnixFileList.Contains(pathFilename)) { execUnixFileList.Remove(pathFilename); };
                 }
 
                 //
@@ -216,13 +215,13 @@ namespace Contensive.Processor.Controllers {
                     //collectionXml.Append(System.Environment.NewLine + "\t" + "<DataRecordList>" + encodeCData(dataRecordCrlfList) + "</DataRecordList>");
                     //
                     // -- first, create dataRecordList of records in the Collection's DataRecord tab
-                    foreach (var dataRecordCommaRow in dataRecordCrlfList.Split( [..Environment.NewLine]).ToList()) {
+                    foreach (var dataRecordCommaRow in Strings.Split(dataRecordCrlfList, Environment.NewLine).ToList()) {
                         if (string.IsNullOrEmpty(dataRecordCommaRow)) {
                             //
                             // -- row is empty, skip it
                             continue;
                         }
-                        string[] dataRecordCommaRowSplit = dataRecordCommaRow.Split(',');
+                        string[] dataRecordCommaRowSplit = Strings.Split(dataRecordCommaRow, ",");
                         CollectionDataRecordModel dataRecordObj = new() { contentName = dataRecordCommaRowSplit[0] };
                         if (dataRecordCommaRowSplit.Length.Equals(1)) {
                             //
@@ -261,12 +260,12 @@ namespace Contensive.Processor.Controllers {
                     // 
                     // remove the <collection> top node
                     // 
-                    int Pos = Node.IndexOf("<cdef", StringComparison.OrdinalIgnoreCase);
+                    int Pos = Strings.InStr(1, Node, "<cdef", CompareMethod.Text);
                     if (Pos > 0) {
-                        Node = Node.Substring(Pos);
-                        Pos = Node.IndexOf("</cdef>", StringComparison.OrdinalIgnoreCase);
+                        Node = Strings.Mid(Node, Pos);
+                        Pos = Strings.InStr(1, Node, "</cdef>", CompareMethod.Text);
                         if (Pos > 0) {
-                            Node = Node.Substring(0, Pos + 6);
+                            Node = Strings.Mid(Node, 1, Pos + 6);
                             collectionXml.Append(System.Environment.NewLine + "\t" + Node);
                         }
                     }
@@ -306,13 +305,13 @@ namespace Contensive.Processor.Controllers {
                     if (!string.IsNullOrEmpty(unixPathFilename)) {
                         string path = "";
                         string filename = unixPathFilename;
-                        int Pos = unixPathFilename.LastIndexOf("/");
+                        int Pos = Strings.InStrRev(unixPathFilename, "/");
                         if (Pos > 0) {
-                            filename = unixPathFilename.Substring(Pos + 1);
-                            path = unixPathFilename.Substring(0, Pos);
+                            filename = Strings.Mid(unixPathFilename, Pos + 1);
+                            path = Strings.Mid(unixPathFilename, 1, Pos - 1);
                         }
                         string fileExtension = System.IO.Path.GetExtension(filename);
-                        string dosPathFilename = unixPathFilename.Replace("/", @"\");
+                        string dosPathFilename = Strings.Replace(unixPathFilename, "/", @"\");
                         if (tempPathFileList.Contains(tempExportPath + filename)) {
                             //
                             // -- the path already has a file with this name
@@ -352,10 +351,10 @@ namespace Contensive.Processor.Controllers {
                         if (contentUnixPathFilename != "") {
                             string Path = "";
                             string Filename = contentUnixPathFilename;
-                            int Pos = contentUnixPathFilename.LastIndexOf("/");
-                            if (Pos >= 0) {
-                                Filename = contentUnixPathFilename.Substring(Pos + 1);
-                                Path = contentUnixPathFilename.Substring(0, Pos);
+                            int Pos = Strings.InStrRev(contentUnixPathFilename, "/");
+                            if (Pos > 0) {
+                                Filename = Strings.Mid(contentUnixPathFilename, Pos + 1);
+                                Path = Strings.Mid(contentUnixPathFilename, 1, Pos - 1);
                             }
                             if (tempPathFileList.Contains(tempExportPath + Filename)) {
                                 cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + Filename + "]");
@@ -378,7 +377,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 string OtherXML;
                 OtherXML = cs.GetText("otherxml");
-                if (OtherXML.Trim() != "") {
+                if (Strings.Trim(OtherXML) != "") {
                     collectionXml.Append(System.Environment.NewLine + OtherXML);
                 }
                 collectionXml.Append(System.Environment.NewLine + "</Collection>");
@@ -445,20 +444,20 @@ namespace Contensive.Processor.Controllers {
             }
             return getNode(nodeName, "", false);
         }
-        //// 
-        //// ====================================================================================================
-        //public static string replaceMany(CPBaseClass cp, string Source, string[] ArrayOfSource, string[] ArrayOfReplacement) {
-        //    try {
-        //        int Count = Information.UBound(ArrayOfSource) + 1;
-        //        string result = Source;
-        //        for (int Pointer = 0; Pointer <= Count - 1; Pointer++)
-        //            result = Strings.Replace(result, ArrayOfSource[Pointer], ArrayOfReplacement[Pointer]);
-        //        return result;
-        //    } catch (Exception ex) {
-        //        cp.Site.ErrorReport(ex, "replaceMany");
-        //        return string.Empty;
-        //    }
-        //}
+        // 
+        // ====================================================================================================
+        public static string replaceMany(CPBaseClass cp, string Source, string[] ArrayOfSource, string[] ArrayOfReplacement) {
+            try {
+                int Count = Information.UBound(ArrayOfSource) + 1;
+                string result = Source;
+                for (int Pointer = 0; Pointer <= Count - 1; Pointer++)
+                    result = Strings.Replace(result, ArrayOfSource[Pointer], ArrayOfReplacement[Pointer]);
+                return result;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex, "replaceMany");
+                return string.Empty;
+            }
+        }
         // 
         // ====================================================================================================
         // 
@@ -470,10 +469,10 @@ namespace Contensive.Processor.Controllers {
                 System.Xml.XmlDocument Doc = new System.Xml.XmlDocument { XmlResolver = null };
                 Doc.LoadXml(cp.PrivateFiles.Read(@"addons\Collections.xml"));
                 if (true) {
-                    if (Doc.DocumentElement.Name.ToLower() != CollectionListRootNode.ToLower()) {
+                    if (Strings.LCase(Doc.DocumentElement.Name) != Strings.LCase(CollectionListRootNode)) {
                     } else {
                         var withBlock = Doc.DocumentElement;
-                        if (withBlock.Name.ToLower() != "collectionlist") {
+                        if (Strings.LCase(withBlock.Name) != "collectionlist") {
                         } else {
                             // hint = hint & ",checking nodes [" & .childNodes.length & "]"
                             foreach (System.Xml.XmlNode LocalListNode in withBlock.ChildNodes) {
@@ -481,26 +480,26 @@ namespace Contensive.Processor.Controllers {
                                 string LocalGuid = "";
                                 string CollectionPath = "";
                                 DateTime LastChangeDate = default;
-                                switch (LocalListNode.Name.ToLower()) {
+                                switch (Strings.LCase(LocalListNode.Name)) {
                                     case "collection": {
                                             LocalGuid = "";
                                             foreach (System.Xml.XmlNode CollectionNode in LocalListNode.ChildNodes) {
-                                                switch (CollectionNode.Name.ToLower()) {
+                                                switch (Strings.LCase(CollectionNode.Name)) {
                                                     case "name": {
                                                             // 
-                                                            LocalName = CollectionNode.InnerText.ToLower();
+                                                            LocalName = Strings.LCase(CollectionNode.InnerText);
                                                             break;
                                                         }
 
                                                     case "guid": {
                                                             // 
-                                                            LocalGuid = CollectionNode.InnerText.ToLower();
+                                                            LocalGuid = Strings.LCase(CollectionNode.InnerText);
                                                             break;
                                                         }
 
                                                     case "path": {
                                                             // 
-                                                            CollectionPath = CollectionNode.InnerText.ToLower();
+                                                            CollectionPath = Strings.LCase(CollectionNode.InnerText);
                                                             break;
                                                         }
 
@@ -515,7 +514,7 @@ namespace Contensive.Processor.Controllers {
                                         }
                                 }
                                 // hint = hint & ",checking node [" & LocalName & "]"
-                                if (CollectionGuid.ToLower() == LocalGuid) {
+                                if (Strings.LCase(CollectionGuid) == LocalGuid) {
                                     Return_CollectionPath = CollectionPath;
                                     Return_LastChangeDate = LastChangeDate;
                                     break;
@@ -537,7 +536,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encodeCData(string source) {
             if (string.IsNullOrWhiteSpace(source)) { return ""; }
-            return "<![CDATA[" + source.replace("]]>", "]]]]><![CDATA[>",StringComparison.CurrentCultureIgnoreCase) + "]]>";
+            return "<![CDATA[" + Strings.Replace(source, "]]>", "]]]]><![CDATA[>") + "]]>";
         }
         // 
         // =======================================================================================

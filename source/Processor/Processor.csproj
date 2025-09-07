@@ -1,14 +1,143 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+	<UseWPF>true</UseWPF>
+	<TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
+	<RootNamespace>Contensive.Processor</RootNamespace>
+    <AssemblyName>Processor</AssemblyName>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
+    <PackageIcon>LogoBalls.png</PackageIcon>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <NoWarn>1701;1702;1570;1572;1573;1587;1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Signing">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>signingKey.snk</AssemblyOriginatorKeyFile>
+    <PackageId>Contensive.Processor</PackageId>
+    <Version>24.12.20.1</Version>
+    <Authors>Contensive</Authors>
+    <Product>Contensive Processor</Product>
+    <Description>This package installs the library files required to create an instance of cp within an application.</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Nuget">
+    <!-- 
+    <Version>20.0.0.0</Version>
+    -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageId>Contensive.Processor</PackageId>
+    <Authors>Contensive</Authors>
+    <Company>Contensive</Company>
+    <Product>Contensive Processor</Product>
+    <PackageTags>Contensive</PackageTags>
+    <Copyright>Copyright 2024</Copyright>
+    <Description>This package installs the library files required to create an instance of cp within an application.</Description>
+    <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <!-- 
+    <PackageIcon>LogoBalls.png</PackageIcon>
+    -->
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-	  <RootNamespace>Contensive.Processor</RootNamespace>
-	  <AssemblyName>Processor</AssemblyName>
-	  <LangVersion>latest</LangVersion>
-	  <SignAssembly>True</SignAssembly>
-	  <AssemblyOriginatorKeyFile>signingKey.snk</AssemblyOriginatorKeyFile>
-	  <PackageId>Contensive.Processor</PackageId>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Addons\PortalFramework\Controllers\**" />
+    <EmbeddedResource Remove="Addons\PortalFramework\Controllers\**" />
+    <None Remove="Addons\PortalFramework\Controllers\**" />
+    <Page Remove="Addons\PortalFramework\Controllers\**" />
+  </ItemGroup>
+
+  <ItemGroup Label="Nuget">
+    <None Include="resources\web.config.transform">
+      <Pack>True</Pack>
+      <PackagePath>content</PackagePath>
+    </None>
+    <None Include="aoBase51.xml">
+      <Pack>True</Pack>
+      <PackagePath>content</PackagePath>
+    </None>
+    <None Include="app.ico">
+      <Pack>True</Pack>
+      <PackagePath>content</PackagePath>
+    </None>
+    <None Include="LogoBalls.png">
+      <Pack>True</Pack>
+      <PackagePath>content</PackagePath>
+    </None>
+    <None Include="LogoBalls.png" Pack="true" PackagePath="" />
+    <None Include="aoBase51.xml" Pack="true" PackagePath="">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DefaultCountryList.txt" Pack="true" PackagePath="">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="app.ico" Pack="true" PackagePath="" />
+    <!--<None Include="bin\debug\net472\Stubble.Core.dll" Pack="true" PackagePath="" />-->
+  </ItemGroup>
+
+  <ItemGroup Label="Editor Config">
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Label="Resources">
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup Label="Settings">
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <None Update="BaseAssets.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="helloworld.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="HelpFiles.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="ui.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\CPBase\CPBase.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AWS.Logger.NLog" Version="3.3.4" />
@@ -23,63 +152,63 @@
     <PackageReference Include="AWSSDK.SQS" Version="3.7.400.109" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.74" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.2" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
     <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
     <PackageReference Include="MimeMapping" Version="3.1.0" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="5.4.0" />
     <PackageReference Include="NUglify" Version="1.21.13" />
-    <PackageReference Include="Nustache" Version="1.16.0.10" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-    <PackageReference Include="System.IO.Pipelines" Version="9.0.8" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="9.0.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
-    <PackageReference Include="System.Runtime.Caching" Version="9.0.8" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.8" />
+    <PackageReference Include="System.Runtime.Caching" Version="9.0.2" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.2" />
     <PackageReference Include="Twilio" Version="7.8.5" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CPBase\CPBase.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="Nustache" Version="1.16.0.10" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System.Data.Entity.Design" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager">
+      <Version>5.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Drawing.Common">
+      <Version>5.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="aoBase51.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="app.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="baseassets.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Collection.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="DefaultCountryList.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="helloworld.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="HelpFiles.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="LogoBalls.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="LogoBalls.svg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Reference Include="System.Data.Entity.Design">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.Entity.Design.dll</HintPath>
+    </Reference>
+    <Reference Include="Twilio">
+      <HintPath>..\twilio_strong_name\twilio.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Addons\PortalFrameworkTmp\" />
+    <Folder Include="Addons\tools_tmp\" />
   </ItemGroup>
 
 </Project>
