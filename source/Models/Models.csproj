@@ -6,10 +6,11 @@
 	  <AssemblyName>ContensiveDbModels</AssemblyName>
 	  <LangVersion>latest</LangVersion>
 	  <SignAssembly>True</SignAssembly>
+	  <AssemblyOriginatorKeyFile>CPModelKey.snk</AssemblyOriginatorKeyFile>
+	  <PackageId>Contensive.DbModels</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CPBase2\CPBase.csproj" />
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
   </ItemGroup>
 

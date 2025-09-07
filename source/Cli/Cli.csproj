@@ -42,11 +42,9 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CPBase2\CPBase.csproj" />
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\Processor\Processor.csproj" />
-    <ProjectReference Include="..\Processor\Processor472.csproj" />
   </ItemGroup>
 
   <ItemGroup>

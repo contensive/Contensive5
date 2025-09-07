@@ -213,7 +213,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
+dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building CPBase
    pause
@@ -221,14 +221,14 @@ if errorlevel 1 (
 )
 
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
-dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
+dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building Models
    pause
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building Processor
    pause
@@ -249,21 +249,21 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack CPBase
    pause
    exit /b %errorlevel%
 )
 
-dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack Models
    pause
    exit /b %errorlevel%
 )
 
-dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack Processor
    pause
