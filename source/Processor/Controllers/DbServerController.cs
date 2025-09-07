@@ -1,8 +1,8 @@
 ﻿
+using Contensive.Exceptions;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
-using System.Data.SqlClient;
-using Contensive.Exceptions;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -157,7 +157,7 @@ namespace Contensive.Processor.Controllers {
                     CommandText = sql,
                     Connection = connSQL
                 };
-                using dynamic adptSQL = new System.Data.SqlClient.SqlDataAdapter(cmdSQL);
+                using dynamic adptSQL = new Microsoft.Data.SqlClient.SqlDataAdapter(cmdSQL);
                 adptSQL.Fill(returnData);
             } catch (Exception ex) {
                 var newEx = new GenericException("Exception [" + ex.Message + "] executing master sql [" + sql + "]", ex);

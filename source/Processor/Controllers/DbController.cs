@@ -1,13 +1,13 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Models.Db;
 using Contensive.Exceptions;
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using static Contensive.Processor.Constants;
