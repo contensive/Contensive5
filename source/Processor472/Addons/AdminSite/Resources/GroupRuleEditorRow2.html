@@ -1,0 +1,33 @@
+﻿<div class="p-2 ccEditRow">
+    <!-- list caption -->
+    <label for="name432">{{listCaption}}</label>
+    <!-- list -->
+    <div class="ml-5 ms-5 ms-5">
+        <div class="row pb-1">
+            <!-- checkbox and group name -->
+            <div class="col-sm-3">&nbsp;</div>
+            <!-- expiration date -->
+            <div class="col-sm-3">Expires</div>
+            <!-- Role -->
+            <div class="col-sm-3">Role</div>
+            <!-- Links -->
+            <div class="col-sm-3">&nbsp;</div>
+        </div>
+        {{#rowList}}
+        <!-- row repeat -->
+        <div class="row pb-1 border-bottom border-light">
+            <!-- checkbox and group name -->
+            <div class="col-sm-3"><label class="pb-1 pt-2 mb-0 checkbox-inline">{{{checkboxInput}}}&nbsp;{{{groupCaption}}}</label></div>
+            <!-- expiration date -->
+            <div class="col-sm-3">{{{expiresInput}}}</div>
+            <!-- Role -->
+            <div class="col-sm-3">{{{roleInput}}}</div>
+            <!-- Links -->
+            <div class="col-sm-3">{{{relatedButtonList}}}</div>
+            {{{idHidden}}}
+        </div>
+        {{/rowList}}
+    </div>
+    <!-- help section -->
+    <div class="ml-5 ms-5 ms-5"><small class="form-text text-muted">{{{helpText}}}</small></div>
+</div>

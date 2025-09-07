@@ -1,0 +1,29 @@
+﻿
+
+SELECT Distinct 
+ ccEmail.TestMemberID AS TestMemberID
+ ,ccEmail.ID AS EmailID
+ ,ccEmail.BlockSiteStyles
+ ,ccEmail.stylesFilename
+ ,ccMembers.ID AS MemberID
+ ,ccMemberRules.DateExpires AS DateExpires
+ FROM ((((ccEmail
+ LEFT JOIN ccEmailGroups ON ccEmail.Id = ccEmailGroups.EmailID)
+ LEFT JOIN ccGroups ON ccEmailGroups.GroupId = ccGroups.ID)
+ LEFT JOIN ccMemberRules ON ccGroups.Id = ccMemberRules.GroupID)
+ LEFT JOIN ccMembers ON ccMemberRules.memberId = ccMembers.ID)
+ WHERE (ccEmail.id Is Not Null)
+ AND (DATEADD(day, ccEmail.ConditionPeriod, ccMemberRules.dateAdded) < {{sqldatenow}})
+ AND (DATEADD(day, ccEmail.ConditionPeriod+1.0, ccMemberRules.dateAdded) > {{sqldatenow}})
+ AND (DATEADD(day, ccEmail.ConditionPeriod, ccMemberRules.dateAdded) > ccemail.lastProcessDate )
+ AND ((ccEmail.ConditionExpireDate > {{sqldatenow}}) OR (ccEmail.ConditionExpireDate IS NULL))
+ AND ((ccEmail.ScheduleDate < {{sqldatenow}}) OR (ccEmail.ScheduleDate IS NULL))
+ AND (ccEmail.Submitted <> 0)
+ AND (ccEmail.ConditionId = 2)
+ AND (ccEmail.ConditionPeriod IS NOT NULL)
+ AND (ccMemberRules.id is not null)
+ AND (ccGroups.Active <> 0)
+ AND (ccGroups.AllowBulkEmail <> 0)
+ AND (ccMembers.ID IS NOT NULL)
+ AND (ccMembers.Active <> 0)
+ AND (ccMembers.AllowBulkEmail <> 0)

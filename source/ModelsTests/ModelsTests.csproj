@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\Processor\Processor.csproj" />
+    <ProjectReference Include="..\Processor\Processor472.csproj" />
   </ItemGroup>
 
 </Project>

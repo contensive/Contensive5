@@ -281,7 +281,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (DataSourceName == "")
                                     DataSourceName = "Default";
-                                if (Strings.UCase(TableName) == "CCMENUENTRIES")
+                                if (TableName.ToUpper() == "CCMENUENTRIES")
                                     FoundMenuTable = true;
                                 sb.Append($" AuthoringDataSourceName=\"{encodeXMLattribute(DataSourceName)}\"");
                                 sb.Append($" AuthoringTableName=\"{encodeXMLattribute(TableName)}\"");
@@ -340,7 +340,7 @@ namespace Contensive.Processor.Controllers {
                                         if (fieldContentID > contentId) {
                                             break;
                                         } else if ((fieldContentID == contentId) && (fieldId != lastFieldID)) {
-                                            if (includeBaseFields || (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + fieldName + ",", CompareMethod.Text) == 0)) {
+                                            if (includeBaseFields || (",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,".IndexOf("," + fieldName + ",") == -1)) {
                                                 int memberSelectGroupId = fieldsCs.GetInteger("MemberSelectGroupID");
                                                 string memberSelectGroup = memberSelectGroupId <= 0 ? "" : cp.Group.GetName(memberSelectGroupId.ToString());
                                                 sb.Append(System.Environment.NewLine + "\t\t<Field");
@@ -483,20 +483,20 @@ namespace Contensive.Processor.Controllers {
                         // IndexList = cpCore.app.csv_GetSQLIndexList(DataSourceName, TableName)
                         // 
                         if (IndexList != "") {
-                            ListRows = Strings.Split(IndexList, System.Environment.NewLine);
+                            ListRows = IndexList.Split(new[] { System.Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                             IndexName = "";
-                            for (Ptr = 0; Ptr <= Information.UBound(ListRows) + 1; Ptr++) {
-                                if (Ptr <= Information.UBound(ListRows))
+                            for (Ptr = 0; Ptr <= ListRows.Length; Ptr++) {
+                                if (Ptr < ListRows.Length)
                                     // 
                                     // ListRowSplit has the indexname and field for this index
                                     // 
-                                    ListRowSplit = Strings.Split(ListRows[Ptr], ",");
+                                    ListRowSplit = ListRows[Ptr].Split(',');
                                 else
                                     // 
                                     // one past the last row, ListRowSplit gets a dummy entry to force the output of the last line
                                     // 
-                                    ListRowSplit = Strings.Split("-,-", ",");
-                                if (Information.UBound(ListRowSplit) > 0) {
+                                    ListRowSplit = "-,-".Split(',');
+                                if (ListRowSplit.Length > 0) {
                                     if (ListRowSplit[0] != "") {
                                         if (IndexName == "") {
                                             // 
@@ -592,9 +592,9 @@ namespace Contensive.Processor.Controllers {
                         NavIconType = cp.Utils.EncodeInteger(GetRSXMLAttribute(dt, "NavIconType"));
                         NavIconTitle = GetRSXMLAttribute(dt, "NavIconTitle");
                         sb.Append(" NavIconTitle=\"" + NavIconTitle + "\"");
-                        SplitArray = Strings.Split(navIconTypeList + ",help", ",");
+                        SplitArray = (navIconTypeList + ",help").Split(',');
                         SplitIndex = NavIconType - 1;
-                        if ((SplitIndex >= 0) & (SplitIndex <= Information.UBound(SplitArray))) { sb.Append(" NavIconType=\"" + SplitArray[SplitIndex] + "\""); }
+                        if ((SplitIndex >= 0) & (SplitIndex <= SplitArray.Length)) { sb.Append(" NavIconType=\"" + SplitArray[SplitIndex] + "\""); }
                         sb.Append(" guid=\"" + GetRSXMLAttribute(dt, "ccGuid") + "\"");
                         // 
                         sb.Append("></NavigatorEntry>" + System.Environment.NewLine);
@@ -682,9 +682,9 @@ namespace Contensive.Processor.Controllers {
         // 
         private string encodeXMLattribute(string Source) {
             string result = System.Net.WebUtility.HtmlEncode(Source);
-            result = Strings.Replace(result, System.Environment.NewLine, " ");
-            result = Strings.Replace(result, "\n", "");
-            result = Strings.Replace(result, "\r", "");
+            result = result.Replace(System.Environment.NewLine, " ");
+            result = result.Replace("\n", "");
+            result = result.Replace("\r", "");
             return result;
         }
         // 
@@ -729,7 +729,7 @@ namespace Contensive.Processor.Controllers {
                 string ParentSpace = "";
                 // 
                 if (RecordID != 0) {
-                    if (Strings.InStr(1, "," + UsedIDString + ",", "," + RecordID + ",", CompareMethod.Text) != 0) {
+                    if (("," + UsedIDString + ",").IndexOf("," + RecordID + ",") >= 0) {
                         cp.Site.ErrorReport("Circular reference found in UsedIDString [" + UsedIDString + "] getting ccMenuEntries namespace for recordid [" + RecordID + "]");
                         result = "";
                     } else {
@@ -907,7 +907,7 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         private string EncodeCData(string Source) {
             if (string.IsNullOrWhiteSpace(Source)) { return string.Empty; }
-            return "<![CDATA[" + Strings.Replace(Source, "]]>", "]]]]><![CDATA[>") + "]]>";
+            return "<![CDATA[" + Source.Replace("]]>", "]]]]><![CDATA[>") + "]]>";
         }
         //
         //====================================================================================================

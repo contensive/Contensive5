@@ -1,10 +1,8 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Processor.Models;
-using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Markup;
 
 namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
     public class SampleBarChartWidget : AddonBaseClass {

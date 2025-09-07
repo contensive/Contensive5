@@ -1,11 +1,7 @@
-﻿
-using Contensive.Models.Db;
-using Contensive.Processor.Controllers;
+﻿using Contensive.Processor.Controllers;
 using NLog;
-using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 using System;
 using System.Data;
-using System.Windows.Interop;
 
 namespace Contensive.Processor.Addons.Housekeeping {
     /// <summary>

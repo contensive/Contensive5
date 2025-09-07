@@ -1,0 +1,22 @@
+﻿<div style="width:100%;padding:50px 0">
+    <div class="ccCon bg-light pt-0 pb-2" style="max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;">
+        <div class="p-4 pt-0 container-fluid">
+            <div class="ccLoginFormCon pt-4">
+                <h4 class="mt-0">Impersonate</h4>
+                {{{userError}}}
+                <p>
+                    Administrators and developers can impersonate users for the purpose of support. An impersonation attempt only requires the user's username or id.
+                    All activity during the impersonated session will be recorded and tracked as the target user's activity. To end impersonation, go to /restoreimpersonation
+                </p>
+                <div class="pt-2">
+                    <label for="inputUsername" class="sr-only">Username</label>
+                    <input type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" autofocus>
+                </div>
+                <div class="pt-2">
+                    <button name="button" value="impersonate" class="btn btn-success btn-block mr-2" type="submit">Impersonate</button>
+                    <button name="button" value="cancel" class="btn btn-success btn-block mr-2" type="submit">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

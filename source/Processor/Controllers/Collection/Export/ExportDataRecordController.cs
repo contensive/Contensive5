@@ -29,7 +29,7 @@ namespace Contensive.Processor.Controllers {
                     var RecordNodes = new StringBuilder();
                     //
                     // -- sort data by contentname, then recordname, then recordGuid
-                    dataExportList=dataExportList.OrderBy(x=>x.contentName).ThenBy(x=>x.recordName).ThenBy(x=>x.recordGuid).ToList();
+                    dataExportList = dataExportList.OrderBy(x => x.contentName).ThenBy(x => x.recordName).ThenBy(x => x.recordGuid).ToList();
                     //
                     // -- dataExportList -- enumerate the list of data to be exported. Each dataExport can have a list of records, each record will have a list of fields
                     foreach (CollectionDataRecordModel dataExport in dataExportList) {
@@ -56,11 +56,11 @@ namespace Contensive.Processor.Controllers {
                                 // 
                                 // name and guid empty, export all records
                                 Criteria = "";
-                            } else if ((Strings.Len(dataExport.recordName) == 36) & (Strings.Mid(dataExport.recordName, 9, 1) == "-")) {
+                            } else if ((dataExport.recordName.Length == 36) & (dataExport.recordName.Substring(8, 1) == "-")) {
                                 // 
                                 // use name as guid 726ED098-5A9E-49A9-8840-767A74F41D01 format
                                 Criteria = "ccguid=" + cp.Db.EncodeSQLText(dataExport.recordName);
-                            } else if ((Strings.Len(dataExport.recordName) == 32) & (Strings.InStr(1, dataExport.recordName, " ") == 0)) {
+                            } else if ((dataExport.recordName.Length == 32) & (dataExport.recordName.IndexOf(" ") == -1)) {
                                 // 
                                 // use name as guid 726ED0985A9E49A98840767A74F41D01 format
                                 Criteria = "ccguid=" + cp.Db.EncodeSQLText(dataExport.recordName);
@@ -113,7 +113,7 @@ namespace Contensive.Processor.Controllers {
                                                         string nodeInnerText = "";
                                                         string ruleContent = cp.Content.GetName(contentField.manyToManyRuleContentId);
                                                         string secondaryContentName = cp.Content.GetName(contentField.manyToManyContentId);
-                                                        if ((!string.IsNullOrEmpty(ruleContent)) 
+                                                        if ((!string.IsNullOrEmpty(ruleContent))
                                                             && (!string.IsNullOrEmpty(contentField.manyToManyRulePrimaryField))
                                                             && (!string.IsNullOrEmpty(contentField.manyToManyRuleSecondaryField))
                                                             && (!string.IsNullOrEmpty(secondaryContentName))) {
@@ -141,7 +141,7 @@ namespace Contensive.Processor.Controllers {
                                                         if (string.IsNullOrEmpty(nodeInnerText)) {
                                                             FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\" />";
                                                         } else {
-                                                            FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + nodeInnerText + Environment.NewLine + "\t\t" + "</field>";
+                                                            FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + nodeInnerText + Environment.NewLine + "\t\t" + "</field>";
                                                         }
                                                         break;
                                                     }
@@ -160,7 +160,7 @@ namespace Contensive.Processor.Controllers {
                                                                 nodeList.Append(Environment.NewLine + "\t\t\t\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(filename) + "\" type=\"content\" path=\"" + System.Net.WebUtility.HtmlEncode(path) + "\" />");
                                                             }
                                                         }
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
                                                         break;
                                                     }
 
@@ -168,7 +168,7 @@ namespace Contensive.Processor.Controllers {
                                                         // 
                                                         // -- boolean
                                                         string FieldValue = csDataExportRecords.GetBoolean(contentField.name).ToString();
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
                                                         break;
                                                     }
 
@@ -180,7 +180,7 @@ namespace Contensive.Processor.Controllers {
                                                         // -- text files
                                                         string FieldValue = csDataExportRecords.GetText(contentField.name);
                                                         FieldValue = ExportController.encodeCData(FieldValue);
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
                                                         break;
                                                     }
 
@@ -188,7 +188,7 @@ namespace Contensive.Processor.Controllers {
                                                         // 
                                                         // -- integer
                                                         string FieldValue = csDataExportRecords.GetInteger(contentField.name).ToString();
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
                                                         break;
                                                     }
 
@@ -197,7 +197,7 @@ namespace Contensive.Processor.Controllers {
                                                         // 
                                                         // -- numbers
                                                         string FieldValue = csDataExportRecords.GetNumber(contentField.name).ToString();
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
                                                         break;
                                                     }
 
@@ -209,7 +209,7 @@ namespace Contensive.Processor.Controllers {
                                                         if (!outputDateValue.Equals(DateTime.MinValue)) {
                                                             outputValue = csDataExportRecords.GetDate(contentField.name).ToString();
                                                         }
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + outputValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + outputValue + "</field>";
                                                         break;
                                                     }
 
@@ -244,7 +244,7 @@ namespace Contensive.Processor.Controllers {
                                                                 outputValue = lookupRecordId.ToString();
                                                             }
                                                         }
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + outputValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + outputValue + "</field>";
                                                         break;
                                                     }
 
@@ -253,7 +253,7 @@ namespace Contensive.Processor.Controllers {
                                                         // text types
                                                         string FieldValue = csDataExportRecords.GetText(contentField.name);
                                                         FieldValue = ExportController.encodeCData(FieldValue);
-                                                        FieldNodes +=  Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
+                                                        FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">" + FieldValue + "</field>";
                                                         break;
                                                     }
                                             }

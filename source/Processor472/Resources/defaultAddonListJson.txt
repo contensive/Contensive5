@@ -1,0 +1,12 @@
+﻿[
+  {
+    "designBlockTypeGuid": "{4F7FADCB-7B0B-4E4B-BBE4-CFAF4E49D548}",
+    "designBlockTypeName": "Text Block",
+    "instanceGuid": "{textBlockInstanceGuid}",
+    "columns": null
+  },{
+	"designBlockTypeGuid":"{D291F133-AB50-4640-9A9A-18DB68FF363B}",
+	"designBlockTypeName":"Child Page List",
+	"instanceGuid":"{childListInstanceGuid}",
+	"columns":null}
+]

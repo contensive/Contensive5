@@ -1367,7 +1367,7 @@ namespace Contensive.Processor.Controllers {
                                                                                                 Copy += (ColumnStart + "[null]" + ColumnEnd);
                                                                                             } else if ((CellData == null)) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);
-                                                                                            } else if (Microsoft.VisualBasic.Information.IsArray(CellData)) {
+                                                                                            } else if (CellData.GetType().IsArray) {
                                                                                                 Copy += ColumnStart + "[array]";
                                                                                             } else if (string.IsNullOrEmpty(encodeText(CellData))) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);

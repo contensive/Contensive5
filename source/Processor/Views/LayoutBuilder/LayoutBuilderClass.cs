@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Runtime.CompilerServices;
 
+
 namespace Contensive.Processor.LayoutBuilder {
     /// <summary>
     /// 
@@ -455,7 +456,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
-            filterGroups[^1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
+            filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsSelect = true,
                 filterCaption = caption,
                 filterHtmlId = $"filter{cp.Utils.GetRandomString(4)}",
@@ -465,7 +466,7 @@ namespace Contensive.Processor.LayoutBuilder {
             NameValueSelected selectedOption = options.Find((x) => x.selected);
             if(selectedOption!=null && !string.IsNullOrEmpty(selectedOption.value)) {
                 int maxLength = 20;
-                string selectedOptionName = selectedOption.name.Length <= maxLength ? selectedOption.name : selectedOption.name[..maxLength];
+                string selectedOptionName = selectedOption.name.Length <= maxLength ? selectedOption.name : selectedOption.name.Substring(0, maxLength);
                 addActiveFilter($"{caption}:{selectedOptionName}", "removeFilter", htmlName);
             }
         }

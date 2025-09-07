@@ -27,7 +27,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\CPBase\CPBase.csproj" />
 	  <ProjectReference Include="..\Models\Models.csproj" />
-	  <ProjectReference Include="..\Processor\Processor.csproj" />
+	  <ProjectReference Include="..\Processor\Processor472.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
