@@ -65,9 +65,6 @@
   </ItemGroup>
 
   <ItemGroup Label="Nuget">
-    <None Include="bin\Debug\net481\netstandard.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="resources\web.config.transform">
       <Pack>True</Pack>
       <PackagePath>content</PackagePath>
@@ -215,6 +212,7 @@
   <ItemGroup>
     <Folder Include="Addons\PortalFrameworkTmp\" />
     <Folder Include="Addons\tools_tmp\" />
+    <Folder Include="bin\Debug\net481\" />
   </ItemGroup>
 
 </Project>
