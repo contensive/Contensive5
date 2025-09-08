@@ -14,7 +14,7 @@
     </ComponentGroup>
     
     <!-- reference the directory in the directories file -->
-    <DirectoryRef Id="INSTALLFOLDER" FileSource="..\Cli\bin\Debug\net472\">
+    <DirectoryRef Id="INSTALLFOLDER" FileSource="..\Cli\bin\Debug\net481\">
       
       <!-- Shortcut to main application-->
       <Component Id="MainAppShortcut" Guid="{79E3B767-5C45-40D6-A0BC-6DDE1B0E4257}">

@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using static Contensive.Processor.Constants;
+using System.Text.Encodings.Web;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -1199,10 +1200,10 @@ namespace Contensive.Processor.Controllers {
         /// encode a string to be used as a javascript single quoted string. 
         /// For example, if creating a string "alert('" + ex.Message + "');"; 
         /// </summary>
-        /// <param name="Source"></param>
+        /// <param name="source"></param>
         /// <returns></returns>
-        public static string encodeJavascriptStringSingleQuote(string Source) {
-            return HttpUtility.JavaScriptStringEncode(Source);
+        public static string encodeJavascriptStringSingleQuote(string source) {
+            return JavaScriptEncoder.Default.Encode(source);
         }
         //
         // ====================================================================================================
@@ -2085,7 +2086,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             for (CPtr = Source.Length - 1; CPtr >= 1; CPtr--) {
                                 C = Source.Substring(CPtr - 1, 1);
-                                CValue = Microsoft.VisualBasic.Strings.Asc(C);
+                                CValue =  VisualBasicConvert.Microsoft_VisualBasic_Strings_Asc(C);
                                 crc = crc + CValue;
                                 if ((CValue < CMin) || (CValue > CMax)) {
                                     //
@@ -2097,7 +2098,7 @@ namespace Contensive.Processor.Controllers {
                                         CValue = CValue + CMax - CMin + 1;
                                     }
                                 }
-                                result += Microsoft.VisualBasic.Strings.Chr(CValue);
+                                result += VisualBasicConvert.Microsoft_VisualBasic_Strings_Chr(CValue);
                             }
                             //
                             // Test mod

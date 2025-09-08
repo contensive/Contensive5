@@ -14,7 +14,7 @@ cls
 @echo If there were manual app.config changes OR nuget package updates --
 @echo .
 @echo 1) Open VS and build Processor
-@echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
+@echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net481\Processor.dll.config
 @echo 3) Copy the runtime node
 @echo 4) Paste into TaskService App.Config
 @echo 5) Paste into IISDefault Web.Config
@@ -228,21 +228,21 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building Processor
    pause
    exit /b %errorlevel%
 )
 
-dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building taskservice
    pause
    exit /b %errorlevel%
 )
 
-dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building cli
    pause
@@ -263,7 +263,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net481
 if errorlevel 1 (
    echo failure pack Processor
    pause
