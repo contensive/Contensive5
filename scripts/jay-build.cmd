@@ -213,7 +213,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
+dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building CPBase
    pause
@@ -221,28 +221,28 @@ if errorlevel 1 (
 )
 
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
-dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
+dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building Models
    pause
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building Processor
    pause
    exit /b %errorlevel%
 )
 
-dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
+dotnet build taskservice/taskservice.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building taskservice
    pause
    exit /b %errorlevel%
 )
 
-dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
+dotnet build cli/cli.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building cli
    pause

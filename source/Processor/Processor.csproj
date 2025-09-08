@@ -59,9 +59,13 @@
 
   <ItemGroup>
     <Compile Remove="Addons\PortalFramework\Controllers\**" />
+    <Compile Remove="bin\**" />
     <EmbeddedResource Remove="Addons\PortalFramework\Controllers\**" />
+    <EmbeddedResource Remove="bin\**" />
     <None Remove="Addons\PortalFramework\Controllers\**" />
+    <None Remove="bin\**" />
     <Page Remove="Addons\PortalFramework\Controllers\**" />
+    <Page Remove="bin\**" />
   </ItemGroup>
 
   <ItemGroup Label="Nuget">
@@ -165,6 +169,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
+    <PackageReference Include="Stubble.Core" Version="1.10.8" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
     <PackageReference Include="System.IO.Pipelines" Version="9.0.2" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
@@ -212,7 +217,6 @@
   <ItemGroup>
     <Folder Include="Addons\PortalFrameworkTmp\" />
     <Folder Include="Addons\tools_tmp\" />
-    <Folder Include="bin\Debug\net481\" />
   </ItemGroup>
 
 </Project>
