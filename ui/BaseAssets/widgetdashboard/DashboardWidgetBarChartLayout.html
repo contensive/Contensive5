@@ -117,6 +117,14 @@
       },
       options: {
         plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                // Show full label in tooltip
+                return context.label;
+              }
+            }
+          },
             title: {
                 display: true,
                 padding: 0,
@@ -138,7 +146,16 @@
         events: ['mousemove', 'mouseout'],
         scales: {
           x: {
-              stacked: true,
+            stacked: true,
+            ticks: {
+              callback: function(value, index, ticks) {
+                let label = value;
+                if (typeof this.getLabelForValue === 'function') {
+                  label = this.getLabelForValue(value);
+                }
+                return label && label.length > 10 ? label.substring(0, 10) + '…' : label;
+              }
+            }
           },
           y: {
               stacked: true
