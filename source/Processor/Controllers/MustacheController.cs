@@ -1,6 +1,5 @@
 ﻿
-using HandlebarsDotNet;
-using Stubble.Core.Builders;
+//using Stubble.Core.Builders;
 using System.IO;
 using System.Text;
 
@@ -20,13 +19,13 @@ namespace Contensive.Processor.Controllers {
             //
             // -- Nustache, no net480 version (no standard2.0 version)
             //
-            //return Nustache.Core.Render.StringToString(template, dataSet);
+            return Nustache.Core.Render.StringToString(template, dataSet);
             //
             // -- does not follow mustache spec ( sections are {{#each item}}{{/each}} not {{#item}}{{/item}} )
             // -- maybe it does follow the spec if array, not list
             //
-            var templateCompiled = Handlebars.Compile(template);
-            return templateCompiled(dataSet);
+            //var templateCompiled = Handlebars.Compile(template);
+            //return templateCompiled(dataSet);
         }
         //
         //====================================================================================================

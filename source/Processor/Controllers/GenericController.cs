@@ -42,6 +42,8 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool versionIsOlder(string versionFirst, string versionSecond) {
             try {
+                if (string.IsNullOrEmpty(versionSecond)) { return false; }
+                if (string.IsNullOrEmpty(versionFirst)) { return true; }
                 //
                 // -- formats:
                 // c4 = 4.1.636
