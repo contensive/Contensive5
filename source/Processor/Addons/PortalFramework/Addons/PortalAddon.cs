@@ -7,7 +7,6 @@ using Contensive.Models.Db;
 using Contensive.Processor.Addons.PortalFramework.Models.Db;
 using Contensive.Processor.Addons.PortalFramework.Models.Domain;
 using Contensive.Processor.Addons.PortalFramework.Views;
-using HandlebarsDotNet.Features;
 
 namespace Contensive.Processor.Addons.PortalFramework.Addons {
     public class PortalAddon : AddonBaseClass {

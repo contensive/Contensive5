@@ -215,13 +215,13 @@ namespace Contensive.Processor.Controllers {
                     //collectionXml.Append(System.Environment.NewLine + "\t" + "<DataRecordList>" + encodeCData(dataRecordCrlfList) + "</DataRecordList>");
                     //
                     // -- first, create dataRecordList of records in the Collection's DataRecord tab
-                    foreach (var dataRecordCommaRow in Strings.Split(dataRecordCrlfList, Environment.NewLine).ToList()) {
+                    foreach (var dataRecordCommaRow in VisualBasicConvert.Strings_Split(dataRecordCrlfList, Environment.NewLine).ToList()) {
                         if (string.IsNullOrEmpty(dataRecordCommaRow)) {
                             //
                             // -- row is empty, skip it
                             continue;
                         }
-                        string[] dataRecordCommaRowSplit = Strings.Split(dataRecordCommaRow, ",");
+                        string[] dataRecordCommaRowSplit = VisualBasicConvert.Strings_Split(dataRecordCommaRow, ",");
                         CollectionDataRecordModel dataRecordObj = new() { contentName = dataRecordCommaRowSplit[0] };
                         if (dataRecordCommaRowSplit.Length.Equals(1)) {
                             //
@@ -260,12 +260,12 @@ namespace Contensive.Processor.Controllers {
                     // 
                     // remove the <collection> top node
                     // 
-                    int Pos = Strings.InStr(1, Node, "<cdef", CompareMethod.Text);
+                    int Pos = VisualBasicConvert.Strings_InStr(1, Node, "<cdef",  StringComparison.OrdinalIgnoreCase);
                     if (Pos > 0) {
-                        Node = Strings.Mid(Node, Pos);
-                        Pos = Strings.InStr(1, Node, "</cdef>", CompareMethod.Text);
+                        Node = VisualBasicConvert.Strings_Mid(Node, Pos);
+                        Pos = VisualBasicConvert.Strings_InStr(1, Node, "</cdef>", StringComparison.OrdinalIgnoreCase);
                         if (Pos > 0) {
-                            Node = Strings.Mid(Node, 1, Pos + 6);
+                            Node = VisualBasicConvert.Strings_Mid(Node, 1, Pos + 6);
                             collectionXml.Append(System.Environment.NewLine + "\t" + Node);
                         }
                     }
@@ -305,13 +305,13 @@ namespace Contensive.Processor.Controllers {
                     if (!string.IsNullOrEmpty(unixPathFilename)) {
                         string path = "";
                         string filename = unixPathFilename;
-                        int Pos = Strings.InStrRev(unixPathFilename, "/");
+                        int Pos = VisualBasicConvert.Strings_InStrRev(unixPathFilename, "/");
                         if (Pos > 0) {
-                            filename = Strings.Mid(unixPathFilename, Pos + 1);
-                            path = Strings.Mid(unixPathFilename, 1, Pos - 1);
+                            filename = VisualBasicConvert.Strings_Mid(unixPathFilename, Pos + 1);
+                            path = VisualBasicConvert.Strings_Mid(unixPathFilename, 1, Pos - 1);
                         }
                         string fileExtension = System.IO.Path.GetExtension(filename);
-                        string dosPathFilename = Strings.Replace(unixPathFilename, "/", @"\");
+                        string dosPathFilename = VisualBasicConvert.Strings_Replace(unixPathFilename, "/", @"\");
                         if (tempPathFileList.Contains(tempExportPath + filename)) {
                             //
                             // -- the path already has a file with this name
@@ -351,10 +351,10 @@ namespace Contensive.Processor.Controllers {
                         if (contentUnixPathFilename != "") {
                             string Path = "";
                             string Filename = contentUnixPathFilename;
-                            int Pos = Strings.InStrRev(contentUnixPathFilename, "/");
+                            int Pos = VisualBasicConvert.Strings_InStrRev(contentUnixPathFilename, "/");
                             if (Pos > 0) {
-                                Filename = Strings.Mid(contentUnixPathFilename, Pos + 1);
-                                Path = Strings.Mid(contentUnixPathFilename, 1, Pos - 1);
+                                Filename = VisualBasicConvert.Strings_Mid(contentUnixPathFilename, Pos + 1);
+                                Path = VisualBasicConvert.Strings_Mid(contentUnixPathFilename, 1, Pos - 1);
                             }
                             if (tempPathFileList.Contains(tempExportPath + Filename)) {
                                 cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + Filename + "]");
@@ -377,7 +377,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 string OtherXML;
                 OtherXML = cs.GetText("otherxml");
-                if (Strings.Trim(OtherXML) != "") {
+                if (VisualBasicConvert.Strings_Trim(OtherXML) != "") {
                     collectionXml.Append(System.Environment.NewLine + OtherXML);
                 }
                 collectionXml.Append(System.Environment.NewLine + "</Collection>");
@@ -448,10 +448,10 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         public static string replaceMany(CPBaseClass cp, string Source, string[] ArrayOfSource, string[] ArrayOfReplacement) {
             try {
-                int Count = Information.UBound(ArrayOfSource) + 1;
+                int Count = VisualBasicConvert.Information_Ubound(ArrayOfSource) + 1;
                 string result = Source;
                 for (int Pointer = 0; Pointer <= Count - 1; Pointer++)
-                    result = Strings.Replace(result, ArrayOfSource[Pointer], ArrayOfReplacement[Pointer]);
+                    result = VisualBasicConvert.Strings_Replace(result, ArrayOfSource[Pointer], ArrayOfReplacement[Pointer]);
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "replaceMany");
@@ -469,10 +469,10 @@ namespace Contensive.Processor.Controllers {
                 System.Xml.XmlDocument Doc = new System.Xml.XmlDocument { XmlResolver = null };
                 Doc.LoadXml(cp.PrivateFiles.Read(@"addons\Collections.xml"));
                 if (true) {
-                    if (Strings.LCase(Doc.DocumentElement.Name) != Strings.LCase(CollectionListRootNode)) {
+                    if (VisualBasicConvert.Strings_LCase(Doc.DocumentElement.Name) != VisualBasicConvert.Strings_LCase(CollectionListRootNode)) {
                     } else {
                         var withBlock = Doc.DocumentElement;
-                        if (Strings.LCase(withBlock.Name) != "collectionlist") {
+                        if (VisualBasicConvert.Strings_LCase(withBlock.Name) != "collectionlist") {
                         } else {
                             // hint = hint & ",checking nodes [" & .childNodes.length & "]"
                             foreach (System.Xml.XmlNode LocalListNode in withBlock.ChildNodes) {
@@ -480,26 +480,26 @@ namespace Contensive.Processor.Controllers {
                                 string LocalGuid = "";
                                 string CollectionPath = "";
                                 DateTime LastChangeDate = default;
-                                switch (Strings.LCase(LocalListNode.Name)) {
+                                switch (VisualBasicConvert.Strings_LCase(LocalListNode.Name)) {
                                     case "collection": {
                                             LocalGuid = "";
                                             foreach (System.Xml.XmlNode CollectionNode in LocalListNode.ChildNodes) {
-                                                switch (Strings.LCase(CollectionNode.Name)) {
+                                                switch (VisualBasicConvert.Strings_LCase(CollectionNode.Name)) {
                                                     case "name": {
                                                             // 
-                                                            LocalName = Strings.LCase(CollectionNode.InnerText);
+                                                            LocalName = VisualBasicConvert.Strings_LCase(CollectionNode.InnerText);
                                                             break;
                                                         }
 
                                                     case "guid": {
                                                             // 
-                                                            LocalGuid = Strings.LCase(CollectionNode.InnerText);
+                                                            LocalGuid = VisualBasicConvert.Strings_LCase(CollectionNode.InnerText);
                                                             break;
                                                         }
 
                                                     case "path": {
                                                             // 
-                                                            CollectionPath = Strings.LCase(CollectionNode.InnerText);
+                                                            CollectionPath = VisualBasicConvert.Strings_LCase(CollectionNode.InnerText);
                                                             break;
                                                         }
 
@@ -514,7 +514,7 @@ namespace Contensive.Processor.Controllers {
                                         }
                                 }
                                 // hint = hint & ",checking node [" & LocalName & "]"
-                                if (Strings.LCase(CollectionGuid) == LocalGuid) {
+                                if (VisualBasicConvert.Strings_LCase(CollectionGuid) == LocalGuid) {
                                     Return_CollectionPath = CollectionPath;
                                     Return_LastChangeDate = LastChangeDate;
                                     break;
@@ -536,7 +536,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encodeCData(string source) {
             if (string.IsNullOrWhiteSpace(source)) { return ""; }
-            return "<![CDATA[" + Strings.Replace(source, "]]>", "]]]]><![CDATA[>") + "]]>";
+            return "<![CDATA[" + VisualBasicConvert.Strings_Replace(source, "]]>", "]]]]><![CDATA[>") + "]]>";
         }
         // 
         // =======================================================================================

@@ -14,7 +14,7 @@ cls
 @echo If there were manual app.config changes OR nuget package updates --
 @echo .
 @echo 1) Open VS and build Processor
-@echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
+@echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net481\Processor.dll.config
 @echo 3) Copy the runtime node
 @echo 4) Paste into TaskService App.Config
 @echo 5) Paste into IISDefault Web.Config
@@ -213,7 +213,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
+dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building CPBase
    pause
@@ -221,49 +221,49 @@ if errorlevel 1 (
 )
 
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
-dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
+dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building Models
    pause
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building Processor
    pause
    exit /b %errorlevel%
 )
 
-dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build taskservice/taskservice.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building taskservice
    pause
    exit /b %errorlevel%
 )
 
-dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
+dotnet build cli/cli.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net481
 if errorlevel 1 (
    echo failure building cli
    pause
    exit /b %errorlevel%
 )
 
-dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack CPBase
    pause
    exit /b %errorlevel%
 )
 
-dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack Models
    pause
    exit /b %errorlevel%
 )
 
-dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
+dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net481
 if errorlevel 1 (
    echo failure pack Processor
    pause

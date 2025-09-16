@@ -4,7 +4,7 @@
   </PropertyGroup>
   <PropertyGroup>
 	<UseWPF>true</UseWPF>
-	<TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
+	<TargetFrameworks>net481;net9.0-windows</TargetFrameworks>
 	<RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -59,9 +59,13 @@
 
   <ItemGroup>
     <Compile Remove="Addons\PortalFramework\Controllers\**" />
+    <Compile Remove="bin\**" />
     <EmbeddedResource Remove="Addons\PortalFramework\Controllers\**" />
+    <EmbeddedResource Remove="bin\**" />
     <None Remove="Addons\PortalFramework\Controllers\**" />
+    <None Remove="bin\**" />
     <Page Remove="Addons\PortalFramework\Controllers\**" />
+    <Page Remove="bin\**" />
   </ItemGroup>
 
   <ItemGroup Label="Nuget">
@@ -150,13 +154,13 @@
     <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.402.52" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.400.109" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.400.109" />
-    <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.74" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.2" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
     <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
     <PackageReference Include="MimeMapping" Version="3.1.0" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="5.4.0" />
     <PackageReference Include="NUglify" Version="1.21.13" />
@@ -174,29 +178,14 @@
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <PackageReference Include="Nustache" Version="1.16.0.10" />
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="System.Data.Entity.Design" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.VisualBasic" Version="10.3.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager">
-      <Version>5.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="System.Drawing.Common">
-      <Version>5.0.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-  </ItemGroup>
-
   <ItemGroup>
+    <Reference Include="netstandard">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\netstandard.dll</HintPath>
+    </Reference>
+    <Reference Include="Nustache.Core">
+      <HintPath>Libs\Nustache.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Data.Entity.Design">
       <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.Entity.Design.dll</HintPath>
     </Reference>
@@ -209,5 +198,9 @@
     <Folder Include="Addons\PortalFrameworkTmp\" />
     <Folder Include="Addons\tools_tmp\" />
   </ItemGroup>
+
+	<ItemGroup>
+    <None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net481\" />
+  </ItemGroup>	
 
 </Project>

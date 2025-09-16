@@ -1,10 +1,5 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using Contensive.Processor;
-using Contensive.Processor.Models.Domain;
+﻿using Contensive.Processor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using static Tests.TestConstants;
 
 namespace Tests {

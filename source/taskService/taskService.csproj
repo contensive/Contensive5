@@ -8,10 +8,11 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>Contensive.Services</RootNamespace>
     <AssemblyName>TaskService</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,6 +38,7 @@
     <GenerateResourceMSBuildRuntime>CurrentRuntime</GenerateResourceMSBuildRuntime>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="netstandard" />
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
@@ -78,15 +80,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj">
-      <Project>{29B26629-DF94-4E7C-9F83-7E76CB4F342E}</Project>
+      <Project>{6e1714ee-514d-485f-a86b-ee2f16e2d689}</Project>
       <Name>CPBase</Name>
     </ProjectReference>
     <ProjectReference Include="..\Models\Models.csproj">
-      <Project>{199cb0a3-5550-478e-88ef-22aae346f351}</Project>
+      <Project>{b43502bf-c390-4232-89cf-8f859b3981e7}</Project>
       <Name>Models</Name>
     </ProjectReference>
     <ProjectReference Include="..\Processor\Processor.csproj">
-      <Project>{46657D07-74BC-4DDC-8FDD-9078EB1A1CD2}</Project>
+      <Project>{285a07a9-a0ef-4be7-9354-20f25ec05bac}</Project>
       <Name>Processor</Name>
     </ProjectReference>
   </ItemGroup>

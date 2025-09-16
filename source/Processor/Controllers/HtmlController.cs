@@ -4142,7 +4142,7 @@ namespace Contensive.Processor.Controllers {
                     result.Append(segment);
                     continue;
                 }
-                string innerTag = HttpUtility.HtmlEncode(segment.Substring(posFirstSpace + 1, innerLen));
+                string innerTag = WebUtility.HtmlEncode(segment.Substring(posFirstSpace + 1, innerLen));
                 segment = $"{segment.Substring(0, posFirstSpace)} data-wrapper=\"{innerTag}\"{segment.Substring(posTagClose)}";
                 result.Append(segment);
             }
@@ -4182,7 +4182,7 @@ namespace Contensive.Processor.Controllers {
                     continue;
                 }
                 string inner = segment.Substring(innerStart, innerLen);
-                inner = HttpUtility.HtmlDecode(inner);
+                inner = WebUtility.HtmlDecode(inner);
                 segment = $"{segment.Substring(0, posWrapStart - 1)} {inner}{segment.Substring(posWrapEnd + 1)}";
                 result.Append(segment);
                 continue;

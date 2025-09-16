@@ -79,12 +79,24 @@
             ' -- option 2
             '		- add all CORS response to customweb.config.  (see web.config for details)
             If Not HttpContext.Current.Response.Headers.AllKeys.Contains("Access-Control-Allow-Origin") Then
-                Dim allowOrigin As String = ConfigurationManager.AppSettings("DefaultCORSAllowOrigin")
-                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Origin", If(String.IsNullOrEmpty(allowOrigin), "*", allowOrigin))
+                Dim allowOrigin As String = ""
+                Dim allowOriginList As String = ConfigurationManager.AppSettings("DefaultCORSAllowOrigins")
+                If (Not String.IsNullOrEmpty(allowOriginList)) Then
+                    Dim allowOrigins() As String = allowOriginList.Split(","c)
+                    Dim origin As String = Request.Headers("Origin")
+                    '
+                    allowOrigin = If(allowOrigins.Contains(origin), origin, ConfigurationManager.AppSettings("DefaultCORSAllowOrigin"))
+                End If
+                allowOrigin = If(String.IsNullOrEmpty(allowOrigin), "*", allowOrigin)
+                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Origin", allowOrigin)
+				
+				Trace.Write("PageLoad, allowOrigin [" & allowOrigin & "]")
+				' System.Diagnostics.Trace.WriteLine("Error in Widget 42");
+				' Trace.Flush()
                 '
-                if allowOrigin<>"*" then
+                If allowOrigin <> "*" Then
                     HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Credentials", "true")
-                end if
+                End If
                 '
                 Dim allowMethods As String = ConfigurationManager.AppSettings("DefaultCORSAllowMethods")
                 HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Methods", If(String.IsNullOrEmpty(allowMethods), "GET,PUT,POST,DELETE,PATCH,OPTIONS", allowMethods))

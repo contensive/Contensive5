@@ -3,7 +3,7 @@
     <ProjectGuid>{36E017D4-C4EB-4C0E-8E2B-1F97150B07D9}</ProjectGuid>
     <RootNamespace>Contensive.Processor.Tests</RootNamespace>
     <AssemblyName>processortests</AssemblyName>
-	  <TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
+	  <TargetFrameworks>net481;net9.0-windows</TargetFrameworks>
 	  <LangVersion>latest</LangVersion>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\Processor\Processor.csproj" />
   </ItemGroup>
 </Project>

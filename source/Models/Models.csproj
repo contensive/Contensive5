@@ -1,77 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
-	<LangVersion>latest</LangVersion>
-    <RootNamespace>Contensive.Models</RootNamespace>
-    <AssemblyName>ContensiveDbModels</AssemblyName>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>LogoBalls.png</PackageIcon>
-    <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/contensive/Contensive5</RepositoryUrl>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <RootNamespace>Contensive.Models</RootNamespace>
+	  <AssemblyName>ContensiveDbModels</AssemblyName>
+	  <LangVersion>latest</LangVersion>
+	  <SignAssembly>True</SignAssembly>
+	  <AssemblyOriginatorKeyFile>CPModelKey.snk</AssemblyOriginatorKeyFile>
+	  <PackageId>Contensive.DbModels</PackageId>
   </PropertyGroup>
-
-  <PropertyGroup Label="Signing">
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>CPModelKey.snk</AssemblyOriginatorKeyFile>
-    <PackageId>Contensive.DbModels</PackageId>
-    <Authors>Contensive</Authors>
-    <Product>Contensive Models</Product>
-    <Description>The models shared between the contensive library and addons.</Description>
-    <Copyright>Copyright 2020</Copyright>
-    <Version>20.0.0.0</Version>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Nuget" Condition="'$(Configuration)' == 'Release'">
-    <Version>20.0.0.0</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn Label="FIX IT: Disable missing docs warnings">$(NoWarn);1570;1572;1573;1587;1591</NoWarn>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageId>Contensive.DbModels</PackageId>
-    <Authors>Contensive</Authors>
-    <Company>Contensive</Company>
-    <Product>Contensive Database Models</Product>
-    <PackageTags>Contensive</PackageTags>
-    <Copyright>Copyright 2020</Copyright>
-    <Description>The CPBaseClass package is used to build Contensive Addons. See http://Contensive.io/Docs for details.</Description>
-    <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <NeutralLanguage>en-US</NeutralLanguage>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NoWarn>1701;1702;1570;1572;1573;1587;1591</NoWarn>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- 
-      required to pack the file used in the PropertyGroup nuget PackageIcon 
-      not Content because already picked up with wildcard but without pack=true
-      https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets
-    -->
-    <None Include="LogoBalls.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Win32.Primitives">
-      <Version>4.3.0</Version>
-    </PackageReference>
   </ItemGroup>
 
 </Project>
