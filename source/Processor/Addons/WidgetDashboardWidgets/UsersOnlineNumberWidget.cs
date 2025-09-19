@@ -1,5 +1,4 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.Processor.Addons.Reports;
 using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using System;
@@ -7,6 +6,9 @@ using System.Data;
 
 namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
     public class UsersOnlineNumberWidget : AddonBaseClass {
+        //
+        public const string guidUsersOnlineReport = "{A5439430-ED28-4D72-A9ED-50FB36145955}";
+        //
         public override object Execute(CPBaseClass cp) {
             try {
                 return new DashboardWidgetNumberModel() {
@@ -17,7 +19,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     description = "The number of users online over the past 30 minutes",
                     refreshSeconds = 5,
                     widgetType = WidgetTypeEnum.number,
-                    url = $"{cp.Site.GetText("adminurl")}?addonguid={UsersOnlineReport.guidUsersOnlineReport}",
+                    url = $"{cp.Site.GetText("adminurl")}?addonguid={guidUsersOnlineReport}",
                 };
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

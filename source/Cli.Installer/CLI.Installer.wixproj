@@ -56,14 +56,14 @@
     <!-- <Exec Command ="rd /s /q etc to delete the folder before build"> -->
     <!-- <Exec Command ="dotnet publish ..\Cli etc name of project and options"> -->
     <!-- get assembly version -->
-    <GetAssemblyIdentity AssemblyFiles="..\Cli\bin\Debug\net481\Processor.dll">
+    <GetAssemblyIdentity AssemblyFiles="..\Cli\bin\Debug\net48\Processor.dll">
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
     </GetAssemblyIdentity>
     <PropertyGroup>
-      <DefineConstants>BuildVersion=%(AssemblyVersion.Version);BasePath=../Cli/bin/$(Configuration)/net481;</DefineConstants>
+      <DefineConstants>BuildVersion=%(AssemblyVersion.Version);BasePath=../Cli/bin/$(Configuration)/net48;</DefineConstants>
     </PropertyGroup>
     <!-- Harvest components from Cli build folder-->
-    <HeatDirectory OutputFile="componentsGenerated.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="PublishedComponents" Directory="../Cli/bin/$(Configuration)/net481" SuppressCom="true" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutogenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" />
+    <HeatDirectory OutputFile="componentsGenerated.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="PublishedComponents" Directory="../Cli/bin/$(Configuration)/net48" SuppressCom="true" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutogenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" />
   </Target>
   <Target Name="AfterBuild">
   </Target>

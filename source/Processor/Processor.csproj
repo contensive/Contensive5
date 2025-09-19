@@ -4,7 +4,7 @@
   </PropertyGroup>
   <PropertyGroup>
 	<UseWPF>true</UseWPF>
-	<TargetFrameworks>net481;net9.0-windows</TargetFrameworks>
+	<TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
 	<RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -200,7 +200,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-    <None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net481\" />
+    <None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net48\" />
   </ItemGroup>	
 
 </Project>

@@ -14,7 +14,7 @@
     <RootNamespace>
     </RootNamespace>
     <AssemblyName>DefaultSite</AssemblyName>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MyType>Custom</MyType>
     <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
@@ -238,9 +238,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Contensive.CPBaseClass" Version="25.9.15.7" />
-    <PackageReference Include="Contensive.DbModels" Version="25.9.15.7" />
-    <PackageReference Include="Contensive.Processor" Version="25.9.15.7" />
+    <PackageReference Include="Contensive.CPBaseClass" Version="25.9.16.8" />
+    <PackageReference Include="Contensive.DbModels" Version="25.9.16.8" />
+    <PackageReference Include="Contensive.Processor" Version="25.9.16.8" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

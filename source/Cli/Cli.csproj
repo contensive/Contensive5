@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net481;net9.0-windows</TargetFrameworks>
+    <TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <RootNamespace>Contensive.CLI</RootNamespace>
     <AssemblyName>cc</AssemblyName>
@@ -43,9 +43,18 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CPBase\CPBase.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\Processor\Processor.csproj" />
+    <ProjectReference Include="..\CPBase\CPBase.csproj">
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Models\Models.csproj">
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Processor\Processor.csproj">
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\TaskService\TaskService.csproj">
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
