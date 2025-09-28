@@ -347,7 +347,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
             RenderData renderData = new() {
                 allowPagination = true,
-                rowsFoundMessage = $"{recordCnt} records found"
+                rowsFoundMessage = recordCnt==0 ? "no records found" : recordCnt==1 ? "1 record found" : $"{recordCnt} records found"
             };
             string pageNavigation = getPageNavigation(core, renderData, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt);
             //
