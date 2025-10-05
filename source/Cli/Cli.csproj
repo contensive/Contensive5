@@ -32,13 +32,13 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.409.45" />
-		<PackageReference Include="AWSSDK.Core" Version="3.7.402.15" />
-		<PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.404.21" />
-		<PackageReference Include="AWSSDK.S3" Version="3.7.415.14" />
-		<PackageReference Include="AWSSDK.SecurityToken" Version="3.7.401.58" />
+		<PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.501.7" />
+		<PackageReference Include="AWSSDK.Core" Version="3.7.500.27" />
+		<PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.501.19" />
+		<PackageReference Include="AWSSDK.S3" Version="3.7.501.12" />
+		<PackageReference Include="AWSSDK.SecurityToken" Version="3.7.501.18" />
 		<PackageReference Include="NETStandard.Library" Version="2.0.3" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.11" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 	</ItemGroup>
 
