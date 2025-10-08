@@ -3387,10 +3387,11 @@
 				<SiteProperty Caption="Allow Content Watch Link Update" Name="AllowContentWatchLinkUpdate" ReadOnly="0" Type="boolean" Selector="" Description="Content Watch is a method of recording the URLs used for each page. The URL is always recorded when the page is first visited. Check the checkbox to also update content watch every time the content is viewed. On some older sites, menus and internal links are created from the Content Watch records. Clearing the checkbox will stop menu links from changing. This happens when uses use different domain names, or when pages are hit from other URL variations.">false</SiteProperty>
 				<SiteProperty Caption="Page Headline Field uses ccHeadline" Name="PAGEHEADLINEUSECCHEADLINE" ReadOnly="0" Type="Boolean" Description="When un-checked, the Page Content headline field uses an h1 tag. When checked, headlines are created with a div tag that includes a ccHeadline class. Unchecked is default. Checked is legacy.">0</SiteProperty>
 			</Tab>
+			<!--
 			<Tab Name="Beta" heading="Beta features" description="Settings the affect unreleased and soft-released features. Only enable/disable if you understand the affects.">
-				<SiteProperty Caption="Website Edit/Add Enhancements" Name="allow edit modal beta" ReadOnly="0" Type="Boolean" Description="When checked, the website edit and add tags change appearance and use the edit modal.">1</SiteProperty>
 				<SiteProperty Caption="Portal Pagination" Name="allow afw pagination beta" ReadOnly="0" Type="Boolean" Description="When checked, The portal list page will be limited to 50 rows per page, and the user can navigate between pages.">0</SiteProperty>
 			</Tab>
+			-->
 		</Form>
 		]]></FormXML>
 		<Admin>Yes</Admin>

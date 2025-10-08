@@ -537,6 +537,12 @@ namespace Contensive.Processor.Controllers.Build {
                         // -- delete Editor Config Tool (dup of ConfigureListClass)
                         core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{91373E4C-4562-42DD-A121-C5E09DAF1CFE}'");
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "25.10.5.3")) {
+                        //
+                        // -- sprint-10, release edit modal beta
+                        cp.Site.SetProperty("allow edit modal beta", true);
+                        cp.Site.SetProperty("allow afw pagination beta", true);
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();
