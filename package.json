@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/contensive/Contensive5#readme",
   "devDependencies": {
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.56.1",
     "@types/node": "^22.15.3"
   }
 }
