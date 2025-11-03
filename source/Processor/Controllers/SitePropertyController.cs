@@ -13,7 +13,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Site Properties
     /// </summary>
-    public class SitePropertiesController {
+    public class SitePropertyController {
         //
         private readonly CoreController core;
         //
@@ -28,63 +28,45 @@ namespace Contensive.Processor.Controllers {
         /// new
         /// </summary>
         /// <param name="core"></param>
-        public SitePropertiesController(CoreController core) {
+        public SitePropertyController(CoreController core) {
             this.core = core;
         }
         //
         //====================================================================================================
         /// <summary>
-        /// sampleBoolProperty
+        /// if not null, all email will be sent to this address. used for testing
         /// </summary>
-        public bool sampleBoolProperty {
+        public bool blockNonProductionEmail {
             get {
-                if (_sampleBoolProperty != null) { return (bool)_sampleBoolProperty; }
-                _sampleBoolProperty = getBoolean(spSampleBoolProperty, true);
-                return (bool)_sampleBoolProperty;
+                if (_blockNonProductionEmail != null) { return (bool)_blockNonProductionEmail; }
+                _blockNonProductionEmail = getBoolean(spBlockNonProductionEmail, false);
+                return (bool)_blockNonProductionEmail;
             }
             set {
-                _sampleBoolProperty = value;
-                setProperty(spSampleBoolProperty, value);
+                _blockNonProductionEmail = value;
+                setProperty(spBlockNonProductionEmail, value);
             }
         }
-        private readonly string spSampleBoolProperty = "sampleBoolProperty";
-        private bool? _sampleBoolProperty = null;
+        private readonly string spBlockNonProductionEmail = "blockNonProductionEmail";
+        private bool? _blockNonProductionEmail = null;
         //
         //====================================================================================================
         /// <summary>
-        /// sampleIntProperty
+        /// if not null, all email will be sent to this address. used for testing
         /// </summary>
-        public int sampleIntProperty {
+        public string testEmailAddress {
             get {
-                if (_sampleIntProperty != null) { return (int)_sampleIntProperty; }
-                _sampleIntProperty = getInteger(spSampleIntProperty, 99);
-                return (int)_sampleIntProperty;
+                if (_testEmailAddress != null) { return (string)_testEmailAddress; }
+                _testEmailAddress = getText(spTestEmailAddress, "default@example.com");
+                return (string)_testEmailAddress;
             }
             set {
-                _sampleIntProperty = value;
-                setProperty(spSampleIntProperty, value);
+                _testEmailAddress = value;
+                setProperty(spTestEmailAddress, value);
             }
         }
-        private readonly string spSampleIntProperty = "sampleIntProperty";
-        private int? _sampleIntProperty = null;
-        //
-        //====================================================================================================
-        /// <summary>
-        /// sampleTextProperty
-        /// </summary>
-        public string sampleTextProperty {
-            get {
-                if (_sampleTextProperty != null) { return _sampleTextProperty; }
-                _sampleTextProperty = getText(spSampleTextProperty, "default");
-                return (string)_sampleTextProperty;
-            }
-            set {
-                _sampleTextProperty = value;
-                setProperty(spSampleTextProperty, value);
-            }
-        }
-        private readonly string spSampleTextProperty = "sampleTextProperty";
-        private string _sampleTextProperty;
+        private readonly string spTestEmailAddress = "testEmailAddress";
+        private string _testEmailAddress = null;
         //
         //====================================================================================================
         /// <summary>

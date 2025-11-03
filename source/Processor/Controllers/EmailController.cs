@@ -598,7 +598,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 AddEmailLog(core, sendRequest1, false, "No email sent because email name is blank: " + sendRequest1.emailContextMessage);
                 //
-                 return false;
+                return false;
             }
             {
                 SystemEmailModel email = DbBaseModel.createByUniqueName<SystemEmailModel>(core.cpParent, emailName);
@@ -1416,23 +1416,42 @@ namespace Contensive.Processor.Controllers {
                     }
                     sendRequest.fromAddress = core.siteProperties.emailFromAddress;
                 }
-                bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
-                bool sendSuccess = false;
-                if (sendWithSES) {
+                //
+                // -- do the actual send
+                if (!core.serverConfig.productionEnvironment && core.siteProperties.blockNonProductionEmail) {
                     //
-                    // -- send with Amazon SES
-                    sendSuccess = AwsSesController.send(core, sendRequest, ref userErrorMessage);
+                    // -- block send
+                    // -- non-production server and email blocking enabled
+                    AddEmailLog(core, sendRequest, true, $"Email blocked because non-production server and site setting, email, blocking true. context [{sendRequest.emailContextMessage}]");
+                    logger.Info($"{core.logCommonMessage},Email blocked because non-production server and site setting, email, blocking true., toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
+                    return true;
                 } else {
                     //
-                    // --fall back to SMTP
-                    sendSuccess = EmailSmtpController.send(core, sendRequest, ref userErrorMessage);
-                }
-                if (sendSuccess) {
-                    //
-                    // -- success, log the send
-                    AddEmailLog(core, sendRequest, true, "Successfully sent: " + sendRequest.emailContextMessage);
-                    logger.Info($"{core.logCommonMessage},sendEmailInQueue, send successful, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
-                    return true;
+                    // -- allow send.
+                    // -- either production server or email not blocked
+                    if (!string.IsNullOrEmpty(core.siteProperties.testEmailAddress)) {
+                        //
+                        // -- override to test address
+                        sendRequest.toAddress = core.siteProperties.testEmailAddress;
+                    }
+                    bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
+                    bool sendSuccess = false;
+                    if (sendWithSES) {
+                        //
+                        // -- send with Amazon SES
+                        sendSuccess = AwsSesController.send(core, sendRequest, ref userErrorMessage);
+                    } else {
+                        //
+                        // --fall back to SMTP
+                        sendSuccess = EmailSmtpController.send(core, sendRequest, ref userErrorMessage);
+                    }
+                    if (sendSuccess) {
+                        //
+                        // -- success, log the send
+                        AddEmailLog(core, sendRequest, true, "Successfully sent: " + sendRequest.emailContextMessage);
+                        logger.Info($"{core.logCommonMessage},sendEmailInQueue, send successful, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
+                        return true;
+                    }
                 }
                 //
                 // -- fail, retry
