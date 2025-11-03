@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\Git\\Contensive5\\source\\Processor\" /s /b)",
+      "Bash(dir \"C:\\Git\\Contensive5\" /b)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
