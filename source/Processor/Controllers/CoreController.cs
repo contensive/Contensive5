@@ -34,8 +34,8 @@ namespace Contensive.Processor.Controllers {
                 visitId = session?.visit?.id;
                 _logCommonMessage = $"" +
                     $"app[{((appConfig?.name == null) ? "no-app" : appConfig.name)}]" +
-                    $",doc[{(doc?.docGuid == null ? "unset" : doc.docGuid)}]" +
                     $",user[{(session?.user?.name == null ? "0" : userId.ToString() + ":" + session.user.name)}]" +
+                    $",view[{(doc?.docGuid == null ? "unset" : doc.docGuid)}]" +
                     $",visit[{(visitId == null ? "0" : visitId.ToString())}]" +
                     $",thread[{Environment.CurrentManagedThreadId:000}]" +
                     $",url[{((webServer == null) ? "non-web" : string.IsNullOrEmpty(webServer.requestPathPage) ? "empty" : webServer.requestPathPage)}]";
@@ -327,15 +327,15 @@ namespace Contensive.Processor.Controllers {
         /// <value></value>
         /// <returns></returns>
         /// <remarks></remarks>
-        public SitePropertiesController siteProperties {
+        public SitePropertyController siteProperties {
             get {
                 if (_siteProperties == null) {
-                    _siteProperties = new SitePropertiesController(this);
+                    _siteProperties = new SitePropertyController(this);
                 }
                 return _siteProperties;
             }
         }
-        private SitePropertiesController _siteProperties;
+        private SitePropertyController _siteProperties;
         //
         //===================================================================================================
         /// <summary>

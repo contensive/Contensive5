@@ -110,12 +110,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // Process SourceForm/Button into Action/Form, and process
                 bool CheckUserErrors = true;
-                if (adminData.srcFormButton == ButtonCancelAll) {
-                    adminData.dstFormId = AdminFormRoot;
-                } else {
-                    ProcessFormController.processForms(cp, adminData);
-                    ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink, CheckUserErrors);
-                }
+                ProcessFormController.processForms(cp, adminData);
+                ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink, CheckUserErrors);
+                //if (adminData.srcFormButton == ButtonCancelAll) {
+                //    adminData.dstFormId = AdminFormRoot;
+                //} else {
+                //    ProcessFormController.processForms(cp, adminData);
+                //    ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink, CheckUserErrors);
+                //}
                 //
                 // Normalize values to be needed
                 if (adminData.editRecord.id != 0) {
