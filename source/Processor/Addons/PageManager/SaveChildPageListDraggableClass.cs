@@ -41,7 +41,7 @@ namespace Contensive.Processor.Addons.PageManager {
                         childPageIdList.Add(pageId);
                     }
                 }
-                //
+                // -- get parent page and exit if not valid
                 PageContentModel parentPage = DbBaseModel.create<PageContentModel>(core.cpParent, parentPageId);
                 if (parentPage == null) { return new ChildListSaveResponse { success = false, errors = new List<string> { "parent page invalid" } }; };
                 //
@@ -68,16 +68,18 @@ namespace Contensive.Processor.Addons.PageManager {
                     if (childPageId > 0) {
                         string SortOrder = (100000 + (pagePtr * 10)).ToString();
                         PageContentModel childPage = DbBaseModel.create<PageContentModel>(core.cpParent, childPageId);
+                        if (childPage is null) { continue; }
                         childPage.sortOrder = SortOrder;
                         childPage.parentListName = ParentPageValues[2];
                         childPage.save(core.cpParent);
                     }
                     pagePtr += 1;
                 }
+                return new ChildListSaveResponse();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
+                return "";
             }
-            return new ChildListSaveResponse(); ;
         }
         //
         // ====================================================================================================

@@ -57,7 +57,7 @@ namespace Contensive.Processor.Controllers {
         public string testEmailAddress {
             get {
                 if (_testEmailAddress != null) { return (string)_testEmailAddress; }
-                _testEmailAddress = getText(spTestEmailAddress, "default@example.com");
+                _testEmailAddress = getText(spTestEmailAddress);
                 return (string)_testEmailAddress;
             }
             set {
