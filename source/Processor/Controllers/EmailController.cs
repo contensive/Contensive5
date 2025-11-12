@@ -1577,7 +1577,7 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- convert links to absolute links
-            body = HtmlController.convertLinksToAbsolute(body, webAddressProtocolDomain + "/");
+            body = HtmlController.convertHrefSrcToAbsolute(body, webAddressProtocolDomain + "/");
             //
             // -- support legacy replace
             if (recipientNullable != null) {

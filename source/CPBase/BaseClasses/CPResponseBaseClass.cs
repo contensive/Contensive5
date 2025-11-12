@@ -53,10 +53,17 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Set the response redirect
+        /// Set the response redirect (302)
         /// </summary>
         /// <param name="link"></param>
         public abstract void Redirect(string link);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Set the response redirect permanent (301)
+        /// </summary>
+        /// <param name="link"></param>
+        public abstract void RedirectPermanent(string link);
         //
         //====================================================================================================
         /// <summary>

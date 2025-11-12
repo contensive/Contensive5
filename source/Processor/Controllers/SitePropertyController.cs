@@ -34,6 +34,26 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// 1 = permanent redirect to primary page
+        /// 2 = temp redirect to primary page
+        /// other = no redirect
+        /// </summary>
+        public int pageAliasRedirectMethod {
+            get {
+                if (_pageAliasRedirectMethod != null) { return (int)_pageAliasRedirectMethod; }
+                _pageAliasRedirectMethod = getInteger(spPageAliasRedirectMethod, 2);
+                return (int)_pageAliasRedirectMethod;
+            }
+            set {
+                _pageAliasRedirectMethod = value;
+                setProperty(spPageAliasRedirectMethod, value);
+            }
+        }
+        private readonly string spPageAliasRedirectMethod = "Page Alias Redirect Method";
+        private int? _pageAliasRedirectMethod = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// if not null, all email will be sent to this address. used for testing
         /// </summary>
         public bool blockNonProductionEmail {

@@ -20,26 +20,20 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         // enum this, not consts --  https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
-        /// <summary>
-        /// 200
-        /// </summary>
-        public static readonly string httpResponseStatus200_Success = "200 OK";
-        /// <summary>
-        /// 401 unauthorized
-        /// </summary>
-        public static readonly string httpResponseStatus401_Unauthorized = "401 Unauthorized";
-        /// <summary>
-        /// 403 forbidden
-        /// </summary>
-        public static readonly string httpResponseStatus403_Forbidden = "403 Forbidden";
-        /// <summary>
-        /// 404 not found
-        /// </summary>
-        public static readonly string httpResponseStatus404_NotFound = "404 Not Found";
-        /// <summary>
-        /// 500 server error
-        /// </summary>
-        public static readonly string httpResponseStatus500_ServerError = "500 Internal Server Error";
+        public static class httpResponseStatus {
+            public const string OK = "200 OK";
+            public const string Created = "201 Created";
+            public const string Accepted = "202 Accepted";
+            public const string NoContent = "204 No Content";
+            public const string MovedPermanently = "301 Moved Permanently";
+            public const string MovedTemporarily_Found = "302 Found";
+            public const string NotModified = "304 Not Modified";
+            public const string BadRequest = "400 Bad Request";
+            public const string Unauthorized = "401 Unauthorized";
+            public const string Forbidden = "403 Forbidden";
+            public const string NotFound = "404 Not Found";
+            public const string InternalServerError = "500 Internal Server Error";
+        }
         //
         //====================================================================================================
         //
@@ -158,8 +152,8 @@ namespace Contensive.Processor.Controllers {
                 if (GenericController.strInstr(1, core.domain.forwardUrl, "://") == 0) {
                     core.domain.forwardUrl = "http://" + core.domain.forwardUrl;
                 }
-                redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this URL", false, false);
-                return ;
+                redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this URL", false, false, false);
+                return;
             } else if ((core.domain.typeId == 3) && (core.domain.forwardDomainId != 0) && (core.domain.forwardDomainId != core.domain.id)) {
                 //
                 // forward to a replacement domain
@@ -169,7 +163,7 @@ namespace Contensive.Processor.Controllers {
                     int pos = requestUrlSource.IndexOf(requestDomain, StringComparison.InvariantCultureIgnoreCase);
                     if (pos > 0) {
                         core.domain.forwardUrl = requestUrlSource.left(pos) + forwardDomain + requestUrlSource.Substring((pos + requestDomain.Length));
-                        redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this replacement domain", false, false);
+                        redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this replacement domain", false, false, false);
                         return;
                     }
                 }
@@ -273,8 +267,8 @@ namespace Contensive.Processor.Controllers {
         public string requestRemoteIP {
             get {
                 if (httpContext?.Request?.ServerVariables == null) { return string.Empty; }
-                if (httpContext.Request.ServerVariables.ContainsKey("HTTP_X_FORWARDED_FOR")) { return httpContext.Request.ServerVariables["HTTP_X_FORWARDED_FOR"]; };
-                if (httpContext.Request.ServerVariables.ContainsKey("REMOTE_ADDR")) { return httpContext.Request.ServerVariables["REMOTE_ADDR"]; };
+                if (httpContext.Request.ServerVariables.ContainsKey("HTTP_X_FORWARDED_FOR")) { return httpContext.Request.ServerVariables["HTTP_X_FORWARDED_FOR"]; }
+                if (httpContext.Request.ServerVariables.ContainsKey("REMOTE_ADDR")) { return httpContext.Request.ServerVariables["REMOTE_ADDR"]; }
                 return "";
             }
         }
@@ -511,7 +505,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestContentType {
             get {
-                if (_requestContentType != null) { return _requestContentType; };
+                if (_requestContentType != null) { return _requestContentType; }
                 if ((httpContext == null) || (httpContext.Request == null)) { return ""; }
                 _requestContentType = httpContext.Request.ContentType;
                 return _requestContentType;
@@ -885,87 +879,68 @@ namespace Contensive.Processor.Controllers {
         /// redirect, and return a message explain redirection to admins
         /// if redirection cannot happen, return empty string as flag to not abort page
         /// </summary>
-        /// <param name="nonEncodedLink"></param>
+        /// <param name="srcUrl_nonEncoded"></param>
         /// <param name="redirectReason"></param>
         /// <param name="isPageNotFound"></param>
         /// <param name="allowDebugMessage">If true, when visit property debugging is enabled, the routine returns </param>
-        public string redirect(string nonEncodedLink, string redirectReason, bool isPageNotFound, bool allowDebugMessage) {
-            string result = HtmlController.div("Redirecting to [" + nonEncodedLink + "], reason [" + redirectReason + "]", "ccWarningBox");
+        public string redirect(string srcUrl_nonEncoded, string redirectReason, bool isPageNotFound, bool allowDebugMessage, bool isPermanentRedirect) {
+            string result = HtmlController.div($"Redirecting to [{srcUrl_nonEncoded}], reason [{redirectReason}]", "ccWarningBox");
             try {
-                if ((httpContext == null) || (httpContext.Response == null)) { return result; }
-                //
-                // -- convert link to a long link on this domain
-                string fullLink = nonEncodedLink;
-                string shortLink = "";
-                if (nonEncodedLink.left(4).ToLowerInvariant() != "http") {
-                    if (nonEncodedLink.left(1).ToLowerInvariant() == "/") {
-                        //
-                        // -- root relative - url starts with path, let it go
-                    } else if (nonEncodedLink.left(1).ToLowerInvariant() == "?") {
-                        //
-                        // -- starts with qs, fix issue where iis consideres this on the physical page, not the link-alias vitrual route
-                        nonEncodedLink = requestPathPage + nonEncodedLink;
-                    } else {
-                        //
-                        // -- url starts with the page
-                        nonEncodedLink = requestPath + nonEncodedLink;
-                    }
-                    shortLink = nonEncodedLink;
-                    shortLink = GenericController.convertLinkToShortLink(shortLink, requestDomain, core.appConfig.cdnFileUrl);
-                    shortLink = GenericController.encodeVirtualPath(shortLink, core.appConfig.cdnFileUrl, appRootPath, requestDomain);
-                    fullLink = requestProtocol + requestDomain + shortLink;
-                }
-                //
-                if (string.IsNullOrEmpty(nonEncodedLink)) {
-                    //
-                    // Link is not valid
-                    //
-                    logger.Error($"{core.logCommonMessage}", new GenericException("Redirect was called with a blank Link. Redirect Reason [" + redirectReason + "]"));
+                if (httpContext?.Response == null) return result;
+
+                // -- Convert link to a long link on this domain if not already absolute
+                string absoluteUrl, rootRelativeUrl;
+                srcUrl_nonEncoded = normalizeUrl(srcUrl_nonEncoded, out absoluteUrl, out rootRelativeUrl);
+
+                if (string.IsNullOrEmpty(srcUrl_nonEncoded)) {
+                    logger.Error($"{core.logCommonMessage}", new GenericException($"Redirect was called with a blank Link. Redirect Reason [{redirectReason}]"));
                     return result;
                 }
-                if ((requestForm.Count == 0) && (requestUrlSource == fullLink)) {
-                    //
-                    // Loop redirect error, throw trap and block redirect to prevent loop
-                    //
-                    logger.Error($"{core.logCommonMessage}", new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
+
+                // Prevent cyclic redirects
+                if (requestForm.Count == 0 && requestUrlSource == absoluteUrl) {
+                    logger.Error($"{core.logCommonMessage}", new GenericException(
+                        $"Redirect was called to the same URL, requestUrl is [{requestUrl}], requestUrlSource is [{requestUrlSource}]. " +
+                        $"This redirect is only allowed if either the form or querystring has changed to prevent cyclic redirects. Redirect Reason [{redirectReason}]"));
                     return result;
                 }
-                LogController.setSiteWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]", isPageNotFound);
+
+                LogController.setSiteWarning(core, "Page Not Found Redirect", $"Page Not Found Redirect [{requestUrlSource}]", isPageNotFound);
+
                 if (isPageNotFound) {
-                    //
                     // -- Do a PageNotFound then redirect
-                    if (!string.IsNullOrEmpty(shortLink)) {
-                        string sql = "Update ccContentWatch set link=null where link=" + DbController.encodeSQLText(shortLink);
+                    if (!string.IsNullOrEmpty(rootRelativeUrl)) {
+                        string sql = $"Update ccContentWatch set link=null where link={DbController.encodeSQLText(rootRelativeUrl)}";
                         core.db.executeNonQuery(sql);
                     }
-                    //
+
                     if (allowDebugMessage && core.doc.visitPropertyAllowDebugging) {
-                        //
-                        // -- Verbose - do not redirect, just print the link
-                        string encodedLink = nonEncodedLink;
-                        result = "<div style=\"padding:20px;border:1px dashed black;background-color:white;color:black;\">" + redirectReason + "<p>Page Not Found. Click to continue the redirect to <a href=" + encodedLink + ">" + HtmlController.encodeHtml(nonEncodedLink) + "</a>...</p></div>";
+                        string encodedLink = srcUrl_nonEncoded;
+                        result = $"<div style=\"padding:20px;border:1px dashed black;background-color:white;color:black;\">{redirectReason}<p>Page Not Found. Click to continue the redirect to <a href={encodedLink}>{HtmlController.encodeHtml(srcUrl_nonEncoded)}</a>...</p></div>";
                         core.doc.continueProcessing = false;
                         return result;
                     }
-                    //
-                    // -- exit with 404
-                    setResponseStatus(WebServerController.httpResponseStatus404_NotFound);
+
+                    setResponseStatus(WebServerController.httpResponseStatus.NotFound);
                     core.doc.continueProcessing = false;
                     return result;
                 }
-                logger.Info($"{core.logCommonMessage},Redirect called, from [" + requestUrl + "], to [" + nonEncodedLink + "], reason [" + redirectReason + "]");
+
+                logger.Info($"{core.logCommonMessage},Redirect called, from [{requestUrl}], to [{srcUrl_nonEncoded}], reason [{redirectReason}]");
+
                 if (allowDebugMessage && core.doc.visitPropertyAllowDebugging) {
-                    //
-                    // -- Verbose - do not redirect, just print the link
-                    string encodedLink = nonEncodedLink;
-                    result = "<div style=\"padding:20px;border:1px dashed black;background-color:white;color:black;\">" + redirectReason + "<p>Click to continue the redirect to <a href=" + encodedLink + ">" + HtmlController.encodeHtml(nonEncodedLink) + "</a>...</p></div>";
+                    string encodedLink = srcUrl_nonEncoded;
+                    result = $"<div style=\"padding:20px;border:1px dashed black;background-color:white;color:black;\">{redirectReason}<p>Click to continue the redirect to <a href={encodedLink}>{HtmlController.encodeHtml(srcUrl_nonEncoded)}</a>...</p></div>";
                     core.doc.continueProcessing = false;
                     return result;
                 }
-                //
+
                 // -- Redirect now
                 clearResponseBuffer();
-                httpContext.Response.redirectUrl = nonEncodedLink;
+                setResponseStatus(isPermanentRedirect
+                    ? WebServerController.httpResponseStatus.MovedPermanently
+                    : WebServerController.httpResponseStatus.MovedTemporarily_Found);
+                httpContext.Response.redirectUrl = srcUrl_nonEncoded;
                 httpContext.ApplicationInstance.CompleteRequest();
                 core.doc.continueProcessing = false;
                 return result;
@@ -973,6 +948,34 @@ namespace Contensive.Processor.Controllers {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// normalize a url and return the root relative and absolute versions
+        /// </summary>
+        /// <param name="srcUrl_nonEncoded"></param>
+        /// <param name="absoluteUrl"></param>
+        /// <param name="rootRelativeUrl"></param>
+        /// <returns></returns>
+        public string normalizeUrl(string srcUrl_nonEncoded, out string absoluteUrl, out string rootRelativeUrl) {
+            absoluteUrl = srcUrl_nonEncoded;
+            rootRelativeUrl = "";
+            if (!srcUrl_nonEncoded.left(4).ToLowerInvariant().Equals("http")) {
+                if (srcUrl_nonEncoded.left(1) == "/") {
+                    // Root relative, do nothing
+                } else if (srcUrl_nonEncoded.left(1) == "?") {
+                    srcUrl_nonEncoded = requestPathPage + srcUrl_nonEncoded;
+                } else {
+                    srcUrl_nonEncoded = requestPath + srcUrl_nonEncoded;
+                }
+                rootRelativeUrl = srcUrl_nonEncoded;
+                rootRelativeUrl = GenericController.convertLinkToShortLink(rootRelativeUrl, requestDomain, core.appConfig.cdnFileUrl);
+                rootRelativeUrl = GenericController.encodeVirtualPath(rootRelativeUrl, core.appConfig.cdnFileUrl, appRootPath, requestDomain);
+                absoluteUrl = requestProtocol + requestDomain + rootRelativeUrl;
+            }
+
+            return srcUrl_nonEncoded;
         }
         //
         //====================================================================================================
@@ -994,7 +997,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="IsPageNotFound"></param>
         /// <returns></returns>
         public string redirect(string NonEncodedLink, string RedirectReason, bool IsPageNotFound)
-            => redirect(NonEncodedLink, RedirectReason, IsPageNotFound, true);
+            => redirect(NonEncodedLink, RedirectReason, IsPageNotFound, true, true);
         //========================================================================
         /// <summary>
         /// 
@@ -1077,7 +1080,7 @@ namespace Contensive.Processor.Controllers {
                             if (csData.isFieldSupported("Clicks")) {
                                 csData.set("Clicks", (csData.getNumber("Clicks")) + 1);
                             }
-                            core.webServer.redirect(LinkPrefix + NonEncodedLink, "Redirect by Record, content [" + contentName + "], recordId [" + recordId + "], field [" + fieldName + "], called from " + GenericController.getCallStack(), false, false);
+                            core.webServer.redirect(LinkPrefix + NonEncodedLink, "Redirect by Record, content [" + contentName + "], recordId [" + recordId + "], field [" + fieldName + "], called from " + GenericController.getCallStack(), false, false, false);
                             result = true;
                         }
                     }

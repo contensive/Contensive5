@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons {
             if (userId == 0) {
                 //
                 // -- user was not found
-                core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);
                 return new AuthenticateResponse {
                     errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                     data = new AuthenticateResponseData()
@@ -90,7 +90,7 @@ namespace Contensive.Processor.Addons {
                 if (!AuthController.authenticateById(core, core.session, userId)) {
                     //
                     // -- username/password login failed
-                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);
                     return new AuthenticateResponse {
                         errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                         data = new AuthenticateResponseData()
@@ -98,7 +98,7 @@ namespace Contensive.Processor.Addons {
                 } else {
                     var user = DbBaseModel.create<PersonModel>(core.cpParent, core.session.user.id);
                     if (user == null) {
-                        core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                        core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);
                         return new AuthenticateResponse {
                             errors = [$"{errorPrefix} failed. User is not valid"],
                             data = new AuthenticateResponseData()

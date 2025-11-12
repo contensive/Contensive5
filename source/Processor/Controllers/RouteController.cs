@@ -44,7 +44,7 @@ namespace Contensive.Processor.Controllers {
                 if (!core.doc.visitPropertyAllowDebugging) { core.doc.testPointMessage = ""; }
                 //
                 // -- test fix for 404 response during routing - could it be a response left over from processing before we are called
-                core.webServer.setResponseStatus(WebServerController.httpResponseStatus200_Success);
+                core.webServer.setResponseStatus(WebServerController.httpResponseStatus.OK);
                 //
                 // -- execute intercept methods first, like login, that run before the route that returns the page
                 // -- intercept routes should be addons alos
@@ -91,7 +91,7 @@ namespace Contensive.Processor.Controllers {
                 // -- returned userError is a problem. 
                 string userErrorMessage = "";
                 processBuiltInForms(core, userErrorMessage);
-                if(!string.IsNullOrEmpty(userErrorMessage)) { core.cpParent.UserError.Add(userErrorMessage); }
+                if (!string.IsNullOrEmpty(userErrorMessage)) { core.cpParent.UserError.Add(userErrorMessage); }
                 //
                 // -- try legacy methods (?method=login)
                 string methodRouteResult = "";
@@ -196,23 +196,7 @@ namespace Contensive.Processor.Controllers {
                     case RouteMapModel.RouteTypeEnum.remoteMethod: {
                             //
                             // -- remote method
-                            AddonModel addon = core.cacheRuntime.addonCache.create(route.remoteMethodAddonId);
-                            if (addon == null) {
-                                logger.Error($"{core.logCommonMessage}", new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
-                                return true;
-                            }
-                            CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
-                                addonType = CPUtilsBaseClass.addonContext.ContextRemoteMethodJson,
-                                cssContainerClass = "",
-                                cssContainerId = "",
-                                hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
-                                    contentName = core.docProperties.getText("hostcontentname"),
-                                    fieldName = "",
-                                    recordId = core.docProperties.getInteger("HostRecordID")
-                                },
-                                errorContextMessage = "calling remote method addon [" + route.remoteMethodAddonId + "] during execute route method"
-                            };
-                            returnResult = core.addon.execute(addon, executeContext);
+                            returnResult = tryExecuteRouteDictionary_remoteMethod(core, returnResult, route);
                             return true;
                         }
                     case RouteMapModel.RouteTypeEnum.linkAlias: {
@@ -223,9 +207,39 @@ namespace Contensive.Processor.Controllers {
                             // -- consensus is that since the link alias (permalink, long-tail url, etc) comes first on the left, that the querystring should override
                             // -- so http://www.mySite.com/My-Blog-Post?bid=9 means use the bid not the bid from the link-alias
                             if (!string.IsNullOrEmpty(route.linkAliasRedirect)) {
-                                core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.");
-                                return true;
+                                //
+                                // -- always add canonical tag if a primary url exists
+                                string absoluteUrl, relativeUrl;
+                                string linkAliasUrl = core.webServer.normalizeUrl(route.linkAliasRedirect, out absoluteUrl, out relativeUrl);
+                                core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteUrl}\">", "link alias canonical tag");
+                                switch (core.siteProperties.pageAliasRedirectMethod) {
+                                    case 1: {
+                                            //
+                                            // -- permanent redirect
+                                            core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.", false, true, true);
+                                            return true;
+                                        }
+                                    case 2: {
+                                            //
+                                            // -- temporary redirect
+                                            core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.", false, true, false);
+                                            return true;
+                                        }
+                                    default: {
+                                            //
+                                            // -- no redirect, recurse to the primary link alias
+                                            if (tryExecuteRouteDictionary(core,  route.linkAliasRedirect, ref returnResult)) {
+                                                return true;
+                                            }
+                                            //
+                                            // -- if linkAlias redirect did not return, do permanent redirect
+                                            core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.", false, true, true);
+                                            return true;
+                                        }
+                                }
                             }
+                            //
+                            // -- link alias with no redirect, set the bid and qs in doc properties for the default route to process
                             core.docProperties.setProperty("bid", route.linkAliasPageId);
                             foreach (NameValueModel nameValue in route.linkAliasQSList) {
                                 core.docProperties.setProperty(nameValue.name, nameValue.value);
@@ -248,6 +262,29 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
+
+        private static string tryExecuteRouteDictionary_remoteMethod(CoreController core, string returnResult, RouteMapModel.RouteClass route) {
+            AddonModel addon = core.cacheRuntime.addonCache.create(route.remoteMethodAddonId);
+            if (addon == null) {
+                logger.Error($"{core.logCommonMessage}", new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
+            } else {
+                CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
+                    addonType = CPUtilsBaseClass.addonContext.ContextRemoteMethodJson,
+                    cssContainerClass = "",
+                    cssContainerId = "",
+                    hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
+                        contentName = core.docProperties.getText("hostcontentname"),
+                        fieldName = "",
+                        recordId = core.docProperties.getInteger("HostRecordID")
+                    },
+                    errorContextMessage = "calling remote method addon [" + route.remoteMethodAddonId + "] during execute route method"
+                };
+                returnResult = core.addon.execute(addon, executeContext);
+            }
+
+            return returnResult;
+        }
+
         //
         /// <summary>
         /// legacy method=login

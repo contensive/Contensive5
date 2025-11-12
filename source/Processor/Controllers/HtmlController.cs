@@ -4032,7 +4032,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="htmlContent"></param>
         /// <param name="urlProtocolDomainSlash"></param>
         /// <returns></returns>
-        public static string convertLinksToAbsolute(string htmlContent, string urlProtocolDomainSlash) {
+        public static string convertHrefSrcToAbsolute(string htmlContent, string urlProtocolDomainSlash) {
             string result = htmlContent;
             result = result.Replace(" href=\"", " href=\"/");
             result = result.Replace(" href=\"/http", " href=\"http");

@@ -20,13 +20,13 @@ namespace Contensive.Processor.Addons.FaviconIco {
                     //
                     // no favicon, 404 the call
                     //
-                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus404_NotFound);
+                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus.NotFound);
                     core.webServer.responseContentType = "image/gif";
                     core.doc.continueProcessing = false;
                     return string.Empty;
                 } else {
                     core.doc.continueProcessing = false;
-                    return core.webServer.redirect(GenericController.getCdnFileLink(core, Filename), "favicon request", false, false);
+                    return core.webServer.redirect(GenericController.getCdnFileLink(core, Filename), "favicon request", false, false, true);
                 }
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

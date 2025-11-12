@@ -312,10 +312,10 @@ namespace Tests {
             string expect3 = "<div><a href=\"https://www.good.com/page.html\"></div>";
             string expect4 = "<div><a href=\"https://www.good.com/page.html\"></div>";
             // act
-            string result1 = HtmlController.convertLinksToAbsolute(content1, link1);
-            string result2 = HtmlController.convertLinksToAbsolute(content2, link1);
-            string result3 = HtmlController.convertLinksToAbsolute(content1, link2);
-            string result4 = HtmlController.convertLinksToAbsolute(content4, link2);
+            string result1 = HtmlController.convertHrefSrcToAbsolute(content1, link1);
+            string result2 = HtmlController.convertHrefSrcToAbsolute(content2, link1);
+            string result3 = HtmlController.convertHrefSrcToAbsolute(content1, link2);
+            string result4 = HtmlController.convertHrefSrcToAbsolute(content4, link2);
             // assert
             Assert.AreEqual(expect1, result1);
             Assert.AreEqual(expect2, result2);

@@ -46,7 +46,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     byte[] usernamePasswordBytes = Convert.FromBase64String(usernamePasswordEncoded);
                     string[] usernamePassword = Encoding.ASCII.GetString(usernamePasswordBytes).Split(':');
                     if (usernamePassword.Length != 2) {
-                        cp.Response.SetStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                        cp.Response.SetStatus(WebServerController.httpResponseStatus.Unauthorized);
                         return new AuthenticateResponse {
                             errors = ["Basic Authentication Failed."],
                             data = new AuthenticateResponseData()
@@ -77,7 +77,7 @@ namespace Contensive.Processor.Addons.Primitives {
             if (userId == 0) {
                 //
                 // -- user was not found
-                core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);
                 return new AuthenticateResponse {
                     errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                     data = new AuthenticateResponseData()
@@ -86,7 +86,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 if (!AuthController.authenticateById(core, core.session, userId)) {
                     //
                     // -- username/password login failed
-                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);
                     return new AuthenticateResponse {
                         errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                         data = new AuthenticateResponseData()
@@ -94,7 +94,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 } else {
                     var user = DbBaseModel.create<PersonModel>(core.cpParent, core.session.user.id);
                     if (user == null) {
-                        core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
+                        core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);
                         return new AuthenticateResponse {
                             errors = new List<string> { errorPrefix + " user is not valid." },
                             data = new AuthenticateResponseData()

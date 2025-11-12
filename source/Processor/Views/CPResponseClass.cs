@@ -97,7 +97,17 @@ namespace Contensive.Processor {
         /// <param name="link"></param>
         public override void Redirect(string link) {
             string callStack = "CP.Redirect call from " + GenericController.getCallStack();
-            cp.core.webServer.redirect(link, callStack, false, false);
+            cp.core.webServer.redirect(link, callStack, false, false, false);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// redirect to a link
+        /// </summary>
+        /// <param name="link"></param>
+        public override void RedirectPermanent(string link) {
+            string callStack = "CP.RedirectPermanent call from " + GenericController.getCallStack();
+            cp.core.webServer.redirect(link, callStack, false, false, true);
         }
         //
         //====================================================================================================
