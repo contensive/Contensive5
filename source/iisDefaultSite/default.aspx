@@ -58,7 +58,11 @@
                     If (Not String.IsNullOrEmpty(context.Response.redirectUrl)) Then
                         '
                         ' -- perform redirect. Do not exit because reload required if route change
-                        Response.Redirect(context.Response.redirectUrl, False)
+						if(context.Response.status.contains("301")) then
+							Response.RedirectPermanent(context.Response.redirectUrl, False)
+						else
+							Response.Redirect(context.Response.redirectUrl, False)
+						end if
                     Else
                         '
                         ' -- write content body to webserver

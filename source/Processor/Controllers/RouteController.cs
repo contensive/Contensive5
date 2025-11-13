@@ -37,7 +37,9 @@ namespace Contensive.Processor.Controllers {
                     logger.Debug($"{core.logCommonMessage},executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
-                LogController.log(core, "CoreController executeRoute, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                string routeRequest = core.docProperties.getText(RequestNameRemoteMethodAddon);
+                string routeCurrent = core.webServer.requestPathPage.ToLowerInvariant();
+                LogController.log(core, $"CoreController executeRoute, enter, routeOverride [{routeOverride}], routeRequest [{routeRequest}], routeCurrent [{routeCurrent}]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 // -- debug defaults on, so if not on, set it off and clear what was collected
                 core.doc.visitPropertyAllowDebugging = core.visitProperty.getBoolean("AllowDebugging");
@@ -54,11 +56,11 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(normalizedRoute)) {
                     //
                     // -- no override, try argument route (remoteMethodAddon=)
-                    normalizedRoute = GenericController.normalizeRoute(core.docProperties.getText(RequestNameRemoteMethodAddon));
+                    normalizedRoute = GenericController.normalizeRoute(routeRequest);
                     if (string.IsNullOrEmpty(normalizedRoute)) {
                         //
                         // -- no override or argument, use the url as the route
-                        normalizedRoute = GenericController.normalizeRoute(core.webServer.requestPathPage.ToLowerInvariant());
+                        normalizedRoute = GenericController.normalizeRoute(routeCurrent);
                     }
                 }
                 //
@@ -227,22 +229,26 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     default: {
                                             //
-                                            // -- no redirect, recurse to the primary link alias
-                                            if (tryExecuteRouteDictionary(core,  route.linkAliasRedirect, ref returnResult)) {
+                                            // -- no redirect, return the result from the new route
+                                            string normalizedLinkAliasRedirect = GenericController.normalizeRoute(route.linkAliasRedirect) ;
+                                            if (tryExecuteRouteDictionary(core, normalizedLinkAliasRedirect, ref returnResult)) {
                                                 return true;
                                             }
                                             //
-                                            // -- if linkAlias redirect did not return, do permanent redirect
-                                            core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.", false, true, true);
-                                            return true;
+                                            // -- if linkAlias redirect did not true, then the resulting page must be rendered, continue to set bid, QAList and edit false
+                                            //break;
+                                            // -- not sure what the effect of this will be if the page alias was not a page (?)
+                                            return false;
                                         }
                                 }
                             }
                             //
                             // -- link alias with no redirect, set the bid and qs in doc properties for the default route to process
                             core.docProperties.setProperty("bid", route.linkAliasPageId);
-                            foreach (NameValueModel nameValue in route.linkAliasQSList) {
-                                core.docProperties.setProperty(nameValue.name, nameValue.value);
+                            if( route.linkAliasQSList != null) {
+                                foreach (NameValueModel nameValue in route.linkAliasQSList) {
+                                    core.docProperties.setProperty(nameValue.name, nameValue.value);
+                                }
                             }
                             return false;
                         }
