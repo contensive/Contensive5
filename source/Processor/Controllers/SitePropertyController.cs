@@ -85,7 +85,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spTestEmailAddress, value);
             }
         }
-        private readonly string spTestEmailAddress = "testEmailAddress";
+        private readonly string spTestEmailAddress = "Test Email Address";
         private string _testEmailAddress = null;
         //
         //====================================================================================================

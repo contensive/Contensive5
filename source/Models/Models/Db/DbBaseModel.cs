@@ -1274,37 +1274,87 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="model"></param>
+        //public void loadFromRequest(CPBaseClass cp) {
+        //    try {
+        //        foreach (PropertyInfo prop in this.GetType().GetProperties()) {
+        //            // -- save property is writable, and in the request
+        //            if (prop.CanWrite && cp.Doc.IsProperty(prop.Name)) {
+        //                if (prop.PropertyType == typeof(string)) {
+        //                    //
+        //                    // -- string
+        //                    prop.SetValue(this, cp.Doc.GetText(prop.Name));
+        //                }
+        //                if (prop.PropertyType == typeof(Int32)) {
+        //                    //
+        //                    // -- integer
+
+        //                    prop.SetValue(this, cp.Doc.GetInteger(prop.Name));
+        //                }
+        //                if (prop.PropertyType == typeof(double)) {
+        //                    //
+        //                    // -- number
+        //                    prop.SetValue(this, cp.Doc.GetNumber(prop.Name));
+        //                }
+        //                if (prop.PropertyType == typeof(bool)) {
+        //                    //
+        //                    // -- number
+        //                    prop.SetValue(this, cp.Doc.GetBoolean(prop.Name));
+        //                }
+        //                if (prop.PropertyType == typeof(DateTime)) {
+        //                    //
+        //                    // -- integer
+
+        //                    prop.SetValue(this, cp.Doc.GetDate(prop.Name));
+        //                }
+        //            }
+        //        }
+        //    } catch (Exception ex) {
+        //        cp.Site.ErrorReport(ex);
+        //        throw;
+        //    }
+        //}
+
         public void loadFromRequest(CPBaseClass cp) {
             try {
-                foreach (PropertyInfo prop in this.GetType().GetProperties()) {
-                    // -- save property is writable, and in the request
-                    if (prop.CanWrite && cp.Doc.IsProperty(prop.Name)) {
-                        if (prop.PropertyType == typeof(string)) {
-                            //
-                            // -- string
-                            prop.SetValue(this, cp.Doc.GetText(prop.Name));
-                        }
-                        if (prop.PropertyType == typeof(Int32)) {
-                            //
-                            // -- integer
-
-                            prop.SetValue(this, cp.Doc.GetInteger(prop.Name));
-                        }
-                        if (prop.PropertyType == typeof(double)) {
-                            //
-                            // -- number
-                            prop.SetValue(this, cp.Doc.GetNumber(prop.Name));
-                        }
-                        if (prop.PropertyType == typeof(bool)) {
-                            //
-                            // -- number
-                            prop.SetValue(this, cp.Doc.GetBoolean(prop.Name));
-                        }
-                        if (prop.PropertyType == typeof(DateTime)) {
-                            //
-                            // -- integer
-
-                            prop.SetValue(this, cp.Doc.GetDate(prop.Name));
+                PropertyInfo[] properties = GetType().GetProperties();
+                foreach (PropertyInfo propertyInfo in properties) {
+                    if (propertyInfo.CanWrite && cp.Doc.IsProperty(propertyInfo.Name)) {
+                        Type propType = propertyInfo.PropertyType;
+                        // Handle nullable types
+                        Type underlyingType = Nullable.GetUnderlyingType(propType);
+                        if (underlyingType != null) {
+                            string value = cp.Doc.GetText(propertyInfo.Name);
+                            if (string.IsNullOrWhiteSpace(value)) {
+                                propertyInfo.SetValue(this, null);
+                            } else {
+                                if (underlyingType == typeof(int)) {
+                                    propertyInfo.SetValue(this, cp.Doc.GetInteger(propertyInfo.Name));
+                                } else if (underlyingType == typeof(double)) {
+                                    propertyInfo.SetValue(this, cp.Doc.GetNumber(propertyInfo.Name));
+                                } else if (underlyingType == typeof(bool)) {
+                                    propertyInfo.SetValue(this, cp.Doc.GetBoolean(propertyInfo.Name));
+                                } else if (underlyingType == typeof(DateTime)) {
+                                    propertyInfo.SetValue(this, cp.Doc.GetDate(propertyInfo.Name));
+                                } else if (underlyingType == typeof(string)) {
+                                    propertyInfo.SetValue(this, value);
+                                }
+                            }
+                        } else {
+                            if (propType == typeof(string)) {
+                                propertyInfo.SetValue(this, cp.Doc.GetText(propertyInfo.Name));
+                            }
+                            if (propType == typeof(int)) {
+                                propertyInfo.SetValue(this, cp.Doc.GetInteger(propertyInfo.Name));
+                            }
+                            if (propType == typeof(double)) {
+                                propertyInfo.SetValue(this, cp.Doc.GetNumber(propertyInfo.Name));
+                            }
+                            if (propType == typeof(bool)) {
+                                propertyInfo.SetValue(this, cp.Doc.GetBoolean(propertyInfo.Name));
+                            }
+                            if (propType == typeof(DateTime)) {
+                                propertyInfo.SetValue(this, cp.Doc.GetDate(propertyInfo.Name));
+                            }
                         }
                     }
                 }
