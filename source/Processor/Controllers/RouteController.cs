@@ -16,6 +16,40 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class RouteController {
         //
+        //====================================================================================================
+        /// <summary>
+        /// Convert a route to the anticipated format (lowercase,no leading /, no trailing /)
+        /// </summary>
+        /// <param name="route"></param>
+        /// <returns></returns>
+        public static string normalizeRoute(string route) {
+            try {
+                if (string.IsNullOrWhiteSpace(route)) {
+                    return string.Empty;
+                }
+                string normalizedRoute = route.ToLowerInvariant().Trim();
+                if (string.IsNullOrEmpty(normalizedRoute)) {
+                    return string.Empty;
+                }
+                normalizedRoute = FileController.convertToUnixSlash(normalizedRoute);
+                while (normalizedRoute.IndexOf("//", StringComparison.InvariantCultureIgnoreCase) >= 0) {
+                    normalizedRoute = normalizedRoute.Replace("//", "/");
+                }
+                if (route.Equals("/")) {
+                    return string.Empty;
+                }
+                if (normalizedRoute.left(1).Equals("/")) {
+                    normalizedRoute = normalizedRoute.Substring(1);
+                }
+                if (normalizedRoute.Substring(normalizedRoute.Length - 1, 1).Equals("/")) {
+                    normalizedRoute = normalizedRoute.left(normalizedRoute.Length - 1);
+                }
+                return normalizedRoute;
+            } catch (Exception ex) {
+                throw new GenericException("Unexpected exception in normalizeRoute(route=[" + route + "])", ex);
+            }
+        }
+        //
         //=============================================================================
         /// <summary>
         /// Executes the current route. To determine the route:
@@ -38,8 +72,8 @@ namespace Contensive.Processor.Controllers {
                     return string.Empty;
                 }
                 string routeRequest = core.docProperties.getText(RequestNameRemoteMethodAddon);
-                string routeCurrent = core.webServer.requestPathPage.ToLowerInvariant();
-                LogController.log(core, $"CoreController executeRoute, enter, routeOverride [{routeOverride}], routeRequest [{routeRequest}], routeCurrent [{routeCurrent}]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                string requestPathPage = core.webServer.requestPathPage;
+                LogController.log(core, $"CoreController executeRoute, enter, routeOverride [{routeOverride}], routeRequest [{routeRequest}], requestPathPage [{requestPathPage}]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 // -- debug defaults on, so if not on, set it off and clear what was collected
                 core.doc.visitPropertyAllowDebugging = core.visitProperty.getBoolean("AllowDebugging");
@@ -52,22 +86,22 @@ namespace Contensive.Processor.Controllers {
                 // -- intercept routes should be addons alos
                 //
                 // -- determine the route: try routeOverride
-                string normalizedRoute = GenericController.normalizeRoute(routeOverride);
-                if (string.IsNullOrEmpty(normalizedRoute)) {
+                string requestedRoute = normalizeRoute(routeOverride);
+                if (string.IsNullOrEmpty(requestedRoute)) {
                     //
                     // -- no override, try argument route (remoteMethodAddon=)
-                    normalizedRoute = GenericController.normalizeRoute(routeRequest);
-                    if (string.IsNullOrEmpty(normalizedRoute)) {
+                    requestedRoute = normalizeRoute(routeRequest);
+                    if (string.IsNullOrEmpty(requestedRoute)) {
                         //
                         // -- no override or argument, use the url as the route
-                        normalizedRoute = GenericController.normalizeRoute(routeCurrent);
+                        requestedRoute = normalizeRoute(requestPathPage);
                     }
                 }
                 //
                 // -- legacy form process methods 
                 // todo -- move legacy form process methods to process within their own code
                 string ajaxfnRouteResult = "";
-                if (tryExecuteAjaxfnRoute(core, normalizedRoute, ref ajaxfnRouteResult)) {
+                if (tryExecuteAjaxfnRoute(core, requestedRoute, ref ajaxfnRouteResult)) {
                     return ajaxfnRouteResult;
                 }
                 //
@@ -97,14 +131,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- try legacy methods (?method=login)
                 string methodRouteResult = "";
-                if (tryExecuteMethodRoute(core, normalizedRoute, ref methodRouteResult)) {
+                if (tryExecuteMethodRoute(core, requestedRoute, ref methodRouteResult)) {
                     return methodRouteResult;
                 }
                 //
                 // -- try route Dictionary (addons, admin, link forwards, link alias), from full route to first segment one at a time
                 // -- addons and admin are addon execution, link forward and link alias are page manager execution
                 string routeDictionaryResult = "";
-                if (tryExecuteRouteDictionary(core, normalizedRoute, ref routeDictionaryResult)) {
+                if (tryExecuteRouteDictionary(core, requestedRoute, requestPathPage, ref routeDictionaryResult)) {
                     return routeDictionaryResult;
                 }
                 //
@@ -137,7 +171,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- unrecognized route and no default route
-                logger.Warn($"{core.logCommonMessage}, executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
+                logger.Warn($"{core.logCommonMessage}, executeRoute called with an unknown route [" + requestedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
                 return "Unknown command";
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -153,31 +187,41 @@ namespace Contensive.Processor.Controllers {
         /// route /this/and/that would first test /this/and/that, then test /this/and, then test /this
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="normalizedRoute"></param>
-        /// <param name="returnResult"></param>
+        /// <param name="normalizedRequestedRoute">This is the normalized manipulated relative url with no leading slash that should match the route table</param>
+        /// <param name="returnResult">This is the actual pathpage the was requested from the server. Needed bacause if this is a link-alias, and the case is wrong, we may redirect to the correct case.</param>
         /// <returns></returns>
-        public static bool tryExecuteRouteDictionary(CoreController core, string normalizedRoute, ref string returnResult) {
+        public static bool tryExecuteRouteDictionary(CoreController core, string normalizedRequestedRoute, string requestedUrlPathPage, ref string returnResult) {
             try {
-                string routeTest = normalizedRoute;
+                //
+                logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary enter, requestedRoute [{normalizedRequestedRoute}], requestedPathPage [{requestedUrlPathPage}]");
+                //
+                string normalizedWorkingRoute = normalizedRequestedRoute;
                 bool routeFound = false;
                 int routeCnt = 100;
                 do {
-                    routeFound = core.routeMap.routeDictionary.ContainsKey(routeTest);
+                    routeFound = core.routeMap.routeDictionary.ContainsKey(normalizedWorkingRoute);
                     if (routeFound) {
                         break;
                     }
-                    if (routeTest.IndexOf("/") < 0) {
+                    if (normalizedWorkingRoute.IndexOf("/") < 0) {
                         break;
                     }
-                    routeTest = routeTest.left(routeTest.LastIndexOf("/", StringComparison.InvariantCulture));
+                    normalizedWorkingRoute = normalizedWorkingRoute.left(normalizedWorkingRoute.LastIndexOf("/", StringComparison.InvariantCulture));
                     routeCnt -= 1;
                 } while ((routeCnt > 0) && (!routeFound));
-                if (!routeFound) { return false; }
+                if (!routeFound) {
+                    //
+                    logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, exit route not found.");
+                    //
+                    return false; 
+                }
                 //
                 // -- execute route
-                RouteMapModel.RouteClass route = core.routeMap.routeDictionary[routeTest];
+                RouteMapModel.RouteClass route = core.routeMap.routeDictionary[normalizedWorkingRoute];
                 switch (route.routeType) {
                     case RouteMapModel.RouteTypeEnum.admin: {
+                            //
+                            logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, execute route, admin.");
                             //
                             // -- admin site, force platform to 4 until layouts upgraded
                             core.siteProperties.htmlPlatformOverride = 5;
@@ -197,47 +241,67 @@ namespace Contensive.Processor.Controllers {
                         }
                     case RouteMapModel.RouteTypeEnum.remoteMethod: {
                             //
+                            // -- these are urls that map directly to remote method addons (marked as "remote method")
+                            // -- these urls do not support canonic tags
+                            //
+                            logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, execute route, remoteMethod, remoteMethodAddonId [{route.remoteMethodAddonId}].");
+                            //
+                            //
                             // -- remote method
                             returnResult = tryExecuteRouteDictionary_remoteMethod(core, returnResult, route);
                             return true;
                         }
                     case RouteMapModel.RouteTypeEnum.linkAlias: {
                             //
+                            // -- link alias routes are human readable urls created for pages, and for pages with many variations like blog articles that have their own url
+                            // -- they are translated into querystring equivalents for the page manager to process
+                            // -- they DO NOT support concatinated slash parameters after the link alias
+                            //
+                            logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, execute route, linkAlias, linkAliasId [{route.linkAliasId}].");
+                            //
                             // - link alias
                             // -- either redirect to the most current route for an entry, or setup doc properties for the default route
                             // -- all the query string values have already been added to doc properties, so do not over write them.
                             // -- consensus is that since the link alias (permalink, long-tail url, etc) comes first on the left, that the querystring should override
                             // -- so http://www.mySite.com/My-Blog-Post?bid=9 means use the bid not the bid from the link-alias
-                            if (!string.IsNullOrEmpty(route.linkAliasRedirect)) {
+                            //
+                            // -- redirect if replacement url, and if current url does not match the conical url
+                            string normalizedWorkingUrl = $"/{normalizedWorkingRoute}";
+                            string replacementUrl = route.linkAliasRedirect;
+                            if (string.IsNullOrEmpty(replacementUrl) && (!requestedUrlPathPage.Equals(normalizedWorkingUrl))) {
+                                replacementUrl = normalizedWorkingUrl;
+                            }
+                            if (!string.IsNullOrEmpty(replacementUrl)) {
                                 //
-                                // -- always add canonical tag if a primary url exists
-                                string absoluteUrl, relativeUrl;
-                                string linkAliasUrl = core.webServer.normalizeUrl(route.linkAliasRedirect, out absoluteUrl, out relativeUrl);
-                                core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteUrl}\">", "link alias canonical tag");
+                                // -- the current url needs to be replaced (it is a redirect or it is not the most current link-alias)
                                 switch (core.siteProperties.pageAliasRedirectMethod) {
                                     case 1: {
                                             //
                                             // -- permanent redirect
-                                            core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.", false, true, true);
+                                            core.webServer.redirect(replacementUrl, "Page URL, older link forward to primary link.", false, true, true);
                                             return true;
                                         }
                                     case 2: {
                                             //
                                             // -- temporary redirect
-                                            core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.", false, true, false);
+                                            core.webServer.redirect(replacementUrl, "Page URL, older link forward to primary link.", false, true, false);
                                             return true;
                                         }
                                     default: {
                                             //
+                                            // -- set the canonical tag
+                                            string canonicalUrl = string.IsNullOrEmpty(route.linkAliasRedirect) ? normalizedWorkingUrl : route.linkAliasRedirect;
+                                            string absoluteCanonicalUrl, relativeCanonicalUrl;
+                                            core.webServer.normalizeUrl(canonicalUrl, out absoluteCanonicalUrl, out relativeCanonicalUrl);
+                                            core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteCanonicalUrl}\">", "link alias canonical tag");
+                                            //
                                             // -- no redirect, return the result from the new route
-                                            string normalizedLinkAliasRedirect = GenericController.normalizeRoute(route.linkAliasRedirect) ;
-                                            if (tryExecuteRouteDictionary(core, normalizedLinkAliasRedirect, ref returnResult)) {
+                                            string normalizedLinkAliasRedirect = normalizeRoute(route.linkAliasRedirect);
+                                            if (tryExecuteRouteDictionary(core, normalizedLinkAliasRedirect, route.linkAliasRedirect, ref returnResult)) {
                                                 return true;
                                             }
                                             //
-                                            // -- if linkAlias redirect did not true, then the resulting page must be rendered, continue to set bid, QAList and edit false
-                                            //break;
-                                            // -- not sure what the effect of this will be if the page alias was not a page (?)
+                                            // -- This page forwards to another, and the other is not a link alias
                                             return false;
                                         }
                                 }
@@ -254,12 +318,18 @@ namespace Contensive.Processor.Controllers {
                         }
                     case RouteMapModel.RouteTypeEnum.linkForward: {
                             //
+                            logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, execute route, linkForward, linkAliasId [{route.linkForwardId}].");
+                            //
+                            //
                             // -- link forward
                             LinkForwardModel linkForward = DbBaseModel.create<LinkForwardModel>(core.cpParent, route.linkForwardId);
                             returnResult = core.webServer.redirect(linkForward.destinationLink, "Link Forward #" + linkForward.id + ", " + linkForward.name);
                             return true;
                         }
                     default: {
+                            //
+                            logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, execute route, route found but type not valid, route.routeType [{route.routeType}].");
+                            //
                             return false;
                         }
                 }
@@ -296,10 +366,10 @@ namespace Contensive.Processor.Controllers {
         /// legacy method=login
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="route"></param>
+        /// <param name="requestedRoute"></param>
         /// <param name="returnResult"></param>
         /// <returns></returns>
-        public static bool tryExecuteMethodRoute(CoreController core, string route, ref string returnResult) {
+        public static bool tryExecuteMethodRoute(CoreController core, string requestedRoute, ref string returnResult) {
             try {
                 //
                 // -- legacy methods=

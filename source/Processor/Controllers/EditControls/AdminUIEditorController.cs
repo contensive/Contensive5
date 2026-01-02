@@ -59,22 +59,22 @@ namespace Contensive.Processor.Controllers.EditControls {
         //
         // ====================================================================================================
         //
-        public static string getDateTimeEditor(CoreController core, string fieldName, DateTime? FieldValueDate, bool readOnly, string htmlId, bool fieldRequired) {
+        public static string getDateTimeEditor(CoreController core, string fieldName, DateTime? FieldValueDateTime, bool readOnly, string htmlId, bool fieldRequired) {
             htmlId = !string.IsNullOrEmpty(htmlId) ? htmlId : "id" + getRandomInteger().ToString();
-            string inputDate = HtmlController.inputDate(core, fieldName + "-date", FieldValueDate, "", "component-" + htmlId + "-date", "form-control", readOnly, fieldRequired, false);
-            DateTime? FieldValueTime = FieldValueDate;
+            string inputDate = HtmlController.inputDate(core, fieldName + "-date", FieldValueDateTime, "", "component-" + htmlId + "-date", "form-control", readOnly, fieldRequired, false);
+            DateTime? FieldValueTime = FieldValueDateTime;
             if (FieldValueTime != null) {
                 // if time is 12:00 AM, display a blank in the time field
                 DateTime testTime = (DateTime)FieldValueTime;
                 if (testTime.Hour.Equals(0) && testTime.Minute.Equals(0) && testTime.Second.Equals(0)) { FieldValueTime = null; }
             }
             string inputTime = HtmlController.inputTime(core, fieldName + "-time", FieldValueTime, "component-" + htmlId + "-time", "form-control", readOnly, fieldRequired, false);
-            string dateTimeString = FieldValueDate != null ? ((DateTime)FieldValueDate).ToString("o", CultureInfo.InvariantCulture) : "";
+            string dateTimeString = FieldValueDateTime != null ? ((DateTime)FieldValueDateTime).ToString("o", CultureInfo.InvariantCulture) : "";
             string inputDateTime = HtmlController.inputHidden(fieldName, dateTimeString, "", htmlId);
             string clearCheck = readOnly ? "" : "" +
                 "<div class=\"ms-4 mt-2\">" +
                 "<div class=\"form-check\">" +
-                $"<input type=\"checkbox\" id=\"{fieldName}.clearFlag\" name=\"{fieldName}.clearFlag\" value=\"1\" class=\"form-check-input\"><label for=\"deleteCheckbox1608141220\" class=\"form-check-label\">Clear</label>" +
+                $"<input type=\"checkbox\" id=\"{fieldName}.clearFlag\" name=\"{fieldName}.clearFlag\" value=\"1\" class=\"form-check-input\"><label for=\"{fieldName}.clearFlag\" class=\"form-check-label\">Clear</label>" +
                 "</div>" +
                 "</div>";
             string js = ""
@@ -83,6 +83,34 @@ namespace Contensive.Processor.Controllers.EditControls {
                     + $"$('body').on('change','#{fieldName}.clearFlag',function(e){{console.log('date/time clear');}});"
                 + "});";
             return HtmlController.div(HtmlController.div(inputDate + inputTime + clearCheck, "input-group") + inputDateTime + HtmlController.scriptCode(core, js));
+        }
+        //
+        // ====================================================================================================
+        //
+        public static string getDateEditor(CoreController core, string fieldName, DateTime? FieldValueDate, bool readOnly, string htmlId, bool fieldRequired) {
+            htmlId = !string.IsNullOrEmpty(htmlId) ? htmlId : "id" + getRandomInteger().ToString();
+            string inputDate = HtmlController.inputDate(core, fieldName + "-date", FieldValueDate, "", "component-" + htmlId + "-date", "form-control", readOnly, fieldRequired, false);
+            DateTime? FieldValueTime = FieldValueDate;
+            if (FieldValueTime != null) {
+                // if time is 12:00 AM, display a blank in the time field
+                DateTime testTime = (DateTime)FieldValueTime;
+                if (testTime.Hour.Equals(0) && testTime.Minute.Equals(0) && testTime.Second.Equals(0)) { FieldValueTime = null; }
+            }
+            //string inputTime = HtmlController.inputTime(core, fieldName + "-time", FieldValueTime, "component-" + htmlId + "-time", "form-control", readOnly, fieldRequired, false);
+            string dateTimeString = FieldValueDate != null ? ((DateTime)FieldValueDate).ToString("o", CultureInfo.InvariantCulture) : "";
+            string inputDateTime = HtmlController.inputHidden(fieldName, dateTimeString, "", htmlId);
+            string clearCheck = readOnly ? "" : "" +
+                "<div class=\"ms-4 mt-2\">" +
+                "<div class=\"form-check\">" +
+                $"<input type=\"checkbox\" id=\"{fieldName}.clearFlag\" name=\"{fieldName}.clearFlag\" value=\"1\" class=\"form-check-input\"><label for=\"{fieldName}.clearFlag\" class=\"form-check-label\">Clear</label>" +
+                "</div>" +
+                "</div>";
+            string js = ""
+                + "document.addEventListener('DOMContentLoaded', function(){"
+                    + $"$('body').on('change','#component-{htmlId}-date',function(e){{console.log('date change');setDateTimeEditorHidden('{htmlId}');}});"
+                    + $"$('body').on('change','#{fieldName}.clearFlag',function(e){{console.log('date clear');}});"
+                + "});";
+            return HtmlController.div(HtmlController.div(inputDate + clearCheck, "input-group") + inputDateTime + HtmlController.scriptCode(core, js));
         }
         //
         // ====================================================================================================

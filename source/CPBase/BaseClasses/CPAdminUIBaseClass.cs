@@ -184,6 +184,37 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
+        /// Create an input for a date field type
+        /// </summary>
+        /// <returns></returns>
+        public abstract string GetDateEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly, bool required);
+        /// <summary>
+        /// Create an input for a date field type
+        /// </summary>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="htmlId"></param>
+        /// <param name="readOnly"></param>
+        /// <returns></returns>
+        public abstract string GetDateEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly);
+        /// <summary>
+        /// Create an input for a date field type
+        /// </summary>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="htmlId"></param>
+        /// <returns></returns>
+        public abstract string GetDateEditor(string htmlName, DateTime? htmlValue, string htmlId);
+        /// <summary>
+        /// Create an input for a date field type
+        /// </summary>
+        /// <param name="htmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <returns></returns>
+        public abstract string GetDateEditor(string htmlName, DateTime? htmlValue);
+        //
+        //==========================================================================================
+        /// <summary>
         /// Create an input for a datetime field type
         /// </summary>
         /// <returns></returns>

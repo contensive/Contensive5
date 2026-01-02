@@ -246,13 +246,13 @@ namespace Tests {
             // arrange
             // act
             // assert
-            Assert.AreEqual("test", normalizeRoute("TEST"));
-            Assert.AreEqual("test", normalizeRoute("\\TEST"));
-            Assert.AreEqual("test", normalizeRoute("\\\\TEST"));
-            Assert.AreEqual("test", normalizeRoute("test"));
-            Assert.AreEqual("test", normalizeRoute("/test/"));
-            Assert.AreEqual("test", normalizeRoute("test/"));
-            Assert.AreEqual("test", normalizeRoute("test//"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("TEST"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("\\TEST"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("\\\\TEST"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("test"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("/test/"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("test/"));
+            Assert.AreEqual("test", RouteController.normalizeRoute("test//"));
         }
         //
         [TestMethod]

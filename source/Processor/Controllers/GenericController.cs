@@ -1586,40 +1586,6 @@ namespace Contensive.Processor.Controllers {
             return (haystack.IndexOf(needle, start - 1, System.StringComparison.InvariantCultureIgnoreCase) + 1 >= 0);
         }
         //
-        //====================================================================================================
-        /// <summary>
-        /// Convert a route to the anticipated format (lowercase,no leading /, no trailing /)
-        /// </summary>
-        /// <param name="route"></param>
-        /// <returns></returns>
-        public static string normalizeRoute(string route) {
-            try {
-                if (string.IsNullOrWhiteSpace(route)) {
-                    return string.Empty;
-                }
-                string normalizedRoute = route.ToLowerInvariant().Trim();
-                if (string.IsNullOrEmpty(normalizedRoute)) {
-                    return string.Empty;
-                }
-                normalizedRoute = FileController.convertToUnixSlash(normalizedRoute);
-                while (normalizedRoute.IndexOf("//", StringComparison.InvariantCultureIgnoreCase) >= 0) {
-                    normalizedRoute = normalizedRoute.Replace("//", "/");
-                }
-                if (route.Equals("/")) {
-                    return string.Empty;
-                }
-                if (normalizedRoute.left(1).Equals("/")) {
-                    normalizedRoute = normalizedRoute.Substring(1);
-                }
-                if (normalizedRoute.Substring(normalizedRoute.Length - 1, 1).Equals("/")) {
-                    normalizedRoute = normalizedRoute.left(normalizedRoute.Length - 1);
-                }
-                return normalizedRoute;
-            } catch (Exception ex) {
-                throw new GenericException("Unexpected exception in normalizeRoute(route=[" + route + "])", ex);
-            }
-        }
-        //
         //========================================================================
         //   converts a virtual file into a filename
         //       - in local mode, the cdnFiles can be mapped to a virtual folder in appRoot

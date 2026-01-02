@@ -70,6 +70,7 @@ namespace Contensive.Processor.Models.Domain {
         //====================================================================================================
         /// <summary>
         /// public dictionary of routes in the model
+        /// routes DO NOT include the leading slash, so if used in normalizeUrl etc, you have to prepend a slash
         /// </summary>
         public Dictionary<string, RouteClass> routeDictionary;
         //
@@ -93,7 +94,7 @@ namespace Contensive.Processor.Models.Domain {
                 string physicalFile = "~/" + core.siteProperties.serverPageDefault;
                 //
                 // -- add admin route
-                string adminRoute = GenericController.normalizeRoute(core.appConfig.adminRoute);
+                string adminRoute = RouteController.normalizeRoute(core.appConfig.adminRoute);
                 if (!string.IsNullOrWhiteSpace(adminRoute)) {
                     //
                     // -- add routeSuffix wildcard to all remote methods that do not have a wildcard so /a/b/c will match addons a, or a/b, or a/b/c
@@ -111,7 +112,7 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // -- add remote methods
                 foreach (var remoteMethod in core.cacheRuntime.addonCache.getRemoteMethodAddonList()) {
-                    string localRoute = GenericController.normalizeRoute(remoteMethod.name);
+                    string localRoute = RouteController.normalizeRoute(remoteMethod.name);
                     if (!string.IsNullOrWhiteSpace(localRoute)) {
                         if (result.routeDictionary.ContainsKey(localRoute)) {
                             logger.Warn($"{core.logCommonMessage}", new GenericException("Route [" + localRoute + "] cannot be added because it matches the Admin Route or another Remote Method."));
@@ -135,33 +136,35 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // -- add link forwards
                 foreach (var linkForward in DbBaseModel.createList<LinkForwardModel>(core.cpParent, "name Is Not null")) {
-                    string localRoute = GenericController.normalizeRoute(linkForward.sourceLink);
-                    if (!string.IsNullOrEmpty(localRoute)) {
-                        if (result.routeDictionary.ContainsKey(localRoute)) {
-                            string warnName = $"Link Forward Route [{localRoute}] cannot be added";
-                            string warnDesc = $"Link Forward Route [{localRoute}] cannot be added because it matches the Admin Route [{core.appConfig.adminRoute}], a Remote Method or another Link Forward.";
-                            LogController.setSiteWarning(core, warnName, warnDesc,true);
-                        } else {
-                            //
-                            // -- link alias does not modify the route 
-                            result.routeDictionary.Add(localRoute, new RouteClass {
-                                physicalRoute = physicalFile,
-                                virtualRoute = localRoute,
-                                routeType = RouteTypeEnum.linkForward,
-                                linkForwardId = linkForward.id
-                            });
-                        }
+                    string localRoute = RouteController.normalizeRoute(linkForward.sourceLink);
+                    if (string.IsNullOrEmpty(localRoute)) {
+                        continue;
+                    }
+                    if (result.routeDictionary.ContainsKey(localRoute)) {
+                        string warnName = $"Link Forward Route [{localRoute}] cannot be added";
+                        string warnDesc = $"Link Forward Route [{localRoute}] cannot be added because it matches the Admin Route [{core.appConfig.adminRoute}], a Remote Method or another Link Forward.";
+                        LogController.setSiteWarning(core, warnName, warnDesc, true);
+                    } else {
+                        //
+                        // -- link alias does not modify the route 
+                        result.routeDictionary.Add(localRoute, new RouteClass {
+                            physicalRoute = physicalFile,
+                            virtualRoute = localRoute,
+                            routeType = RouteTypeEnum.linkForward,
+                            linkForwardId = linkForward.id
+                        });
                     }
                 }
                 //
                 // -- add link aliases
                 // 221119 - each destination (pageid+qsSuffix) may have mulitple urls (name). if not primary (highest id) link alias for this page/qs, forward to the first
-                Dictionary<string, string> usedPages = new();
+                Dictionary<string, string> usedPages = [];
                 foreach (KeyValuePair<string,LinkAliasModel> kvp in core.cacheRuntime.linkAliasNameDict ) {
                     LinkAliasModel linkAlias = kvp.Value;   
-                    //foreach (var linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
-                    string localRoute = GenericController.normalizeRoute(linkAlias.name);
-                    if (string.IsNullOrEmpty(localRoute)) { continue; }
+                    string localRoute = RouteController.normalizeRoute(linkAlias.name);
+                    if (string.IsNullOrEmpty(localRoute)) {
+                        continue;
+                    }
                     //
                     if (result.routeDictionary.ContainsKey(localRoute)) {
                         //

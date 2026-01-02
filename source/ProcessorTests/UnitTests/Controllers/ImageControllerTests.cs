@@ -1,13 +1,11 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Processor;
+﻿using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Twilio.Rest.Accounts.V1;
 using static Tests.TestConstants;
 
-namespace Tests {
+namespace Contensive.Processor.Tests.UnitTests.Controllers {
     //
     //====================================================================================================
     //

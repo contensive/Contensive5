@@ -39,19 +39,31 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static string normalizeLinkAlias(CPBaseClass cp, string linkAlias) {
             //
+            if (string.IsNullOrEmpty(linkAlias)) { return "/"; }
+            //
             // remove nonsafe URL characters
-            string src = linkAlias.ToLowerInvariant();
+            string src = linkAlias.Trim().ToLowerInvariant();
             StringBuilder resultBuild = new("");
-            const string SafeStringLc = "0123456789abcdefghijklmnopqrstuvwxyz-_/.";
+            //
+            //-- replace charcters used to divide text with dash
+            src = src.Replace("\t", "-");
+            src = src.Replace("\n", "-");
+            src = src.Replace("\r", "-");
+            src = src.Replace("/", "-");
+            src = src.Replace("\\", "-");
+            src = src.Replace(" ", "-");
+            //
+            // --remove special characters
+            const string SafeStringLc = "0123456789abcdefghijklmnopqrstuvwxyz-_.";
             for (int srcPtr = 0; srcPtr < src.Length; srcPtr++) {
                 string testChr = src.Substring(srcPtr, 1).ToLowerInvariant();
-                if (!SafeStringLc.Contains(testChr)) { testChr = "-"; }
+                if (!SafeStringLc.Contains(testChr)) { continue; }
                 resultBuild.Append(testChr);
             }
-            // remove adjacent dashes
             string result = resultBuild.ToString();
             if (result.Length == 0) { return "/"; }
             //
+            // remove adjacent dashes
             int Ptr = 0;
             while (result.Contains("--") && (Ptr < 100)) {
                 result = result.Replace("--", "-");
@@ -59,19 +71,21 @@ namespace Contensive.Models.Db {
             }
             if (result.Length == 0) { return "/"; }
             //
+            // remove leading dash
             if (result.Substring(result.Length - 1) == "-") {
-                // remove leading dash
-                result = result.Substring(0,result.Length - 1);
+                result = result.Substring(0, result.Length - 1);
             }
             if (result.Length == 0) { return "/"; }
             //
+            // remove trailing space
             if (result.Substring(0, 1) == "-") {
-                // remove trailing space
                 result = result.Substring(1);
             }
             if (result.Length == 0) { return "/"; }
             //
-            if (result.Substring(0,1) != "/") { result = "/" + result; }
+            // -- add leading slash
+            if (result.Substring(0, 1) != "/") { result = "/" + result; }
+            //
             return result;
         }
     }

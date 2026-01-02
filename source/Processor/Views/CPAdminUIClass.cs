@@ -107,9 +107,6 @@ namespace Contensive.Processor {
         //
         public override string GetDateTimeEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly, bool required)
             => Controllers.EditControls.AdminUIEditorController.getDateTimeEditor(core, htmlName, htmlValue, readOnly, htmlId, required);
-        //
-        // ====================================================================================================
-        //
         public override string GetDateTimeEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly)
             => Controllers.EditControls.AdminUIEditorController.getDateTimeEditor(core, htmlName, htmlValue, readOnly, htmlId, false);
 
@@ -118,7 +115,23 @@ namespace Contensive.Processor {
 
         public override string GetDateTimeEditor(string htmlName, DateTime? htmlValue)
             => Controllers.EditControls.AdminUIEditorController.getDateTimeEditor(core, htmlName, htmlValue, false, "", false);
+        //
+        // ====================================================================================================
+        //
+        public override string GetDateEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly, bool required)
+            => Controllers.EditControls.AdminUIEditorController.getDateEditor(core, htmlName, htmlValue, readOnly, htmlId, required);
+        public override string GetDateEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly)
+            => Controllers.EditControls.AdminUIEditorController.getDateEditor(core, htmlName, htmlValue, readOnly, htmlId, false);
 
+        public override string GetDateEditor(string htmlName, DateTime? htmlValue, string htmlId)
+            => Controllers.EditControls.AdminUIEditorController.getDateEditor(core, htmlName, htmlValue, false, htmlId, false);
+
+        public override string GetDateEditor(string htmlName, DateTime? htmlValue)
+            => Controllers.EditControls.AdminUIEditorController.getDateEditor(core, htmlName, htmlValue, false, "", false);
+
+        //
+        // ====================================================================================================
+        //
         public override string GetEditRow(string caption, string editor)
             => Controllers.AdminUIController.getEditRow(core, editor, caption, "");
 
