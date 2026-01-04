@@ -11,7 +11,7 @@ namespace Contensive.Processor {
     /// </summary>
     public class CPLayoutClass : BaseClasses.CPLayoutBaseClass {
         //
-        private  CPClass cp { get; }
+        private CPClass cp { get; }
         //
         //====================================================================================================
         /// <summary>
@@ -155,13 +155,23 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
-            return ImportController.processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList);
+            try {
+                return ImportController.processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList);
+            } catch (Exception ex) {
+                userMessageList.Add($"Error processing import file {htmlSourceTempPathFilename} ({ex.Message})");
+                return false;
+            }
         }
         //
         //====================================================================================================
         //
         public override bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList, int layoutFrameworkId) {
-            return ImportController.processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList, layoutFrameworkId);
+            try {
+                return ImportController.processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList, layoutFrameworkId);
+            } catch (Exception ex) {
+                userMessageList.Add($"Error processing import file {htmlSourceTempPathFilename} ({ex.Message})");
+                return false;
+            }
         }
     }
 }
