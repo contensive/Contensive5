@@ -482,9 +482,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
                 }
-                if (core.doc.htmlMetaContent_Description.Count == 0) {
-                    core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
-                }
+                core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
                 core.html.addHeadTag(page.otherHeadTags, "page content");
                 core.html.addMetaKeywordList(page.metaKeywordList, "page content");
                 core.doc.noFollow |= page.allowMetaContentNoFollow;

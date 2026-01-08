@@ -2973,20 +2973,12 @@ namespace Contensive.Processor.Controllers {
                 bool allowDebug = core.doc.visitPropertyAllowDebugging;
                 if (core.doc.htmlMetaContent_TitleList.Count > 0) {
                     string content = "";
-                    string addedByMessage = "";
                     foreach (var asset in core.doc.htmlMetaContent_TitleList.FindAll((a) => !string.IsNullOrWhiteSpace(a.content))) {
-                        string testContent = content + ", " + asset.content;
-                        if (!string.IsNullOrWhiteSpace(content) && testContent.Length > 60) { break; }
-                        //
-                        // -- allow if resulting title length <= 60
-                        content = testContent;
-                        if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage) && !addedByMessage.Contains(asset.addedByMessage)) {
-                            addedByMessage += asset.addedByMessage + " ";
-                        }
+                        content = joinMetaText(headList, allowDebug, content, asset.content, asset.addedByMessage);
                     }
+                    content = truncateMetaText(content, 60);
                     if (!string.IsNullOrWhiteSpace(content)) {
-                        if (!string.IsNullOrWhiteSpace(addedByMessage)) { headList.Add(getAddedByComment(addedByMessage)); }
-                        headList.Add("<title>" + HtmlController.encodeHtml(content.Substring(2)) + "</title>");
+                        headList.Add("<title>" + HtmlController.encodeHtml(content) + "</title>");
                     }
                 }
                 if (core.doc.htmlMetaContent_KeyWordList.Count > 0) {
@@ -3006,12 +2998,12 @@ namespace Contensive.Processor.Controllers {
                 if (core.doc.htmlMetaContent_Description.Count > 0) {
                     string content = "";
                     foreach (var asset in core.doc.htmlMetaContent_Description.FindAll((a) => !string.IsNullOrWhiteSpace(a.content))) {
-                        if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
-                            headList.Add(getAddedByComment(asset.addedByMessage));
-                        }
-                        content += "," + asset.content;
+                        content = joinMetaText(headList, allowDebug, content, asset.content, asset.addedByMessage);
                     }
-                    headList.Add("<meta name=\"description\" content=\"" + HtmlController.encodeHtml(content.Substring(1)) + "\" >");
+                    content = truncateMetaText(content, 160);
+                    if (!string.IsNullOrEmpty(content)) {
+                        headList.Add("<meta name=\"description\" content=\"" + HtmlController.encodeHtml(content) + "\" >");
+                    }
                 }
                 //
                 // -- favicon
@@ -3094,6 +3086,56 @@ namespace Contensive.Processor.Controllers {
             }
             return string.Join(Environment.NewLine, headList);
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// truncate meta text 
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        private static string truncateMetaText(string content, int length) {
+            if (content.Length > length) {
+                //
+                // trim to specified length
+                int ptr = content.LastIndexOf(" ", length);
+                if (ptr < 0)
+                    ptr = 160;
+                content = content.Substring(0, ptr - 1) + "...";
+            }
+
+            return content;
+        }
+
+        //
+        //====================================================================================================
+        /// <summary>
+        /// join meta text with proper punctuation, for title and description
+        /// </summary>
+        /// <param name="headList"></param>
+        /// <param name="allowDebug"></param>
+        /// <param name="content"></param>
+        /// <param name="addContent"></param>
+        /// <param name="addedByMessage"></param>
+        /// <returns></returns>
+        private static   string joinMetaText(List<string> headList, bool allowDebug, string content, string addContent, string addedByMessage) {
+            string newContent = addContent.Trim();
+            if (string.IsNullOrEmpty(newContent)) { return content; }
+            if (string.IsNullOrEmpty(content)) {
+                content = newContent;
+                 return newContent;
+            }
+            //
+            if (allowDebug && !string.IsNullOrWhiteSpace(addedByMessage)) {
+                headList.Add(getAddedByComment(addedByMessage));
+            }
+            if (content.EndsWith(".") || content.EndsWith("?") || content.EndsWith("!")) {
+                content += " ";
+            } else if (!content.EndsWith(",") && !newContent.StartsWith(",")) {
+                content += ", ";
+            }
+            return content + newContent;
+        }
+
         //
         //====================================================================================================
         //
