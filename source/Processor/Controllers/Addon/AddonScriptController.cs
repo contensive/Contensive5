@@ -73,10 +73,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("ccLib", mainCsv);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object ex-6, hint[" + hint + "]");
-                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
+                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        logger.Error($"{core.logCommonMessage}", ex, "ex-7, hint[" + hint + "]");
+                        logger.Error($"{core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]", ex, "ex-7, hint[" + hint + "]");
                         throw;
                     }                    //
                     // -- adding cp
@@ -85,10 +85,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("cp", core.cpParent);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cp object, ex-5, hint[" + hint + "] ");
-                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
+                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        logger.Error($"{core.logCommonMessage}", ex, "ex-4, hint[" + hint + "]");
+                        logger.Error($"{core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]", ex, "ex-4, hint[" + hint + "]");
                         throw;
                     }
                     //
@@ -104,7 +104,7 @@ namespace Contensive.Processor.Controllers {
                         return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "executing script, hint[" + hint + "]");
-                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
+                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
                         string addonDescription = AddonController.getAddonDescription(core, addon);
@@ -113,7 +113,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "ex-1, hint [" + hint + "]");
+                logger.Error($"{core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]", ex, "ex-1, hint [" + hint + "]");
                 throw;
             }
         }
@@ -166,10 +166,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("ccLib", mainCsv);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object");
-                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
+                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        logger.Error($"{core.logCommonMessage}", ex, "Clearscript Javascript exception.");
+                        logger.Error($"{core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]", ex, "Clearscript Javascript exception.");
                         throw;
                     }
                     //
@@ -178,10 +178,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("cp", core.cpParent);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cp object");
-                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
+                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        logger.Error($"{core.logCommonMessage}", ex, "Clearscript Javascript exception.");
+                        logger.Error($"{core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]", ex, "Clearscript Javascript exception.");
                         throw;
                     }
                     //
@@ -198,7 +198,7 @@ namespace Contensive.Processor.Controllers {
                         string addonDescription = AddonController.getAddonDescription(core, addon);
                         string errorMessage = "Error executing addon script, " + addonDescription;
                         errorMessage = getScriptEngineExceptionMessage(ex, errorMessage);
-                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
+                        logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
                         string addonDescription = AddonController.getAddonDescription(core, addon);
@@ -207,7 +207,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
+                logger.Error(ex, $"{core.logCommonMessage}, addon [{addon?.id ?? 0}, {addon?.name ?? "null"}]");
                 throw;
             }
         }

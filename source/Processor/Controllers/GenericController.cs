@@ -13,10 +13,11 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Windows.Shapes;
 using static Contensive.Processor.Constants;
-using System.Text.Encodings.Web;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -706,8 +707,8 @@ namespace Contensive.Processor.Controllers {
         public static int getRandomInteger() {
             byte[] rngBytes = new byte[4];
             RandomNumberGenerator.Create().GetBytes(rngBytes);
-            int myInt = BitConverter.ToInt32(rngBytes,0);
-            if(myInt>0) { return myInt;  }
+            int myInt = BitConverter.ToInt32(rngBytes, 0);
+            if (myInt > 0) { return myInt; }
             return 0 - myInt;
         }
         //
@@ -744,7 +745,7 @@ namespace Contensive.Processor.Controllers {
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var stringChars = new char[length];
             for (int i = 0; i < length; i++) {
-                stringChars[i] = chars[getRandomInteger(chars.Length-1)];
+                stringChars[i] = chars[getRandomInteger(chars.Length - 1)];
             }
             return new String(stringChars);
         }
@@ -784,6 +785,27 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encodeURL(string Source) {
             return WebUtility.UrlEncode(Source);
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Encode a url to be used in an href or src tag.
+        /// Preserve the protocol if present, encode between slashes and querystring
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string encodeURLForHrefSrc(string url) {
+            if (string.IsNullOrWhiteSpace(url)) { return url; }
+            // Check for protocol
+            string[] protocols = { "https://", "http://" };
+            foreach (var protocol in protocols) {
+                if (url.StartsWith(protocol, StringComparison.OrdinalIgnoreCase)) {
+                    string withoutProtocol = url.Substring(protocol.Length);
+                    return protocol + Uri.EscapeUriString(withoutProtocol);
+                }
+            }
+            // No protocol - relative URL
+            return Uri.EscapeUriString(url);
         }
         //
         //========================================================================
@@ -1188,11 +1210,11 @@ namespace Contensive.Processor.Controllers {
         public static string getSingular_Sortof(CoreController core, string PluralSource) {
             switch (PluralSource.ToLower()) {
                 case "page content": {
-                        return PluralSource.Substring(0,4);
+                        return PluralSource.Substring(0, 4);
                     }
                 default: {
                         IPluralize pluralizer = new Pluralizer();
-                        return pluralizer.Singularize(PluralSource); 
+                        return pluralizer.Singularize(PluralSource);
                     }
             }
         }
@@ -1540,7 +1562,7 @@ namespace Contensive.Processor.Controllers {
         // the the name of the current executable
         //
         public static string getAppExeName() {
-            return Path.GetFileName(Assembly.GetEntryAssembly()?.Location);
+            return System.IO.Path.GetFileName(Assembly.GetEntryAssembly()?.Location);
         }
         //
         //====================================================================================================
@@ -2054,7 +2076,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             for (CPtr = Source.Length - 1; CPtr >= 1; CPtr--) {
                                 C = Source.Substring(CPtr - 1, 1);
-                                CValue =  VisualBasicConvert.Microsoft_VisualBasic_Strings_Asc(C);
+                                CValue = VisualBasicConvert.Microsoft_VisualBasic_Strings_Asc(C);
                                 crc = crc + CValue;
                                 if ((CValue < CMin) || (CValue > CMax)) {
                                     //

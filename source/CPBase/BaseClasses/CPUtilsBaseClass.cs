@@ -651,7 +651,8 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// wrapped dotnet namespace for use in scripting
+        /// wrapped dotnet WebUtility.UrlEncode(Source) for use in scripting.
+        /// Use to encode segments of a URL (key or value).
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
@@ -659,11 +660,21 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// wrapped dotnet namespace for use in scripting
+        /// wrapped dotnet WebUtility.UrlDecode(source) for use in scripting.
+        /// Use to decode segments of a URL (key or value).
         /// </summary>
         /// <param name="Url"></param>
         /// <returns></returns>
         public abstract string DecodeUrl(string Url);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// wrapped dotnet WebUtility.UrlEncode(Source) for use in scripting.
+        /// Use to encode segments of a URL (key or value).
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public abstract string EncodeUrlForHrefSrc(string source);
         //
         //====================================================================================================
         /// <summary>

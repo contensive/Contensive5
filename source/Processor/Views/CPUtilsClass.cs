@@ -439,8 +439,12 @@ namespace Contensive.Processor {
             return returnValue;
         }
         //
-        public override string EncodeUrl(string Source) {
-            return GenericController.encodeURL(Source);
+        public override string EncodeUrl(string source) {
+            return GenericController.encodeURL(source);
+        }
+        //
+        public override string EncodeUrlForHrefSrc(string source) {
+            return GenericController.encodeURLForHrefSrc(source);
         }
 
         public override bool versionIsOlder(string versionStringToTest, string versionStringToTestAgainst) {

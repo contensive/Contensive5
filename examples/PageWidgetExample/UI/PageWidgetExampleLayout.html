@@ -1,0 +1,126 @@
+<style>
+.blockTile  
+{
+	height: 100%;
+}
+.blockTile > div 
+{
+	height: 100%;
+}
+.blockTile .blockTileInner 
+{
+	text-align:center;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+.blockTile .blockTileInner .blockTileImage {}
+.blockTile .blockTileInner .blockTileImage img {max-width: 100%}
+
+.blockTile .blockTileInner .blockTleHeadline {}
+
+.blockTile .blockTileInner .blockTileDescription {flex-grow: 1;}
+
+.blockTile .blockTileInner .buttonBar {}
+.blockTile .blockTileInner .buttonBar a {}
+
+.blockTileImage 
+{
+	position: relative;
+	width: 100%;
+ }
+  
+ .blockTileImageInner 
+ {
+	object-fit:cover;
+	background-size:cover;
+ }
+ </style>
+<div class="{{outerContainerClass}} designBlockContainer blockTile" style="{{styleHeight}}{{styleBackgroundImage}}">
+	<div class="{{contentContainerClass}}">
+		<div class="blockTileInner">
+			{{#imageSrc}}
+			<div class="designBlockImageContainer {{styleAspectRatio}}"> 
+				{{#manageAspectRatio}}
+					<img class="designBlockImage" alt="{{imageAlt}}" src="{{imageSrc}}" loading="lazy">
+				{{/manageAspectRatio}}
+				{{^manageAspectRatio}}
+					<img src="{{imageSrc}}" alt="{{imageAlt}}" loading="lazy">
+				{{/manageAspectRatio}}
+			</div>
+			{{/imageSrc}}
+			<div class="px-2">
+				{{#headline}}
+					{{#isHeaderOne}}
+						<h1 class="blockTileHeadline mb-0 centered {{headlineTopPadClass}}">{{headline}}</h1>
+					{{/isHeaderOne}}
+					{{#isHeaderTwo}}
+						<h2 class="blockTileHeadline mb-0 centered {{headlineTopPadClass}}">{{headline}}</h2>
+					{{/isHeaderTwo}}
+					{{#isHeaderThree}}
+						<h3 class="blockTileHeadline mb-0 centered {{headlineTopPadClass}}">{{headline}}</h3>
+					{{/isHeaderThree}}
+					{{#isHeaderFour}}
+						<h4 class="blockTileHeadline mb-0 centered {{headlineTopPadClass}}">{{headline}}</h4>
+					{{/isHeaderFour}}
+					{{#isHeaderFive}}
+						<h5 class="blockTileHeadline mb-0 centered {{headlineTopPadClass}}">{{headline}}</h5>
+					{{/isHeaderFive}}
+					{{#isHeaderSix}}
+						<h6 class="blockTileHeadline mb-0 centered {{headlineTopPadClass}}">{{headline}}</h6>
+					{{/isHeaderSix}}
+				{{/headline}}
+				{{#Embed}}
+					<div class="blockTileEmbed {{embedTopPadClass}}">{{{Embed}}}</div>
+				{{/Embed}}
+				{{#Description}}
+					<div class="blockTileDescription centered {{descriptionTopPadClass}}">{{{Description}}}</div>
+				{{/Description}}
+				{{#buttonText}}
+					<div class="buttonBar centered {{buttonTopPadClass}}">
+						<button onclick="CTAClickLog{{uniqueId}}('{{widgetId}}', '{{{ButtonUrl}}}')" class="{{btnStyleSelector}}">{{buttonText}}</button>
+					</div>
+				{{/buttonText}}
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function CTAClickLog{{uniqueId}}(widgetId, url) {
+		var formData = new FormData();      
+		formData.append("WidgetType", "Tile");
+		formData.append("widgetId", widgetId);
+		formData.append("pageUrl", window.location.href);
+		formData.append("pageId" ,"{{pageId}}");
+		formData.append("pageName" ,"{{pageName}}");
+		formData.append("buttonUrl", "{{buttonUrl}}");
+		formData.append("buttonText" ,"{{buttonText}}");
+		console.log( JSON.stringify(formData));
+		$.ajax({
+			url: "/LinkTrackingLogSubmit",
+			type: "POST",
+			data: formData,
+			contentType: false,
+			processData: false,
+			success: function(response) {
+				console.log('success, '+response);
+			}
+     }).done(function (response) {
+       console.log ('done, '+response);
+         var obj = JSON.parse(response);
+         if (!obj.success) {
+             return false;
+         }else{
+		     window.open(url, '_blank').focus();
+          //reloadConnections(); 
+          //reloadMessageWithReplies();
+          return true;
+         }
+     }).fail (function (data) {
+           alert("Error. The server couldn't be reached");
+         });
+    }
+	
+</script>
+

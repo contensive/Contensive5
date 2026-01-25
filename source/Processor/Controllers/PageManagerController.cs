@@ -1439,7 +1439,8 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph URL", getPageLink(core, core.doc.pageController.page.id, ""));
                 core.docProperties.setProperty("Open Graph Title", HtmlController.encodeHtml(core.doc.pageController.page.pageTitle));
                 core.docProperties.setProperty("Open Graph Description", HtmlController.encodeHtml(core.doc.pageController.page.metaDescription));
-                core.docProperties.setProperty("Open Graph Image", (string.IsNullOrEmpty(core.doc.pageController.page.imageFilename.filename)) ? string.Empty : core.webServer.requestProtocol + core.appConfig.domainList.First() + core.appConfig.cdnFileUrl + core.doc.pageController.page.imageFilename);
+                string imageFilename = core.doc.pageController.page.imageFilename.filename;
+                core.docProperties.setProperty("Open Graph Image", string.IsNullOrEmpty(imageFilename) ? string.Empty : HttpController.getCdnFilePathPrefixAbsolute(core) + imageFilename);
                 return "";
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

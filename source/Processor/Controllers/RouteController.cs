@@ -213,7 +213,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     logger.Debug($"{core.logCommonMessage}, tryExecuteRouteDictionary, exit route not found.");
                     //
-                    return false; 
+                    return false;
                 }
                 //
                 // -- execute route
@@ -278,26 +278,32 @@ namespace Contensive.Processor.Controllers {
                                     case 1: {
                                             //
                                             // -- permanent redirect
+                                            if (!string.IsNullOrEmpty(core.cpParent.Request.QueryString)) { replacementUrl += "?" + core.cpParent.Request.QueryString; }
                                             core.webServer.redirect(replacementUrl, "Page URL, older link forward to primary link.", false, true, true);
                                             return true;
                                         }
                                     case 2: {
                                             //
                                             // -- temporary redirect
+                                            if (!string.IsNullOrEmpty(core.cpParent.Request.QueryString)) { replacementUrl += "?" + core.cpParent.Request.QueryString; }
                                             core.webServer.redirect(replacementUrl, "Page URL, older link forward to primary link.", false, true, false);
                                             return true;
                                         }
                                     default: {
                                             //
                                             // -- set the canonical tag
-                                            string canonicalUrl = string.IsNullOrEmpty(route.linkAliasRedirect) ? normalizedWorkingUrl : route.linkAliasRedirect;
+                                            string canonicalUrl = replacementUrl;
+                                            //string canonicalUrl = string.IsNullOrEmpty(route.linkAliasRedirect) ? normalizedWorkingUrl : route.linkAliasRedirect;
+
                                             string absoluteCanonicalUrl, relativeCanonicalUrl;
                                             core.webServer.normalizeUrl(canonicalUrl, out absoluteCanonicalUrl, out relativeCanonicalUrl);
                                             core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteCanonicalUrl}\">", "link alias canonical tag");
                                             //
                                             // -- no redirect, return the result from the new route
-                                            string normalizedLinkAliasRedirect = normalizeRoute(route.linkAliasRedirect);
-                                            if (tryExecuteRouteDictionary(core, normalizedLinkAliasRedirect, route.linkAliasRedirect, ref returnResult)) {
+                                            string normalizedLinkAliasRedirect = normalizeRoute(replacementUrl);
+                                            //string normalizedLinkAliasRedirect = normalizeRoute(route.linkAliasRedirect);
+                                            if (tryExecuteRouteDictionary(core, normalizedLinkAliasRedirect, $"/{normalizedLinkAliasRedirect}", ref returnResult)) {
+                                                //if (tryExecuteRouteDictionary(core, normalizedLinkAliasRedirect, route.linkAliasRedirect, ref returnResult)) {
                                                 return true;
                                             }
                                             //
@@ -309,7 +315,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- link alias with no redirect, set the bid and qs in doc properties for the default route to process
                             core.docProperties.setProperty("bid", route.linkAliasPageId);
-                            if( route.linkAliasQSList != null) {
+                            if (route.linkAliasQSList != null) {
                                 foreach (NameValueModel nameValue in route.linkAliasQSList) {
                                     core.docProperties.setProperty(nameValue.name, nameValue.value);
                                 }

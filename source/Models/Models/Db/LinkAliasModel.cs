@@ -54,7 +54,7 @@ namespace Contensive.Models.Db {
             src = src.Replace(" ", "-");
             //
             // --remove special characters
-            const string SafeStringLc = "0123456789abcdefghijklmnopqrstuvwxyz-_.";
+            const string SafeStringLc = "0123456789abcdefghijklmnopqrstuvwxyz-_";
             for (int srcPtr = 0; srcPtr < src.Length; srcPtr++) {
                 string testChr = src.Substring(srcPtr, 1).ToLowerInvariant();
                 if (!SafeStringLc.Contains(testChr)) { continue; }
