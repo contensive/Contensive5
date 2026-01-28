@@ -180,6 +180,9 @@
           text-decoration: none;
           border-radius: 0.35rem;
           white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: block;
         }
   
         .sidebar .nav-item .collapse .collapse-inner .collapse-item:hover,
@@ -583,7 +586,6 @@
               {{#active}}<li class="nav-item active">{{/active}}
                             <a class="nav-link" href="{{url}}">
                                 <img src="{{icon}}">
-                                <!--<i class="fas fa-fw fa-tachometer-alt"></i>-->
                                 <span>{{name}}</span>
                             </a>
                           </li>
