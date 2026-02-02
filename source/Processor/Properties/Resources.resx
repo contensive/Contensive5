@@ -118,9 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="defaultForgetPassword_html" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\defaultforgetpassword_html.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
   <data name="DefaultTemplateHtml" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\defaulttemplatehtml.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
@@ -153,30 +150,6 @@
   </data>
   <data name="sqlConditionalEmail_DaysBeforeExpiration" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\sqlconditionalemail-daysbeforeexpiration.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_email_nopassword" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_email_nopassword.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_email_nopassword_auto" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_email_nopassword_auto.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_email_password" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_email_password.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_email_password_auto" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_email_password_auto.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_username_nopassword" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_username_nopassword.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_username_nopassword_auto" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_username_nopassword_auto.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_username_password" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_username_password.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="login_username_password_auto" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\login_username_password_auto.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="AdminSiteLayoutBackup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\adminsitelayoutbackup.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>

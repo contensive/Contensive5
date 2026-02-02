@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
@@ -24,7 +23,7 @@ namespace Contensive.Processor.Addons.Base {
                     addon.save(core.cpParent);
                 }
                 //
-                // -- delete layouts updated in this install
+                // -- update layouts 
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename, layoutAdminSiteCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename, layoutAdminEditIconCdnPathFilename);
@@ -42,6 +41,19 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetHtmlContentLayoutGuid, dashboardWidgetHtmlContentLayoutName, dashboardWidgetHtmlContentLayoutPathFilename, dashboardWidgetHtmlContentLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetPieChartLayoutGuid, dashboardWidgetPieChartLayoutName, dashboardWidgetPieChartLayoutPathFilename, dashboardWidgetPieChartLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetBarChartLayoutGuid, dashboardWidgetBarChartLayoutName, dashboardWidgetBarChartLayoutPathFilename, dashboardWidgetBarChartLayoutPathFilename);
+                //
+                // -- password recovery layout
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutRecoverPasswordGuid, layoutRecoverPasswordName, layoutRecoverPasswordCdnPathFilename, layoutRecoverPasswordCdnPathFilename);
+                //
+                // -- login layouts
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginEmailNoPasswordAutoGuid, layoutLoginEmailNoPasswordAutoName, layoutLoginEmailNoPasswordAutoCdnPathFilename, layoutLoginEmailNoPasswordAutoCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginEmailNoPasswordGuid, layoutLoginEmailNoPasswordName, layoutLoginEmailNoPasswordCdnPathFilename, layoutLoginEmailNoPasswordCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginEmailPasswordAutoGuid, layoutLoginEmailPasswordAutoName, layoutLoginEmailPasswordAutoCdnPathFilename, layoutLoginEmailPasswordAutoCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginEmailPasswordGuid, layoutLoginEmailPasswordName, layoutLoginEmailPasswordCdnPathFilename, layoutLoginEmailPasswordCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernameNoPasswordAutoGuid, layoutLoginUsernameNoPasswordAutoName, layoutLoginUsernameNoPasswordAutoCdnPathFilename, layoutLoginUsernameNoPasswordAutoCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernameNoPasswordGuid, layoutLoginUsernameNoPasswordName, layoutLoginUsernameNoPasswordCdnPathFilename, layoutLoginUsernameNoPasswordCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernamePasswordAutoGuid, layoutLoginUsernamePasswordAutoName, layoutLoginUsernamePasswordAutoCdnPathFilename, layoutLoginUsernamePasswordAutoCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernamePasswordGuid, layoutLoginUsernamePasswordName, layoutLoginUsernamePasswordCdnPathFilename, layoutLoginUsernamePasswordCdnPathFilename);
                 //
                 // -- 
                 return "ok";

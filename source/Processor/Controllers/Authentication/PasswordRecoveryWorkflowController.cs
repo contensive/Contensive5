@@ -1,6 +1,6 @@
-﻿
-using Contensive.Models.Db;
+﻿using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using NLog.Layouts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Contensive.Processor.Controllers {
                 logger.Trace($"{core.logCommonMessage},PasswordRecoveryWorkflowController.getPasswordRecoveryForm");
                 //
                 if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
-                    returnResult += Properties.Resources.defaultForgetPassword_html;
+                    returnResult += LayoutController.getLayout(core.cpParent, layoutRecoverPasswordGuid, layoutRecoverPasswordName, layoutRecoverPasswordCdnPathFilename, "");
                     returnResult += HtmlController.inputHidden("Type", FormTypePasswordRecovery);
                     return HtmlController.form(core, returnResult, core.cpParent.Request.QueryString);
                 }

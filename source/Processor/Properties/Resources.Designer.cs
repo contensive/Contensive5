@@ -129,25 +129,6 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///	&lt;h4 class=&quot;mt-0&quot;&gt;Recover Your Password&lt;/h4&gt;
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only pt-2&quot;&gt;Email address&lt;/label&gt;
-        ///		&lt;input type=&quot;email&quot; name=&quot;email&quot; id=&quot;inputEmail&quot; class=&quot;form-control pt-2&quot; placeholder=&quot;Email&quot; required autofocus&gt;
-        ///	&lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2 d-grid&quot;&gt;
-        ///		&lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Recover Password&lt;/button&gt;
-        ///	&lt;/div&gt;
-        ///&lt;/div&gt; &lt;!-- /container-fluid --&gt;
-        ///.
-        /// </summary>
-        public static string defaultForgetPassword_html {
-            get {
-                return ResourceManager.GetString("defaultForgetPassword_html", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;div class=&quot;container&quot;&gt;
         ///    &lt;div class=&quot;row&quot;&gt;
         ///        &lt;div class=&quot;col-lg-12 mt-2&quot;&gt;
@@ -244,9 +225,9 @@ namespace Contensive.Processor.Properties {
         ///        &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
         ///            &lt;div class=&quot;ccLoginFormCon pt-4&quot;&gt;
         ///                &lt;h4 class=&quot;mt-0&quot;&gt;Impersonate&lt;/h4&gt;
-        ///                {{userError}}
+        ///                {{{userError}}}
         ///                &lt;p&gt;
-        ///                    Administrators and developers can impersonate users for the purpose of support. An impersonation attempt only requires the  [rest of string was truncated]&quot;;.
+        ///                    Administrators and developers can impersonate users for the purpose of support. An impersonation attempt only requires th [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Layout_Impersonate {
             get {
@@ -308,12 +289,12 @@ namespace Contensive.Processor.Properties {
         ///function cjFrameUpdate(remoteMethodName, frameHtmlId, qs) {
         /// [rest of string was truncated]&quot;;.
         /// </summary>
-        [Obsolete("move javascript and styles to layouts",false)] public static string layoutBuilderJavaScript {
+        public static string layoutBuilderJavaScript {
             get {
                 return ResourceManager.GetString("layoutBuilderJavaScript", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to 
         ////*
@@ -342,156 +323,9 @@ namespace Contensive.Processor.Properties {
         ///
         ///    #afw h [rest of string was truncated]&quot;;.
         /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)]
         public static string layoutBuilderStyles {
             get {
                 return ResourceManager.GetString("layoutBuilderStyles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
-        ///    &lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2 d-grid&quot;&gt;
-        ///		&lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Login&lt;/button&gt;
-        ///    &lt;/div&gt;
-        ///&lt;/div [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_email_nopassword {
-            get {
-                return ResourceManager.GetString("login_email_nopassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
-        ///    &lt;/div&gt;
-        ///    &lt;div class=&quot;checkbox pt-2&quot;&gt;
-        ///        &lt;label&gt;
-        ///            &lt;input type=&quot;checkbox&quot; name=&quot;autologin&quot; value=&quot;1&quot;&gt;&amp;nbsp;R [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_email_nopassword_auto {
-            get {
-                return ResourceManager.GetString("login_email_nopassword_auto", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
-        ///    &lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;pass [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_email_password {
-            get {
-                return ResourceManager.GetString("login_email_password", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
-        ///    &lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;pass [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_email_password_auto {
-            get {
-                return ResourceManager.GetString("login_email_password_auto", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
-        ///	&lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2 d-grid&quot;&gt;
-        ///	    &lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Login&lt;/button&gt;
-        ///    &lt;/div&gt;
-        ///&lt;/div&gt;.
-        /// </summary>
-        public static string login_username_nopassword {
-            get {
-                return ResourceManager.GetString("login_username_nopassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
-        ///	&lt;/div&gt;
-        ///    &lt;div class=&quot;checkbox pt-2&quot;&gt;
-        ///        &lt;label&gt;&lt;input type=&quot;checkbox&quot; name=&quot;autoLogin&quot; value=&quot;1&quot;&gt;&amp;nbsp;Remember me&lt;/label&gt;
-        ///    &lt; [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_username_nopassword_auto {
-            get {
-                return ResourceManager.GetString("login_username_nopassword_auto", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
-        ///	&lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///	    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_username_password {
-            get {
-                return ResourceManager.GetString("login_username_password", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;mt-0&quot;&gt;Login&lt;/h4&gt;
-        ///	{{#userError}}&lt;div class=&quot;alert alert-danger&quot; role=&quot;alert&quot;&gt;{{userError}}&lt;/div&gt;{{/userError}}
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
-        ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
-        ///	&lt;/div&gt;
-        ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///	    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id [rest of string was truncated]&quot;;.
-        /// </summary>
-        public static string login_username_password_auto {
-            get {
-                return ResourceManager.GetString("login_username_password_auto", resourceCulture);
             }
         }
         
@@ -565,26 +399,7 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select 
-        ///	a.name,a.ccguid,a.id as id,c.name as categoryName,0 as isContent
-        ///from 
-        ///	ccaggregatefunctions a 
-        ///	left join ccaddoncategories c on c.id=a.addonCategoryId 
-        ///where 
-        ///	(a.navTypeId={navTypeId})
-        ///	and(a.admin&gt;0)
-        ///	and(a.name is not null)
-        ///	and(a.ccguid is not null) 
-        ///union
-        ///select 
-        ///	a.name,a.ccguid,a.id as id,c.name as categoryName,1 as isContent
-        ///from 
-        ///	cccontent a 
-        ///	left join ccaddoncategories c on c.id=a.AddonCategoryId 
-        ///where 
-        ///	(a.navTypeId={navTypeId})
-        ///	and(a.name is not null)
-        ///	and(a.ccg [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to .
         /// </summary>
         public static string sqlGetNavItemByType {
             get {

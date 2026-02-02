@@ -1,5 +1,4 @@
-﻿
-using NUglify.JavaScript.Syntax;
+﻿using NUglify.JavaScript.Syntax;
 using System;
 
 namespace Contensive.Processor {
@@ -1056,6 +1055,51 @@ namespace Contensive.Processor {
         public const string layoutCustomBlockingAgeRestrictionGuid = "{4BB2B9DB-F50A-4ECE-A78E-69BA4D001914}";
         public const string layoutCustomBlockingAgeRestrictionName = "Age Verification Layout";
         public const string layoutCustomBlockingAgeRestrictionCdnPathFilename = @"baseAssets\AgeVerificationLayout.html";
+        //
+        // -- layout for password recovery form
+        public const string layoutRecoverPasswordGuid = "{1E4385F6-4F77-4BB3-9D5A-8B3B2D08E024}";
+        public const string layoutRecoverPasswordName = "recover password";
+        public const string layoutRecoverPasswordCdnPathFilename = @"BaseAssets\recover_password.html";
+        //
+        // -- layout for login email nopassword auto
+        public const string layoutLoginEmailNoPasswordAutoGuid = "{4145AC0A-7FDC-44A1-9B4E-F11FA0EEFF4B}";
+        public const string layoutLoginEmailNoPasswordAutoName = "login email nopassword auto";
+        public const string layoutLoginEmailNoPasswordAutoCdnPathFilename = @"BaseAssets\login_email_nopassword_auto.html";
+        //
+        // -- layout for login email nopassword
+        public const string layoutLoginEmailNoPasswordGuid = "{3B0366A5-56CE-47D4-BD08-77DA8079A282}";
+        public const string layoutLoginEmailNoPasswordName = "login email nopassword";
+        public const string layoutLoginEmailNoPasswordCdnPathFilename = @"BaseAssets\login_email_nopassword.html";
+        //
+        // -- layout for login email password auto
+        public const string layoutLoginEmailPasswordAutoGuid = "{796BEA4D-9D0B-4D26-B96B-4CA31BEDDF55}";
+        public const string layoutLoginEmailPasswordAutoName = "login email password auto";
+        public const string layoutLoginEmailPasswordAutoCdnPathFilename = @"BaseAssets\login_email_password_auto.html";
+        //
+        // -- layout for login email password
+        public const string layoutLoginEmailPasswordGuid = "{C989B493-1A08-44C9-8980-054482AB897B}";
+        public const string layoutLoginEmailPasswordName = "login email password";
+        public const string layoutLoginEmailPasswordCdnPathFilename = @"BaseAssets\login_email_password.html";
+        //
+        // -- layout for login username nopassword auto
+        public const string layoutLoginUsernameNoPasswordAutoGuid = "{440338A7-6690-4664-8443-55B12B8ACB80}";
+        public const string layoutLoginUsernameNoPasswordAutoName = "login username nopassword auto";
+        public const string layoutLoginUsernameNoPasswordAutoCdnPathFilename = @"BaseAssets\login_username_nopassword_auto.html";
+        //
+        // -- layout for login username nopassword
+        public const string layoutLoginUsernameNoPasswordGuid = "{DB680883-1DF4-46B9-9A92-5D1CFB7F693A}";
+        public const string layoutLoginUsernameNoPasswordName = "login username nopassword";
+        public const string layoutLoginUsernameNoPasswordCdnPathFilename = @"BaseAssets\login_username_nopassword.html";
+        //
+        // -- layout for login username password auto
+        public const string layoutLoginUsernamePasswordAutoGuid = "{B26AD8CC-90DE-4AF0-9AD3-2A8511777C3C}";
+        public const string layoutLoginUsernamePasswordAutoName = "login username password auto";
+        public const string layoutLoginUsernamePasswordAutoCdnPathFilename = @"BaseAssets\login_username_password_auto.html";
+        //
+        // -- layout for login username password
+        public const string layoutLoginUsernamePasswordGuid = "{1E9C7EA7-04E0-46BB-AA45-88387D9DFC69}";
+        public const string layoutLoginUsernamePasswordName = "login username password";
+        public const string layoutLoginUsernamePasswordCdnPathFilename = @"BaseAssets\login_username_password.html";
 
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

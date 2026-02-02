@@ -123,42 +123,42 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- email, no-password, auto
                     //
-                    layout = Properties.Resources.login_email_nopassword_auto;
+                    layout = LayoutController.getLayout(core.cpParent, "{4145AC0A-7FDC-44A1-9B4E-F11FA0EEFF4B}", "login email nopassword auto", "BaseAssets/login_email_nopassword_auto.html", "");
                 } else if (allowEmailLogin && allowNoPasswordLogin && !allowAutoLogin) {
                     //
                     // -- email, no-password, no-auto
                     //
-                    layout = Properties.Resources.login_email_nopassword;
+                    layout = LayoutController.getLayout(core.cpParent, "{3B0366A5-56CE-47D4-BD08-77DA8079A282}", "login email nopassword", "BaseAssets/login_email_nopassword.html", "");
                 } else if (allowEmailLogin && !allowNoPasswordLogin && allowAutoLogin) {
                     //
                     // -- email, password, auto
                     //
-                    layout = Properties.Resources.login_email_password_auto;
+                    layout = LayoutController.getLayout(core.cpParent, "{796BEA4D-9D0B-4D26-B96B-4CA31BEDDF55}", "login email password auto", "BaseAssets/login_email_password_auto.html", "");
                 } else if (allowEmailLogin && !allowNoPasswordLogin && !allowAutoLogin) {
                     //
                     // -- email, password, no-auto
                     //
-                    layout = Properties.Resources.login_email_password;
+                    layout = LayoutController.getLayout(core.cpParent, "{C989B493-1A08-44C9-8980-054482AB897B}", "login email password", "BaseAssets/login_email_password.html", "");
                 } else if (!allowEmailLogin && allowNoPasswordLogin && allowAutoLogin) {
                     //
                     // -- username, no-password, auto
                     //
-                    layout = Properties.Resources.login_username_nopassword_auto;
+                    layout = LayoutController.getLayout(core.cpParent, "{440338A7-6690-4664-8443-55B12B8ACB80}", "login username nopassword auto", "BaseAssets/login_username_nopassword_auto.html", "");
                 } else if (!allowEmailLogin && allowNoPasswordLogin && !allowAutoLogin) {
                     //
                     // -- username, no-password, no-auto
                     //
-                    layout = Properties.Resources.login_username_nopassword;
+                    layout = LayoutController.getLayout(core.cpParent, "{DB680883-1DF4-46B9-9A92-5D1CFB7F693A}", "login username nopassword", "BaseAssets/login_username_nopassword.html", "");
                 } else if (!allowEmailLogin && !allowNoPasswordLogin && allowAutoLogin) {
                     //
                     // -- username, password, auto
                     //
-                    layout = Properties.Resources.login_username_password_auto;
+                    layout = LayoutController.getLayout(core.cpParent, "{B26AD8CC-90DE-4AF0-9AD3-2A8511777C3C}", "login username password auto", "BaseAssets/login_username_password_auto.html", "");
                 } else {
                     //
                     // -- username, password, no-auto
                     //
-                    layout = Properties.Resources.login_username_password;
+                    layout = LayoutController.getLayout(core.cpParent, "{1E9C7EA7-04E0-46BB-AA45-88387D9DFC69}", "login username password", "BaseAssets/login_username_password.html", "");
                 }
                 //
                 // -- add user errors
