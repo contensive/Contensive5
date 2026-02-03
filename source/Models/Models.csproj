@@ -14,4 +14,8 @@
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
+
 </Project>

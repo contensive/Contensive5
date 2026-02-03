@@ -6,6 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Contensive5 is an enterprise-grade addon execution framework that provides hardware abstraction and simplifies code reuse through a modular addon system. It's a sophisticated runtime environment that executes addons (extensible modules) while providing abstraction layers for system resources.
 
+## Common Patterns
+
+- \patterns\contensive-architecture.md
+- \patterns\dashboard-widget-pattern.md
+- \patterns\page-widget-pattern.md
+- \patterns\remote-method-pattern.md
+
+## Samples 
+
+- Page Widget Example,  \examples\PageWidgetExample
+- Remote Method Example, \examples\RemoteMethodExample
+- Dashboard Widget Examples, \source\Processor\Addons\WidgetDashboardWidgets\*
+
 ## Build Process & Commands
 
 ### Prerequisites

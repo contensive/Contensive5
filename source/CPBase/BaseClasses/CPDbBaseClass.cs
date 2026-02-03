@@ -215,6 +215,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Execute an sql query and return an integer.
+        /// query should return a single value.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public abstract int ExecuteScalar(string sql);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Execute an sql command on a specific datasource. No data is returned.
         /// </summary>
         /// <param name="sql"></param>

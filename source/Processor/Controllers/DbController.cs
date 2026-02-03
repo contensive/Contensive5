@@ -183,6 +183,36 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Execute a query (returns on numeric value) on
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public int executeScalar(string sql) {
+            int returnValue = 0;
+            try {
+                if (!dbEnabled) { return 0; }
+                if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
+                if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
+                //
+                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                    connSQL.Open();
+                    using (SqlCommand cmdSQL = new()) {
+                        cmdSQL.CommandType = CommandType.Text;
+                        cmdSQL.CommandText = sql;
+                        cmdSQL.Connection = connSQL;
+                        cmdSQL.CommandTimeout = sqlCommandTimeout;
+                        returnValue = (int)cmdSQL.ExecuteScalar();
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+            return returnValue;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Execute a query (returns data)
         /// </summary>
         /// <param name="sql"></param>

@@ -185,6 +185,12 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override int ExecuteScalar(string sql) {
+            return db.executeScalar(sql);
+        }
+        //
+        //====================================================================================================
+        //
         public override bool IsTable(string TableName) {
             return db.isSQLTable(TableName);
         }

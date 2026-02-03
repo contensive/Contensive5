@@ -3244,8 +3244,13 @@
   
   <!-- 
     Add-ons
-  --> 
-
+  -->
+	<Addon name="uploadLayout" guid="{C0026ECE-C6A1-4AFD-BE23-291FDE29670D}" type="Add-on">
+		<Description>Remote method for uploading and processing HTML layout files. Monitors local file changes and uploads them to layout records.</Description>
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.Tools.UploadLayoutRemoteMethod</DotNetClass>
+	</Addon>
+	
 	<Addon Name="Portal" Guid="{A1BCA00C-2657-42A1-8F98-BED1E5A42025}" Type="Add-on">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.PortalFramework.Addons.PortalAddon]]></DotNetClass>
 		<ArgumentList><![CDATA[Portal=[listid(portals)]]]></ArgumentList>
