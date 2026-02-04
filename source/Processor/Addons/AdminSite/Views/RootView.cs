@@ -35,7 +35,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (core.session.visit.id == core.docProperties.getInteger(RequestNameDashboardReset)) {
                     //$$$$$ cache this
                     using (var csData = new CsModel(core)) {
-                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbController.encodeSQLText(addonGuidDashboard));
+                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbController.encodeSQLText(addonGuidIconDashboard));
                         if (csData.ok()) {
                             addonId = csData.getInteger("id");
                             core.siteProperties.setProperty("AdminRootAddonID", GenericController.encodeText(addonId));
@@ -72,7 +72,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (addonId == -1) {
                         //
                         // This has never been set, try to get the dashboard ID
-                        var addon = core.cacheRuntime.addonCache.create(addonGuidDashboard);
+                        var addon = core.cacheRuntime.addonCache.create(addonGuidIconDashboard);
                         if (addon != null) {
                             addonId = addon.id;
                             core.siteProperties.setProperty("AdminRootAddonID", addonId);
