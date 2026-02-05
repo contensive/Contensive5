@@ -170,8 +170,8 @@ namespace Contensive.Processor {
         //
         public static readonly string addonGuidEmailProcessTask = "{E6E82D55-003F-4ED0-B183-5F9D756582FE}";
         //
-        internal const string addonGuidDashboard = "{4BA7B4A2-ED6C-46C5-9C7B-8CE251FC8FF5}";
-        internal const string addonGuidGridStackDemoDashboard = "{b146d928-f1f1-4e8c-bdfb-0abfc21bccbe}";
+        internal const string addonGuidIconDashboard = "{4BA7B4A2-ED6C-46C5-9C7B-8CE251FC8FF5}";
+        internal const string addonGuidWidgetDashboard = "{b146d928-f1f1-4e8c-bdfb-0abfc21bccbe}";
         //
         internal const string addonGuidTextMessageSendTask = "{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}";
         internal const string addonGuidEmailSendTask = "{E6C14E81-EFC9-4BC0-ADB2-BDFF043A0800}";

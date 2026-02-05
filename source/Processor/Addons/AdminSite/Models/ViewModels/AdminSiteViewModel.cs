@@ -458,46 +458,45 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                      }
                 };
-                if (cp.User.IsDeveloper) {
+
+                //
+                // -- beta the Grid-Stack Dashboard
+                if (cp.Doc.IsProperty("widgetDashboard")) {
                     //
-                    // -- beta the Grid-Stack Dashboard
-                    if (cp.Doc.IsProperty("dashbeta")) {
+                    // -- change widgetDashboard setting
+                    AddonModel addon = null;
+                    if (cp.Doc.GetBoolean("widgetDashboard")) {
                         //
-                        // -- change dashbeta setting
-                        AddonModel addon = null;
-                        if (cp.Doc.GetBoolean("dashbeta")) {
-                            //
-                            // -- turn on the dashbeta
-                            addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidGridStackDemoDashboard);
-                            cp.Site.SetProperty("Admin Nav Portal Beta", true);
-                        } else {
-                            //
-                            // -- turn off the dashbeta
-                            addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidDashboard);
-                            cp.Site.SetProperty("Admin Nav Portal Beta", false);
-                        }
-                        if (addon is not null) {
-                            cp.Site.SetProperty("ADMINROOTADDONID", addon.id);
-                        }
-                    }
-                    int dashboardAddonid = cp.Site.GetInteger("ADMINROOTADDONID");
-                    if (cp.Content.GetRecordGuid("add-ons", dashboardAddonid) == Contensive.Processor.Constants.addonGuidDashboard) {
-                        //
-                        // -- link to switch to beta
-                        _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
-                            navItemName = "Try Beta Dashboard",
-                            navItemHref = "?dashbeta=1",
-                            navItemDataDragId = $""
-                        });
+                        // -- turn on the WidgetDashboard
+                        addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidWidgetDashboard);
+                        cp.Site.SetProperty("Admin Nav Widget Dashboard", true);
                     } else {
                         //
-                        // -- link to switch to icon-dashboard
-                        _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
-                            navItemName = "Return to Icon Dash",
-                            navItemHref = "?dashbeta=0",
-                            navItemDataDragId = $""
-                        });
+                        // -- turn off the WidgetDashboard
+                        addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidIconDashboard);
+                        cp.Site.SetProperty("Admin Nav Widget Dashboard", false);
                     }
+                    if (addon is not null) {
+                        cp.Site.SetProperty("ADMINROOTADDONID", addon.id);
+                    }
+                }
+                int dashboardAddonid = cp.Site.GetInteger("ADMINROOTADDONID");
+                if (cp.Content.GetRecordGuid("add-ons", dashboardAddonid) == Contensive.Processor.Constants.addonGuidIconDashboard) {
+                    //
+                    // -- link to switch to beta
+                    _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
+                        navItemName = "Switch to Widget Dashboard",
+                        navItemHref = "?widgetDashboard=1",
+                        navItemDataDragId = $""
+                    });
+                } else {
+                    //
+                    // -- link to switch to icon-dashboard
+                    _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
+                        navItemName = "Switch to Icon Dashboard",
+                        navItemHref = "?widgetDashboard=0",
+                        navItemDataDragId = $""
+                    });
                 }
                 List<string> cacheKeyList = [
                     cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower)

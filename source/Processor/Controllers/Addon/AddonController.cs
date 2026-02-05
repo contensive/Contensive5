@@ -1,7 +1,8 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Models.Db;
 using Contensive.Exceptions;
+using Contensive.Models.Db;
+using Contensive.Processor.Controllers.EditControls;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,14 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using static Newtonsoft.Json.JsonConvert;
-using Contensive.Processor.Controllers.EditControls;
+using static Twilio.Rest.Content.V1.ContentResource;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -1612,13 +1614,45 @@ namespace Contensive.Processor.Controllers {
                     return string.Empty;
                 }
                 //
-                // -- assembly loaded, it is a proper assembly. Test if it is the one we are looking for (match class + baseclass)
+                // -- get type list
+                Type[] typeList = [];
+                try {
+                    typeList = testAssembly.GetTypes();
+                } catch (ReflectionTypeLoadException ex) {
+                    //
+                    // -- loader error, one of the types listed could not be loaded. Could be bad or missing dependency
+                    logger.Error($"{core.logCommonMessage}", ex, "ReflectionTypeLoadException while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
+
+                    if (ex.LoaderExceptions != null) {
+                        foreach (var loaderException in ex.LoaderExceptions) {
+                            if (loaderException != null) {
+                                logger.Error($"{core.logCommonMessage}", loaderException,
+                                    $"LoaderException Details - Type: {loaderException.GetType().Name}, " +
+                                    $"Message: {loaderException.Message}, " +
+                                    $"Source: {loaderException.Source}");
+                            }
+                        }
+                    }
+                    //
+                    // -- attempt to recover the types that did load
+                    typeList = ex.Types.Where(t => t != null).ToArray();
+                    //addonFound = false;
+                    //return string.Empty;
+                } catch (Exception ex) {
+                    //
+                    // -- unknown error. Better to log and continue
+                    logger.Error($"{core.logCommonMessage}", ex, "Exception in GetTypes() for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
+                    addonFound = false;
+                    return string.Empty;
+                }
+                //
+                // -- find the addon type
                 Type addonType = null;
                 try {
                     //
                     // -- catch exceptions found (Select.Pdf.dll has two classes that differ by only case)
                     addonType = Array.Find<Type>(
-                        testAssembly.GetTypes(),
+                        typeList,
                         testType => (testType.IsPublic)
                             && (testType.FullName.Equals(addon.dotNetClass, StringComparison.InvariantCultureIgnoreCase))
                             && ((testType.Attributes & TypeAttributes.Abstract) != TypeAttributes.Abstract)
@@ -1632,14 +1666,6 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- argument exception
                     logger.Warn(ex, $"{core.logCommonMessage},Argument Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "], assembly [" + assemblyPrivateAbsPathFilename + "]. Typically these are when the assembly has two classes that differ only by the case of the class name or namespace.");
-                    addonFound = false;
-                    return string.Empty;
-                } catch (ReflectionTypeLoadException ex) {
-                    //
-                    // -- loader error, one of the types listed could not be loaded. Could be bad or missing dependency
-                    foreach (var loaderException in ex.LoaderExceptions) {
-                        logger.Error($"{core.logCommonMessage}", ex, "Loader Exception [" + loaderException.Message + "] while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
-                    }
                     addonFound = false;
                     return string.Empty;
                 } catch (Exception ex) {
