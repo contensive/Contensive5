@@ -51,7 +51,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // the desktop is likely unset, auto set it to dashboard
                         //
-                        addonId = -1;
+                        core.siteProperties.setProperty("Admin Nav Widget Dashboard", true);
+                        AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidWidgetDashboard);
+                        addonId = addon?.id ?? 0;
+                        core.siteProperties.setProperty("ADMINROOTADDONID", addonId);
                     } else if (AddonIDText == "0") {
                         //
                         // the desktop has been set to none - go with default desktop
@@ -97,8 +100,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // Nothing Displayed, show default root page
                     //
                     returnHtml = returnHtml + Environment.NewLine + "<div style=\"padding:20px;height:450px\">"
-                    + Environment.NewLine + "<div><a href=http://www.Contensive.com target=_blank><img style=\"border:1px solid #000;\" src=\"" + cdnPrefix + "images/ContensiveAdminLogo.GIF\" border=0 ></A></div>"
-                    + Environment.NewLine + "<div><strong>Contensive/" + CoreController.codeVersion() + "</strong></div>"
+                    + Environment.NewLine + "<div><a href=http://www.Contensive.com target=_blank><strong>Contensive/\" + CoreController.codeVersion() + \"</strong></A></div>"
                     + Environment.NewLine + "<div style=\"clear:both;height:18px;margin-top:10px\"><div style=\"float:left;width:200px;\">Domain Name</div><div style=\"float:left;\">" + core.webServer.requestDomain + "</div></div>"
                     + Environment.NewLine + "<div style=\"clear:both;height:18px;\"><div style=\"float:left;width:200px;\">Login Member Name</div><div style=\"float:left;\">" + core.session.user.name + "</div></div>"
                     + Environment.NewLine + "<div style=\"clear:both;height:18px;\"><div style=\"float:left;width:200px;\">Quick Reports</div><div style=\"float:left;\"><a Href=\"?addonGuid={A5439430-ED28-4D72-A9ED-50FB36145955}\">Real-Time Activity</A></div></div>"

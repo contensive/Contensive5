@@ -60,8 +60,16 @@ namespace Contensive.Processor.Addons.Base {
                 cp.Db.ExecuteNonQuery("delete from ccaggregatefunctions where ccguid='{DCBE4BD3-AF3C-4412-90E6-1740C391CE8E}'");
                 cp.Db.ExecuteNonQuery("delete from ccaggregatefunctions where ccguid='{C8304551-7A85-400E-8DAC-DB3832A603DE}'");
                 //
-                // -- 
-                return "ok";
+                // -- verify dashboard
+                if(cp.Site.GetInteger("ADMINROOTADDONID")==0) {
+                    AddonModel addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidWidgetDashboard);
+                    cp.Site.SetProperty("Admin Nav Widget Dashboard", true);
+                    cp.Site.SetProperty("ADMINROOTADDONID", addon?.id ?? 0);
+                }
+
+            //
+            // -- 
+            return "ok";
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 return "ERROR, unexpected exception during OnInstallDiagnostics";
