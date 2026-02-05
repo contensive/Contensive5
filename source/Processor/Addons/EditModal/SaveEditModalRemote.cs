@@ -142,7 +142,7 @@ namespace Contensive.Processor.Addons {
                                         }
                                     }
                                 }
-                                ContentController.processAfterSave(cp.core, false, contentMetaData.name, recordId, recordName, parentId, false);
+                                ContentController.processAfterSave(cp.core, false, contentMetaData.name, recordId, recordName, parentId);
                             }
                             //
                             // -- return to last page with updated content

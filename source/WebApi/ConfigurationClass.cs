@@ -126,27 +126,6 @@ namespace Contensive.WebApi {
                         }
                     }
                 }
-                //foreach (string key in httpContext.Request.Form .AllKeys) {
-                //    if (string.IsNullOrWhiteSpace(key))
-                //        continue;
-                //    var @file = httpContext.Request.Files[key];
-                //    if (@file is null)
-                //        continue;
-                //    if (@file.ContentLength == 0)
-                //        continue;
-                //    string normalizedFilename = Processor.Controllers.FileController.normalizeDosFilename(@file.FileName);
-                //    if (string.IsNullOrWhiteSpace(normalizedFilename))
-                //        continue;
-                //    string windowsTempFile = WindowsTempFileController.createTmpFile();
-                //    @file.SaveAs(windowsTempFile);
-                //    context.Request.Files.Add(new DocPropertyModel() {
-                //        name = key,
-                //        value = normalizedFilename,
-                //        nameValue = Uri.EscapeDataString(key) + "=" + Uri.EscapeDataString(normalizedFilename),
-                //        windowsTempfilename = windowsTempFile,
-                //        propertyType = DocPropertyModel.DocPropertyTypesEnum.@file
-                //    });
-                //}
                 // 
                 // -- transfer cookies
                 foreach (string cookieKey in httpContext.Request.Cookies.Keys) {

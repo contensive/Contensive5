@@ -384,9 +384,6 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         private void checkRowCnt() {
-            //if (rowCnt < 0) {
-            //    addRow();
-            //}
         }
 
         public override void addFormHidden(string name, string value, string htmlId) {

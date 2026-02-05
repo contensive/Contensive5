@@ -55,24 +55,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                     int portalDefaultFeatureId = portalCs.GetInteger("defaultFeatureId");
                     defaultConfigJson = portalCs.GetText("defaultConfigJson");
                     portalCs.Close();
-                    ////
-                    //// -- portal links
-                    //result.linkedPortals = new List<PortalDataModel>();
-                    //string sql = "select p.id,p.ccguid,p.name from ccPortals p left join ccPortalLinks l on l.toPortalId=p.id where p.active>0 and l.fromPortalId=" + result.id;
-                    //if (portalCs.OpenSQL(sql)) {
-                    //    do {
-                    //        int linkedPortalId = portalCs.GetInteger("id");
-                    //        if (!result.id.Equals(linkedPortalId)) {
-                    //            PortalDataModel linkedPortal = new PortalDataModel {
-                    //                id = linkedPortalId,
-                    //                name = portalCs.GetText("name")
-                    //            };
-                    //            result.linkedPortals.Add(linkedPortal);
-                    //        }
-                    //        portalCs.GoNext();
-                    //    } while (portalCs.OK());
-                    //}
-                    //portalCs.Close();
                     //
                     // -- load features and subfeatures
                     string featureSql = @$" 
@@ -124,9 +106,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                                         CP.Site.ErrorReport("Portal Error, 2 portal features with the same guid [" + featureGuid + "]");
                                     } else {
                                         result.featureList.Add(featureGuid, feature);
-                                        //if (result.defaultFeature == null) {
-                                        //    result.defaultFeature = feature;
-                                        //}
                                         if (portalDefaultFeatureId == feature.id) {
                                             result.defaultFeature = feature;
                                         }

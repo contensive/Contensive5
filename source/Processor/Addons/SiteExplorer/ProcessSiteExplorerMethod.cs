@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.Primitives {
                         + "";
                     core.doc.bodyClassList.Add("container-fluid ccBodyAdmin ccCon");
                     core.doc.bodyStyleList.Add("overflow:scroll");
-                    result = core.html.getHtmlDoc(htmlBody, false, false);
+                    result = core.html.getHtmlDoc(htmlBody);
                     core.doc.continueProcessing = false;
                 }
             } catch (Exception ex) {

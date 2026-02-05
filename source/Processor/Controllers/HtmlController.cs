@@ -166,12 +166,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="AllowLogin"></param>
         /// <param name="AllowTools"></param>
         /// <returns></returns>
-        public string getHtmlBodyEnd(bool AllowLogin, bool AllowTools) {
-            List<string> result = new();
+        public string getHtmlBodyEnd() {
+            List<string> result = [];
             try {
-                if (AllowLogin) {
-                    result.Add(getLoginLink());
-                }
                 //
                 // -- body Javascript
                 bool allowDebugging = core.visitProperty.getBoolean("AllowDebugging");
@@ -822,43 +819,6 @@ namespace Contensive.Processor.Controllers {
         public static string selectFromList(CoreController core, string MenuName, string CurrentValue, List<string> lookups, string NoneCaption, string htmlId, string HtmlClass = "") {
             int zeroBaseIndex = lookups.FindIndex(x => x.Equals(CurrentValue, StringComparison.InvariantCultureIgnoreCase));
             return selectFromList(core, MenuName, zeroBaseIndex + 1, lookups, NoneCaption, htmlId, HtmlClass);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Display an icon with a link to the login form/cclib.net/admin area
-        /// </summary>
-        /// <returns></returns>
-        public string getLoginLink() {
-            string result = "";
-            try {
-                //
-                string Link = null;
-                string IconFilename = null;
-                //
-                if (core.siteProperties.allowLoginIcon) {
-                    result += "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
-                    result += "<tr><td align=\"right\">";
-                    if (core.session.isAuthenticatedContentManager()) {
-                        result += "<a href=\"" + HtmlController.encodeHtml("/" + core.appConfig.adminRoute) + "\" target=\"_blank\">";
-                    } else {
-                        Link = core.webServer.requestPage + "?" + core.doc.refreshQueryString;
-                        Link = GenericController.modifyLinkQuery(Link, RequestNameHardCodedPage, HardCodedPageLogin, true);
-                        result += "<a href=\"" + HtmlController.encodeHtml(Link) + "\" >";
-                    }
-                    IconFilename = core.siteProperties.loginIconFilename;
-                    if (GenericController.toLCase(IconFilename.left(7)) != "" + cdnPrefix + "") {
-                        IconFilename = GenericController.getCdnFileLink(core, IconFilename);
-                    }
-                    // original  "<img alt=\"Login\" src=\"" + IconFilename + "\" border=\"0\" >"
-                    result += HtmlController.img(IconFilename, "Login");
-                    result += "</A>";
-                    result += "</td></tr></table>";
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-            }
-            return result;
         }
         //
         //====================================================================================================
@@ -1708,15 +1668,6 @@ namespace Contensive.Processor.Controllers {
                                     // Icon (fieldtyperesourcelink)
                                     //
                                     bool IsInline = csData.getBoolean("IsInline");
-                                    //string IconFilename = csData.getText("Iconfilename");
-                                    //int IconWidth = 0;
-                                    //int IconHeight = 0;
-                                    //int IconSprites = 0;
-                                    //if (!string.IsNullOrEmpty(IconFilename)) {
-                                    //    IconWidth = csData.getInteger("IconWidth");
-                                    //    IconHeight = csData.getInteger("IconHeight");
-                                    //    IconSprites = csData.getInteger("IconSprites");
-                                    //}
                                     //
                                     // Calculate DefaultAddonOption_String
                                     //
@@ -1752,19 +1703,6 @@ namespace Contensive.Processor.Controllers {
                     ItemsJsonSorted.RemoveAll(s => string.IsNullOrEmpty(s));
                     result = string.Join(Environment.NewLine + ",", ItemsJsonSorted);
 
-                    //int ItemsPtr = Index.getFirstPtr();
-                    //int LoopPtr = 0;
-                    //bool useJson = core.siteProperties.getBoolean("wysiwyg clips use JSON commands", true);
-                    //while ((ItemsPtr >= 0) && (LoopPtr < ItemsCnt)) {
-                    //    result += Environment.NewLine + "," + ItemsJson[ItemsPtr]; // ((useJson) ?  : ItemsHtmlId[ItemsPtr]);
-                    //    int PtrTest = Index.getNextPtr();
-                    //    if (PtrTest < 0) {
-                    //        break;
-                    //    } else {
-                    //        ItemsPtr = PtrTest;
-                    //    }
-                    //    LoopPtr += 1;
-                    //}
                     if (!string.IsNullOrEmpty(result)) {
                         result = $"[{result}]";
                     }
@@ -2925,11 +2863,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="blockNonContentExtras"></param>
         /// <param name="isAdminSite"></param>
         /// <returns></returns>
-        public string getHtmlDoc(string htmlBody, bool allowLogin = true, bool allowTools = true) {
+        public string getHtmlDoc(string htmlBody ) {
             string result = "";
             try {
                 string htmlHead = getHtmlHead();
-                string htmlBeforeEndOfBody = getHtmlBodyEnd(allowLogin, allowTools);
+                string htmlBeforeEndOfBody = getHtmlBodyEnd();
                 //
                 // -- add beta-mode classes
                 if (core.siteProperties.allowEditModal) {

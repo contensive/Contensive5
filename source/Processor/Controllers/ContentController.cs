@@ -33,7 +33,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static void processAfterSave_AddonCollection(CoreController core, bool isDelete, string contentName, int recordID, string recordName, int recordParentID, bool useContentWatchLink) {
+        public static void processAfterSave_AddonCollection(CoreController core, bool isDelete, string contentName, int recordID, string recordName, int recordParentID) {
             //
             // -- if this is an add or delete, manage the collection folders
             if (isDelete) {
@@ -58,84 +58,10 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static void processAfterSave_LibraryFiles(CoreController core, bool isDelete, string contentName, int recordID, string recordName, int recordParentID, bool useContentWatchLink) {
+        public static void processAfterSave_LibraryFiles(CoreController core, bool isDelete, string contentName, int recordID, string recordName, int recordParentID) {
             //
             // if a AltSizeList is blank, make large,medium,small and thumbnails
             //
-            //if (core.siteProperties.getBoolean("ImageAllowSFResize", true) && (!isDelete)) {
-            //    using (var csData = new CsModel(core)) {
-            //        if (csData.openRecord("library files", recordID)) {
-            //            string Filename = csData.getText("filename");
-            //            int Pos = Filename.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
-            //            string FilePath = "";
-            //            if (Pos > 0) {
-            //                FilePath = Filename.left(Pos);
-            //                Filename = Filename.Substring(Pos);
-            //            }
-            //            csData.set("filesize", core.wwwFiles.getFileSize(FilePath + Filename));
-            //            Pos = Filename.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
-            //            if (Pos > 0) {
-            //                string FilenameExt = Filename.Substring(Pos);
-            //                string FilenameNoExt = Filename.left(Pos - 1);
-            //                if (GenericController.strInstr(1, "jpg,gif,png", FilenameExt, 1) != 0) {
-            //                    ImageEditController sf = new();
-            //                    if (sf.load(FilePath + Filename, core.wwwFiles)) {
-            //                        //
-            //                        //
-            //                        //
-            //                        csData.set("height", sf.height);
-            //                        csData.set("width", sf.width);
-            //                        string AltSizeList = csData.getText("AltSizeList");
-            //                        bool RebuildSizes = (string.IsNullOrEmpty(AltSizeList));
-            //                        if (RebuildSizes) {
-            //                            AltSizeList = "";
-            //                            //
-            //                            // Attempt to make 640x
-            //                            //
-            //                            if (sf.width >= 640) {
-            //                                sf.height = GenericController.encodeInteger(sf.height * (640 / sf.width));
-            //                                sf.width = 640;
-            //                                sf.save(FilePath + FilenameNoExt + "-640x" + sf.height + "." + FilenameExt, core.wwwFiles);
-            //                                AltSizeList = AltSizeList + Environment.NewLine + "640x" + sf.height;
-            //                            }
-            //                            //
-            //                            // Attempt to make 320x
-            //                            //
-            //                            if (sf.width >= 320) {
-            //                                sf.height = GenericController.encodeInteger(sf.height * (320 / sf.width));
-            //                                sf.width = 320;
-            //                                sf.save(FilePath + FilenameNoExt + "-320x" + sf.height + "." + FilenameExt, core.wwwFiles);
-
-            //                                AltSizeList = AltSizeList + Environment.NewLine + "320x" + sf.height;
-            //                            }
-            //                            //
-            //                            // Attempt to make 160x
-            //                            //
-            //                            if (sf.width >= 160) {
-            //                                sf.height = GenericController.encodeInteger(sf.height * (160 / sf.width));
-            //                                sf.width = 160;
-            //                                sf.save(FilePath + FilenameNoExt + "-160x" + sf.height + "." + FilenameExt, core.wwwFiles);
-            //                                AltSizeList = AltSizeList + Environment.NewLine + "160x" + sf.height;
-            //                            }
-            //                            //
-            //                            // Attempt to make 80x
-            //                            //
-            //                            if (sf.width >= 80) {
-            //                                sf.height = GenericController.encodeInteger(sf.height * (80 / sf.width));
-            //                                sf.width = 80;
-            //                                sf.save(FilePath + FilenameNoExt + "-180x" + sf.height + "." + FilenameExt, core.wwwFiles);
-            //                                AltSizeList = AltSizeList + Environment.NewLine + "80x" + sf.height;
-            //                            }
-            //                            csData.set("AltSizeList", AltSizeList);
-            //                        }
-            //                        sf.Dispose();
-            //                        sf = null;
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
         }
         //
         //====================================================================================================
@@ -148,7 +74,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordName"></param>
         /// <param name="recordParentID"></param>
         /// <param name="useContentWatchLink"></param>
-        public static void processAfterSave(CoreController core, bool isDelete, string contentName, int recordId, string recordName, int recordParentID, bool useContentWatchLink) {
+        public static void processAfterSave(CoreController core, bool isDelete, string contentName, int recordId, string recordName, int recordParentID) {
             try {
                 string tableName = MetadataController.getContentTablename(core, contentName);
                 //
@@ -159,7 +85,7 @@ namespace Contensive.Processor.Controllers {
                 if (tableNameLower == AddonCollectionModel.tableMetadata.tableNameLower) {
                     //
                     // -- addon collection
-                    processAfterSave_AddonCollection(core, isDelete, contentName, recordId, recordName, recordParentID, useContentWatchLink);
+                    processAfterSave_AddonCollection(core, isDelete, contentName, recordId, recordName, recordParentID);
                 } else if (tableNameLower == LinkForwardModel.tableMetadata.tableNameLower) {
                     //
                     // -- link forward
@@ -249,7 +175,7 @@ namespace Contensive.Processor.Controllers {
                 } else if (tableNameLower == LibraryFilesModel.tableMetadata.tableNameLower) {
                     //
                     // -- 
-                    processAfterSave_LibraryFiles(core, isDelete, contentName, recordId, recordName, recordParentID, useContentWatchLink);
+                    processAfterSave_LibraryFiles(core, isDelete, contentName, recordId, recordName, recordParentID);
                 }
                 //
                 // Process Addons marked to trigger a process call on content change

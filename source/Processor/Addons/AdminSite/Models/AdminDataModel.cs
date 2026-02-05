@@ -102,68 +102,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         /// <summary>
-        /// flag set that shows the rest are valid
-        /// </summary>
-        public bool contentWatchLoaded { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public int contentWatchRecordID { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public string contentWatchLink { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public int contentWatchClicks { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public string contentWatchLinkLabel { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public DateTime contentWatchExpires { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// list of all ContentWatchLists for this Content, read from response, then later saved to Rules
-        /// </summary>
-        public int[] contentWatchListID {
-            get {
-                return _ContentWatchListID;
-            }
-            set {
-                _ContentWatchListID = value;
-            }
-        }
-        private int[] _ContentWatchListID;
-        //
-        //====================================================================================================
-        /// <summary>
-        /// size of ContentWatchListID() array
-        /// </summary>
-        public int contentWatchListIDSize { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// number of valid entries in ContentWatchListID()
-        /// </summary>
-        public int contentWatchListIDCount { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
         /// Count of Buttons in use
         /// </summary>
         public int buttonObjectCount { get; set; }

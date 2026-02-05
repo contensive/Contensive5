@@ -7,10 +7,6 @@ namespace Contensive.Processor.Models {
     /// This dash widget simple returns html for the content  
     /// </summary>  
     public class DashboardWidgetLineChartModel : DashboardWidgetBaseModel {
-        //public DashboardWidgetLineChartModel() : base() {
-        //    widgetType = WidgetTypeEnum.line;
-        //    uniqueId = getRandomString(4);
-        //}
         /// <summary>  
         /// used to identify the chart in the javascript  
         /// </summary>  

@@ -159,32 +159,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         //
                         body = FeatureListView.getFeatureList(CP, portalData, dstDataFeature, CP.Doc.RefreshQueryString);
                     }
-                    ////
-                    //// -- build the subnav, if the feature addon has sibling features, 
-                    ////
-                    //if (!string.IsNullOrEmpty(dstDataFeature.parentFeatureGuid)) {
-                    //    if (portalData.featureList.ContainsKey(dstDataFeature.parentFeatureGuid)) {
-                    //        PortalDataFeatureModel dstFeatureParent = portalData.featureList[dstDataFeature.parentFeatureGuid];
-                    //        if (dstFeatureParent != null) {
-                    //            if (dstFeatureParent.addonId > 0 || dstFeatureParent.dataContentId > 0) {
-                    //                //
-                    //                // -- if parent is content or addon features, show subnav (otherwise, show flyout)
-                    //                var subFeatureList = dstFeatureParent.subFeatureList.OrderBy(p => p.sortOrder).ToList();
-                    //                foreach (var dstFeatureSibling in subFeatureList) {
-                    //                    bool activeFeature = dstFeatureSibling.guid == dstFeatureGuid;
-                    //                    foundActiveFeature = foundActiveFeature || activeFeature;
-                    //                    portalBuilder.addSubNav(new PortalBuilderSubNavItemModel {
-                    //                        subActive = activeFeature,
-                    //                        subCaption = string.IsNullOrEmpty(dstFeatureSibling.heading) ? dstFeatureSibling.name : dstFeatureSibling.heading,
-                    //                        subIsPortalLink = false,
-                    //                        subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, dstFeatureSibling.guid),
-                    //                        sublinkTarget = dstFeatureSibling.dataContentId > 0 || !string.IsNullOrEmpty(dstFeatureSibling.dataContentGuid) ? "_blank" : ""
-                    //                    });
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
                     //
                     // -- build navs from the dstFeature, up to the top-nav
                     // -- then move the resulting navs to subnav, and childsubnavs
@@ -271,10 +245,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         //
                         // -- if no default feature set, display dashboard for this portal
                         body = CP.AdminUI.GetWidgetDashboard(portalData.guid);
-                        //LayoutBuilderSimple simple = new LayoutBuilderSimple {
-                        //    body = "This portal feature has no content."
-                        //};
-                        //body = simple.getHtml(CP);
                     }
                 }
                 portalBuilder.setActiveNav(activeNavHeading);

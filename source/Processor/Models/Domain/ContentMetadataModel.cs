@@ -1374,11 +1374,6 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                     }
-                    //
-                    // leave active as it is set from the input data
-                    //if (!contentActive && contentId > 0) {
-                    //    db.executeNonQuery($"update cccontent set active=0 where id={contentId}");
-                    //}
                 }
                 //
                 // ----- Load metadata

@@ -247,16 +247,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                     // -- these are deprecated, but still in use
                                     case "DATEEXPIRES": {
                                             //
-                                            // ----- make sure content watch expires before content expires
-                                            //
-                                            if (!isNull(fieldValueObject) && isDate(fieldValueObject)) {
-                                                DateTime saveValue = encodeDate(fieldValueObject);
-                                                if (adminData.contentWatchExpires <= DateTime.MinValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                } else if (adminData.contentWatchExpires > saveValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                }
-                                            }
+                                            // ----- 
                                             //
                                             break;
                                         }
@@ -264,16 +255,8 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                     // -- these are deprecated, but still in use
                                     case "DATEARCHIVE": {
                                             //
-                                            // ----- make sure content watch expires before content archives
+                                            // ----- 
                                             //
-                                            if (!isNull(fieldValueObject) && isDate(fieldValueObject)) {
-                                                DateTime saveValue = GenericController.encodeDate(fieldValueObject);
-                                                if ((adminData.contentWatchExpires) <= DateTime.MinValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                } else if (adminData.contentWatchExpires > saveValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                }
-                                            }
                                             break;
                                         }
                                     default: {

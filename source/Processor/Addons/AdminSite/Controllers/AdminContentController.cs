@@ -97,7 +97,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                 });
                 cp.core.db.sqlCommandTimeout = 300;
                 adminData.buttonObjectCount = 0;
-                adminData.contentWatchLoaded = false;
                 //
                 string buildVersion = cp.core.siteProperties.dataBuildVersion;
                 if (versionIsOlder(buildVersion, cp.Version)) {
@@ -111,13 +110,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Process SourceForm/Button into Action/Form, and process
                 bool CheckUserErrors = true;
                 ProcessFormController.processForms(cp, adminData);
-                ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink, CheckUserErrors);
-                //if (adminData.srcFormButton == ButtonCancelAll) {
-                //    adminData.dstFormId = AdminFormRoot;
-                //} else {
-                //    ProcessFormController.processForms(cp, adminData);
-                //    ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink, CheckUserErrors);
-                //}
+                ProcessActionController.processActions(cp, adminData, CheckUserErrors);
                 //
                 // Normalize values to be needed
                 if (adminData.editRecord.id != 0) {
@@ -137,12 +130,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 int addonId = cp.core.docProperties.getInteger("addonid");
                 string addonGuid = cp.core.docProperties.getText("addonguid");
-                //if (adminData.dstFormId == AdminFormLegacyAddonManager) {
-                //    //
-                //    // patch out any old links to the legacy addon manager
-                //    adminData.dstFormId = 0;
-                //    addonGuid = addonGuidAddonManager;
-                //}
                 //
                 // ----------------------------------------------------------------------------------------------------------------------------------
                 // Edit form but not valid record case

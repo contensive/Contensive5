@@ -1266,53 +1266,6 @@ namespace Contensive.Models.Db {
             }
             return id;
         }
-        // 
-        // ============================================================================================
-        /// <summary>
-        /// Update the model with data from the current cp.Doc properties where the cp.Doc property name matches the model property name.
-        /// The cp.Doc properties are populated from the request Get and Post, server variables and can be written to by the application.
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="model"></param>
-        //public void loadFromRequest(CPBaseClass cp) {
-        //    try {
-        //        foreach (PropertyInfo prop in this.GetType().GetProperties()) {
-        //            // -- save property is writable, and in the request
-        //            if (prop.CanWrite && cp.Doc.IsProperty(prop.Name)) {
-        //                if (prop.PropertyType == typeof(string)) {
-        //                    //
-        //                    // -- string
-        //                    prop.SetValue(this, cp.Doc.GetText(prop.Name));
-        //                }
-        //                if (prop.PropertyType == typeof(Int32)) {
-        //                    //
-        //                    // -- integer
-
-        //                    prop.SetValue(this, cp.Doc.GetInteger(prop.Name));
-        //                }
-        //                if (prop.PropertyType == typeof(double)) {
-        //                    //
-        //                    // -- number
-        //                    prop.SetValue(this, cp.Doc.GetNumber(prop.Name));
-        //                }
-        //                if (prop.PropertyType == typeof(bool)) {
-        //                    //
-        //                    // -- number
-        //                    prop.SetValue(this, cp.Doc.GetBoolean(prop.Name));
-        //                }
-        //                if (prop.PropertyType == typeof(DateTime)) {
-        //                    //
-        //                    // -- integer
-
-        //                    prop.SetValue(this, cp.Doc.GetDate(prop.Name));
-        //                }
-        //            }
-        //        }
-        //    } catch (Exception ex) {
-        //        cp.Site.ErrorReport(ex);
-        //        throw;
-        //    }
-        //}
 
         public void loadFromRequest(CPBaseClass cp) {
             try {

@@ -752,11 +752,6 @@ namespace Contensive.Processor.Controllers {
         public static bool trySendSystemEmail(CoreController core, bool immediate, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             try {
                 // -- validate arguments
-                // -- an email with no subject is still valid
-                //if (!verifyEmailSubject(core, email.subject)) {
-                //    userErrorMessage = "The email subject is not valid.";
-                //    return false;
-                //}
                 if (!verifyEmailAddress(core, email.fromAddress)) {
                     if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
                         //

@@ -238,31 +238,13 @@ namespace Contensive.Processor.Addons.Tools {
                         }
                     }
                 }
-                //
-                //   Print Output
-                //string description = ""
-                //    + Controllers.HtmlController.p("Use this tool to add or modify content definition fields and the underlying sql table fields.");
-                //    //+ ((ContentId.Equals(0)) ? "" : ""
-                //    //    + Controllers.HtmlController.ul(""
-                //    //        + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                //    //        + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                //    //        + Controllers.HtmlController.li(Controllers.HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                //    //        , "nav")
-                //    //);
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                //Stream.add(AdminUIController.getHeaderTitleDescription("Edit Table Metadata", description));
                 //
                 // -- status of last operation
                 layout.infoMessage = StatusMessage;
                 layout.failMessage = ErrorMessage;
-                //if (!string.IsNullOrEmpty(StatusMessage)) {
-                //    Stream.add(AdminUIController.getToolFormRow(core, "<UL>" + StatusMessage + "</UL>"));
-                //}
                 //
                 // -- errors with last operations
-                //if (!string.IsNullOrEmpty(ErrorMessage)) {
-                //    Stream.add(Controllers.HtmlController.div("There was a problem saving these changes" + "<UL>" + ErrorMessage + "</UL>", "ccError"));
-                //}
                 if (ReloadCDef) {
                     contentMetadata = Processor.Models.Domain.ContentMetadataModel.create(core, ContentId, true, true);
                 }

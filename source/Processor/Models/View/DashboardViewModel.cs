@@ -168,52 +168,6 @@ namespace Contensive.Processor.Models.View {
                 }
             }
         }
-        ////
-        //// ====================================================================================================
-        ///// <summary>
-        ///// load config for a user. Returns null if config file not found
-        ///// </summary>
-        ///// <param name="cp"></param>
-        ///// <param name="userId"></param>
-        ///// <param name="portalName">unique name of this dash. </param>
-        ///// <returns></returns>
-        //private static DashboardViewModel loadUserConfig(CPBaseClass cp, string portalName) {
-        //    string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, portalName));
-        //    if (string.IsNullOrWhiteSpace(jsonConfigText)) { return null; }
-        //    return cp.JSON.Deserialize<DashboardViewModel>(jsonConfigText);
-        //}
-        //// 
-        //// ====================================================================================================
-        ///// <summary>
-        ///// save config for the current user
-        ///// </summary>
-        ///// <param name="cp"></param>
-        //public void save(CPBaseClass cp, string portalName) {
-        //    cp.PrivateFiles.Save(getConfigFilename(cp, portalName), cp.JSON.Serialize(this));
-        //}
-        ////
-        //// ====================================================================================================
-        ///// <summary>
-        ///// create the config filename for the current user and this dashboard type
-        ///// </summary>
-        ///// <param name="cp"></param>
-        ///// <param name="foldername"></param>
-        ///// <returns></returns>
-        //private static string getConfigFilename(CPBaseClass cp, string dashboardName) {
-        //    string foldername = normalizeDashboardName(dashboardName);
-        //    return @$"dashboard\{(string.IsNullOrEmpty(foldername) ? "" : @$"{foldername}\")}config.{cp.User.Id}.json";
-        //}
-        //// 
-        //// ====================================================================================================
-        ///// <summary>
-        ///// normalize the dashboard name to a valid folder name
-        ///// </summary>
-        ///// <param name="dashboardName"></param>
-        ///// <returns></returns>
-        //private static string normalizeDashboardName(string dashboardName) {
-        //    string result = Regex.Replace(dashboardName.ToLower(), "[^a-zA-Z0-9]", "");
-        //    return result;
-        //}
     }
     //
     public class addWidget {

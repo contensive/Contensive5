@@ -396,26 +396,6 @@ namespace Contensive.Processor.LayoutBuilder {
             };
             return layoutBase.getHtml();
         }
-        //navStruct[] navs = new navStruct[tabSize];
-        //int tabMax = -1;
-        //int tabPtr = -1;
-        //
-        //string localBody = "";
-        //string localTitle = "";
-        //string localWarning = "";
-        //bool localIsOuterContainer = false;
-        ////
-        //private void checkTabPtr() {
-
-        //    if (tabPtr < 0) {
-        //        addTab();
-        //    }
-        //}
-        ////
-        //private string indent(string src) {
-        //    return src.Replace(Constants.cr, Constants.cr2);
-        //}
-
         //
         [Obsolete("move javascript and styles to layouts", false)]
         public override string styleSheet {

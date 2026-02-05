@@ -34,12 +34,12 @@ namespace Contensive.Processor.Addons.Primitives {
                         + cr2 + "<div style=\"border-top:1px solid white;border-bottom:1px solid black;height:2px\"><img alt=\"spacer\" src=\"" + cdnPrefix + "images/spacer.gif\" width=1 height=1></div>"
                         + GenericController.nop(Copy) + "\r</td></tr>"
                         + "\r<tr><td>"
-                        + GenericController.nop(core.html.getHtmlBodyEnd(false, false)) + "\r</td></tr></table>"
+                        + GenericController.nop(core.html.getHtmlBodyEnd()) + "\r</td></tr></table>"
                         + "\r<script language=javascript type=\"text/javascript\">fixDialog();</script>"
                         + "";
                     core.doc.bodyClassList.Add("container-fluid ccBodyAdmin ccCon");
                     core.doc.bodyStyleList.Add("overflow:scroll");
-                    result = core.html.getHtmlDoc(htmlBody, false, false);
+                    result = core.html.getHtmlDoc(htmlBody);
                     core.doc.continueProcessing = false;
                 } else if (!string.IsNullOrEmpty(LinkObjectName)) {
                     //
@@ -54,7 +54,7 @@ namespace Contensive.Processor.Addons.Primitives {
                         + "";
                     core.doc.bodyClassList.Add("container-fluid ccBodyAdmin ccCon");
                     core.doc.bodyStyleList.Add("overflow:scroll");
-                    result = core.html.getHtmlDoc(htmlBody, false, false);
+                    result = core.html.getHtmlDoc(htmlBody);
                     core.doc.continueProcessing = false;
                 }
             } catch (Exception ex) {

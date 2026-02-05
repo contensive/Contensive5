@@ -687,19 +687,6 @@ namespace Contensive.Processor.LayoutBuilder {
                                 }
                                 row += Constants.cr + "<td" + classAttribute2 + ">" + cellContent + "</td>";
                             }
-                            //if (allowDownloadButton && requestDownload && !localExcludeRowFromDownload[rowPtr]) {
-                            //    if (columns[colPtr].downloadable) {
-                            //        if (colPtrDownload == 0) {
-                            //            csvDownloadContent += Environment.NewLine;
-                            //        } else {
-                            //            csvDownloadContent += ",";
-                            //        }
-                            //        if (!string.IsNullOrEmpty(localDownloadData[rowPtr, colPtr])) {
-                            //            csvDownloadContent += "\"" + localDownloadData[rowPtr, colPtr].Replace("\"", "\"\"") + "\"";
-                            //        }
-                            //        colPtrDownload += 1;
-                            //    }
-                            //}
                         }
                         string classAttribute = localRowClasses[rowPtr];
                         if (rowPtr % 2 != 0) {
@@ -715,24 +702,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), 500");
                 //
                 hint = 60;
-                //if (allowDownloadButton && requestDownload) {
-                //    //
-                //    // todo implement cp.db.CreateCsv()
-                //    // 5.1 -- download
-                //    CPCSBaseClass csDownloads = cp.CSNew();
-                //    if (csDownloads.Insert("downloads")) {
-                //        string pathFilename = csDownloads.GetFilename("filename", "export.csv");
-                //        cp.CdnFiles.Save(pathFilename, csvDownloadContent);
-                //        csDownloads.SetField("name", "Download for [" + title + "], requested by [" + cp.User.Name + "]");
-                //        csDownloads.SetField("requestedBy", cp.User.Id.ToString());
-                //        csDownloads.SetField("filename", pathFilename);
-                //        csDownloads.SetField("dateRequested", DateTime.Now.ToString());
-                //        csDownloads.SetField("datecompleted", DateTime.Now.ToString());
-                //        csDownloads.SetField("resultmessage", "Completed");
-                //        csDownloads.Save();
-                //    }
-                //    csDownloads.Close();
-                //}
                 hint = 70;
                 string dataGrid = ""
                     + "<div id=\"afwListReportDataGrid\">"

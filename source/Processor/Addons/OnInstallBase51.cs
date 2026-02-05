@@ -55,6 +55,11 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernamePasswordAutoGuid, layoutLoginUsernamePasswordAutoName, layoutLoginUsernamePasswordAutoCdnPathFilename, layoutLoginUsernamePasswordAutoCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernamePasswordGuid, layoutLoginUsernamePasswordName, layoutLoginUsernamePasswordCdnPathFilename, layoutLoginUsernamePasswordCdnPathFilename);
                 //
+                // -- delete social media open graph addon
+                //cp.Db.ExecuteNonQuery("delete from ccaggregatefunctions where ccguid='{13231CF9-C06D-4748-83F4-A49545C1B4DA}'");
+                cp.Db.ExecuteNonQuery("delete from ccaggregatefunctions where ccguid='{DCBE4BD3-AF3C-4412-90E6-1740C391CE8E}'");
+                cp.Db.ExecuteNonQuery("delete from ccaggregatefunctions where ccguid='{C8304551-7A85-400E-8DAC-DB3832A603DE}'");
+                //
                 // -- 
                 return "ok";
             } catch (Exception ex) {

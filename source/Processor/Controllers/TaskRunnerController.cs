@@ -173,11 +173,6 @@ namespace Contensive.Processor.Controllers {
                         TaskModel task = DbBaseModel.create<TaskModel>(cp, cp.Utils.EncodeInteger(row["id"]));
                         Stopwatch swTask = new();
                         swTask.Start();
-                        ////
-                        //// -- track multiple executions
-                        //if (sequentialTaskCount > 0) {
-                        //    logger.Trace($"{cp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "], multiple tasks run in a single cycle, sequentialTaskCount [" + sequentialTaskCount + "]");
-                        //}
                         //
                         // -- two execution methods, 1) run task here, 2) start process and wait (so bad addon code does not memory link)
                         bool runInServiceProcess = cp.Site.GetBoolean("Run tasks in service process");
@@ -234,8 +229,6 @@ namespace Contensive.Processor.Controllers {
                         }
                         logger.Trace($"{cp.core.logCommonMessage},runTasks, app [" + appKVP.Value.name + "], task complete (" + swTask.ElapsedMilliseconds + "ms)");
                     }
-                    //sequentialTaskCount++;
-                    //} while (recordsAffected > 0);
                 } catch (Exception ex) {
                     logger.Error(ex, $"{cp.core.logCommonMessage}");
                 }

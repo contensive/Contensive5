@@ -39,7 +39,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         /// <param name="cp"></param>
         /// <param name="adminData"></param>
         /// <param name="useContentWatchLink"></param>
-        public static void processActions(CPClass cp, AdminDataModel adminData, bool useContentWatchLink, bool CheckUserErrors) {
+        public static void processActions(CPClass cp, AdminDataModel adminData, bool CheckUserErrors) {
             try {
                 EditRecordModel editRecord = adminData.editRecord;
                 ContentMetadataModel adminContent = adminData.adminContent;
@@ -77,7 +77,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                 cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
                                                 cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
                                                 cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
-                                                ContentController.processAfterSave(cp.core, true, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                                ContentController.processAfterSave(cp.core, true, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                                 //
                                                 // -- Page Content special cases
                                                 if (GenericController.toLCase(adminData.adminContent.tableName) == "ccpagecontent") {
@@ -101,8 +101,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     } else {
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         cp.core.cache.invalidateRecordKey(adminData.editRecord.id, adminData.adminContent.tableName);
                                         cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
                                     }
@@ -116,8 +116,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     } else {
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         cp.core.cache.invalidateRecordKey(adminData.editRecord.id, adminData.adminContent.tableName);
                                         cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
                                         adminData.editRecord.id = 0;
@@ -139,8 +139,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     } else {
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             using var csData = new CsModel(cp.core); csData.openRecord("Group Email", adminData.editRecord.id);
                                             if (!csData.ok()) {
@@ -169,8 +169,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         //
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             //
@@ -202,8 +202,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         //
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             //
@@ -250,8 +250,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     } else {
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             GroupTextMessageModel.setSubmitted(cp, adminData.editRecord.id);
                                             //
@@ -289,8 +289,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     } else {
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        processActionSave(cp, adminData);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             using (var csData = new CsModel(cp.core)) {
                                                 csData.openRecord("Conditional Email", adminData.editRecord.id);
@@ -328,7 +328,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                             cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
                                                             cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
                                                             cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
-                                                            ContentController.processAfterSave(cp.core, true, contentName, deleteRecordId, "", 0, useContentWatchLink);
+                                                            ContentController.processAfterSave(cp.core, true, contentName, deleteRecordId, "", 0);
                                                             //
                                                             // -- Page Content special cases
                                                             if (GenericController.toLCase(adminData.adminContent.tableName) == "ccpagecontent") {
@@ -354,7 +354,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     } else {
                                         EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
-                                        processActionSave(cp, adminData, useContentWatchLink);
+                                        processActionSave(cp, adminData);
                                         cp.core.cache.invalidateAll();
                                         cp.core.cacheRuntime.clear();
                                     }
@@ -471,7 +471,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         //
         //=============================================================================================
         //
-        private static void processActionSave(CPClass cp, AdminDataModel adminData, bool UseContentWatchLink) {
+        private static void processActionSave(CPClass cp, AdminDataModel adminData) {
             try {
                 EditRecordModel editRecord = adminData.editRecord;
                 {
@@ -506,25 +506,25 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                 LinkAliasController.addLinkAlias(cp.core, linkAliasPhrase, adminData.editRecord.id, "", overrideDuplicate, true);
                             }
                             // -- legacy
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
-                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
-                            ContentTrackingController.SaveContentTracking(cp, adminData);
+                            //ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            //ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            //ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (tableNameLower.Equals("cclibraryfolders")) {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             cp.core.html.processCheckList("LibraryFolderRules", adminData.adminContent.name, adminData.editRecord.id, "Groups", "Library Folder Rules", "FolderID", "GroupID");
                             // -- legacy
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
-                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
-                            ContentTrackingController.SaveContentTracking(cp, adminData);
+                            //ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            //ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            //ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (tableNameLower.Equals("ccsetup")) {
                             //
                             // Site Properties
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             // -- legacy
                             if (adminData.editRecord.nameLc.ToLowerInvariant() == "allowlinkalias") {
-                                TurnOnLinkAlias(cp, UseContentWatchLink);
+                                TurnOnLinkAlias(cp);
                             }
                         } else if (tableNameLower.Equals("ccgroups")) {
                             //
@@ -532,17 +532,17 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             LoadAndSaveContentGroupRules(cp, adminData.editRecord.id);
                             // -- legacy
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
-                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
-                            ContentTrackingController.SaveContentTracking(cp, adminData);
+                            //ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            //ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            //ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (tableNameLower.Equals("cctemplates")) {
                             //
                             // save and clear editorstylerules for this template
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             // -- legacy
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
-                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
-                            ContentTrackingController.SaveContentTracking(cp, adminData);
+                            //ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            //ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            //ContentTrackingController.SaveContentTracking(cp, adminData);
                             // -- legacy
                             string EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", adminData.editRecord.id.ToString(), 1, 99, 1);
                             cp.core.privateFiles.deleteFile(EditorStyleRulesFilename);
@@ -556,9 +556,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             var addon = DbBaseModel.create<AddonModel>(cp, adminData.editRecord.id);
                             MinifyController.minifyAddon(cp.core, addon);
                             // -- legacy
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
-                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
-                            ContentTrackingController.SaveContentTracking(cp, adminData);
+                            //ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            //ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            //ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (tableNameLower.Equals("cclayouts")) {
                             //
                             // -- layouts
@@ -576,9 +576,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             // -- legacy
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
-                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
-                            ContentTrackingController.SaveContentTracking(cp, adminData);
+                            //ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            //ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            //ContentTrackingController.SaveContentTracking(cp, adminData);
                         }
                     }
                 }
@@ -796,7 +796,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         //
         //========================================================================
         //
-        private static void TurnOnLinkAlias(CPClass cp, bool UseContentWatchLink) {
+        private static void TurnOnLinkAlias(CPClass cp) {
             try {
                 if (!cp.core.doc.userErrorList.Count.Equals(0)) {
                     Processor.Controllers.ErrorController.addUserError(cp.core, "Existing pages could not be checked for Page URL names because there was another error on this page. Correct this error, and turn Page URL on again to rerun the verification.");

@@ -54,9 +54,6 @@ namespace Contensive.Processor {
             return new LayoutBuilder.LayoutBuilderTabbedBodyClass(cp);
         }
 
-        //public override LayoutBuilderToolFormBaseClass CreateLayoutBuilderToolForm() {
-        //    return new LayoutBuilder.LayoutBuilderToolform(cp);
-        //}
         //
         // ====================================================================================================
         //

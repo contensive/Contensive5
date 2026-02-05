@@ -81,7 +81,7 @@ namespace Contensive.Processor.Controllers {
                                     core.doc.continueProcessing = false;
                                     core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
                                     core.doc.bodyClassList.Add("ccBodyWeb");
-                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), true, true);
+                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated));
                                 }
                             case 3: {
                                     //
@@ -411,36 +411,6 @@ namespace Contensive.Processor.Controllers {
                 // -- build body content
                 string htmlDocBody = getHtmlBody_BodyTag(core);
                 //
-                // -- check secure certificate required
-                //{
-                //    bool SecureLink_Page_Required = false;
-                //    foreach (PageContentModel page in pageToRootList) {
-                //        SecureLink_Page_Required = page.isSecure;
-                //        if (SecureLink_Page_Required) { break; }
-                //    }
-                //    bool SecureLink_Required = core.doc.pageController.template.isSecure || SecureLink_Page_Required;
-                //    bool SecureLink_CurrentURL = (core.webServer.requestUrl.ToLowerInvariant().left(8) == "https://");
-                //    if (SecureLink_CurrentURL && (!SecureLink_Required)) {
-                //        //
-                //        // -- redirect to non-secure
-                //        core.doc.redirectLink = GenericController.strReplace(core.webServer.requestUrl, "https://", "http://");
-                //        core.doc.redirectReason = "Redirecting because neither the page or the template requires a secure link.";
-                //        core.doc.redirectBecausePageNotFound = false;
-                //        return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
-                //    } else if ((!SecureLink_CurrentURL) && SecureLink_Required) {
-                //        //
-                //        // -- redirect to secure
-                //        core.doc.redirectLink = GenericController.strReplace(core.webServer.requestUrl, "http://", "https://");
-                //        if (SecureLink_Page_Required) {
-                //            core.doc.redirectReason = "Redirecting because this page [" + core.doc.pageController.pageToRootList[0].name + "] requires a secure link.";
-                //        } else {
-                //            core.doc.redirectReason = "Redirecting because this template [" + core.doc.pageController.template.name + "] requires a secure link.";
-                //        }
-                //        core.doc.redirectBecausePageNotFound = false;
-                //        return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
-                //    }
-                //}
-                //
                 // -- check that this template exists on this domain
                 // -- if endpoint is just domain -> the template is automatically compatible by default (domain determined the landing page)
                 // -- if endpoint is domain + route (link alias), the route determines the page, which may determine the core.doc.pageController.template. If this template is not allowed for this domain, redirect to the domain's landingcore.doc.pageController.page.
@@ -545,10 +515,6 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- replace page content into templatecontent
                         result = strReplace(result, fpoContentBox, contentBoxHtml);
-                        //} else {
-                        //    //
-                        //    // If Content was not found, add it to the end
-                        //    result += contentBoxHtml;
                     }
                     //
                     // -- add template edit link
@@ -819,7 +785,7 @@ namespace Contensive.Processor.Controllers {
                         default: {
                                 //
                                 // ----- Content as blocked - convert from site property to content page
-                                result = getContentBlockMessage(core, core.siteProperties.useContentWatchLink);
+                                result = getContentBlockMessage(core);
                                 break;
                             }
                     }
@@ -1068,14 +1034,6 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- send support email, this site needs to be upgraded
                     core.cpParent.Email.send("support@contensive.com", "jay@contensive.com", $"Site [{core.cpParent.Site.Name}] includes page [{core.cpParent.Doc.PageId}] with breadcrumb", $"Site [{core.cpParent.Site.Name}] includes page [{core.cpParent.Doc.PageId}] with breadcrumb");
-                    ////
-                    //// -- add Breadcrumb
-                    //string BreadCrumbPrefix = core.siteProperties.getText("BreadCrumbPrefix", "Return to");
-                    //string breadCrumb = core.doc.pageController.getReturnBreadcrumb(core);
-                    //if (!string.IsNullOrEmpty(breadCrumb)) {
-                    //    breadCrumb = "\r<p class=\"container pt-4 ccPageListNavigation\">" + BreadCrumbPrefix + " " + breadCrumb + "</p>";
-                    //}
-                    //result.Append(breadCrumb);
                 }
                 //
                 // -- add Page Content
@@ -1195,7 +1153,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        internal static string getContentBlockMessage(CoreController core, bool UseContentWatchLink) {
+        internal static string getContentBlockMessage(CoreController core) {
             try {
                 var copyRecord = DbBaseModel.createByUniqueName<CopyContentModel>(core.cpParent, ContentBlockCopyName);
                 if (copyRecord != null) {
@@ -1509,28 +1467,6 @@ namespace Contensive.Processor.Controllers {
             }
             return landingPage;
         }
-        ////
-        ////====================================================================================================
-        //// Verify a link from the template link field to be used as a Template Link
-        ////
-        //internal static string verifyTemplateLink(CoreController core, string linkSrc) {
-        //    if (string.IsNullOrEmpty(linkSrc)) { return string.Empty; }
-        //    if (strInstr(1, linkSrc, "://") != 0) {
-        //        //
-        //        // protocol provided, do not fixup
-        //        return GenericController.encodeVirtualPath(linkSrc, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
-        //    }
-        //    //
-        //    // no protocol, convert to short link
-        //    string result = linkSrc;
-        //    if (result.left(1) != "/") {
-        //        //
-        //        // page entered without path, assume it is in root path
-        //        result = "/" + result;
-        //    }
-        //    result = GenericController.convertLinkToShortLink(result, core.webServer.requestDomain, core.appConfig.cdnFileUrl);
-        //    return GenericController.encodeVirtualPath(result, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
-        //}
         //
         //====================================================================================================
         //

@@ -394,20 +394,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// if true, add a login icon to the lower right corner
-        /// </summary>
-        public bool allowLoginIcon {
-            get {
-                if (_allowLoginIcon == null) {
-                    _allowLoginIcon = getBoolean("AllowLoginIcon", false);
-                }
-                return Convert.ToBoolean(_allowLoginIcon);
-            }
-        }
-        private bool? _allowLoginIcon = null;
-        //
-        //====================================================================================================
-        /// <summary>
         /// The id of the addon to run with no specific route is found
         /// </summary>
         public int defaultRouteId {
@@ -501,15 +487,6 @@ namespace Contensive.Processor.Controllers {
         private bool? _allowAutoRecognize = null;
         //
         //====================================================================================================
-        //
-        public string loginIconFilename {
-            get {
-                return getPropertyBase("LoginIconFilename", "" + cdnPrefix + "images/ccLibLogin.GIF", ref _LoginIconFilename);
-            }
-        }
-        private string _LoginIconFilename = null;
-        //
-        //====================================================================================================
         /// <summary>
         /// If disabled, do not automatically track user visits. Initialize user tracking if cp.user.id is referenced.
         /// </summary>
@@ -538,15 +515,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private string _docTypeDeclaration = null;
-        //
-        //====================================================================================================
-        //
-        public bool useContentWatchLink {
-            get {
-                return getPropertyBase("UseContentWatchLink", false, ref _useContentWatchLink);
-            }
-        }
-        private bool? _useContentWatchLink = null;
         //
         //====================================================================================================
         //
