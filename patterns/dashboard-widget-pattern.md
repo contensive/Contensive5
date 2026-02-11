@@ -28,6 +28,7 @@ A dashboard widget is an addon that
 - displays a single number with the widget name at the top, a subhead under the number, and a description at the bottom.
 - returns an object from class DashboardWidgetBarChartModel from the nuget package Contensive.DbModels
 - returns obj.widgetType = Contensive.Processor.Models.WidgetTypeEnum.number
+- reference the pattern in example 
 
 ### Bar Chart  Widget
 - displays a bar chart with the widget name at the top and a description at the bottom.
