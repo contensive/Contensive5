@@ -1,4 +1,3 @@
-# contensive-patterns/patterns/addon-creation.md
 
 # Contensive Architecture
 

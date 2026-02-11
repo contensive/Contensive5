@@ -8,20 +8,59 @@ A Dashboard Widget is a Contensive addon that can be added to the control panel 
 [In-depth architecture discussion]
 A dashboard widget is an addon that
 - returns a json string serialized from a class in then namespace Contensive.Processor.Models
-- there are 5 types of dashboard widgets defined by the data structure they return
-  1) Bar Chart Widget - returning DashboardWidgetBarChartModel
+- this json string is used by the Widget dashboard to render the widget using layouts in the \ui\widgetdashboard folder
+- there are 5 types of dashboard widgets
+  1) Bar Chart Widget
   2) html widget - returning DashboardWidgetHtmlModel
-  3) line charge widget - returning SampleLineChartWidget
+  3) line chart widget - returning SampleLineChartWidget
   4) pie chart widget - returning SamplePieChartWidget
-  5) number widgetr - UsersOnlineNumberWidget
+  5) number widget - UsersOnlineNumberWidget
 - has the <DashboardWidget> node true in the <addon> node of the collection xml file
+
+### features common to all dashboard widget types
+- executed only from within the WidgetDashboard code
+- returns an object from classes defined in nuget package Contensive.DbModels, defined withing the description of each widget type
+- includes a refresh pattern that causes the dashboard to call a dashboard ajax endpoint, which executes the widget code and automatically repaints the widget.
+- includes an optional filter options in a drop-down for users. When selected the dashboard refreshes the widget and includes the request argument "widgetFilter"
+- widget code should save the widgetFilter for future use with user properties (cp.user.setProperty(), cp.user.getInteger(), etc)
+
+### Number Widget
+- displays a single number with the widget name at the top, a subhead under the number, and a description at the bottom.
+- returns an object from class DashboardWidgetBarChartModel from the nuget package Contensive.DbModels
+- returns obj.widgetType = Contensive.Processor.Models.WidgetTypeEnum.number
+
+### Bar Chart  Widget
+- displays a bar chart with the widget name at the top and a description at the bottom.
+- returns an object from class DashboardWidgetBarChartModel. Addons find this class in the nuget package Contensive.DbModels
+- returns obj.widgetType = Contensive.Processor.Models.WidgetTypeEnum.number
+
+### HTML Widget
+- Contensive.Processor.Addons.WidgetDashboardWidgets.SampleHtmlWidget
+
+### Line Chart Widget
+- Contensive.Processor.Addons.WidgetDashboardWidgets.SampleLineChartWidget
+
+### Pie Chart Widget
+- Contensive.Processor.Addons.WidgetDashboardWidgets.SamplePieChartWidget
 
 ## Example Addons
 All these examples are in this repository. The collection file /source/Processor/aoBase51.xml installs these examples.
-- Contensive.Processor.Addons.WidgetDashboardWidgets.PagesToReviewWidget
+
+### Pages To Review Dashboard Number Widget
+- number widgets display a single number with a subhead under the number and a description at the bottom.
+- namespace:  Contensive.Processor.Addons.WidgetDashboardWidgets.PagesToReviewWidget
+- number widgets use the layout in \ui\widgetdashboard\DashboardWidgetNumberLayout.html
+
+### Pages To Review Dashboard Widget
 - Contensive.Processor.Addons.WidgetDashboardWidgets.SampleBarChartWidget
+
+### Pages To Review Dashboard Widget
 - Contensive.Processor.Addons.WidgetDashboardWidgets.SampleHtmlWidget
+
+### Pages To Review Dashboard Widget
 - Contensive.Processor.Addons.WidgetDashboardWidgets.SampleLineChartWidget
+
+### Pages To Review Dashboard Widget
 - Contensive.Processor.Addons.WidgetDashboardWidgets.SamplePieChartWidget
 - 
 
