@@ -925,11 +925,12 @@
 	function submitAfwAjaxForm( destinationElementId, onSuccessMethod ) {
 		console.log(`LayoutBuilder Base, submitAfwAjaxForm`);
 		$('#js-afwFormContent').block();
-		let baseAjaxUrl = "/LayoutBuilderCallback";
-		baseAjaxUrl += '?'+$( "#js-afwFormContent" ).closest("form").serialize();
-		console.log(`LayoutBuilder Base, call ajax, baseAjaxUrl: ${baseAjaxUrl}`);
+		let formData = $( "#js-afwFormContent" ).closest("form").serialize();
+		console.log(`LayoutBuilder Base, call ajax with POST`);
 		$.ajax({
-			url: baseAjaxUrl, 
+			url: "/LayoutBuilderCallback",
+			type: "POST",
+			data: formData,
 			success: function(result){
 				console.log(`LayoutBuilder Base, ajax success`);
 				$("#"+destinationElementId).html(result);
@@ -947,10 +948,12 @@
 		$('.afw').on('click','#js-downloadButton',function(e){
 			e.preventDefault();
 			$('#js-afwFormContent').block();
-			let baseAjaxUrl = "/LayoutBuilderCallback";
-			baseAjaxUrl += '?downloadRequest=1&'+$( "#js-afwFormContent" ).closest("form").serialize();
+			let formData = $( "#js-afwFormContent" ).closest("form").serialize();
+			formData += '&downloadRequest=1';
 			$.ajax({
-				url: baseAjaxUrl, 
+				url: "/LayoutBuilderCallback",
+				type: "POST",
+				data: formData,
 				success: function(downloadUrl){
 					$('#js-afwFormContent').unblock();
 					const anchor = document.createElement('a');

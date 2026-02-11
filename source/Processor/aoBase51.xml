@@ -3378,7 +3378,6 @@
 				<SiteProperty Caption="Open Graph Default Image" Name="OpenGraphDefaultImageFilename" ReadOnly="0" Type="ImageFile" Selector="" Description="Open Graph images are used to represent your content on social media platforms. Each page can set its Open Graph image in the meta content tab. If no image is set, this default image is used. The recommended size is 1200 x 630 pixels."></SiteProperty>
 			    <SiteProperty caption="Facebook Admins" name="facebook admin Id list" ReadOnly="0" Type="text" Selector="" Description="A comma separated list of Facebook ID numbers for the people who can administer this page."></SiteProperty>
 			    <SiteProperty caption="Site Name" name="open graph site name" ReadOnly="0" Type="text" Selector="" Description="The human-readable name for your site that is sent out in an open graph meta tag."></SiteProperty>
-			    <SiteProperty caption="Default Page Image" name="pageImageFilename" ReadOnly="0" Type="ImageFile" Selector="" Description="This image is used as default image for the open graph meta tags."></SiteProperty>
 			    <SiteProperty caption="Twitter Username" name="Twitter Username" Type="text"/>
 			    <SiteProperty caption="Twitter Password" name="Twitter Password" Type="text"/>
 			</Tab>

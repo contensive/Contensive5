@@ -36,6 +36,7 @@ namespace Contensive.Processor.Addons.PageManager {
                     ogImage = cp.Site.GetText("OpenGraphDefaultImageFilename", "");
 
                     if (string.IsNullOrWhiteSpace(ogImage)) {
+                        // legacy name fallback for backward compatibility
                         ogImage = cp.Site.GetText("pageImageFilename", "");
                     }
 
@@ -52,6 +53,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 cp.Doc.AddHeadTag("<meta property=\"twitter:card\" content=\"summary\"/>");
                 AddTag(cp, "twitter:description", "Open Graph Description");
                 AddTag(cp, "twitter:title", "Open Graph Title");
+                AddTag(cp, "twitter:url", "Open Graph URL");
 
                 // Add Twitter image tag (reusing the Open Graph image)
                 if (!string.IsNullOrWhiteSpace(ogImage)) {
