@@ -4,8 +4,6 @@
 ## Overview
 A Dashboard Widget is a Contensive addon that can be added to the control panel dashboard.
 
-This pattern is also referred to as a Design Block.
-
 ## Architecture
 [In-depth architecture discussion]
 A dashboard widget is an addon that
@@ -19,6 +17,7 @@ A dashboard widget is an addon that
 - has the <DashboardWidget> node true in the <addon> node of the collection xml file
 
 ## Example Addons
+All these examples are in this repository. The collection file /source/Processor/aoBase51.xml installs these examples.
 - Contensive.Processor.Addons.WidgetDashboardWidgets.PagesToReviewWidget
 - Contensive.Processor.Addons.WidgetDashboardWidgets.SampleBarChartWidget
 - Contensive.Processor.Addons.WidgetDashboardWidgets.SampleHtmlWidget
