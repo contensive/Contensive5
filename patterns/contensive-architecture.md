@@ -55,19 +55,32 @@ Contensive Command line and windows servcie are installed with the installation 
 
 A Contensive website is created by importing the DefaultAspxSite.zip file into IIS. The website connects to the local Contensive node to a Contensive application with the same name as the IIS site. A Contensive website has a public website implemented with the Addon PageManager. The Add-on 'Admin Site' creates a Control Panel availabe on the endpoint /controlpanel and is used to manage the site. Public web pages are created from Page Templates and Content Pages, accessable by endpoints defined in the Page Content record.
 
+### Addon Collection file
+
+An Addon Collection file is used to install features into a Contensive websites. A collection file fully describes all features of the installation so a new features is fully installed when the collection is installed.
+
 An Addon Collection is a zip file that includes one XML Addon Collection file plus all files needed for the execution of the Addons included in the collection. The XML addon Collection file is controlled  with the public file XML Style Definitions https://contensive.s3.amazonaws.com/xsd/Collection.xsd
 
+The XML addon collection file includes
+- addons to be installed
+- database tables and their fields to be installed
+- important database indexes that need to be created
+- data records that need to be created during installation
+- resource files section which includes individual files to be installed in any folder of the four file systems Contensive uses: cdnFiles, privateFiles, tempFile and wwwFiles
+- it can designate one addon as an on-install addon, which executes when the installation is complete. It can be used to migrate data, create data, update database records to include newly installed layouts
+- the zip file includes an xml file descrbing all features to install and all the required assets/resources.
+
 Addon Collections are installed in one of serveral methods
-1) A Collection file can be installed in one ore more applicaions using the command line tool, cc.exe
-2) A Collection file can be installed from the Control Panel using an Add-on called Add-on Manager.
-3) Addon Collection Files that are used commonly are stored in a shared online the Collection Library. These collections can be installed from the command line tool and from the Add-on Manager.
+1) A Collection zip file can be installed in one ore more applicaions using the command line tool, cc.exe
+2) A Collection file can be installed from the Control Panel using the Add-on Manager.
+3) Addon Collection Files that are used commonly are stored in a shared online the Collection Library. The collection library is an online resource created on the Contensive.com site. These collections can be installed from the command line tool and from the Add-on Manager.
 
 An Addon Collection can specify one the addons as the OnInstall addon, which then automatically executes that addon when installation is complete. The OnInstall addon is used to 
 - migrate data
 - install layout files. When a layout file is included as a resource node, the installation automatically copies the file to the destination application, but the OnInstall must call CP.Layout.updateLayout() to update the database Layout record.
 
 ## Content Definitions
-A content definition is metadata for a database table and its fields. This metadata is used to create the database table during installation and is used to create the Contensive Control Panel edit screen and data list pages for the data.
+A content definition is metadata describving a database table and its fields. This metadata is used to create the database table during installation and to create records in the Content and Content Fields tables, which are used to create the Contensive Control Panel edit screen and data list pages for the data.
 
 The content definition "content" defines all the content definitions in the application
 
@@ -85,6 +98,13 @@ This is the typical development folder structure
 - UI -- contains the html layouts and html page templates installed with the collections in this repo
 - HelpFiles - contains the markdown help documents installed with this collection
 
+## Database
+
+When a features needs a database table
+- create the approprate "cdef" nodes in the xml addon collection file fully describing the table and all its fields
+- create an ORM model that inherits Contensive.Models.Db.DbBaseModel
+- naming best practice for the table is to include a 2-letter prefix that represents the addon collection and the name is camel-case
+
 
 ## Full Examples
-[Multiple complete examples with explanations]
+Complete examples are in the /examples folder of this repository
