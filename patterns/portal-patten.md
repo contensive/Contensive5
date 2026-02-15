@@ -37,6 +37,21 @@ Within each portal there can be one or more Portal Features. Each Portal Feature
 - an Addon Feature has the addon node populated with the Addon to be executed.
 - A feature should populate both addonid and datacontentid. If it does, it is an Addon Feature.
 
+An Addon Feature should include
+- An authorization test requiring the admin role
+- a verification that the addon is running within the port. If not it should redirect
+- this is a typical example of these tests:
+
+	// 
+	// -- authenticate/authorize
+	if (!CP.User.IsAdmin)
+		return "<p class=\">You are not authorized to use this application.</p>";
+	// 
+	// -- validate portal environment
+	if (!CP.AdminUI.EndpointContainsPortal())
+		return CP.AdminUI.RedirectToPortalFeature( (guid of portal), ( guid of portal feature ), "");
+	// 
+
 The Portal creates a navigation element at the top of the portal and executes the current portal feature under the navigation.
 
 Navigation is hierarchical using the parentfeatureid field:

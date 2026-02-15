@@ -5,7 +5,7 @@
 [Detailed explanation, history, why this pattern exists]
 The Contensive platform creates an extensabilty framework for managing and executing addons in several context, including websites, web applications, command line, and background tasks (windows services)
 
-## Contnsive Collections
+## Contensive Collections
 A collection is a group of features that are installed and maintained together. For example Ecommerce is a collection that includes account management features, reports, and an online catalog.
 
 ## Contensive Features

@@ -65,6 +65,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 logger.Trace($"{core.logCommonMessage},PasswordRecoveryWorkflowController.trySendPasswordReset, requestEmail [{requestEmail}]");
                 //
+                // -- block if this function has already run on this page. 
+                // -- this blocks the case where two addons both invoke the login form and the send-password is sent twice, which can happen if one is marked end-of-body
+                const string blockKey = "Send Password Reset executed";
+                if(core.cpParent.Doc.GetBoolean(blockKey,false)) {
+                    return true;
+                }
+                core.cpParent.Doc.SetProperty(blockKey, true);
+                //
                 if (string.IsNullOrEmpty(requestEmail)) {
                     userErrorMessage = "The email address cannot be blank";
                     return false;

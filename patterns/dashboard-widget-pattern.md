@@ -21,7 +21,7 @@ A dashboard widget is an addon that
 - executed only from within the WidgetDashboard code
 - returns an object from classes defined in nuget package Contensive.DbModels, defined withing the description of each widget type
 - includes a refresh pattern that causes the dashboard to call a dashboard ajax endpoint, which executes the widget code and automatically repaints the widget.
-- includes an optional filter options in a drop-down for users. When selected the dashboard refreshes the widget and includes the request argument "widgetFilter"
+- includes an optional filter options in a drop-down for users. If the dashboard widget includes options, this list should be populated with the otpions. When selected the dashboard refreshes the widget and includes the request argument "widgetFilter"
 - widget code should save the widgetFilter for future use with user properties (cp.user.setProperty(), cp.user.getInteger(), etc)
 
 ### Number Widget

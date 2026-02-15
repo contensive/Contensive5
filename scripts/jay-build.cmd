@@ -9,16 +9,6 @@ cls
 @echo +++++++++++++++++++++++++++++
 @echo Build Process
 @echo .
-@echo Add manual assembly redirects to processor project app.config (it will propogate to all projects)
-@echo .
-@echo If there were manual app.config changes OR nuget package updates --
-@echo .
-@echo 1) Open VS and build Processor
-@echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net48\Processor.dll.config
-@echo 3) Copy the runtime node
-@echo 4) Paste into TaskService App.Config
-@echo 5) Paste into IISDefault Web.Config
-@echo .
 @echo When ready, hit any key to continue
 @echo .
 @echo +++++++++++++++++++++++++++++
@@ -291,25 +281,6 @@ rem copy this package to the local package source so the next project builds all
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
 cd ..\scripts
-
-rem ==============================================================
-rem
-rem build cli installer
-rem
-
-cd ..\source
-rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe" ContensiveCLIInstaller\ContensiveCLIInstaller.wixproj
-"%msbuildLocation%msbuild.exe" cli.installer\cli.installer.wixproj
-if errorlevel 1 (
-echo failure building cli installer
-   pause
-   exit /b %errorlevel%
-)
-
-xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumber%\"
-
-cd ..\scripts
-
 rem ==============================================================
 rem
 rem update aspx site nuget packages 
@@ -347,6 +318,37 @@ cd ..\scripts
 
 rem pause
 
+rem ==============================================================
+rem
+rem copy the cc.exe.config file to the taskservice.exe.config file
+rem -- because the auto-update of assembly redirects does not work correctly for the task project
+rem
+
+
+copy "C:\Git\Contensive5\source\Cli\bin\Debug\net48\cc.exe.config" "C:\Git\Contensive5\source\TaskService\bin\Debug\TaskService.exe.config"
+
+ pause
+
+
+rem ==============================================================
+rem
+rem build cli installer
+rem
+
+cd ..\source
+rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe" ContensiveCLIInstaller\ContensiveCLIInstaller.wixproj
+"%msbuildLocation%msbuild.exe" cli.installer\cli.installer.wixproj
+if errorlevel 1 (
+echo failure building cli installer
+   pause
+   exit /b %errorlevel%
+)
+
+xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumber%\"
+
+cd ..\scripts
+ 
+ 
 rem ==============================================================
 rem
 rem update nuget for all test projects
