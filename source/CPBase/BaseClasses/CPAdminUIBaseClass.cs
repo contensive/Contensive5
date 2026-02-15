@@ -29,8 +29,6 @@ namespace Contensive.BaseClasses {
         //====================================================================================================
         //
         public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList();
-        ////
-        //public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList(LayoutBuilderGridConfigRequestBaseClass request);
         //
         //====================================================================================================
         //

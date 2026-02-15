@@ -10,9 +10,11 @@ The control panel is an addon called Admin Site, insalled with the base collecti
 - At the top of the UI is a navigation based on type of content and tool.
 - On the left of th UI is a navigation based on installed portals
 
-## AdminUI
+## AdminUI Pattern
 
 The adminUI is a pattern used to create all tools and views and is created from methods available in the common progamming object used for object injection, the CP object.
+
+For details about how to use the AdminUI pattern see the adminui-pattern.md document in the patterns folder of the github contensive account, contensive5 repo
 
 ## Top Navigation
 

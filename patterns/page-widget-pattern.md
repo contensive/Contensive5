@@ -35,7 +35,7 @@ A page widget has several components
 - The addon references a Dotnet+class that includes an Execute method that returns the rendered layout
 - The dotnet execute implements the DesignBlockController.renderWidget() method
 - renderWidget is a Generic method with 2 type argument, the Settings content and the view model
-- the Settings content is a content definition for the table that describe each instance of the addon added to pages of the site.
+- the Settings content is a content definition for the table that describes each instance of the addon added to pages of the site. For example, a 
 - The View Model is a class that exposes public properties for each Mustache property in the layout. Those properties are populated based on the Settings record data, and any other state conditions. For example a page widget may create a form. If there are no requests the widget might set a Mustache property displayForm=true which displays the form in the html layuout. If there are requests, the page widget code may set displayForm=false and display form results.
 - The arguments of the renderWidget() call include widgetName, layoutGuid, layoutName, layoutPathFilename, layoutBS5PathFilename.
 - widgetName is the name that appears on the widget editor
