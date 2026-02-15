@@ -1,7 +1,7 @@
 
 #AdminUI Pattern
 
-The adminUI pattern us used to create tools and reports that display in the contensive control panel with a consistent look and feel.
+The adminUI pattern is used to create tools and reports that display in the contensive control panel with a consistent look and feel.
 
 ## Overview
 
@@ -29,6 +29,29 @@ Examples of this layoutbuilder
 - \source\Processor\Addons\Tools\ContentChildToolClass.cs
 - \source\Processor\Addons\Tools\CreateGUIDToolClass.cs
 
+### CreateLayoutBuilderList
+
+creates an instance of LayoutBuilderListBaseClass object for tabular lists of data rows with filters
+
+Examples of this layoutbuilder
+- \source\Processor\Addons\LayoutBuilder\SampleLayoutBuilderList.cs
+- \examples\LayoutBuilderListExample\README.md
+
+### CreateLayoutBuilderNameValue
+
+creates an instance of LayoutBuilderNameValueBaseClass for forms with lists of input boxes
+
+Examples of this layoutbuilder
+- \examples\LayoutBuilderNameValueExample\README.md
+
+### CreateLayoutBuilderTabbedBody
+
+creates an instance of LayoutBuilderTabbedBodyBaseClass for a layout that includes navigation accross the top and a body of content
+
+### CreateLayoutBuilderToolForm
+
+creates an instance of LayoutBuilderToolFormBaseClass for the structure of a tool that the client populates the body
+
 ### CreateLayoutBuilderTwoColumnLeft
 
 creates an instance of LayoutBuilderTwoColumnLeftBaseClass for a simple 2 column layout populated by other layoutbuilders. The left column is wider than the right.
@@ -36,25 +59,4 @@ creates an instance of LayoutBuilderTwoColumnLeftBaseClass for a simple 2 column
 ### CreateLayoutBuilderTwoColumnRight
 
 creates an instance of LayoutBuilderTwoColumnRightBaseClass for a simple 2 column layout populated by other layoutbuilders. The right column is wider than the left.
-
-### CreateLayoutBuilderList
-
-creates an instance of LayoutBuilderListBaseClass object for tabular lists of data rows with filters
-
-Examples of this layoutbuilder
-- \source\Processor\Addons\LayoutBuilder\SampleLayoutBuilderList.cs
-
-### CreateLayoutBuilderNameValue
-
-creates an instance of LayoutBuilderNameValueBaseClass for forms with lists of input boxes
-
-Examples of this layoutbuilder
-- 
-
-### CreateLayoutBuilderTabbedBody
-
-creates an instance of LayoutBuilderTabbedBodyBaseClass for a layout that includes navigation accross the top and a body of content
-### CreateLayoutBuilderToolForm
-
-creates an instance of LayoutBuilderToolFormBaseClass for the structure of a tool that the client populates the body
 

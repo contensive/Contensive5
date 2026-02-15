@@ -116,6 +116,17 @@ When a features needs a database table
 - create an ORM model that inherits Contensive.Models.Db.DbBaseModel
 - naming best practice for the table is to include a 2-letter prefix that represents the addon collection and the name is camel-case
 
+## Merging Code and html Layouts
+
+When an addon returns html, or any textural content, the content should stored in a layout file and merged with programmatically created data with the mustache templating pattern. The textural content should be created in text or html files stored in the /ui folder of the repository with any referenced assets for the layout in subfolders of the /ui folder. This /ui folder manages all html and design documents managed by the designer.
+
+Html layouts should include inline styles at the front of the layout, and javacript at the end of the layout. During the design phase, a designer edits these files and uses the html-import tool to deploy the files to the layout content.
+
+During installation, the ui folder should be zipped into one zip file with all the necesary subfolders and copied to the /collection folder in the repository, where it is included in the collection zip file and referenced with a resources node of the xml addon collection file. The collection file's on-install addon should execute a cp.Layout.
+
+The cp.Mustache object provides methods to merge the content.
+
+The cp.Layout object provides objects for retrieving the content, storing it, and upgraing it.
 
 ## Full Examples
 Complete examples are in the /examples folder of this repository
