@@ -26,7 +26,7 @@ The resulting string includes the entire view, including possible pagination, fi
 - the endpoint executes the client program (which initially called the cpAdminUI interface)
 - the LayoutBuilder then returns in the getHtml() methods the expected response for the ajac call, which the client program should return without modification.
 
-These LayoutBuilder helpers are created internally with the Contensive Layout Design Pattern using layouts in the ui folder.
+These LayoutBuilder helpers are created internally with the Mustache Layout Patter
 
 ### CreateLayoutBuilder
 
