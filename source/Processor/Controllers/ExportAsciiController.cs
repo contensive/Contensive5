@@ -27,7 +27,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 TestFilename = "AsciiExport" + GenericController.getRandomInteger() + ".txt";
                 //
-                iContentName = GenericController.encodeText(ContentName);
+                iContentName = GenericController.getText(ContentName);
                 if (PageSize == 0) {
                     PageSize = 1000;
                 }
@@ -57,7 +57,7 @@ namespace Contensive.Processor.Controllers {
                                     Delimiter = ",";
                                     FieldNameVariant = csData.getFirstFieldName();
                                     while (!string.IsNullOrEmpty(FieldNameVariant)) {
-                                        FieldName = GenericController.encodeText(FieldNameVariant);
+                                        FieldName = GenericController.getText(FieldNameVariant);
                                         UcaseFieldName = GenericController.toUCase(FieldName);
                                         if ((UcaseFieldName != "USERNAME") && (UcaseFieldName != "PASSWORD")) {
                                             sb.Append(Delimiter + "\"" + FieldName + "\"");
@@ -76,7 +76,7 @@ namespace Contensive.Processor.Controllers {
                                         Delimiter = ",";
                                         FieldNameVariant = csData.getFirstFieldName();
                                         while (!string.IsNullOrEmpty(FieldNameVariant)) {
-                                            FieldName = GenericController.encodeText(FieldNameVariant);
+                                            FieldName = GenericController.getText(FieldNameVariant);
                                             UcaseFieldName = GenericController.toUCase(FieldName);
                                             if ((UcaseFieldName != "USERNAME") && (UcaseFieldName != "PASSWORD")) {
                                                 Copy = csData.getText(FieldName);
@@ -125,23 +125,23 @@ namespace Contensive.Processor.Controllers {
                                     Delimiter = "";
                                     FieldNameVariant = csData.getFirstFieldName();
                                     while (!string.IsNullOrEmpty(FieldNameVariant)) {
-                                        switch (csData.getFieldTypeId(GenericController.encodeText(FieldNameVariant))) {
+                                        switch (csData.getFieldTypeId(GenericController.getText(FieldNameVariant))) {
                                             case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                                                Copy = csData.getTextEncoded(GenericController.encodeText(FieldNameVariant));
+                                                Copy = csData.getTextEncoded(GenericController.getText(FieldNameVariant));
                                                 break;
                                             case CPContentBaseClass.FieldTypeIdEnum.Lookup:
-                                                Copy = csData.getText(GenericController.encodeText(FieldNameVariant));
+                                                Copy = csData.getText(GenericController.getText(FieldNameVariant));
                                                 break;
                                             case CPContentBaseClass.FieldTypeIdEnum.Redirect:
                                             case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
                                                 break;
                                             default:
-                                                Copy = csData.getText(GenericController.encodeText(FieldNameVariant));
+                                                Copy = csData.getText(GenericController.getText(FieldNameVariant));
                                                 break;
                                         }
                                         if (!string.IsNullOrEmpty(Copy)) {

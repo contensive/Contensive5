@@ -196,7 +196,7 @@ namespace Contensive.Processor.Addons.Tools {
             //
             string ClassString = null;
             //
-            if (GenericController.encodeBoolean(RowEven)) {
+            if (GenericController.getBoolean(RowEven)) {
                 RowEven = false;
                 ClassString = " class=\"ccPanelRowEven\" ";
             } else {
@@ -204,12 +204,12 @@ namespace Contensive.Processor.Addons.Tools {
                 ClassString = " class=\"ccPanelRowOdd\" ";
             }
             //
-            Cell0 = GenericController.encodeText(Cell0);
+            Cell0 = GenericController.getText(Cell0);
             if (string.IsNullOrEmpty(Cell0)) {
                 Cell0 = "&nbsp;";
             }
             //
-            Cell1 = GenericController.encodeText(Cell1);
+            Cell1 = GenericController.getText(Cell1);
             //
             if (string.IsNullOrEmpty(Cell1)) {
                 tempGetForm_LogFiles_Details_GetRow = "<tr><TD" + ClassString + " Colspan=\"4\">" + Cell0 + "</td></tr>";

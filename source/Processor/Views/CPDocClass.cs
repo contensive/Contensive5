@@ -222,25 +222,25 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
-        public override void AddRefreshQueryString(string key, int Value) => cp.core.doc.addRefreshQueryString(key, GenericController.encodeText(Value));
+        public override void AddRefreshQueryString(string key, int Value) => cp.core.doc.addRefreshQueryString(key, GenericController.getText(Value));
         /// <summary>
         /// 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
-        public override void AddRefreshQueryString(string key, double Value) => cp.core.doc.addRefreshQueryString(key, GenericController.encodeText(Value));
+        public override void AddRefreshQueryString(string key, double Value) => cp.core.doc.addRefreshQueryString(key, GenericController.getText(Value));
         /// <summary>
         /// 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
-        public override void AddRefreshQueryString(string key, bool Value) => cp.core.doc.addRefreshQueryString(key, GenericController.encodeText(Value));
+        public override void AddRefreshQueryString(string key, bool Value) => cp.core.doc.addRefreshQueryString(key, GenericController.getText(Value));
         /// <summary>
         /// 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
-        public override void AddRefreshQueryString(string key, DateTime Value) => cp.core.doc.addRefreshQueryString(key, GenericController.encodeText(Value));
+        public override void AddRefreshQueryString(string key, DateTime Value) => cp.core.doc.addRefreshQueryString(key, GenericController.getText(Value));
         //
         //====================================================================================================
         /// <summary>
@@ -308,7 +308,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public override bool GetBoolean(string key, bool defaultValue) {
-            return GenericController.encodeBoolean(GetProperty(key, GenericController.encodeText(defaultValue)));
+            return GenericController.getBoolean(GetProperty(key, GenericController.getText(defaultValue)));
         }
         /// <summary>
         /// 
@@ -325,7 +325,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public override DateTime GetDate(string key, DateTime defaultValue) {
-            return GenericController.encodeDate(GetProperty(key, GenericController.encodeText(defaultValue)));
+            return GenericController.getDate(GetProperty(key, GenericController.getText(defaultValue)));
         }
         /// <summary>
         /// 
@@ -342,7 +342,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public override int GetInteger(string key, int defaultValue) {
-            return cp.Utils.EncodeInteger(GetProperty(key, GenericController.encodeText(defaultValue)));
+            return cp.Utils.EncodeInteger(GetProperty(key, GenericController.getText(defaultValue)));
         }
         /// <summary>
         /// 
@@ -359,7 +359,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         public override double GetNumber(string key, double defaultValue) {
-            return cp.Utils.EncodeNumber(GetProperty(key, GenericController.encodeText(defaultValue)));
+            return cp.Utils.EncodeNumber(GetProperty(key, GenericController.getText(defaultValue)));
         }
         /// <summary>
         /// 
@@ -370,7 +370,9 @@ namespace Contensive.Processor {
         //
         //=======================================================================================================
         /// <summary>
-        /// 
+        /// returns the input value as string, or defaultValue if the key is not found.
+        /// No check is made for safe text, so this can be used for html content. 
+        /// For user input, use GetTextSafe(string key, string defaultValue) or encodeHtml() after getting the value from getText()
         /// </summary>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
@@ -565,7 +567,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         [Obsolete("Use GetBoolean(string,bool).", false)]
-        public override bool GetBoolean(string key, string defaultValue) => GetBoolean(key, GenericController.encodeBoolean(defaultValue));
+        public override bool GetBoolean(string key, string defaultValue) => GetBoolean(key, GenericController.getBoolean(defaultValue));
         /// <summary>
         /// 
         /// </summary>
@@ -573,7 +575,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         [Obsolete("Use GetDate(string,DateTime).", false)]
-        public override DateTime GetDate(string key, string defaultValue) => GetDate(key, GenericController.encodeDate(defaultValue));
+        public override DateTime GetDate(string key, string defaultValue) => GetDate(key, GenericController.getDate(defaultValue));
         /// <summary>
         /// 
         /// </summary>
@@ -581,7 +583,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         [Obsolete("Use GetInteger(string,int).", false)]
-        public override int GetInteger(string key, string defaultValue) => GetInteger(key, GenericController.encodeInteger(defaultValue));
+        public override int GetInteger(string key, string defaultValue) => GetInteger(key, GenericController.getInteger(defaultValue));
         /// <summary>
         /// 
         /// </summary>
@@ -589,7 +591,7 @@ namespace Contensive.Processor {
         /// <param name="defaultValue"></param>
         /// <returns></returns>
         [Obsolete("Use GetNumber(string,double).", false)]
-        public override double GetNumber(string key, string defaultValue) => GetNumber(key, GenericController.encodeNumber(defaultValue));
+        public override double GetNumber(string key, string defaultValue) => GetNumber(key, GenericController.getNumber(defaultValue));
         //
         //=======================================================================================================
         // IDisposable support

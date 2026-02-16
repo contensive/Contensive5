@@ -523,23 +523,23 @@ namespace Contensive.Processor {
         // deprecated methods
         //
         [Obsolete("deprecated", true)]
-        public override double GetNumber(string key, string defaultValue) => cp.core.userProperty.getNumber(key, encodeNumber(defaultValue));
+        public override double GetNumber(string key, string defaultValue) => cp.core.userProperty.getNumber(key, getNumber(defaultValue));
         //
         [Obsolete("deprecated", true)]
-        public override int GetInteger(string key, string defaultValue) => cp.core.userProperty.getInteger(key, encodeInteger(defaultValue));
+        public override int GetInteger(string key, string defaultValue) => cp.core.userProperty.getInteger(key, getInteger(defaultValue));
         //
         [Obsolete("deprecated", true)]
-        public override DateTime GetDate(string key, string defaultValue) => cp.core.userProperty.getDate(key, encodeDate(defaultValue));
+        public override DateTime GetDate(string key, string defaultValue) => cp.core.userProperty.getDate(key, getDate(defaultValue));
         //
         [Obsolete("deprecated", true)]
-        public override bool GetBoolean(string key, string defaultValue) => cp.core.userProperty.getBoolean(key, encodeBoolean(defaultValue));
+        public override bool GetBoolean(string key, string defaultValue) => cp.core.userProperty.getBoolean(key, getBoolean(defaultValue));
         //
         [Obsolete("Use IsEditing", true)]
         public override bool IsAuthoring(string contentName) => cp.core.session.isEditing(contentName);
         //
         [Obsolete("Use LoginById(integer) instead", false)]
         public override bool LoginByID(string RecordID, bool SetAutoLogin = false) {
-            return AuthController.authenticateById(cp.core, cp.core.session, encodeInteger(RecordID));
+            return AuthController.authenticateById(cp.core, cp.core.session, getInteger(RecordID));
         }
         //
         //=======================================================================================================

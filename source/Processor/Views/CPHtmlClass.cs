@@ -220,7 +220,7 @@ namespace Contensive.Processor {
         public override string ul(string innerHtml) => HtmlController.ul(innerHtml);
         //
         [Obsolete("Use method with int PrimaryRecordId",false)] public override void ProcessCheckList(string htmlName, string PrimaryContentName, string PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
-            cp.core.html.processCheckList(htmlName, PrimaryContentName, encodeInteger(PrimaryRecordId), SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
+            cp.core.html.processCheckList(htmlName, PrimaryContentName, getInteger(PrimaryRecordId), SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
         }
         //
         public override void ProcessCheckList(string htmlName, string PrimaryContentName, int PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
@@ -240,7 +240,7 @@ namespace Contensive.Processor {
         //
         public override string SelectContent(string htmlName, string htmlValue, string contentName, string sqlCriteria, string noneCaption, string htmlClass, string htmlId) {
             bool isEmptyList = false;
-            string result = cp.core.html.selectFromContent(htmlName, GenericController.encodeInteger(htmlValue), contentName, sqlCriteria, noneCaption, htmlId , ref isEmptyList, htmlClass );
+            string result = cp.core.html.selectFromContent(htmlName, GenericController.getInteger(htmlValue), contentName, sqlCriteria, noneCaption, htmlId , ref isEmptyList, htmlClass );
             return result;
         }
         //
@@ -259,16 +259,16 @@ namespace Contensive.Processor {
         // ==========================================================================================
         //
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass, string htmlId) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "", htmlClass);
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "", htmlClass);
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "");
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "");
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), "", "");
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), "", "");
         }
         //
         // ====================================================================================================
@@ -360,20 +360,20 @@ namespace Contensive.Processor {
         // removed optional width and class because there is already a signature for (string) and (string, string)
         [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue ) 
-            => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue));
+            => HtmlController.inputDate(cp.core, HtmlName, getDate(HtmlValue));
         //
         [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue, string Width)
-            => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue));
+            => HtmlController.inputDate(cp.core, HtmlName, getDate(HtmlValue));
         //
         [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue, string Width, string HtmlClass  )
-            => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue), "", "", HtmlClass);
+            => HtmlController.inputDate(cp.core, HtmlName, getDate(HtmlValue), "", "", HtmlClass);
         //
 
         [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue, string Width, string HtmlClass, string HtmlId)
-    => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue), "", HtmlId, HtmlClass);
+    => HtmlController.inputDate(cp.core, HtmlName, getDate(HtmlValue), "", HtmlId, HtmlClass);
         //
         //
         //

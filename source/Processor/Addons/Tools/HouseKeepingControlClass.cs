@@ -74,13 +74,13 @@ namespace Contensive.Processor.Addons.Tools {
                         case ButtonSave:
                         //
                         ArchiveRecordAgeDays = cp.core.docProperties.getInteger("ArchiveRecordAgeDays");
-                        cp.core.siteProperties.setProperty("ArchiveRecordAgeDays", GenericController.encodeText(ArchiveRecordAgeDays));
+                        cp.core.siteProperties.setProperty("ArchiveRecordAgeDays", GenericController.getText(ArchiveRecordAgeDays));
                         //
                         ArchiveTimeOfDay = cp.core.docProperties.getText("ArchiveTimeOfDay");
                         cp.core.siteProperties.setProperty("ArchiveTimeOfDay", ArchiveTimeOfDay);
                         //
                         ArchiveAllowFileClean = cp.core.docProperties.getBoolean("ArchiveAllowFileClean");
-                        cp.core.siteProperties.setProperty("ArchiveAllowFileClean", GenericController.encodeText(ArchiveAllowFileClean));
+                        cp.core.siteProperties.setProperty("ArchiveAllowFileClean", GenericController.getText(ArchiveAllowFileClean));
                         break;
                     }
                     //
@@ -110,8 +110,8 @@ namespace Contensive.Processor.Addons.Tools {
                         if (csData.ok()) {
                             DateValue = csData.getDate("DateAdded");
                             if (DateValue != DateTime.MinValue) {
-                                Copy = GenericController.encodeText(DateValue);
-                                AgeInDays = GenericController.encodeText(encodeInteger(Math.Floor(encodeNumber(cp.core.doc.profileStartTime - DateValue))));
+                                Copy = GenericController.getText(DateValue);
+                                AgeInDays = GenericController.getText(getInteger(Math.Floor(getNumber(cp.core.doc.profileStartTime - DateValue))));
                             }
                         }
                     }

@@ -260,7 +260,7 @@ namespace Tests {
             // arrange
             // act
             // assert
-            Assert.AreEqual(encodeText(1), "1");
+            Assert.AreEqual(getText(1), "1");
         }
         //
         [TestMethod]

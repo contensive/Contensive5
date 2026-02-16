@@ -191,7 +191,7 @@ namespace Contensive.Processor.Controllers {
         //
         public int timeout {
             get {
-                return encodeInteger(_timeout / 1000);
+                return getInteger(_timeout / 1000);
             }
             set {
                 if (value > 65535) {

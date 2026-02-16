@@ -30,10 +30,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 userError = "Impersonation failed because the requested credential did not select a valid, unique, active, non-admin user.";
                 string sqlImpersonate;
-                if (usernameOrId.Equals(GenericController.encodeInteger(usernameOrId).ToString()))
+                if (usernameOrId.Equals(GenericController.getInteger(usernameOrId).ToString()))
                     // 
                     // -- username is numeric, consider it an ID
-                    sqlImpersonate = "(id=" + DbController.encodeSQLNumber(GenericController.encodeInteger(usernameOrId)) + ")";
+                    sqlImpersonate = "(id=" + DbController.encodeSQLNumber(GenericController.getInteger(usernameOrId)) + ")";
                 else {
                     // 
                     // -- username is not numeric, consider it a username

@@ -119,33 +119,63 @@ namespace Contensive.Processor {
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// return the express as an integer, or 0 if it can not be converted
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public override int EncodeInteger(object expression) {
-            return GenericController.encodeInteger(expression);
+            return GenericController.getInteger(expression);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// return the expresson as a double, or 0.0 if it can not be converted
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public override double EncodeNumber(object expression) {
-            return GenericController.encodeNumber(expression);
+            return GenericController.getNumber(expression);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// return the expresson as a string, or empty string if it can not be converted.
+        /// No conversion is done so if the express might contain XSS attacks, use EncodeTextSafe() instead.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public override string EncodeText(object expression) {
-            return GenericController.encodeText(expression);
+            return GenericController.getText(expression);
         }
         //
         // ====================================================================================================
+        /// Use only for text input that might contain XSS attacks, such as user input.
+        /// return an input argument as string, or empty string if it can not be converted.
+        /// Checks for XSS injection
+        /// 
+        public override string EncodeTextSafe(object expression) {
+            return GenericController.getTextSafe(expression);
+        }
         //
+        // ====================================================================================================
+        /// <summary>
+        /// return the expression as a boolean, or false if it can not be converted
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public override bool EncodeBoolean(object expression) {
-            return GenericController.encodeBoolean(expression);
+            return GenericController.getBoolean(expression);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// return the expression as a DateTime, or DateTime.MinValue if it can not be converted
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public override DateTime EncodeDate(object expression) {
-            return GenericController.encodeDate(expression);
+            return GenericController.getDate(expression);
         }
         //
         // ====================================================================================================
@@ -399,7 +429,7 @@ namespace Contensive.Processor {
         /// <param name="link"></param>
         /// <returns></returns>
         public override string EncodeAppRootPath(string link) {
-            return GenericController.encodeVirtualPath(GenericController.encodeText(link), cp.core.appConfig.cdnFileUrl, appRootPath, cp.core.webServer.requestDomain);
+            return GenericController.encodeVirtualPath(GenericController.getText(link), cp.core.appConfig.cdnFileUrl, appRootPath, cp.core.webServer.requestDomain);
         }
         //
         //==============================================================================================================

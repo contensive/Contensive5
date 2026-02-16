@@ -48,8 +48,8 @@ namespace Contensive.Processor.Controllers {
             string avatarPathFilename = "";
             using (var dt = core.db.executeQuery(sql)) {
                 if (dt?.Rows != null) {
-                    avatarPathFilename = GenericController.encodeText(dt.Rows[0][0]);
-                    avatarPathFilename = string.IsNullOrEmpty(avatarPathFilename) ? avatarPathFilename : GenericController.encodeText(dt.Rows[0][1]);
+                    avatarPathFilename = GenericController.getText(dt.Rows[0][0]);
+                    avatarPathFilename = string.IsNullOrEmpty(avatarPathFilename) ? avatarPathFilename : GenericController.getText(dt.Rows[0][1]);
                 }
             }
             avatarPathFilename = string.IsNullOrEmpty(avatarPathFilename) ? avatarPathFilename : core.siteProperties.avatarDefaultPathFilename;

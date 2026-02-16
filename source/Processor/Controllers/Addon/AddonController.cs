@@ -360,7 +360,7 @@ namespace Contensive.Processor.Controllers {
                 foreach (var kvp in executeContext.argumentKeyValuePairs) {
                     switch (kvp.Key.ToLowerInvariant()) {
                         case "as ajax": {
-                                addon.asAjax = GenericController.encodeBoolean(kvp.Value);
+                                addon.asAjax = GenericController.getBoolean(kvp.Value);
                                 break;
                             }
                         case "css container id": {
@@ -858,7 +858,7 @@ namespace Contensive.Processor.Controllers {
                                                                 case "integer": {
                                                                         //
                                                                         if (!string.IsNullOrEmpty(fieldValue)) {
-                                                                            fieldValue = GenericController.encodeInteger(fieldValue).ToString();
+                                                                            fieldValue = GenericController.getInteger(fieldValue).ToString();
                                                                         }
                                                                         core.siteProperties.setProperty(fieldName, fieldValue);
                                                                         break;
@@ -866,7 +866,7 @@ namespace Contensive.Processor.Controllers {
                                                                 case "boolean": {
                                                                         //
                                                                         if (!string.IsNullOrEmpty(fieldValue)) {
-                                                                            fieldValue = GenericController.encodeBoolean(fieldValue).ToString();
+                                                                            fieldValue = GenericController.getBoolean(fieldValue).ToString();
                                                                         }
                                                                         core.siteProperties.setProperty(fieldName, fieldValue);
                                                                         break;
@@ -874,7 +874,7 @@ namespace Contensive.Processor.Controllers {
                                                                 case "float": {
                                                                         //
                                                                         if (!string.IsNullOrEmpty(fieldValue)) {
-                                                                            fieldValue = encodeNumber(fieldValue).ToString();
+                                                                            fieldValue = getNumber(fieldValue).ToString();
                                                                         }
                                                                         core.siteProperties.setProperty(fieldName, fieldValue);
                                                                         break;
@@ -883,7 +883,7 @@ namespace Contensive.Processor.Controllers {
                                                                         //
                                                                         if (core.docProperties.getBoolean(fieldName + ".clearFlag")) {
                                                                             fieldValue = "";
-                                                                        } else if (encodeDateMinValue(encodeDate(fieldValue)).Equals(DateTime.MinValue)) {
+                                                                        } else if (encodeDateMinValue(getDate(fieldValue)).Equals(DateTime.MinValue)) {
                                                                             //
                                                                             // -- value is not a valid date, save empty
                                                                             fieldValue = "";
@@ -956,7 +956,7 @@ namespace Contensive.Processor.Controllers {
                                                                 case "currency": {
                                                                         //
                                                                         if (!string.IsNullOrEmpty(fieldValue)) {
-                                                                            fieldValue = encodeNumber(fieldValue).ToString();
+                                                                            fieldValue = getNumber(fieldValue).ToString();
                                                                             fieldValue = String.Format("C", fieldValue);
                                                                         }
                                                                         core.siteProperties.setProperty(fieldName, fieldValue);
@@ -977,10 +977,10 @@ namespace Contensive.Processor.Controllers {
                                                             //
                                                             // A Copy Content block
                                                             //
-                                                            fieldReadOnly = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
+                                                            fieldReadOnly = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
                                                             if (!fieldReadOnly) {
                                                                 fieldName = xml_GetAttribute(IsFound, TabNode, "name", "");
-                                                                FieldHTML = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "html", "false"));
+                                                                FieldHTML = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "html", "false"));
                                                                 if (FieldHTML) {
                                                                     //
                                                                     // treat html as active content for now.
@@ -1018,7 +1018,7 @@ namespace Contensive.Processor.Controllers {
                                                             //
                                                             // A File Content block
                                                             //
-                                                            fieldReadOnly = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
+                                                            fieldReadOnly = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
                                                             if (!fieldReadOnly) {
                                                                 fieldName = xml_GetAttribute(IsFound, TabNode, "name", "");
                                                                 fieldfilename = xml_GetAttribute(IsFound, TabNode, "filename", "");
@@ -1102,8 +1102,8 @@ namespace Contensive.Processor.Controllers {
                                                                     if (string.IsNullOrEmpty(FieldCaption)) {
                                                                         FieldCaption = fieldName;
                                                                     }
-                                                                    fieldReadOnly = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
-                                                                    FieldHTML = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "html", ""));
+                                                                    fieldReadOnly = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
+                                                                    FieldHTML = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "html", ""));
                                                                     fieldType = xml_GetAttribute(IsFound, TabNode, "type", "");
                                                                     string fieldSelector = xml_GetAttribute(IsFound, TabNode, "selector", "");
                                                                     FieldDescription = xml_GetAttribute(IsFound, TabNode, "description", "");
@@ -1133,21 +1133,21 @@ namespace Contensive.Processor.Controllers {
                                                                         switch (GenericController.toLCase(fieldType)) {
                                                                             case "integer": {
                                                                                     //
-                                                                                    Copy = AdminUIEditorController.getIntegerEditor(core, fieldName, encodeIntegerNullable(fieldValue), fieldReadOnly, "", false, "");
+                                                                                    Copy = AdminUIEditorController.getIntegerEditor(core, fieldName, getntegerNullable(fieldValue), fieldReadOnly, "", false, "");
                                                                                     break;
                                                                                 }
                                                                             case "boolean": {
-                                                                                    Copy = AdminUIEditorController.getBooleanEditor(core, fieldName, encodeBoolean(fieldValue), fieldReadOnly, "");
+                                                                                    Copy = AdminUIEditorController.getBooleanEditor(core, fieldName, getBoolean(fieldValue), fieldReadOnly, "");
                                                                                     break;
                                                                                 }
                                                                             case "double":
                                                                             case "number":
                                                                             case "float": {
-                                                                                    Copy = AdminUIEditorController.getNumberEditor(core, fieldName, encodeNumberNullable(fieldValue), fieldReadOnly, "", false, "");
+                                                                                    Copy = AdminUIEditorController.getNumberEditor(core, fieldName, getNumberNullable(fieldValue), fieldReadOnly, "", false, "");
                                                                                     break;
                                                                                 }
                                                                             case "date": {
-                                                                                    Copy = AdminUIEditorController.getDateTimeEditor(core, fieldName, encodeDate(fieldValue), fieldReadOnly, "", false);
+                                                                                    Copy = AdminUIEditorController.getDateTimeEditor(core, fieldName, getDate(fieldValue), fieldReadOnly, "", false);
                                                                                     break;
                                                                                 }
                                                                             case "file": {
@@ -1164,7 +1164,7 @@ namespace Contensive.Processor.Controllers {
                                                                                 }
                                                                             case "currency": {
                                                                                     //
-                                                                                    Copy = AdminUIEditorController.getCurrencyEditor(core, fieldName, encodeNumber(fieldValue), fieldReadOnly, "", false, "");
+                                                                                    Copy = AdminUIEditorController.getCurrencyEditor(core, fieldName, getNumber(fieldValue), fieldReadOnly, "", false, "");
                                                                                     break;
                                                                                 }
                                                                             case "textfile": {
@@ -1227,9 +1227,9 @@ namespace Contensive.Processor.Controllers {
                                                                     if (string.IsNullOrEmpty(FieldCaption)) {
                                                                         FieldCaption = fieldName;
                                                                     }
-                                                                    fieldReadOnly = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
+                                                                    fieldReadOnly = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
                                                                     FieldDescription = xml_GetAttribute(IsFound, TabNode, "description", "");
-                                                                    FieldHTML = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "html", ""));
+                                                                    FieldHTML = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "html", ""));
                                                                     //
                                                                     using (var csData = new CsModel(core)) {
                                                                         csData.open("Copy Content", "Name=" + DbController.encodeSQLText(fieldName), "ID", false, 0, "id,name,Copy");
@@ -1239,7 +1239,7 @@ namespace Contensive.Processor.Controllers {
                                                                             if (csData.ok()) {
                                                                                 int RecordId = csData.getInteger("ID");
                                                                                 csData.set("name", fieldName);
-                                                                                csData.set("copy", GenericController.encodeText(TabNode.InnerText));
+                                                                                csData.set("copy", GenericController.getText(TabNode.InnerText));
                                                                                 csData.save();
                                                                             }
                                                                         }
@@ -1263,11 +1263,11 @@ namespace Contensive.Processor.Controllers {
                                                                 fieldName = xml_GetAttribute(IsFound, TabNode, "name", "");
                                                                 FieldCaption = xml_GetAttribute(IsFound, TabNode, "caption", "");
                                                                 fieldfilename = xml_GetAttribute(IsFound, TabNode, "filename", "");
-                                                                fieldReadOnly = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
+                                                                fieldReadOnly = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "readonly", ""));
                                                                 FieldDescription = xml_GetAttribute(IsFound, TabNode, "description", "");
                                                                 FieldDefaultValue = TabNode.InnerText;
                                                                 fieldValue = FieldDefaultValue;
-                                                                FieldHTML = GenericController.encodeBoolean(xml_GetAttribute(IsFound, TabNode, "html", ""));
+                                                                FieldHTML = GenericController.getBoolean(xml_GetAttribute(IsFound, TabNode, "html", ""));
                                                                 if (!string.IsNullOrEmpty(fieldfilename)) {
                                                                     if (core.cdnFiles.fileExists(fieldfilename)) {
                                                                         fieldValue = core.cdnFiles.readFileText(fieldfilename);
@@ -1293,7 +1293,7 @@ namespace Contensive.Processor.Controllers {
                                                                 FieldSQL = TabNode.InnerText;
                                                                 FieldCaption = xml_GetAttribute(IsFound, TabNode, "caption", "");
                                                                 FieldDescription = xml_GetAttribute(IsFound, TabNode, "description", "");
-                                                                SQLPageSize = GenericController.encodeInteger(xml_GetAttribute(IsFound, TabNode, "rowmax", ""));
+                                                                SQLPageSize = GenericController.getInteger(xml_GetAttribute(IsFound, TabNode, "rowmax", ""));
                                                                 if (SQLPageSize == 0) {
                                                                     SQLPageSize = 100;
                                                                 }
@@ -1338,7 +1338,7 @@ namespace Contensive.Processor.Controllers {
                                                                         if (dt.Rows.Count > 0) {
                                                                             object[,] something = { { } };
                                                                             if (dt.Rows.Count == 1 && dt.Columns.Count == 1) {
-                                                                                Copy = HtmlController.inputText(core, "result", GenericController.encodeText(something[0, 0]), "", "", true);
+                                                                                Copy = HtmlController.inputText(core, "result", GenericController.getText(something[0, 0]), "", "", true);
                                                                             } else {
                                                                                 foreach (DataRow dr in dt.Rows) {
                                                                                     //
@@ -1371,10 +1371,10 @@ namespace Contensive.Processor.Controllers {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);
                                                                                             } else if (VisualBasicConvert.Microsoft_VisualBasic_Information_IsArray(CellData)) {
                                                                                                 Copy += ColumnStart + "[array]";
-                                                                                            } else if (string.IsNullOrEmpty(encodeText(CellData))) {
+                                                                                            } else if (string.IsNullOrEmpty(getText(CellData))) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);
                                                                                             } else {
-                                                                                                Copy += (ColumnStart + HtmlController.encodeHtml(GenericController.encodeText(CellData)) + ColumnEnd);
+                                                                                                Copy += (ColumnStart + HtmlController.encodeHtml(GenericController.getText(CellData)) + ColumnEnd);
                                                                                             }
                                                                                         }
                                                                                         Copy += (RowEnd);

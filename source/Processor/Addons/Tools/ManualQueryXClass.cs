@@ -160,7 +160,7 @@ namespace Contensive.Processor.Addons.Tools {
                                         } else if (string.IsNullOrEmpty(CellData)) {
                                             Stream.add(ColumnStart + "[empty]" + ColumnEnd);
                                         } else {
-                                            Stream.add(ColumnStart + HtmlController.encodeHtml(GenericController.encodeText(CellData)) + ColumnEnd);
+                                            Stream.add(ColumnStart + HtmlController.encodeHtml(GenericController.getText(CellData)) + ColumnEnd);
                                         }
                                     }
                                     Stream.add(RowEnd);

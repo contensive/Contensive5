@@ -195,7 +195,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // ----- print column headers - anchored so they sort columns
                 //
-                int ColumnWidth = encodeInteger((100 * column.Width) / (double)ColumnWidthTotal);
+                int ColumnWidth = getInteger((100 * column.Width) / (double)ColumnWidthTotal);
                 //
                 // if this is a current sort ,add the reverse flag
                 //

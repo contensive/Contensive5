@@ -132,14 +132,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                     int fieldId = -1;
                     int HelpPtr = 0;
                     for (HelpPtr = 0; HelpPtr < HelpCnt; HelpPtr++) {
-                        fieldId = GenericController.encodeInteger(fieldHelpArray[0, HelpPtr]);
+                        fieldId = GenericController.getInteger(fieldHelpArray[0, HelpPtr]);
                         int LastFieldId = 0;
                         if (fieldId != LastFieldId) {
                             LastFieldId = fieldId;
                             HelpIDCache[HelpPtr] = fieldId;
                             helpIdIndex.setPtr(fieldId.ToString(), HelpPtr);
-                            helpDefaultCache[HelpPtr] = GenericController.encodeText(fieldHelpArray[1, HelpPtr]);
-                            HelpCustomCache[HelpPtr] = GenericController.encodeText(fieldHelpArray[2, HelpPtr]);
+                            helpDefaultCache[HelpPtr] = GenericController.getText(fieldHelpArray[1, HelpPtr]);
+                            HelpCustomCache[HelpPtr] = GenericController.getText(fieldHelpArray[2, HelpPtr]);
                         }
                     }
                     editorEnv.allowHelpMsgCustom = true;

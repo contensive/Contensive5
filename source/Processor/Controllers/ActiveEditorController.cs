@@ -78,9 +78,9 @@ namespace Contensive.Processor.Controllers {
             int intRecordId = 0;
             string strFieldName = null;
             //
-            intContentName = GenericController.encodeText(ContentName);
-            intRecordId = GenericController.encodeInteger(RecordID);
-            strFieldName = GenericController.encodeText(FieldName);
+            intContentName = GenericController.getText(ContentName);
+            intRecordId = GenericController.getInteger(RecordID);
+            strFieldName = GenericController.getText(FieldName);
             //
             EditorPanel = "";
             ContentID = Models.Domain.ContentMetadataModel.getContentId(core, intContentName);
@@ -101,7 +101,7 @@ namespace Contensive.Processor.Controllers {
                             EditorPanel = EditorPanel + HtmlController.inputHidden("cid", ContentID);
                             EditorPanel = EditorPanel + HtmlController.inputHidden("ID", intRecordId);
                             EditorPanel = EditorPanel + HtmlController.inputHidden("fn", strFieldName);
-                            EditorPanel = EditorPanel + GenericController.encodeText(FormElements);
+                            EditorPanel = EditorPanel + GenericController.getText(FormElements);
                             EditorPanel = EditorPanel + core.html.getFormInputHTML("ContentCopy", Copy, "3", "45", false, true);
                             ButtonPanel = core.html.getPanelButtons(ButtonCancel + "," + ButtonSave);
                             EditorPanel = EditorPanel + ButtonPanel;

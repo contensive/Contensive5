@@ -428,7 +428,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         [Obsolete("Use methods with matching types", false)]
         public override bool GetBoolean(string propertyName, string DefaultValue) {
-            return cp.core.siteProperties.getBoolean(propertyName, GenericController.encodeBoolean(DefaultValue));
+            return cp.core.siteProperties.getBoolean(propertyName, GenericController.getBoolean(DefaultValue));
         }
         /// <summary>
         /// 
@@ -438,7 +438,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         [Obsolete("Use methods with matching types", false)]
         public override DateTime GetDate(string propertyName, string DefaultValue) {
-            return cp.core.siteProperties.getDate(propertyName, GenericController.encodeDate(DefaultValue));
+            return cp.core.siteProperties.getDate(propertyName, GenericController.getDate(DefaultValue));
         }
         /// <summary>
         /// 
@@ -448,7 +448,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         [Obsolete("Use methods with matching types", false)]
         public override int GetInteger(string propertyName, string DefaultValue) {
-            return cp.core.siteProperties.getInteger(propertyName, GenericController.encodeInteger(DefaultValue));
+            return cp.core.siteProperties.getInteger(propertyName, GenericController.getInteger(DefaultValue));
         }
         /// <summary>
         /// 
@@ -458,7 +458,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         [Obsolete("Deprecated.", false)]
         public override double GetNumber(string propertyName, string DefaultValue) {
-            return cp.core.siteProperties.getNumber(propertyName, GenericController.encodeNumber(DefaultValue));
+            return cp.core.siteProperties.getNumber(propertyName, GenericController.getNumber(DefaultValue));
         }
         /// <summary>
         /// 

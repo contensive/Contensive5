@@ -205,21 +205,21 @@ namespace Contensive.Processor.Controllers {
             try {
                 switch (fieldType) {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean:
-                        return DbController.encodeSQLBoolean(GenericController.encodeBoolean(expression));
+                        return DbController.encodeSQLBoolean(GenericController.getBoolean(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.Currency:
                     case CPContentBaseClass.FieldTypeIdEnum.Float:
-                        return DbController.encodeSQLNumber(GenericController.encodeNumber(expression));
+                        return DbController.encodeSQLNumber(GenericController.getNumber(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
                     case CPContentBaseClass.FieldTypeIdEnum.Integer:
                     case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                     case CPContentBaseClass.FieldTypeIdEnum.MemberSelect:
-                        return DbController.encodeSQLNumber(GenericController.encodeInteger(expression));
+                        return DbController.encodeSQLNumber(GenericController.getInteger(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.Date:
-                        return DbController.encodeSQLDate(GenericController.encodeDate(expression));
+                        return DbController.encodeSQLDate(GenericController.getDate(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.LongText:
                     case CPContentBaseClass.FieldTypeIdEnum.HTML:
                     case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
-                        return DbController.encodeSQLText(GenericController.encodeText(expression));
+                        return DbController.encodeSQLText(GenericController.getText(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.File:
                     case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                     case CPContentBaseClass.FieldTypeIdEnum.Link:
@@ -233,7 +233,7 @@ namespace Contensive.Processor.Controllers {
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                        return DbController.encodeSQLText(GenericController.encodeText(expression));
+                        return DbController.encodeSQLText(GenericController.getText(expression));
                     default:
                         throw new GenericException("Unknown Field Type [" + fieldType + "");
                 }

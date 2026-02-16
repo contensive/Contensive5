@@ -299,9 +299,9 @@ namespace Contensive.Processor.Controllers.Build {
                 if (dt.Rows.Count > 0) {
                     string FieldLast = "";
                     for (var rowptr = 0; rowptr < dt.Rows.Count; rowptr++) {
-                        string FieldNew = encodeText(dt.Rows[rowptr]["name"]) + "." + encodeText(dt.Rows[rowptr]["parentid"]);
+                        string FieldNew = getText(dt.Rows[rowptr]["name"]) + "." + getText(dt.Rows[rowptr]["parentid"]);
                         if (FieldNew == FieldLast) {
-                            int FieldRecordId = encodeInteger(dt.Rows[rowptr]["ID"]);
+                            int FieldRecordId = getInteger(dt.Rows[rowptr]["ID"]);
                             core.db.executeNonQuery("Update ccMenuEntries set active=0 where ID=" + FieldRecordId + ";");
                         }
                         FieldLast = FieldNew;
@@ -975,7 +975,7 @@ namespace Contensive.Processor.Controllers.Build {
                     if (dt?.Rows is not null && dt.Rows.Count > 0) {
                         //
                         // update sort method
-                        int recordId = encodeInteger(dt.Rows[0]["id"]);
+                        int recordId = getInteger(dt.Rows[0]["id"]);
                         core.db.update("ccsortmethods", "id=" + recordId.ToString(), sqlList);
                         DbBaseModel.invalidateCacheOfRecord<SortMethodModelx>(core.cpParent, recordId);
                         return;
@@ -1030,7 +1030,7 @@ namespace Contensive.Processor.Controllers.Build {
                         RowsFound = 0;
                         foreach (DataRow dr in rs.Rows) {
                             RowsFound = RowsFound + 1;
-                            if (RowsFound != encodeInteger(dr["ID"])) {
+                            if (RowsFound != getInteger(dr["ID"])) {
                                 //
                                 // Bad Table
                                 //

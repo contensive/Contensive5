@@ -68,7 +68,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             RecordLimitText = core.docProperties.getText("RecordLimit");
                             if (!string.IsNullOrEmpty(RecordLimitText)) {
                                 IsRecordLimitSet = true;
-                                RecordLimit = GenericController.encodeInteger(RecordLimitText);
+                                RecordLimit = GenericController.getInteger(RecordLimitText);
                             }
                         }
                         if (string.IsNullOrEmpty(ExportName)) {

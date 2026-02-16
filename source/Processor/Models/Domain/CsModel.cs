@@ -308,21 +308,21 @@ namespace Contensive.Processor {
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                                    sqlList.Add(field.nameLc, DbController.encodeSQLBoolean(GenericController.encodeBoolean(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLBoolean(GenericController.getBoolean(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Currency:
                                             case CPContentBaseClass.FieldTypeIdEnum.Float: {
-                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeNumber(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.getNumber(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Integer:
                                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
-                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeInteger(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.getInteger(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                                    sqlList.Add(field.nameLc, DbController.encodeSQLDate(GenericController.encodeDate(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLDate(GenericController.getDate(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
@@ -331,7 +331,7 @@ namespace Contensive.Processor {
                                                     // This is a problem - the defaults should come in as the ID values, not the names
                                                     //   so a select can be added to the default configuration page
                                                     //
-                                                    string DefaultValueText = GenericController.encodeText(field.defaultValue);
+                                                    string DefaultValueText = GenericController.getText(field.defaultValue);
                                                     if (string.IsNullOrEmpty(DefaultValueText)) {
                                                         DefaultValueText = "null";
                                                     } else {
@@ -409,8 +409,8 @@ namespace Contensive.Processor {
                                         case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                                 //
                                                 // -- create a new file with correct path (including recordid) and move file
-                                                int recordId = GenericController.encodeInteger(dt.Rows[0]["id"]);
-                                                string originalPathFilename = GenericController.encodeText(dt.Rows[0][field.nameLc]);
+                                                int recordId = GenericController.getInteger(dt.Rows[0]["id"]);
+                                                string originalPathFilename = GenericController.getText(dt.Rows[0][field.nameLc]);
                                                 string pathfilename = FileController.getVirtualRecordUnixPathFilename(metaData.tableName, field.nameLc, recordId, field.fieldTypeId);
                                                 core.cdnFiles.copyFile(originalPathFilename, pathfilename);
                                                 core.cdnFiles.deleteFile(originalPathFilename);
@@ -441,7 +441,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public bool getBoolean(string fieldName) {
-            return encodeBoolean(getValueStoredInDbField(fieldName));
+            return GenericController.getBoolean(getValueStoredInDbField(fieldName));
         }
         //
         //====================================================================================================
@@ -451,7 +451,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public int getInteger(string fieldName) {
-            return encodeInteger(getValueStoredInDbField(fieldName));
+            return GenericController.getInteger(getValueStoredInDbField(fieldName));
         }
         //
         //====================================================================================================
@@ -461,7 +461,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public double getNumber(string fieldName) {
-            return encodeNumber(getValueStoredInDbField(fieldName));
+            return GenericController.getNumber(getValueStoredInDbField(fieldName));
         }
         //
         //====================================================================================================
@@ -471,7 +471,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public DateTime getDate(string fieldName) {
-            return encodeDate(getValueStoredInDbField(fieldName));
+            return GenericController.getDate(getValueStoredInDbField(fieldName));
         }
         //
         //========================================================================
@@ -594,7 +594,7 @@ namespace Contensive.Processor {
                                     throw new GenericException("Field [" + fieldNameTrim + "] was not found in sql [" + this.sqlSource + "]");
                                 }
                             } else {
-                                returnValue = GenericController.encodeText(this.dt.Rows[this.readCacheRowPtr][fieldNameTrim.ToLowerInvariant()]);
+                                returnValue = GenericController.getText(this.dt.Rows[this.readCacheRowPtr][fieldNameTrim.ToLowerInvariant()]);
                             }
                         }
                     }
@@ -976,7 +976,7 @@ namespace Contensive.Processor {
                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
                     var result = new StringBuilder();
                     if (this.contentMeta.fields.ContainsKey("id")) {
-                        int RecordId = encodeInteger(getValueStoredInDbField("id"));
+                        int RecordId = GenericController.getInteger(getValueStoredInDbField("id"));
                         string ContentName = MetadataController.getContentNameByID(core, field.manyToManyRuleContentId);
                         string DbTable = MetadataController.getContentTablename(core, ContentName);
                         string sql = "Select " + field.manyToManyRuleSecondaryField + " from " + DbTable + " where " + field.manyToManyRulePrimaryField + "=" + RecordId;
@@ -1000,13 +1000,13 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                             //
                             // -- boolean
-                            if (GenericController.encodeBoolean(rawData)) { return "Yes"; }
+                            if (GenericController.getBoolean(rawData)) { return "Yes"; }
                             return "No";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Date: {
                             //
                             // -- DateTime
-                            DateTime dateValue = GenericController.encodeDate(rawData);
+                            DateTime dateValue = GenericController.getDate(rawData);
                             if (dateValue == DateTime.MinValue) { return string.Empty; }
                             if (dateValue.Equals(dateValue.Date)) { return dateValue.ToString("d"); }
                             return dateValue.ToString(CultureInfo.InvariantCulture);
@@ -1021,7 +1021,7 @@ namespace Contensive.Processor {
                                     //
                                     // -- First try Lookup Content
                                     using var cs = new CsModel(core);
-                                    if (cs.open(LookupContentName, "ID=" + DbController.encodeSQLNumber(encodeInteger(rawData)), "", true, 0, "name", 1)) {
+                                    if (cs.open(LookupContentName, "ID=" + DbController.encodeSQLNumber(GenericController.getInteger(rawData)), "", true, 0, "name", 1)) {
                                         return cs.getText("name");
                                     }
                                 }
@@ -1030,14 +1030,14 @@ namespace Contensive.Processor {
                             if (!string.IsNullOrEmpty(field.lookupList)) {
                                 //
                                 // -- lookup list, index is 1-based (to be consistent with Db), but array is 0-based, so adjust
-                                return ContentController.getLookupListText(encodeInteger(rawData), field.lookupList);
+                                return ContentController.getLookupListText(GenericController.getInteger(rawData), field.lookupList);
                             }
                             return string.Empty;
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
                             //
                             // -- member select
-                            if (rawData.isNumeric()) { return MetadataController.getRecordName(core, "people", GenericController.encodeInteger(rawData)); }
+                            if (rawData.isNumeric()) { return MetadataController.getRecordName(core, "people", GenericController.getInteger(rawData)); }
                             return string.Empty;
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Currency: {
@@ -1060,7 +1060,7 @@ namespace Contensive.Processor {
                                 logger.Error($"{core.logCommonMessage}", new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
                                 return string.Empty;
                             }
-                            return core.cdnFiles.readFileText(GenericController.encodeText(rawData));
+                            return core.cdnFiles.readFileText(GenericController.getText(rawData));
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Text:
                     case CPContentBaseClass.FieldTypeIdEnum.LongText:
@@ -1079,7 +1079,7 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.Integer: {
                             //
                             // -- other types returned in string format
-                            return GenericController.encodeText(rawData);
+                            return GenericController.getText(rawData);
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Redirect:
                     case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
@@ -1150,7 +1150,7 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                             //
                             // Boolean - sepcial case, block on typed GetAlways set
-                            if (GenericController.encodeBoolean(contentToBeSaved) != getBoolean(field.nameLc)) {
+                            if (GenericController.getBoolean(contentToBeSaved) != getBoolean(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1159,7 +1159,7 @@ namespace Contensive.Processor {
                             //
                             // Set if text of value changes
                             //
-                            if (GenericController.encodeText(contentToBeSaved) != getText(field.nameLc)) {
+                            if (GenericController.getText(contentToBeSaved) != getText(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1170,7 +1170,7 @@ namespace Contensive.Processor {
                             //
                             // Set if text of value changes
                             //
-                            if (GenericController.encodeText(contentToBeSaved) != getText(field.nameLc)) {
+                            if (GenericController.getText(contentToBeSaved) != getText(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1178,7 +1178,7 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
                             //
                             // -- Lookup, compare the integer value read with the getInteger from the read cache.
-                            if (GenericController.encodeInteger(contentToBeSaved) != getInteger(field.nameLc)) {
+                            if (GenericController.getInteger(contentToBeSaved) != getInteger(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1187,7 +1187,7 @@ namespace Contensive.Processor {
                             //
                             // Set if text of value changes
                             //
-                            if (GenericController.encodeText(contentToBeSaved) != getText(field.nameLc)) {
+                            if (GenericController.getText(contentToBeSaved) != getText(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1267,7 +1267,7 @@ namespace Contensive.Processor {
                             if (!fileNameNoExt.isNumeric()) {
                                 Pos = GenericController.strInstr(1, fileNameNoExt, ".r", 1);
                                 if (Pos > 0) {
-                                    FilenameRev = GenericController.encodeInteger(fileNameNoExt.Substring(Pos + 1));
+                                    FilenameRev = GenericController.getInteger(fileNameNoExt.Substring(Pos + 1));
                                     FilenameRev += 1;
                                     fileNameNoExt = fileNameNoExt.left(Pos - 1);
                                 }
@@ -1367,13 +1367,13 @@ namespace Contensive.Processor {
                             // capture and block it - it is hardcoded in sql
                             //
                             AuthorableFieldUpdate = true;
-                            sqlModifiedBy = GenericController.encodeInteger(writeCacheValue);
+                            sqlModifiedBy = GenericController.getInteger(writeCacheValue);
                         } else if (ucaseFieldName == "MODIFIEDDATE") {
                             //
                             // capture and block it - it is hardcoded in sql
                             //
                             AuthorableFieldUpdate = true;
-                            sqlModifiedDate = GenericController.encodeDate(writeCacheValue);
+                            sqlModifiedDate = GenericController.getDate(writeCacheValue);
                         } else {
                             //
                             // let these field be added to the sql
@@ -1397,10 +1397,10 @@ namespace Contensive.Processor {
                                 case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
                                         //
                                         // -- allow nullable (if null, set db to null). for example, a field 'chargesremaining' could be blank or numeric
-                                        if (string.IsNullOrWhiteSpace(encodeText(writeCacheValue))) {
+                                        if (string.IsNullOrWhiteSpace(GenericController.getText(writeCacheValue))) {
                                             SQLSetPair = fieldName + "=null";
                                         } else {
-                                            SQLSetPair = fieldName + "=" + DbController.encodeSQLNumber(encodeInteger(writeCacheValue));
+                                            SQLSetPair = fieldName + "=" + DbController.encodeSQLNumber(GenericController.getInteger(writeCacheValue));
                                         }
                                         break;
                                     }
@@ -1408,23 +1408,23 @@ namespace Contensive.Processor {
                                 case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                         //
                                         // -- allow nullable (if null, set db to null). for example, a field 'chargesremaining' could be blank or numeric
-                                        if (string.IsNullOrWhiteSpace(encodeText(writeCacheValue))) {
+                                        if (string.IsNullOrWhiteSpace(GenericController.getText(writeCacheValue))) {
                                             SQLSetPair = fieldName + "=null";
                                         } else {
-                                            SQLSetPair = fieldName + "=" + DbController.encodeSQLNumber(encodeNumber(writeCacheValue));
+                                            SQLSetPair = fieldName + "=" + DbController.encodeSQLNumber(GenericController.getNumber(writeCacheValue));
                                         }
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLBoolean(encodeBoolean(writeCacheValue));
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLBoolean(GenericController.getBoolean(writeCacheValue));
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLDate(encodeDate(writeCacheValue));
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLDate(GenericController.getDate(writeCacheValue));
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Text: {
-                                        string Copy = encodeText(writeCacheValue);
+                                        string Copy = GenericController.getText(writeCacheValue);
                                         if (Copy.Length > 255) {
                                             Copy = Copy.left(255);
                                         }
@@ -1444,7 +1444,7 @@ namespace Contensive.Processor {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
-                                        string filename = encodeText(writeCacheValue);
+                                        string filename = GenericController.getText(writeCacheValue);
                                         if (filename.Length > 255) {
                                             filename = filename.left(255);
                                         }
@@ -1454,7 +1454,7 @@ namespace Contensive.Processor {
                                 case CPContentBaseClass.FieldTypeIdEnum.LongText:
                                 case CPContentBaseClass.FieldTypeIdEnum.HTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.HTMLCode: {
-                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLText(GenericController.encodeText(writeCacheValue));
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLText(GenericController.getText(writeCacheValue));
                                         break;
                                     }
                                 default: {
@@ -1476,7 +1476,7 @@ namespace Contensive.Processor {
                                         }
                                     }
                                 }
-                                if (field.uniqueName && (GenericController.encodeText(writeCacheValue) != "")) {
+                                if (field.uniqueName && (GenericController.getText(writeCacheValue) != "")) {
                                     //
                                     // ----- set up for unique name check
                                     //
@@ -1485,7 +1485,7 @@ namespace Contensive.Processor {
                                         SQLCriteriaUnique.Append("Or");
                                         UniqueViolationFieldList.Append(",");
                                     }
-                                    string writeCacheValueText = GenericController.encodeText(writeCacheValue);
+                                    string writeCacheValueText = GenericController.getText(writeCacheValue);
                                     if (writeCacheValueText.Length < 255) {
                                         UniqueViolationFieldList.Append(field.nameLc + "=\"" + writeCacheValueText + "\"");
                                     } else {
@@ -1914,7 +1914,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public bool openContentWatchList(string listName, string sortFieldList, bool activeOnly, int pageSize, int pageNumber) {
             try {
-                sortFieldList = encodeEmpty(sortFieldList, "dateadded").Trim(' ');
+                sortFieldList = GenericController.getText(sortFieldList, "dateadded").Trim(' ');
                 pageSize = (pageSize > 0) ? pageSize : DbController.sqlPageSizeDefault;
                 pageNumber = (pageNumber > 0) ? pageNumber : 1;
                 //
@@ -2053,8 +2053,8 @@ namespace Contensive.Processor {
                 if (contentMetaData == null) { throw (new GenericException("No content found For [" + contentName + "]")); }
                 if (contentMetaData.id <= 0) { throw (new GenericException("No content found For [" + contentName + "]")); }
                 if (string.IsNullOrWhiteSpace(contentMetaData.tableName)) { throw (new GenericException("Content metadata [" + contentName + "] does not reference a valid table")); }
-                sqlOrderBy = GenericController.encodeEmpty(sqlOrderBy, contentMetaData.defaultSortMethod);
-                sqlSelectFieldList = GenericController.encodeEmpty(sqlSelectFieldList, contentMetaData.selectCommaList);
+                sqlOrderBy = GenericController.getText(sqlOrderBy, contentMetaData.defaultSortMethod);
+                sqlSelectFieldList = GenericController.getText(sqlSelectFieldList, contentMetaData.selectCommaList);
                 pageSize = (pageSize > 0) ? pageSize : DbController.sqlPageSizeDefault;
                 pageNumber = (pageNumber > 0) ? pageNumber : 1;
                 //

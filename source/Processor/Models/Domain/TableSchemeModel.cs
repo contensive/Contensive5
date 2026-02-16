@@ -72,10 +72,10 @@ namespace Contensive.Processor.Models.Domain {
                                 if (dt.Rows.Count > 0) {
                                     foreach (DataRow row in dt.Rows) {
                                         tableSchema.columns.Add(new ColumnSchemaModel {
-                                            COLUMN_NAME = GenericController.encodeText(row["COLUMN_NAME"]).ToLowerInvariant(),
-                                            DATA_TYPE = GenericController.encodeText(row["DATA_TYPE"]).ToLowerInvariant(),
-                                            CHARACTER_MAXIMUM_LENGTH = GenericController.encodeInteger(row["CHARACTER_MAXIMUM_LENGTH"]),
-                                            DATETIME_PRECISION = GenericController.encodeInteger(row["DATETIME_PRECISION"])
+                                            COLUMN_NAME = GenericController.getText(row["COLUMN_NAME"]).ToLowerInvariant(),
+                                            DATA_TYPE = GenericController.getText(row["DATA_TYPE"]).ToLowerInvariant(),
+                                            CHARACTER_MAXIMUM_LENGTH = GenericController.getInteger(row["CHARACTER_MAXIMUM_LENGTH"]),
+                                            DATETIME_PRECISION = GenericController.getInteger(row["DATETIME_PRECISION"])
                                         });
                                     }
                                 }
@@ -85,9 +85,9 @@ namespace Contensive.Processor.Models.Domain {
                                 dt = core.db.getIndexSchemaData(TableName);
                                 if (dt.Rows.Count > 0) {
                                     foreach (DataRow row in dt.Rows) {
-                                        string index_keys = GenericController.encodeText(row["index_keys"]).ToLowerInvariant();
+                                        string index_keys = GenericController.getText(row["index_keys"]).ToLowerInvariant();
                                         tableSchema.indexes.Add(new IndexSchemaModel {
-                                            index_name = GenericController.encodeText(row["INDEX_NAME"]).ToLowerInvariant(),
+                                            index_name = GenericController.getText(row["INDEX_NAME"]).ToLowerInvariant(),
                                             index_keys = index_keys,
                                             indexKeyList = index_keys.Split(',').Select(s => s.Trim()).ToList()
                                         });

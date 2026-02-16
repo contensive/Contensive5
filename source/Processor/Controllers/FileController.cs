@@ -1288,7 +1288,7 @@ namespace Contensive.Processor.Controllers {
                     HttpController HTTP = new() {
                         timeout = 600
                     };
-                    HTTP.getUrlToFile(encodeText(URLLink), convertRelativeToLocalAbsPath(pathFilename));
+                    HTTP.getUrlToFile(getText(URLLink), convertRelativeToLocalAbsPath(pathFilename));
                     //
                     if (!isLocalFileSystem) {
                         copyFileLocalToRemote(pathFilename);

@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.EditControls {
                         //
                         int StyleSN = core.siteProperties.getInteger("StylesheetSerialNumber", 0);
                         StyleSN = StyleSN + 1;
-                        core.siteProperties.setProperty("StylesheetSerialNumber", GenericController.encodeText(StyleSN));
+                        core.siteProperties.setProperty("StylesheetSerialNumber", GenericController.getText(StyleSN));
                     }
                 }
             } catch (Exception ex) {

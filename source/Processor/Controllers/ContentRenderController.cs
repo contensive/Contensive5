@@ -754,12 +754,12 @@ namespace Contensive.Processor.Controllers {
                                                                             // ----- AC Image, Decode Active Images to Resource Library references
                                                                             //
                                                                             if (ImageIDArrayCount >= 4) {
-                                                                                recordId = GenericController.encodeInteger(ACInstanceName);
+                                                                                recordId = GenericController.getInteger(ACInstanceName);
                                                                                 string ImageWidthText = DHTML.elementAttribute(ElementPointer, "WIDTH");
                                                                                 string ImageHeightText = DHTML.elementAttribute(ElementPointer, "HEIGHT");
                                                                                 string ImageAlt = HtmlController.encodeHtml(DHTML.elementAttribute(ElementPointer, "Alt"));
-                                                                                int ImageVSpace = GenericController.encodeInteger(DHTML.elementAttribute(ElementPointer, "vspace"));
-                                                                                int ImageHSpace = GenericController.encodeInteger(DHTML.elementAttribute(ElementPointer, "hspace"));
+                                                                                int ImageVSpace = GenericController.getInteger(DHTML.elementAttribute(ElementPointer, "vspace"));
+                                                                                int ImageHSpace = GenericController.getInteger(DHTML.elementAttribute(ElementPointer, "hspace"));
                                                                                 string ImageAlign = DHTML.elementAttribute(ElementPointer, "Align");
                                                                                 string ImageBorder = DHTML.elementAttribute(ElementPointer, "BORDER");
                                                                                 string ImageLoop = DHTML.elementAttribute(ElementPointer, "LOOP");
@@ -808,7 +808,7 @@ namespace Contensive.Processor.Controllers {
                                                                             QueryString = "";
                                                                             if (!string.IsNullOrEmpty(ACQueryString)) {
                                                                                 //
-                                                                                string QSHTMLEncoded = GenericController.encodeText(ACQueryString);
+                                                                                string QSHTMLEncoded = GenericController.getText(ACQueryString);
                                                                                 QueryString = HtmlController.decodeHtml(QSHTMLEncoded);
                                                                                 QSSplit = QueryString.Split('&');
                                                                                 for (QSPtr = 0; QSPtr <= QSSplit.GetUpperBound(0); QSPtr++) {
@@ -830,7 +830,7 @@ namespace Contensive.Processor.Controllers {
                                                                             //
                                                                             QueryString = "";
                                                                             if (ImageIDArrayCount > 4) {
-                                                                                QueryString = GenericController.encodeText(ImageIDArray[4]);
+                                                                                QueryString = GenericController.getText(ImageIDArray[4]);
                                                                                 QSSplit = QueryString.Split('&');
                                                                                 for (QSPtr = 0; QSPtr <= QSSplit.GetUpperBound(0); QSPtr++) {
                                                                                     QSSplit[QSPtr] = HtmlController.encodeHtml(QSSplit[QSPtr]);
@@ -847,7 +847,7 @@ namespace Contensive.Processor.Controllers {
                                                                             //
                                                                             QueryString = "";
                                                                             if (ImageIDArrayCount > 4) {
-                                                                                QueryString = GenericController.encodeText(ImageIDArray[4]);
+                                                                                QueryString = GenericController.getText(ImageIDArray[4]);
                                                                                 QueryString = HtmlController.decodeHtml(QueryString);
                                                                                 QSSplit = QueryString.Split('&');
                                                                                 for (QSPtr = 0; QSPtr <= QSSplit.GetUpperBound(0); QSPtr++) {
@@ -921,7 +921,7 @@ namespace Contensive.Processor.Controllers {
 
                         string[] libraryFileSplit = htmlContentSegment_file.Split('/');
                         if (libraryFileSplit.GetUpperBound(0) > 2) {
-                            int libraryRecordId = encodeInteger(libraryFileSplit[2]);
+                            int libraryRecordId = getInteger(libraryFileSplit[2]);
                             if ((libraryFileSplit[0].ToLower(CultureInfo.InvariantCulture) == "cclibraryfiles") && (libraryFileSplit[1].ToLower(CultureInfo.InvariantCulture) == "filename") && (libraryRecordId != 0)) {
                                 LibraryFilesModel file = LibraryFilesModel.create<LibraryFilesModel>(core.cpParent, libraryRecordId);
                                 if ((file != null) && (htmlContentSegment_file != file.filename)) {

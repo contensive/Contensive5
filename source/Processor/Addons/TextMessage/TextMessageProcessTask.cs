@@ -26,7 +26,7 @@ namespace Contensive.Processor.Addons.TextMessage {
                 // -- send queue
                 TextMessageController.sendTextMessageQueue(core);
                 //
-                core.siteProperties.setProperty("TextMessageLastCheck", encodeText(core.dateTimeNowMockable));
+                core.siteProperties.setProperty("TextMessageLastCheck", getText(core.dateTimeNowMockable));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
             }

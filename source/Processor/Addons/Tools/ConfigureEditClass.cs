@@ -83,14 +83,14 @@ namespace Contensive.Processor.Addons.Tools {
                             //
                             // ----- Save the input
                             //
-                            RecordCount = GenericController.encodeInteger(cp.Doc.GetInteger("dtfaRecordCount"));
+                            RecordCount = GenericController.getInteger(cp.Doc.GetInteger("dtfaRecordCount"));
                             if (RecordCount > 0) {
                                 int RecordPointer = 0;
                                 for (RecordPointer = 0; RecordPointer < RecordCount; RecordPointer++) {
                                     //
                                     string formFieldName = cp.Doc.GetText("dtfaName." + RecordPointer);
                                     CPContentBaseClass.FieldTypeIdEnum formFieldTypeId = (CPContentBaseClass.FieldTypeIdEnum)cp.Doc.GetInteger("dtfaType." + RecordPointer);
-                                    formFieldId = GenericController.encodeInteger(cp.Doc.GetInteger("dtfaID." + RecordPointer));
+                                    formFieldId = GenericController.getInteger(cp.Doc.GetInteger("dtfaID." + RecordPointer));
                                     bool formFieldInherited = cp.Doc.GetBoolean("dtfaInherited." + RecordPointer);
                                     //
                                     // problem - looking for the name in the Db using the form's name, but it could have changed.
@@ -174,7 +174,7 @@ namespace Contensive.Processor.Addons.Tools {
                                                         + ",type=" + (int)formFieldTypeId
                                                         + ",caption=" + DbController.encodeSQLText(cp.Doc.GetText("dtfaCaption." + RecordPointer))
                                                         + ",DefaultValue=" + DbController.encodeSQLText(cp.Doc.GetText("dtfaDefaultValue." + RecordPointer))
-                                                        + ",EditSortPriority=" + DbController.encodeSQLText(GenericController.encodeText(cp.Doc.GetInteger("dtfaEditSortPriority." + RecordPointer)))
+                                                        + ",EditSortPriority=" + DbController.encodeSQLText(GenericController.getText(cp.Doc.GetInteger("dtfaEditSortPriority." + RecordPointer)))
                                                         + ",Active=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaActive." + RecordPointer))
                                                         + ",ReadOnly=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaReadOnly." + RecordPointer))
                                                         + ",Authorable=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaAuthorable." + RecordPointer))
@@ -436,9 +436,9 @@ namespace Contensive.Processor.Addons.Tools {
                             //
                             streamRow.add("<td class=\"ccPanelInput\" align=\"left\"><nobr>");
                             if (fieldsort.field.inherited) {
-                                streamRow.add(SpanClassAdminSmall + GenericController.encodeText(fieldsort.field.defaultValue) + "</SPAN>");
+                                streamRow.add(SpanClassAdminSmall + GenericController.getText(fieldsort.field.defaultValue) + "</SPAN>");
                             } else {
-                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaDefaultValue." + RecordCount, GenericController.encodeText(fieldsort.field.defaultValue), 1, 10));
+                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaDefaultValue." + RecordCount, GenericController.getText(fieldsort.field.defaultValue), 1, 10));
                             }
                             streamRow.add("</nobr></td>");
                             //

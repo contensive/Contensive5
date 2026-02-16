@@ -54,7 +54,7 @@ namespace Contensive.Processor {
         /// </summary>
         public override DateTime LastTime {
             get {
-                return GenericController.encodeDate(cp.core.session.visit.lastVisitTime);
+                return GenericController.getDate(cp.core.session.visit.lastVisitTime);
             }
         }
         //
@@ -242,7 +242,7 @@ namespace Contensive.Processor {
         //
         public override int StartDateValue {
             get {
-                return GenericController.encodeInteger(cp.core.doc.profileStartTime.ToOADate());
+                return GenericController.getInteger(cp.core.doc.profileStartTime.ToOADate());
             }
         }
         //
@@ -250,7 +250,7 @@ namespace Contensive.Processor {
         //
         public override DateTime StartTime {
             get {
-                return GenericController.encodeDate(cp.core.session.visit.startTime);
+                return GenericController.getDate(cp.core.session.visit.startTime);
             }
         }
         //
@@ -281,22 +281,22 @@ namespace Contensive.Processor {
         //
         [Obsolete("Deprecated", false)]
         public override bool GetBoolean(string key, string defaultValue) {
-            return GetBoolean(key, GenericController.encodeBoolean(defaultValue));
+            return GetBoolean(key, GenericController.getBoolean(defaultValue));
         }
         //
         [Obsolete("Deprecated", false)]
         public override DateTime GetDate(string key, string defaultValue) {
-            return GetDate(key, GenericController.encodeDate(defaultValue));
+            return GetDate(key, GenericController.getDate(defaultValue));
         }
         //
         [Obsolete("Deprecated", false)]
         public override int GetInteger(string key, string defaultValue) {
-            return GetInteger(key, GenericController.encodeInteger(defaultValue));
+            return GetInteger(key, GenericController.getInteger(defaultValue));
         }
         //
         [Obsolete("Deprecated", false)]
         public override double GetNumber(string key, string defaultValue) {
-            return GetNumber(key, GenericController.encodeNumber(defaultValue));
+            return GetNumber(key, GenericController.getNumber(defaultValue));
         }
         //
         //=======================================================================================================

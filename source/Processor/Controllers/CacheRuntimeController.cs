@@ -532,8 +532,8 @@ namespace Contensive.Processor.Controllers {
                         DataTable dt = core.db.executeQuery(sql);
                         foreach (DataRow row in dt.Rows) {
                             _fieldEditorAddonList.Add(new FieldTypeEditorAddonModel {
-                                fieldTypeId = GenericController.encodeInteger(row["contentfieldtypeid"]),
-                                editorAddonId = GenericController.encodeInteger(row["editorAddonId"])
+                                fieldTypeId = GenericController.getInteger(row["contentfieldtypeid"]),
+                                editorAddonId = GenericController.getInteger(row["editorAddonId"])
                             });
                         }
                     }
@@ -549,10 +549,10 @@ namespace Contensive.Processor.Controllers {
                             + " where (t.active<>0)and(a.active<>0) order by t.id";
                         DataTable dt = core.db.executeQuery(sql);
                         foreach (DataRow dr in dt.Rows) {
-                            int fieldTypeId = GenericController.encodeInteger(dr["contentfieldtypeid"]);
+                            int fieldTypeId = GenericController.getInteger(dr["contentfieldtypeid"]);
                             _fieldEditorAddonList.Add(new FieldTypeEditorAddonModel {
                                 fieldTypeId = fieldTypeId,
-                                editorAddonId = GenericController.encodeInteger(dr["editorAddonId"])
+                                editorAddonId = GenericController.getInteger(dr["editorAddonId"])
                             });
                         }
                     }

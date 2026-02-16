@@ -57,7 +57,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 // -- delete all the files
                 foreach (var file in env.core.tempFiles.getFileList(path)) {
-                    if (encodeDate(file.DateLastModified).AddHours(1) > env.core.dateTimeNowMockable) {
+                    if (getDate(file.DateLastModified).AddHours(1) > env.core.dateTimeNowMockable) {
                         filesRemaining = true;
                         continue;
                     }

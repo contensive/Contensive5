@@ -812,15 +812,15 @@ namespace Contensive.Processor.Controllers {
                 if (!_globalInvalidationDate.HasValue) {
                     setDefault = true;
                 } else {
-                    if ((encodeDate(_globalInvalidationDate)).CompareTo(new DateTime(1990, 8, 7)) < 0) {
+                    if ((GenericController.getDate(_globalInvalidationDate)).CompareTo(new DateTime(1990, 8, 7)) < 0) {
                         setDefault = true;
                     }
                 }
                 if (setDefault) {
                     _globalInvalidationDate = new DateTime(1990, 8, 7);
-                    storeCacheDocument(globalInvalidationDateKeyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = encodeDate(_globalInvalidationDate) });
+                    storeCacheDocument(globalInvalidationDateKeyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = GenericController.getDate(_globalInvalidationDate) });
                 }
-                return encodeDate(_globalInvalidationDate);
+                return GenericController.getDate(_globalInvalidationDate);
             }
         }
         private DateTime? _globalInvalidationDate;

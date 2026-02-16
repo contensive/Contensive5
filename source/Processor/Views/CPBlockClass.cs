@@ -131,7 +131,7 @@ namespace Contensive.Processor {
                 if (copyRecordNameOrGuid.isNumeric()) {
                     //
                     // -- recordId
-                    copy = CopyContentModel.create<CopyContentModel>(cp, GenericController.encodeInteger(copyRecordNameOrGuid));
+                    copy = CopyContentModel.create<CopyContentModel>(cp, GenericController.getInteger(copyRecordNameOrGuid));
                 } else if (GuidController.isGuid(copyRecordNameOrGuid)) {
                     //
                     // -- record guid
@@ -173,7 +173,7 @@ namespace Contensive.Processor {
                 if (layoutRecordNameOrGuid.isNumeric()) {
                     //
                     // -- recordId
-                    layout = DbBaseModel.create<LayoutModel>(cp, GenericController.encodeInteger(layoutRecordNameOrGuid));
+                    layout = DbBaseModel.create<LayoutModel>(cp, GenericController.getInteger(layoutRecordNameOrGuid));
                 } else if (GuidController.isGuid(layoutRecordNameOrGuid)) {
                     //
                     // -- record guid

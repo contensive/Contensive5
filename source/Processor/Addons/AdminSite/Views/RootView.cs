@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbController.encodeSQLText(addonGuidIconDashboard));
                         if (csData.ok()) {
                             addonId = csData.getInteger("id");
-                            core.siteProperties.setProperty("AdminRootAddonID", GenericController.encodeText(addonId));
+                            core.siteProperties.setProperty("AdminRootAddonID", GenericController.getText(addonId));
                         }
                     }
                 }
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // it has been set to a non-zero number
                         //
-                        addonId = GenericController.encodeInteger(AddonIDText);
+                        addonId = GenericController.getInteger(AddonIDText);
                         //
                         // Verify it so there is no error when it runs
                         if (core.cacheRuntime.addonCache.create(addonId) == null) {

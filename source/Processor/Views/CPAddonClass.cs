@@ -415,17 +415,17 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int IconHeight => GenericController.encodeInteger(cp.core.doc.addonExecutionStack.Peek().iconHeight);
+        public override int IconHeight => GenericController.getInteger(cp.core.doc.addonExecutionStack.Peek().iconHeight);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int IconSprites => GenericController.encodeInteger(cp.core.doc.addonExecutionStack.Peek().iconSprites);
+        public override int IconSprites => GenericController.getInteger(cp.core.doc.addonExecutionStack.Peek().iconSprites);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int IconWidth => GenericController.encodeInteger(cp.core.doc.addonExecutionStack.Peek().iconWidth);
+        public override int IconWidth => GenericController.getInteger(cp.core.doc.addonExecutionStack.Peek().iconWidth);
         //
         //====================================================================================================
         //
@@ -530,7 +530,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override DateTime ProcessNextRun => GenericController.encodeDate(cp.core.doc.addonExecutionStack.Peek().processNextRun);
+        public override DateTime ProcessNextRun => GenericController.getDate(cp.core.doc.addonExecutionStack.Peek().processNextRun);
         //
         //====================================================================================================
         //

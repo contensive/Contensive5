@@ -426,7 +426,7 @@ namespace Contensive.Processor.Controllers {
                 // -- load local store 
                 localStore = getInteger(propertyName, defaultValue);
             }
-            return encodeInteger(localStore);
+            return GenericController.getInteger(localStore);
         }
         //
         //====================================================================================================
@@ -441,7 +441,7 @@ namespace Contensive.Processor.Controllers {
                 // -- load local store 
                 localStore = getBoolean(propertyName, defaultValue);
             }
-            return encodeBoolean(localStore);
+            return GenericController.getBoolean(localStore);
         }
         //
         //====================================================================================================
@@ -773,7 +773,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DefaultValue"></param>
         /// <returns></returns>
         public int getInteger(string PropertyName, int DefaultValue = 0) {
-            return encodeInteger(getText(PropertyName, DefaultValue.ToString()));
+            return GenericController.getInteger(getText(PropertyName, DefaultValue.ToString()));
         }
         //
         //========================================================================
@@ -784,7 +784,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DefaultValue"></param>
         /// <returns></returns>
         public double getNumber(string PropertyName, double DefaultValue = 0) {
-            return encodeNumber(getText(PropertyName, DefaultValue.ToString()));
+            return GenericController.getNumber(getText(PropertyName, DefaultValue.ToString()));
         }
         //
         //========================================================================
@@ -795,7 +795,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DefaultValue"></param>
         /// <returns></returns>
         public bool getBoolean(string PropertyName, bool DefaultValue = false) {
-            return encodeBoolean(getText(PropertyName, DefaultValue.ToString()));
+            return GenericController.getBoolean(getText(PropertyName, DefaultValue.ToString()));
         }
         //
         //========================================================================
@@ -806,7 +806,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DefaultValue"></param>
         /// <returns></returns>
         public DateTime getDate(string PropertyName, DateTime DefaultValue = default) {
-            return encodeDate(getText(PropertyName, DefaultValue.ToString()));
+            return GenericController.getDate(getText(PropertyName, DefaultValue.ToString()));
         }
         //
         //====================================================================================================
@@ -864,7 +864,7 @@ namespace Contensive.Processor.Controllers {
                 if (_beta200327_BlockCCmdPostPageRender == null) {
                     _beta200327_BlockCCmdPostPageRender = getBoolean("Beta200327 block content cmd post page render", true);
                 }
-                return encodeBoolean(_beta200327_BlockCCmdPostPageRender);
+                return GenericController.getBoolean(_beta200327_BlockCCmdPostPageRender);
             }
         }
         private bool? _beta200327_BlockCCmdPostPageRender = null;
@@ -880,7 +880,7 @@ namespace Contensive.Processor.Controllers {
                 if (_beta200327_BlockCCmdCodeAfterAddonExec == null) {
                     _beta200327_BlockCCmdCodeAfterAddonExec = getBoolean("Beta200327 block content cmd after addon execute", false);
                 }
-                return encodeBoolean(_beta200327_BlockCCmdCodeAfterAddonExec);
+                return GenericController.getBoolean(_beta200327_BlockCCmdCodeAfterAddonExec);
             }
         }
         private bool? _beta200327_BlockCCmdCodeAfterAddonExec = null;
@@ -895,7 +895,7 @@ namespace Contensive.Processor.Controllers {
                 if (_beta200327_BlockCCmdForJSONRemoteMethods == null) {
                     _beta200327_BlockCCmdForJSONRemoteMethods = getBoolean("Beta200327 block content cmd For JSON Remote Methods", true);
                 }
-                return encodeBoolean(_beta200327_BlockCCmdForJSONRemoteMethods);
+                return GenericController.getBoolean(_beta200327_BlockCCmdForJSONRemoteMethods);
             }
         }
         private bool? _beta200327_BlockCCmdForJSONRemoteMethods = null;

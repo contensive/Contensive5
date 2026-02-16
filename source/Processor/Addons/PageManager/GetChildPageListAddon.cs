@@ -107,7 +107,7 @@ namespace Contensive.Processor.Addons.PageManager {
                         //
                         string link = PageLink;
                         if (ArchivePages) {
-                            link = GenericController.modifyLinkQuery(archiveLink, rnPageId, encodeText(childPage.id), true);
+                            link = GenericController.modifyLinkQuery(archiveLink, rnPageId, getText(childPage.id), true);
                         }
                         bool blockContentComposite = false;
                         if (childPage.blockContent || childPage.blockPage) {
@@ -209,7 +209,7 @@ namespace Contensive.Processor.Addons.PageManager {
                             // if AllowBrief is false, BriefFilename is not loaded
                             //
                             if (!string.IsNullOrEmpty(childPage.briefFilename.filename) && childPage.allowBrief) {
-                                string brief = encodeText(core.cdnFiles.readFileText(childPage.briefFilename.filename)).Trim(' ');
+                                string brief = getText(core.cdnFiles.readFileText(childPage.briefFilename.filename)).Trim(' ');
                                 if (!string.IsNullOrEmpty(brief)) {
                                     activeList.Append("<div class=\"ccListCopy\">" + brief + "</div>");
                                 }

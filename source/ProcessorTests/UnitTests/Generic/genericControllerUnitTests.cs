@@ -419,9 +419,9 @@ namespace Tests {
             DateTime newBeginning = new DateTime(1999, 2, 2);
             DateTime theRenaissance = new DateTime(2003, 8, 5);
             // act
-            DateTime date1 = GenericController.encodeEmptyDate("", zeroDate);
-            DateTime date2 = GenericController.encodeEmptyDate("8/7/1990", newBeginning);
-            DateTime date3 = GenericController.encodeEmptyDate("123245", theRenaissance);
+            DateTime date1 = GenericController.getDate("", zeroDate);
+            DateTime date2 = GenericController.getDate("8/7/1990", newBeginning);
+            DateTime date3 = GenericController.getDate("123245", theRenaissance);
             // assert
             Assert.AreEqual(zeroDate, date1);
             Assert.AreEqual(zeroDate, date2);
@@ -432,9 +432,9 @@ namespace Tests {
         public void encodeEmpty_test() {
             // arrange
             // act
-            string test1 = GenericController.encodeEmpty("1", "2");
-            string test2 = GenericController.encodeEmpty("", "3");
-            string test3 = GenericController.encodeEmpty("4", "");
+            string test1 = GenericController.getText("1", "2");
+            string test2 = GenericController.getText("", "3");
+            string test3 = GenericController.getText("4", "");
             // assert
             Assert.AreEqual("1", test1);
             Assert.AreEqual("3", test2);
@@ -445,10 +445,10 @@ namespace Tests {
         public void encodeEmptyInteger_test() {
             // arrange
             // act
-            int test1 = GenericController.encodeEmptyInteger("1", 2);
-            int test2 = GenericController.encodeEmptyInteger("", 2);
-            int test3 = GenericController.encodeEmptyInteger(" ", 3);
-            int test4 = GenericController.encodeEmptyInteger("abcdefg", 4);
+            int test1 = GenericController.getInteger("1", 2);
+            int test2 = GenericController.getInteger("", 2);
+            int test3 = GenericController.getInteger(" ", 3);
+            int test4 = GenericController.getInteger("abcdefg", 4);
             // assert
             Assert.AreEqual(1, test1);
             Assert.AreEqual(2, test2);
@@ -530,8 +530,8 @@ namespace Tests {
             bool in1 = true;
             bool in2 = false;
             // act
-            bool out1 = GenericController.encodeBoolean(GenericController.encodeText(in1));
-            bool out2 = GenericController.encodeBoolean(GenericController.encodeText(in2));
+            bool out1 = GenericController.getBoolean(GenericController.getText(in1));
+            bool out2 = GenericController.getBoolean(GenericController.getText(in2));
             // assert
             Assert.AreEqual(in1, out1);
             Assert.AreEqual(in2, out2);
@@ -543,9 +543,9 @@ namespace Tests {
             in2 = new DateTime(in2.Year, in2.Month, in2.Day, in2.Hour, in2.Minute, in2.Second, in2.Kind);
             DateTime in3 = new DateTime(1990, 8, 7, 6, 5, 4);
             // act
-            DateTime out1 = GenericController.encodeDate(GenericController.encodeText(in1));
-            DateTime out2 = GenericController.encodeDate(GenericController.encodeText(in2));
-            DateTime out3 = GenericController.encodeDate(GenericController.encodeText(in3));
+            DateTime out1 = GenericController.getDate(GenericController.getText(in1));
+            DateTime out2 = GenericController.getDate(GenericController.getText(in2));
+            DateTime out3 = GenericController.getDate(GenericController.getText(in3));
             // assert
             Assert.AreEqual(in1, out1);
             Assert.AreEqual(in2, out2);
@@ -557,9 +557,9 @@ namespace Tests {
             double in2 = 12345.6789;
             double in3 = -12345.6789;
             // act
-            double out1 = GenericController.encodeNumber(GenericController.encodeText(in1));
-            double out2 = GenericController.encodeNumber(GenericController.encodeText(in2));
-            double out3 = GenericController.encodeNumber(GenericController.encodeText(in3));
+            double out1 = GenericController.getNumber(GenericController.getText(in1));
+            double out2 = GenericController.getNumber(GenericController.getText(in2));
+            double out3 = GenericController.getNumber(GenericController.getText(in3));
             // assert
             Assert.AreEqual(in1, out1);
             Assert.AreEqual(in2, out2);
@@ -571,9 +571,9 @@ namespace Tests {
             int in2 = 123456789;
             int in3 = -123456789;
             // act
-            int out1 = GenericController.encodeInteger(GenericController.encodeText(in1));
-            int out2 = GenericController.encodeInteger(GenericController.encodeText(in2));
-            int out3 = GenericController.encodeInteger(GenericController.encodeText(in3));
+            int out1 = GenericController.getInteger(GenericController.getText(in1));
+            int out2 = GenericController.getInteger(GenericController.getText(in2));
+            int out3 = GenericController.getInteger(GenericController.getText(in3));
             // assert
             Assert.AreEqual(in1, out1);
             Assert.AreEqual(in2, out2);

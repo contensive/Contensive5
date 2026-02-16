@@ -47,9 +47,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 using ( DataTable dt = env.core.db.executeQuery(sql)) {
                     if(dt.Rows.Count>0) {
                         foreach (DataRow dr in dt.Rows) {
-                            int aid = GenericController.encodeInteger(dr["aId"]);
-                            int bid = GenericController.encodeInteger(dr["bId"]);
-                            string name = GenericController.encodeText(dr["name"]);
+                            int aid = GenericController.getInteger(dr["aId"]);
+                            int bid = GenericController.getInteger(dr["bId"]);
+                            string name = GenericController.getText(dr["name"]);
                             env.log($"Duplicate content name [{name}] ids [{aid}] and [{bid}]");
                         }
                     }

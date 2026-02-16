@@ -22,7 +22,7 @@ namespace Contensive.Processor.Addons.Email {
                 // -- send queue
                 EmailController.sendImmediateFromQueue(core);
                 //
-                core.siteProperties.setProperty("EmailServiceLastCheck", encodeText(core.dateTimeNowMockable));
+                core.siteProperties.setProperty("EmailServiceLastCheck", getText(core.dateTimeNowMockable));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
             }

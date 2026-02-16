@@ -383,17 +383,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- Page number
                 string VarText = core.docProperties.getText("rt");
                 if (!string.IsNullOrEmpty(VarText)) {
-                    gridConfig.recordTop = GenericController.encodeInteger(VarText);
+                    gridConfig.recordTop = GenericController.getInteger(VarText);
                 }
                 //
                 VarText = core.docProperties.getText("RS");
                 if (!string.IsNullOrEmpty(VarText)) {
-                    gridConfig.recordsPerPage = GenericController.encodeInteger(VarText);
+                    gridConfig.recordsPerPage = GenericController.getInteger(VarText);
                 }
                 if (gridConfig.recordsPerPage <= 0) {
                     gridConfig.recordsPerPage = Constants.RecordsPerPageDefault;
                 }
-                gridConfig.pageNumber = encodeInteger(1 + Math.Floor(gridConfig.recordTop / (double)gridConfig.recordsPerPage));
+                gridConfig.pageNumber = getInteger(1 + Math.Floor(gridConfig.recordTop / (double)gridConfig.recordsPerPage));
                 //
                 //
                 // ----- Process paginationPageNumber value
@@ -442,7 +442,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         string FindName = core.docProperties.getText("FindName" + ColumnPtr).ToLowerInvariant();
                                         if (!string.IsNullOrEmpty(FindName)) {
                                             if (adminData.adminContent.fields.ContainsKey(FindName.ToLowerInvariant())) {
-                                                string FindValue = encodeText(core.docProperties.getText("FindValue" + ColumnPtr)).Trim(' ');
+                                                string FindValue = getText(core.docProperties.getText("FindValue" + ColumnPtr)).Trim(' ');
                                                 if (string.IsNullOrEmpty(FindValue)) {
                                                     //
                                                     // -- find blank, if name in list, remove it
@@ -472,7 +472,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                 break;
                                                             }
                                                         case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                                                if (encodeBoolean(FindValue)) {
+                                                                if (getBoolean(FindValue)) {
                                                                     findWord.MatchOption = FindWordMatchEnum.MatchTrue;
                                                                 } else {
                                                                     findWord.MatchOption = FindWordMatchEnum.MatchFalse;
@@ -570,21 +570,21 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // Read ActiveOnly
                     VarText = core.docProperties.getText("IndexFilterActiveOnly");
                     if (!string.IsNullOrEmpty(VarText)) {
-                        gridConfig.activeOnly = GenericController.encodeBoolean(VarText);
+                        gridConfig.activeOnly = GenericController.getBoolean(VarText);
                         gridConfig.pageNumber = 1;
                     }
                     //
                     // Read LastEditedByMe
                     VarText = core.docProperties.getText("IndexFilterLastEditedByMe");
                     if (!string.IsNullOrEmpty(VarText)) {
-                        gridConfig.lastEditedByMe = GenericController.encodeBoolean(VarText);
+                        gridConfig.lastEditedByMe = GenericController.getBoolean(VarText);
                         gridConfig.pageNumber = 1;
                     }
                     //
                     // Last Edited Past 30 Days
                     VarText = core.docProperties.getText("IndexFilterLastEditedPast30Days");
                     if (!string.IsNullOrEmpty(VarText)) {
-                        gridConfig.lastEditedPast30Days = GenericController.encodeBoolean(VarText);
+                        gridConfig.lastEditedPast30Days = GenericController.getBoolean(VarText);
                         gridConfig.lastEditedPast7Days = false;
                         gridConfig.lastEditedToday = false;
                         gridConfig.pageNumber = 1;
@@ -594,7 +594,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         VarText = core.docProperties.getText("IndexFilterLastEditedPast7Days");
                         if (!string.IsNullOrEmpty(VarText)) {
                             gridConfig.lastEditedPast30Days = false;
-                            gridConfig.lastEditedPast7Days = GenericController.encodeBoolean(VarText);
+                            gridConfig.lastEditedPast7Days = GenericController.getBoolean(VarText);
                             gridConfig.lastEditedToday = false;
                             gridConfig.pageNumber = 1;
                         } else {
@@ -604,7 +604,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             if (!string.IsNullOrEmpty(VarText)) {
                                 gridConfig.lastEditedPast30Days = false;
                                 gridConfig.lastEditedPast7Days = false;
-                                gridConfig.lastEditedToday = GenericController.encodeBoolean(VarText);
+                                gridConfig.lastEditedToday = GenericController.getBoolean(VarText);
                                 gridConfig.pageNumber = 1;
                             }
                         }
@@ -613,7 +613,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // Read IndexFilterOpen
                     VarText = core.docProperties.getText("IndexFilterOpen");
                     if (!string.IsNullOrEmpty(VarText)) {
-                        gridConfig.open = GenericController.encodeBoolean(VarText);
+                        gridConfig.open = GenericController.getBoolean(VarText);
                         gridConfig.pageNumber = 1;
                     }
                     if (core.docProperties.getBoolean("IndexSortRemoveAll")) {
@@ -760,7 +760,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             if (!string.IsNullOrEmpty(GroupName)) {
                                 int GroupID = MetadataController.getRecordIdByUniqueName(core, "Groups", GroupName);
                                 if (GroupID == 0 && GroupName.isNumeric()) {
-                                    GroupID = GenericController.encodeInteger(GroupName);
+                                    GroupID = GenericController.getInteger(GroupName);
                                 }
                                 string groupTableAlias = "GroupFilter" + Ptr;
                                 sqlWhere.Append("AND(" + groupTableAlias + ".GroupID=" + GroupID + ")and((" + groupTableAlias + ".dateExpires is null)or(" + groupTableAlias + ".dateExpires>" + core.sqlDateTimeMockable + "))");
@@ -794,7 +794,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             for (Ptr = 0; Ptr < Cnt; Ptr++) {
                                 int Pos = GenericController.strInstr(1, ListSplit[Ptr], ")");
                                 if (Pos > 0) {
-                                    int ContentId = GenericController.encodeInteger(ListSplit[Ptr].left(Pos - 1));
+                                    int ContentId = GenericController.getInteger(ListSplit[Ptr].left(Pos - 1));
                                     if (ContentId > 0 && (ContentId != adminData.adminContent.id) && AdminDataModel.userHasContentAccess(core, ContentId)) {
                                         SubQuery = SubQuery + "OR(" + adminData.adminContent.tableName + ".ContentControlID=" + ContentId + ")";
                                         return_ContentAccessLimitMessage = return_ContentAccessLimitMessage + ", '<a href=\"?cid=" + ContentId + "\">" + MetadataController.getContentNameByID(core, ContentId) + "</a>'";
@@ -885,7 +885,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     //
                                                     // integer
                                                     //
-                                                    int FindWordValueInteger = GenericController.encodeInteger(FindWordValue);
+                                                    int FindWordValueInteger = GenericController.getInteger(FindWordValue);
                                                     switch (FindMatchOption) {
                                                         case (int)FindWordMatchEnum.MatchEmpty: {
                                                                 sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + " is null)");
@@ -919,7 +919,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                                     //
                                                     // double
-                                                    double FindWordValueDouble = GenericController.encodeNumber(FindWordValue);
+                                                    double FindWordValueDouble = GenericController.getNumber(FindWordValue);
                                                     switch (FindMatchOption) {
                                                         case (int)FindWordMatchEnum.MatchEmpty: {
                                                                 sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + " is null)");
@@ -1058,7 +1058,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     // Boolean
                                                     switch (FindMatchOption) {
                                                         case (int)FindWordMatchEnum.matchincludes: {
-                                                                if (GenericController.encodeBoolean(FindWordValue)) {
+                                                                if (GenericController.getBoolean(FindWordValue)) {
                                                                     sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<>0)");
                                                                 } else {
                                                                     sqlWhere.Append("AND((" + adminData.adminContent.tableName + "." + FindWordNameLc + "=0)or(" + adminData.adminContent.tableName + "." + FindWordNameLc + " is null))");
@@ -1207,7 +1207,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (gridConfig.subCDefID > 0) {
                         SubContentName = MetadataController.getContentNameByID(core, gridConfig.subCDefID);
                         QS = RQS;
-                        QS = GenericController.modifyQueryString(QS, "IndexFilterRemoveCDef", encodeText(gridConfig.subCDefID));
+                        QS = GenericController.modifyQueryString(QS, "IndexFilterRemoveCDef", getText(gridConfig.subCDefID));
                         Link = "/" + core.appConfig.adminRoute + "?" + QS;
                         SubFilterList += HtmlController.div(getDeleteLink(Link) + "&nbsp;" + SubContentName + "", "ccFilterIndent");
                     }

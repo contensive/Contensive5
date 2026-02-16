@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
             if ( core.doc.userErrorList.Count.Equals(0)) { return string.Empty; }
             string result = "";
             foreach ( var userError in core.doc.userErrorList ) {
-                result += "\r<li class=\"ccExceptionListRow\">" + GenericController.encodeText(userError) + "</li>";
+                result += "\r<li class=\"ccExceptionListRow\">" + GenericController.getText(userError) + "</li>";
             }
             core.doc.userErrorList.Clear();
             return "<ul class=\"ccExceptionList\">" + result + "\r</ul>";

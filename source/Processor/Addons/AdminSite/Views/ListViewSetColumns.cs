@@ -138,11 +138,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         //
                                         // -- add new column to be 20% of width (reduce all by 20%)
                                         foreach (var columnx in gridConfig.columns) {
-                                            columnx.Width = encodeInteger(columnx.Width * 80.0 / 100.0);
+                                            columnx.Width = getInteger(columnx.Width * 80.0 / 100.0);
                                         }
                                         IndexConfigColumnClass column = new() {
                                             Name = cp.Content.GetRecordName("Content Fields", FieldIDToAdd),
-                                            Width = encodeInteger(ColumnWidthTotal * 0.20)
+                                            Width = getInteger(ColumnWidthTotal * 0.20)
                                         };
                                         if (gridConfig.columns.Find((x) => x.Name.ToLower() == column.Name.ToLower()) == null) {
                                             //
@@ -239,7 +239,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 ColumnWidthTotal += column.Width;
                             }
                             foreach (var column in gridConfig.columns) {
-                                column.Width = encodeInteger((1000 * column.Width) / (double)ColumnWidthTotal);
+                                column.Width = getInteger((1000 * column.Width) / (double)ColumnWidthTotal);
                             }
                             AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, gridConfig);
                             gridConfig = new(core, adminData);
@@ -302,7 +302,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // print column headers - anchored so they sort columns
                                 //
-                                ColumnWidth = encodeInteger(100 * (column.Width / (double)ColumnWidthTotal));
+                                ColumnWidth = getInteger(100 * (column.Width / (double)ColumnWidthTotal));
                                 ContentFieldMetadataModel field = adminContent.fields[column.Name.ToLowerInvariant()];
                                 fieldId = field.id;
                                 Caption = field.caption;
@@ -320,7 +320,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // print column headers - anchored so they sort columns
                                 //
-                                ColumnWidth = encodeInteger(100 * (column.Width / (double)ColumnWidthTotal));
+                                ColumnWidth = getInteger(100 * (column.Width / (double)ColumnWidthTotal));
                                 ContentFieldMetadataModel field = adminContent.fields[column.Name.ToLowerInvariant()];
                                 fieldId = field.id;
                                 Caption = field.caption;
@@ -455,7 +455,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // print the content tables that have index forms to Configure
                 // -----------------------------------------------------------------------------------------------------------------------------------
                 //
-                core.siteProperties.setProperty("AllowContentAutoLoad", GenericController.encodeText(AllowContentAutoLoad));
+                core.siteProperties.setProperty("AllowContentAutoLoad", GenericController.getText(AllowContentAutoLoad));
                 string Content = ""
                     + Stream.text
                     + HtmlController.inputHidden("cid", adminContent.id.ToString())

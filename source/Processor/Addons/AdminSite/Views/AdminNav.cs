@@ -62,11 +62,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // -- get the list of portals
                     foreach (DataRow dr in dt.Rows) {
                         // -- add blank if icon is blank, or the http-prefixed icon url if present
-                        string icon = GenericController.encodeText(dr["icon"]);
+                        string icon = GenericController.getText(dr["icon"]);
                         portals.Add(new AdminNavViewModel_Portal() {
-                            name = GenericController.encodeText(dr["name"]),
-                            url = $"{baseUrl}&setPortalGuid={GenericController.encodeText(dr["ccguid"])}",
-                            active = currentPortalGuid.Equals(GenericController.encodeText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.encodeInteger(dr["id"])),
+                            name = GenericController.getText(dr["name"]),
+                            url = $"{baseUrl}&setPortalGuid={GenericController.getText(dr["ccguid"])}",
+                            active = currentPortalGuid.Equals(GenericController.getText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.getInteger(dr["id"])),
                             icon = string.IsNullOrEmpty(icon) ? "" : cp.Http.CdnFilePathPrefix + icon
                         });
                     }
@@ -83,7 +83,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         };
                         List<string> primaryDomainList = cp.GetAppConfig().domainList.Select(s => s.ToLower()).ToList();
                         foreach (DataRow dr in dt.Rows) {
-                            string domainName = GenericController.encodeText(dr["name"]);
+                            string domainName = GenericController.getText(dr["name"]);
                             int typeId = cp.Utils.EncodeInteger(dr["typeId"]);
                             if (typeId <= 1) {
                                 if (primaryDomainList.Contains(domainName.ToLower())) {

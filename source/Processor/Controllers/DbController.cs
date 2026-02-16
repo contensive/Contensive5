@@ -392,7 +392,7 @@ namespace Contensive.Processor.Controllers {
         public int insertGetId(string tableName, int createdByUserId) {
             try {
                 using (DataTable dt = insert(tableName, createdByUserId)) {
-                    if (dt.Rows.Count > 0) { return encodeInteger(dt.Rows[0]["id"]); }
+                    if (dt.Rows.Count > 0) { return getInteger(dt.Rows[0]["id"]); }
                 }
                 return 0;
             } catch (Exception ex) {
@@ -1011,7 +1011,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dr"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static int getDataRowFieldInteger(DataRow dr, string fieldName) => encodeInteger(getDataRowFieldText(dr, fieldName));
+        public static int getDataRowFieldInteger(DataRow dr, string fieldName) => getInteger(getDataRowFieldText(dr, fieldName));
         //
         //========================================================================
         /// <summary>
@@ -1020,7 +1020,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dr"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static double getDataRowFieldNumber(DataRow dr, string fieldName) => encodeNumber(getDataRowFieldText(dr, fieldName));
+        public static double getDataRowFieldNumber(DataRow dr, string fieldName) => getNumber(getDataRowFieldText(dr, fieldName));
         //
         //========================================================================
         /// <summary>
@@ -1029,7 +1029,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dr"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static bool getDataRowFieldBoolean(DataRow dr, string fieldName) => encodeBoolean(getDataRowFieldText(dr, fieldName));
+        public static bool getDataRowFieldBoolean(DataRow dr, string fieldName) => getBoolean(getDataRowFieldText(dr, fieldName));
         //
         //========================================================================
         /// <summary>
@@ -1038,7 +1038,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dr"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static DateTime getDataRowFieldDate(DataRow dr, string fieldName) => encodeDate(getDataRowFieldText(dr, fieldName));
+        public static DateTime getDataRowFieldDate(DataRow dr, string fieldName) => getDate(getDataRowFieldText(dr, fieldName));
         //
         // ====================================================================================================
         /// <summary>
@@ -1049,7 +1049,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encodeSQLText(string expression) {
             if (expression == null) { return "null"; }
-            string returnResult = GenericController.encodeText(expression);
+            string returnResult = GenericController.getText(expression);
             if (string.IsNullOrEmpty(returnResult)) { return "null"; }
             return " N'" + GenericController.strReplace(returnResult, "'", "''") + "'";
         }
@@ -1329,7 +1329,7 @@ namespace Contensive.Processor.Controllers {
                     foreach (DataRow dr in dt.Rows) {
                         int cPtr = 0;
                         foreach (DataColumn cell in dt.Columns) {
-                            rows[cPtr, rPtr] = GenericController.encodeText(dr[cell]);
+                            rows[cPtr, rPtr] = GenericController.getText(dr[cell]);
                             cPtr += 1;
                         }
                         rPtr += 1;
@@ -1379,7 +1379,7 @@ namespace Contensive.Processor.Controllers {
             string SQL = "select count(*) as RecordCount from " + TableName + " where " + Criteria;
             DataTable dt = executeQuery(SQL);
             if (dt.Rows.Count > 0) {
-                CurrentCount = GenericController.encodeInteger(dt.Rows[0][0]);
+                CurrentCount = GenericController.getInteger(dt.Rows[0][0]);
             }
             while ((CurrentCount != 0) && (PreviousCount != CurrentCount) && (LoopCount < iChunkCount)) {
                 if (getDataSourceType() == DataSourceTypeODBCMySQL) {
@@ -1392,7 +1392,7 @@ namespace Contensive.Processor.Controllers {
                 SQL = "select count(*) as RecordCount from " + TableName + " where " + Criteria;
                 dt = executeQuery(SQL);
                 if (dt.Rows.Count > 0) {
-                    CurrentCount = GenericController.encodeInteger(dt.Rows[0][0]);
+                    CurrentCount = GenericController.getInteger(dt.Rows[0][0]);
                 }
                 LoopCount = LoopCount + 1;
             }

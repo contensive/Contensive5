@@ -646,16 +646,16 @@ namespace Contensive.Processor {
         //
         [Obsolete("Use GetFormInput(string,string,int,int,string)", false)]
         public override object GetFormInput(string contentName, string fieldName, string height, string width, string htmlId)
-            => GetFormInput(contentName, fieldName, GenericController.encodeInteger(height), GenericController.encodeInteger(width), htmlId);
+            => GetFormInput(contentName, fieldName, GenericController.getInteger(height), GenericController.getInteger(width), htmlId);
         //
         [Obsolete("Use GetFormInput(string,string,int,int)", false)]
         public override object GetFormInput(string contentName, string fieldName, string height, string width)
-            => GetFormInput(contentName, fieldName, GenericController.encodeInteger(height), GenericController.encodeInteger(width));
+            => GetFormInput(contentName, fieldName, GenericController.getInteger(height), GenericController.getInteger(width));
         //
         //
         [Obsolete("Use GetFormInput(string,string,int)", false)]
         public override object GetFormInput(string contentName, string fieldName, string height)
-            => GetFormInput(contentName, fieldName, GenericController.encodeInteger(height));
+            => GetFormInput(contentName, fieldName, GenericController.getInteger(height));
         //
         [Obsolete("Use SetField for all field types that store data in files (textfile, cssfile, etc)", false)]
         public override void SetFile(string FieldName, string Copy, string ContentName) {

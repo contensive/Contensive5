@@ -153,11 +153,11 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing) {
-            return EditUIController.getEditTab(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName);
+            return EditUIController.getEditTab(cp.core, contentName, GenericController.getInteger(recordID), allowCut, recordName);
         }
         //
         public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing, string customCaption) {
-            return EditUIController.getEditTab(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName, customCaption);
+            return EditUIController.getEditTab(cp.core, contentName, GenericController.getInteger(recordID), allowCut, recordName, customCaption);
         }
         //
         //====================================================================================================
@@ -354,7 +354,7 @@ namespace Contensive.Processor {
         //
         public override bool IsLocked(string contentName, string recordId) {
             var contentTable = TableModel.createByContentName(cp, contentName);
-            if (contentTable != null) { return WorkflowController.isRecordLocked(cp.core, contentTable.id, GenericController.encodeInteger(recordId)); }
+            if (contentTable != null) { return WorkflowController.isRecordLocked(cp.core, contentTable.id, GenericController.getInteger(recordId)); }
             return false;
         }
         //
@@ -362,7 +362,7 @@ namespace Contensive.Processor {
         //
         public override bool IsChildContent(string childContentID, string parentContentID) {
             var parentMetadata = ContentMetadataModel.create(cp.core, parentContentID);
-            return (parentMetadata == null) ? false : parentMetadata.isParentOf(cp.core, GenericController.encodeInteger(childContentID));
+            return (parentMetadata == null) ? false : parentMetadata.isParentOf(cp.core, GenericController.getInteger(childContentID));
         }
         //
         //====================================================================================================

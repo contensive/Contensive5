@@ -142,7 +142,7 @@ namespace Contensive.Processor.Controllers {
                     if (isDelete) {
                         //
                         // Clear the Landing page and page not found site properties
-                        if (recordId == GenericController.encodeInteger(core.siteProperties.getText("PageNotFoundPageID", "0"))) {
+                        if (recordId == GenericController.getInteger(core.siteProperties.getText("PageNotFoundPageID", "0"))) {
                             core.siteProperties.setProperty("PageNotFoundPageID", "0");
                         }
                         if (recordId == core.siteProperties.landingPageID) {

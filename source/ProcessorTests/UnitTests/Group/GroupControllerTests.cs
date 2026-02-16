@@ -49,7 +49,7 @@ namespace Tests {
                 Assert.AreEqual(1, dt.Rows.Count);
                 Assert.AreEqual("groupName", dt.Rows[0]["name"]);
                 Assert.AreEqual("groupCaption", dt.Rows[0]["caption"]);
-                Assert.AreEqual(true, GenericController.encodeBoolean(dt.Rows[0]["active"]));
+                Assert.AreEqual(true, GenericController.getBoolean(dt.Rows[0]["active"]));
             }
         }
         //
@@ -72,7 +72,7 @@ namespace Tests {
                 Assert.AreEqual(1, dt.Rows.Count);
                 Assert.AreEqual("test1", dt.Rows[0]["name"]);
                 Assert.AreEqual("test1", dt.Rows[0]["caption"]);
-                Assert.AreEqual(true, GenericController.encodeBoolean(dt.Rows[0]["active"]));
+                Assert.AreEqual(true, GenericController.getBoolean(dt.Rows[0]["active"]));
             }
         }
         //

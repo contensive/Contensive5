@@ -198,7 +198,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEquals).ToString(), FieldMatchOption.ToString(), "", "m-2") + "=</div>"
                                 + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchGreaterThan).ToString(), FieldMatchOption.ToString(), "", "m-2") + "&gt;</div>"
                                 + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchLessThan).ToString(), FieldMatchOption.ToString(), "", "m-2") + "&lt;</div>"
-                                + "<div style=\"display:block;float:left;width:300px;\">" + HtmlController.inputDate(core, "fieldvalue" + FieldPtr, encodeDate(FieldValue[FieldPtr])).Replace(">", " onFocus=\"ccAdvSearchText\">") + "</div>"
+                                + "<div style=\"display:block;float:left;width:300px;\">" + HtmlController.inputDate(core, "fieldvalue" + FieldPtr, getDate(FieldValue[FieldPtr])).Replace(">", " onFocus=\"ccAdvSearchText\">") + "</div>"
                                 + "</div>"
                                 + "</td>"
                                 + "</tr>";

@@ -76,26 +76,26 @@ namespace Contensive.Processor.Controllers {
                 string[] vssplit = versionSecond.Split('.');
                 //
                 {
-                    int vf = (vfsplit.Length >= 1) ? encodeInteger(vfsplit[0]) : 0;
-                    int vs = (vssplit.Length >= 1) ? encodeInteger(vssplit[0]) : 0;
+                    int vf = (vfsplit.Length >= 1) ? getInteger(vfsplit[0]) : 0;
+                    int vs = (vssplit.Length >= 1) ? getInteger(vssplit[0]) : 0;
                     if (vf < vs) { return true; }
                     if (vf > vs) { return false; }
                 }
                 {
-                    int vf = (vfsplit.Length >= 2) ? encodeInteger(vfsplit[1]) : 0;
-                    int vs = (vssplit.Length >= 2) ? encodeInteger(vssplit[1]) : 0;
+                    int vf = (vfsplit.Length >= 2) ? getInteger(vfsplit[1]) : 0;
+                    int vs = (vssplit.Length >= 2) ? getInteger(vssplit[1]) : 0;
                     if (vf < vs) { return true; }
                     if (vf > vs) { return false; }
                 }
                 {
-                    int vf = (vfsplit.Length >= 3) ? encodeInteger(vfsplit[2]) : 0;
-                    int vs = (vssplit.Length >= 3) ? encodeInteger(vssplit[2]) : 0;
+                    int vf = (vfsplit.Length >= 3) ? getInteger(vfsplit[2]) : 0;
+                    int vs = (vssplit.Length >= 3) ? getInteger(vssplit[2]) : 0;
                     if (vf < vs) { return true; }
                     if (vf > vs) { return false; }
                 }
                 {
-                    int vf = (vfsplit.Length >= 4) ? encodeInteger(vfsplit[3]) : 0;
-                    int vs = (vssplit.Length >= 4) ? encodeInteger(vssplit[3]) : 0;
+                    int vf = (vfsplit.Length >= 4) ? getInteger(vfsplit[3]) : 0;
+                    int vs = (vssplit.Length >= 4) ? getInteger(vssplit[3]) : 0;
                     if (vf < vs) { return true; }
                     if (vf > vs) { return false; }
                 }
@@ -161,8 +161,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceText"></param>
         /// <param name="defaultText"></param>
         /// <returns></returns>
-        public static string encodeEmpty(string sourceText, string defaultText) {
-            return string.IsNullOrWhiteSpace(sourceText) ? defaultText : sourceText;
+        public static string getText(string sourceText, string defaultText) {
+            return string.IsNullOrWhiteSpace(sourceText) ? defaultText : getText(sourceText);
         }
         //
         //====================================================================================================
@@ -172,7 +172,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceText"></param>
         /// <param name="DefaultInteger"></param>
         /// <returns></returns>
-        public static int encodeEmptyInteger(string sourceText, int DefaultInteger) => encodeInteger(encodeEmpty(sourceText, DefaultInteger.ToString(CultureInfo.InvariantCulture)));
+        public static int getInteger(string sourceText, int DefaultInteger) => getInteger(getText(sourceText, DefaultInteger.ToString(CultureInfo.InvariantCulture)));
         //
         //====================================================================================================
         /// <summary>
@@ -181,7 +181,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceText"></param>
         /// <param name="DefaultDate"></param>
         /// <returns></returns>
-        public static DateTime encodeEmptyDate(string sourceText, DateTime DefaultDate) => encodeDate(encodeEmpty(sourceText, DefaultDate.ToString(CultureInfo.InvariantCulture)));
+        public static DateTime getDate(string sourceText, DateTime DefaultDate) => getDate(getText(sourceText, DefaultDate.ToString(CultureInfo.InvariantCulture)));
         //
         //====================================================================================================
         /// <summary>
@@ -190,7 +190,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceText"></param>
         /// <param name="DefaultNumber"></param>
         /// <returns></returns>
-        public static double encodeEmptyNumber(string sourceText, double DefaultNumber) => encodeNumber(encodeEmpty(sourceText, DefaultNumber.ToString(CultureInfo.InvariantCulture)));
+        public static double getNumber(string sourceText, double DefaultNumber) => getNumber(getText(sourceText, DefaultNumber.ToString(CultureInfo.InvariantCulture)));
         //
         //====================================================================================================
         /// <summary>
@@ -199,7 +199,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceText"></param>
         /// <param name="DefaultState"></param>
         /// <returns></returns>
-        public static bool encodeEmptyBoolean(string sourceText, bool DefaultState) => encodeBoolean(encodeEmpty(sourceText, DefaultState.ToString(CultureInfo.InvariantCulture)));
+        public static bool getBoolean(string sourceText, bool DefaultState) => getBoolean(getText(sourceText, DefaultState.ToString(CultureInfo.InvariantCulture)));
         //
         //=============================================================================
         /// <summary>
@@ -630,9 +630,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static DateTime deprecatedDecodeGMTDate(string GMTDate) {
             if (string.IsNullOrEmpty(GMTDate)) { return default; }
-            double HourPart = encodeNumber(GMTDate.Substring(5, 11));
+            double HourPart = getNumber(GMTDate.Substring(5, 11));
             if (!isDate(HourPart)) { return default; }
-            double YearPart = encodeNumber(GMTDate.Substring(17, 8));
+            double YearPart = getNumber(GMTDate.Substring(17, 8));
             if (!isDate(YearPart)) { return DateTime.FromOADate(YearPart + (HourPart + 4) / 24); }
             return default;
         }
@@ -1263,8 +1263,12 @@ namespace Contensive.Processor.Controllers {
         }
         //
         // ====================================================================================================
-        //
-        public static int encodeInteger(object expression) {
+        /// <summary>
+        /// return an input argument as an int, or 0 if it can not be converted
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static int getInteger(object expression) {
             if (expression == null) { return 0; }
             string trialString = expression.ToString();
             if (int.TryParse(trialString, out int trialInt)) { return trialInt; }
@@ -1275,24 +1279,23 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// Converts the expression to a nullable type
+        /// return an input argument as an int?, or null if it can not be converted
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static int? encodeIntegerNullable(object expression) {
+        public static int? getntegerNullable(object expression) {
             if (expression == null) { return null; }
             if ((expression is string) && (string.IsNullOrWhiteSpace((string)expression))) { return null; }
-            return encodeInteger(expression);
+            return getInteger(expression);
         }
         //
         // ====================================================================================================
         /// <summary>
-        /// convert an expression from boolean, double, text or date to a double number.
-        /// encodeNumber, encodeBoolean, encodeInteger, encodeDate work together with encodeText to be reversable. For example, the outcome matches the input of encodeBolean( encodeText( booleanValue ))
+        /// return an input argument as double, or 0.0 if it can not be converted
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static double encodeNumber(object expression) {
+        public static double getNumber(object expression) {
             if (expression == null) { return 0; }
             string trialString = expression.ToString();
             if (double.TryParse(trialString, out double trialDbl)) { return trialDbl; }
@@ -1302,36 +1305,63 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// Converts the expression to a nullable type
+        /// return an input argument as double?, or null if it can not be converted
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static double? encodeNumberNullable(object expression) {
+        public static double? getNumberNullable(object expression) {
             if (expression == null) { return null; }
             if ((expression is string stringExpression) && string.IsNullOrWhiteSpace(stringExpression)) { return null; }
-            return encodeNumber(expression);
+            return getNumber(expression);
         }
         //
         //====================================================================================================
-        //
-        public static string encodeText(object expression) {
+        /// <summary>
+        /// return an input argument as string, or empty string if it can not be converted
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static string getText(object expression) {
             if ((expression is DBNull) || (expression == null)) { return string.Empty; }
             return expression.ToString();
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// Use only for text input that might contain XSS attacks, such as user input.
+        /// return an input argument as string, or empty string if it can not be converted.
+        /// Checks for XSS injection
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static string getTextSafe(object expression) {
+            return HtmlController.encodeHtml(getText(expression));
+        }
         //
-        public static bool encodeBoolean(object expression) {
+        //====================================================================================================
+        /// <summary>
+        /// return an input argument as boolean, or false if it can not be converted. 
+        /// Numeric 0 is false, all other numbers are true. 
+        /// String "on", "yes" and "true" (case insensitive) are true, all other strings are false. 
+        /// Null is false.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static bool getBoolean(object expression) {
             if (expression == null) { return false; }
             if (expression is bool booleanExpression) { return booleanExpression; }
-            if (expression.isNumeric()) { return encodeText(expression) != "0"; }
+            if (expression.isNumeric()) { return getText(expression) != "0"; }
             if (expression is string stringExpression) { return (new string[] { "on", "yes", "true" }).Any(stringExpression.ToLowerInvariant().Equals); }
             return false;
         }
         //
         //====================================================================================================
-        //
-        public static DateTime encodeDate(object expression) {
+        /// <summary>
+        /// return an input argument as DateTime, or DateTime.MinValue if it can not be converted.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static DateTime getDate(object expression) {
             if (expression is string stringExpression) {
                 // visual basic - when converting a date to a string, it converts minDate to "12:00:00 AM". 
                 // however, Convert.ToDateTime() converts "12:00:00 AM" to the current date.
@@ -1904,8 +1934,8 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         //
         public static string getLinkedText(string AnchorTag, string AnchorText) {
-            string iAnchorTag = encodeText(AnchorTag);
-            string iAnchorText = encodeText(AnchorText);
+            string iAnchorTag = getText(AnchorTag);
+            string iAnchorText = getText(AnchorText);
             string UcaseAnchorText = toUCase(iAnchorText);
             string result = "";
             if ((!string.IsNullOrEmpty(iAnchorTag)) && (!string.IsNullOrEmpty(iAnchorText))) {

@@ -940,7 +940,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DefaultIfNotFound"></param>
         /// <returns></returns>
         public static bool getXMLAttributeBoolean(CoreController core, XmlNode Node, string Name, bool DefaultIfNotFound) {
-            return encodeBoolean(getXMLAttribute(core, Node, Name, encodeText(DefaultIfNotFound)));
+            return getBoolean(getXMLAttribute(core, Node, Name, getText(DefaultIfNotFound)));
         }
         //
         //====================================================================================================
@@ -954,7 +954,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DefaultIfNotFound"></param>
         /// <returns></returns>
         public static int getXMLAttributeInteger(CoreController core, XmlNode Node, string Name, int DefaultIfNotFound) {
-            return encodeInteger(getXMLAttribute(core, Node, Name, DefaultIfNotFound.ToString()));
+            return getInteger(getXMLAttribute(core, Node, Name, DefaultIfNotFound.ToString()));
         }
         //
         //====================================================================================================

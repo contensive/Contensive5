@@ -64,7 +64,7 @@ namespace Contensive.Processor.Models.Domain {
                                     result.path = collectionNode.InnerText;
                                     break;
                                 case "lastchangedate":
-                                    result.lastChangeDate = GenericController.encodeDate(collectionNode.InnerText);
+                                    result.lastChangeDate = GenericController.getDate(collectionNode.InnerText);
                                     break;
                             }
                         }
@@ -201,7 +201,7 @@ namespace Contensive.Processor.Models.Domain {
                                                 } else if (CollectionNode.Name.ToLowerInvariant() == "path") {
                                                     collection.path = CollectionNode.InnerText;
                                                 } else if (CollectionNode.Name.ToLowerInvariant() == "lastchangedate") {
-                                                    collection.lastChangeDate = GenericController.encodeDate(CollectionNode.InnerText);
+                                                    collection.lastChangeDate = GenericController.getDate(CollectionNode.InnerText);
                                                 }
                                             }
                                             break;

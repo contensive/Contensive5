@@ -24,8 +24,8 @@ namespace Contensive.Processor.Models.Db {
 
             foreach (DataRow drFields in dtFields.Rows) {
                 result.Add(new TableFieldFilesModel {
-                    table = GenericController.encodeText(drFields[0]),
-                    field = GenericController.encodeText(drFields[1])
+                    table = GenericController.getText(drFields[0]),
+                    field = GenericController.getText(drFields[1])
                 });
             }
             return result;
@@ -52,7 +52,7 @@ namespace Contensive.Processor.Models.Db {
                     "   contentfieldtypeid";
                 DataTable dt = core.db.executeQuery(sql);
                 foreach (DataRow dr in dt.Rows) {
-                    result.Add(GenericController.encodeInteger(dr[0]), GenericController.encodeInteger(dr[1]));
+                    result.Add(GenericController.getInteger(dr[0]), GenericController.getInteger(dr[1]));
                 };
             }
             return result;

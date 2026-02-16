@@ -271,7 +271,7 @@ namespace Contensive.Processor.Models.Domain {
             if (_childIdList != null) { return _childIdList; }
             _childIdList = new List<int>();
             using DataTable dt = core.db.executeQuery("select id from cccontent where parentid=" + id);
-            foreach (DataRow row in dt.Rows) { _childIdList.Add(encodeInteger(row[0])); }
+            foreach (DataRow row in dt.Rows) { _childIdList.Add(getInteger(row[0])); }
             return _childIdList;
         }
         private List<int> _childIdList = null;
@@ -358,9 +358,9 @@ namespace Contensive.Processor.Models.Domain {
                             //
                         } else {
                             DataRow contentRow = dtContent.Rows[0];
-                            string contentName = encodeText(GenericController.encodeText(contentRow[1])).Trim(' ');
-                            string contentTablename = GenericController.encodeText(contentRow[10]);
-                            string defaultSortMethod = GenericController.encodeText(contentRow[17]);
+                            string contentName = getText(GenericController.getText(contentRow[1])).Trim(' ');
+                            string contentTablename = GenericController.getText(contentRow[10]);
+                            string defaultSortMethod = GenericController.getText(contentRow[17]);
                             if (string.IsNullOrEmpty(defaultSortMethod)) {
                                 defaultSortMethod = "name";
                             }
@@ -371,25 +371,25 @@ namespace Contensive.Processor.Models.Domain {
                                 adminColumns = new SortedList<string, MetaAdminColumnClass>(),
                                 name = contentName,
                                 id = content.id,
-                                allowAdd = GenericController.encodeBoolean(contentRow[3]),
-                                developerOnly = GenericController.encodeBoolean(contentRow[4]),
-                                adminOnly = GenericController.encodeBoolean(contentRow[5]),
-                                allowDelete = GenericController.encodeBoolean(contentRow[6]),
-                                parentId = GenericController.encodeInteger(contentRow[7]),
-                                dropDownFieldList = GenericController.toUCase(GenericController.encodeText(contentRow[9])),
-                                tableName = GenericController.encodeText(contentTablename),
+                                allowAdd = GenericController.getBoolean(contentRow[3]),
+                                developerOnly = GenericController.getBoolean(contentRow[4]),
+                                adminOnly = GenericController.getBoolean(contentRow[5]),
+                                allowDelete = GenericController.getBoolean(contentRow[6]),
+                                parentId = GenericController.getInteger(contentRow[7]),
+                                dropDownFieldList = GenericController.toUCase(GenericController.getText(contentRow[9])),
+                                tableName = GenericController.getText(contentTablename),
                                 dataSourceName = "default",
-                                allowCalendarEvents = GenericController.encodeBoolean(contentRow[15]),
+                                allowCalendarEvents = GenericController.getBoolean(contentRow[15]),
                                 defaultSortMethod = defaultSortMethod,
-                                editorGroupName = GenericController.encodeText(contentRow[18]),
-                                allowContentTracking = GenericController.encodeBoolean(contentRow[19]),
-                                allowTopicRules = GenericController.encodeBoolean(contentRow[20]),
+                                editorGroupName = GenericController.getText(contentRow[18]),
+                                allowContentTracking = GenericController.getBoolean(contentRow[19]),
+                                allowTopicRules = GenericController.getBoolean(contentRow[20]),
                                 activeOnly = true,
                                 aliasId = "ID",
                                 aliasName = "NAME",
-                                installedByCollectionGuid = encodeText(contentRow[21]),
-                                isBaseContent = encodeBoolean(contentRow[22]),
-                                guid = encodeText(contentRow[23])
+                                installedByCollectionGuid = getText(contentRow[21]),
+                                isBaseContent = getBoolean(contentRow[22]),
+                                guid = getText(contentRow[23])
                             };
                             //
                             // load parent metadata fields first so we can overlay the current metadata field
@@ -495,8 +495,8 @@ namespace Contensive.Processor.Models.Domain {
                                 } else {
                                     List<string> usedFields = new();
                                     foreach (DataRow fieldRow in dtFields.Rows) {
-                                        string fieldName = GenericController.encodeText(fieldRow[13]);
-                                        int fieldId = GenericController.encodeInteger(fieldRow[12]);
+                                        string fieldName = GenericController.getText(fieldRow[13]);
+                                        int fieldId = GenericController.getInteger(fieldRow[12]);
                                         string fieldNameLower = fieldName.ToLowerInvariant();
                                         bool skipDuplicateField = false;
                                         if (usedFields.Contains(fieldNameLower)) {
@@ -527,15 +527,15 @@ namespace Contensive.Processor.Models.Domain {
                                             }
                                             Models.Domain.ContentFieldMetadataModel field = new();
                                             int fieldIndexColumn = -1;
-                                            CPContentBaseClass.FieldTypeIdEnum fieldTypeId = (CPContentBaseClass.FieldTypeIdEnum)GenericController.encodeInteger(fieldRow[15]);
-                                            if (GenericController.encodeText(fieldRow[4]) != "") {
-                                                fieldIndexColumn = GenericController.encodeInteger(fieldRow[4]);
+                                            CPContentBaseClass.FieldTypeIdEnum fieldTypeId = (CPContentBaseClass.FieldTypeIdEnum)GenericController.getInteger(fieldRow[15]);
+                                            if (GenericController.getText(fieldRow[4]) != "") {
+                                                fieldIndexColumn = GenericController.getInteger(fieldRow[4]);
                                             }
                                             //
                                             // translate htmlContent to fieldtypehtml
                                             //   this is also converted in upgrade, daily housekeep, addon install
                                             //
-                                            bool fieldHtmlContent = GenericController.encodeBoolean(fieldRow[25]);
+                                            bool fieldHtmlContent = GenericController.getBoolean(fieldRow[25]);
                                             if (fieldHtmlContent) {
                                                 if (fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.LongText) {
                                                     fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.HTMLCode;
@@ -543,53 +543,53 @@ namespace Contensive.Processor.Models.Domain {
                                                     fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode;
                                                 }
                                             }
-                                            field.active = GenericController.encodeBoolean(fieldRow[24]);
-                                            field.adminOnly = GenericController.encodeBoolean(fieldRow[8]);
-                                            field.authorable = GenericController.encodeBoolean(fieldRow[27]);
-                                            field.blockAccess = GenericController.encodeBoolean(fieldRow[38]);
-                                            field.caption = GenericController.encodeText(fieldRow[16]);
+                                            field.active = GenericController.getBoolean(fieldRow[24]);
+                                            field.adminOnly = GenericController.getBoolean(fieldRow[8]);
+                                            field.authorable = GenericController.getBoolean(fieldRow[27]);
+                                            field.blockAccess = GenericController.getBoolean(fieldRow[38]);
+                                            field.caption = GenericController.getText(fieldRow[16]);
                                             field.dataChanged = false;
                                             field.contentId = content.id;
-                                            field.defaultValue = GenericController.encodeText(fieldRow[22]);
-                                            field.developerOnly = GenericController.encodeBoolean(fieldRow[0]);
-                                            field.editSortPriority = GenericController.encodeInteger(fieldRow[10]);
-                                            field.editTabName = GenericController.encodeText(fieldRow[34]);
+                                            field.defaultValue = GenericController.getText(fieldRow[22]);
+                                            field.developerOnly = GenericController.getBoolean(fieldRow[0]);
+                                            field.editSortPriority = GenericController.getInteger(fieldRow[10]);
+                                            field.editTabName = GenericController.getText(fieldRow[34]);
                                             field.fieldTypeId = fieldTypeId;
                                             field.htmlContent = fieldHtmlContent;
                                             field.id = fieldId;
                                             field.indexColumn = fieldIndexColumn;
-                                            field.indexSortDirection = GenericController.encodeInteger(fieldRow[7]);
-                                            field.indexSortOrder = GenericController.encodeInteger(fieldRow[6]);
-                                            field.indexWidth = GenericController.encodeText(GenericController.encodeInteger(GenericController.encodeText(fieldRow[5]).Replace("%", "")));
+                                            field.indexSortDirection = GenericController.getInteger(fieldRow[7]);
+                                            field.indexSortOrder = GenericController.getInteger(fieldRow[6]);
+                                            field.indexWidth = GenericController.getText(GenericController.getInteger(GenericController.getText(fieldRow[5]).Replace("%", "")));
                                             field.inherited = false;
-                                            field.installedByCollectionGuid = encodeText(fieldRow[39]);
-                                            field.editorAddonGuid = GenericController.encodeText(fieldRow[43]);
-                                            field.isBaseField = GenericController.encodeBoolean(fieldRow[38]);
+                                            field.installedByCollectionGuid = getText(fieldRow[39]);
+                                            field.editorAddonGuid = GenericController.getText(fieldRow[43]);
+                                            field.isBaseField = GenericController.getBoolean(fieldRow[38]);
                                             field.isModifiedSinceInstalled = false;
-                                            field.lookupContentId = GenericController.encodeInteger(fieldRow[18]);
-                                            field.LookupContentSqlFilter = GenericController.encodeText(fieldRow[44]);
-                                            field.lookupList = GenericController.encodeText(fieldRow[37]);
-                                            field.manyToManyContentId = GenericController.encodeInteger(fieldRow[28]);
-                                            field.manyToManyRuleContentId = GenericController.encodeInteger(fieldRow[29]);
-                                            field.manyToManyRulePrimaryField = GenericController.encodeText(fieldRow[30]);
-                                            field.manyToManyRuleSecondaryField = GenericController.encodeText(fieldRow[31]);
-                                            field.memberSelectGroupId_set(core, GenericController.encodeInteger(fieldRow[36]));
+                                            field.lookupContentId = GenericController.getInteger(fieldRow[18]);
+                                            field.LookupContentSqlFilter = GenericController.getText(fieldRow[44]);
+                                            field.lookupList = GenericController.getText(fieldRow[37]);
+                                            field.manyToManyContentId = GenericController.getInteger(fieldRow[28]);
+                                            field.manyToManyRuleContentId = GenericController.getInteger(fieldRow[29]);
+                                            field.manyToManyRulePrimaryField = GenericController.getText(fieldRow[30]);
+                                            field.manyToManyRuleSecondaryField = GenericController.getText(fieldRow[31]);
+                                            field.memberSelectGroupId_set(core, GenericController.getInteger(fieldRow[36]));
                                             field.nameLc = fieldNameLower;
-                                            field.notEditable = GenericController.encodeBoolean(fieldRow[26]);
-                                            field.password = GenericController.encodeBoolean(fieldRow[3]);
-                                            field.readOnly = GenericController.encodeBoolean(fieldRow[17]);
-                                            field.redirectContentId = GenericController.encodeInteger(fieldRow[19]);
-                                            field.redirectId = GenericController.encodeText(fieldRow[21]);
-                                            field.redirectPath = GenericController.encodeText(fieldRow[20]);
-                                            field.required = GenericController.encodeBoolean(fieldRow[14]);
-                                            field.rssTitleField = GenericController.encodeBoolean(fieldRow[32]);
-                                            field.rssDescriptionField = GenericController.encodeBoolean(fieldRow[33]);
-                                            field.scramble = GenericController.encodeBoolean(fieldRow[35]);
-                                            field.textBuffered = GenericController.encodeBoolean(fieldRow[2]);
-                                            field.uniqueName = GenericController.encodeBoolean(fieldRow[1]);
+                                            field.notEditable = GenericController.getBoolean(fieldRow[26]);
+                                            field.password = GenericController.getBoolean(fieldRow[3]);
+                                            field.readOnly = GenericController.getBoolean(fieldRow[17]);
+                                            field.redirectContentId = GenericController.getInteger(fieldRow[19]);
+                                            field.redirectId = GenericController.getText(fieldRow[21]);
+                                            field.redirectPath = GenericController.getText(fieldRow[20]);
+                                            field.required = GenericController.getBoolean(fieldRow[14]);
+                                            field.rssTitleField = GenericController.getBoolean(fieldRow[32]);
+                                            field.rssDescriptionField = GenericController.getBoolean(fieldRow[33]);
+                                            field.scramble = GenericController.getBoolean(fieldRow[35]);
+                                            field.textBuffered = GenericController.getBoolean(fieldRow[2]);
+                                            field.uniqueName = GenericController.getBoolean(fieldRow[1]);
                                             //
-                                            field.helpCustom = GenericController.encodeText(fieldRow[41]);
-                                            field.helpDefault = GenericController.encodeText(fieldRow[40]);
+                                            field.helpCustom = GenericController.getText(fieldRow[41]);
+                                            field.helpDefault = GenericController.getText(fieldRow[40]);
                                             if (string.IsNullOrEmpty(field.helpCustom)) {
                                                 field.helpMessage = field.helpDefault;
                                             } else {
@@ -602,7 +602,7 @@ namespace Contensive.Processor.Models.Domain {
                                                 // add only fields that can be selected
                                                 result.selectList.Add(fieldNameLower);
                                             }
-                                            field.editGroupName = GenericController.encodeText(fieldRow[45]);
+                                            field.editGroupName = GenericController.getText(fieldRow[45]);
                                         }
                                     }
                                     result.selectCommaList = string.Join(",", result.selectList);
@@ -735,13 +735,13 @@ namespace Contensive.Processor.Models.Domain {
                     foreach (KeyValuePair<string, Models.Domain.ContentFieldMetadataModel> keyValuePair in metaData.fields) {
                         ContentFieldMetadataModel field = keyValuePair.Value;
                         bool FieldActive = field.active;
-                        int FieldWidth = GenericController.encodeInteger(field.indexWidth);
+                        int FieldWidth = GenericController.getInteger(field.indexWidth);
                         if (FieldActive && (FieldWidth > 0)) {
                             FieldWidthTotal += FieldWidth;
                             adminColumn = new MetaAdminColumnClass {
                                 Name = field.nameLc,
                                 SortDirection = field.indexSortDirection,
-                                SortPriority = GenericController.encodeInteger(field.indexSortOrder),
+                                SortPriority = GenericController.getInteger(field.indexSortOrder),
                                 Width = FieldWidth
                             };
                             FieldWidthTotal += adminColumn.Width;
@@ -774,7 +774,7 @@ namespace Contensive.Processor.Models.Domain {
                         //
                         foreach (var keyvaluepair in metaData.adminColumns) {
                             adminColumn = keyvaluepair.Value;
-                            adminColumn.Width = encodeInteger(100 * ((double)adminColumn.Width / (double)FieldWidthTotal));
+                            adminColumn.Width = getInteger(100 * ((double)adminColumn.Width / (double)FieldWidthTotal));
                         }
                     }
                 }
@@ -1095,8 +1095,8 @@ namespace Contensive.Processor.Models.Domain {
                         } else {
                             //
                             // -- found, if inactive, mark active and set flag
-                            contentActive = GenericController.encodeBoolean(dt.Rows[0][0]);
-                            contentId = GenericController.encodeInteger(dt.Rows[0][1]);
+                            contentActive = GenericController.getBoolean(dt.Rows[0][0]);
+                            contentId = GenericController.getInteger(dt.Rows[0][1]);
                         }
                     }
                     if (!contentActive && contentId > 0) {
@@ -1186,7 +1186,7 @@ namespace Contensive.Processor.Models.Domain {
                         { "adminonly", DbController.encodeSQLBoolean(contentMetadata.adminOnly) },
                         { "parentid", DbController.encodeSQLNumber(parentId) },
                         { "defaultsortmethodid", DbController.encodeSQLNumber(defaultSortMethodId) },
-                        { "dropdownfieldlist", DbController.encodeSQLText(encodeEmpty(contentMetadata.dropDownFieldList, "Name")) },
+                        { "dropdownfieldlist", DbController.encodeSQLText(getText(contentMetadata.dropDownFieldList, "Name")) },
                         { "contenttableid", DbController.encodeSQLNumber(table.id) },
                         { "authoringtableid", DbController.encodeSQLNumber(table.id) },
                         { "modifieddate", DbController.encodeSQLDate(core.dateTimeNowMockable) },
@@ -1196,7 +1196,7 @@ namespace Contensive.Processor.Models.Domain {
                         { "allowcontenttracking", DbController.encodeSQLBoolean(contentMetadata.allowContentTracking) },
                         { "allowtopicrules", DbController.encodeSQLBoolean(contentMetadata.allowTopicRules) },
                         { "allowcontentchildtool", DbController.encodeSQLBoolean(contentMetadata.allowContentChildTool) },
-                        { "iconlink", DbController.encodeSQLText(encodeEmpty(contentMetadata.iconLink, "")) },
+                        { "iconlink", DbController.encodeSQLText(getText(contentMetadata.iconLink, "")) },
                         { "iconheight", DbController.encodeSQLNumber(contentMetadata.iconHeight) },
                         { "iconwidth", DbController.encodeSQLNumber(contentMetadata.iconWidth) },
                         { "iconsprites", DbController.encodeSQLNumber(contentMetadata.iconSprites) },
@@ -1204,7 +1204,7 @@ namespace Contensive.Processor.Models.Domain {
                         { "isbasecontent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) },
                         { "navtypeid",  DbController.encodeSQLNumber(  contentMetadata.navTypeID) },
                         { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.getAddonCategoryId(core.cpParent) ) },
-                        { "abbreviation", DbController.encodeSQLText(encodeEmpty(contentMetadata.abbreviation, "")) }
+                        { "abbreviation", DbController.encodeSQLText(getText(contentMetadata.abbreviation, "")) }
                     };
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
                     DbBaseModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);
@@ -1446,7 +1446,7 @@ namespace Contensive.Processor.Models.Domain {
                                 string UcaseTableColumnName = GenericController.toUCase(dcTableColumns.ColumnName);
                                 bool ContentFieldFound = false;
                                 foreach (DataRow drContentRecords in dtFields.Rows) {
-                                    if (GenericController.toUCase(GenericController.encodeText(drContentRecords["name"])) == UcaseTableColumnName) {
+                                    if (GenericController.toUCase(GenericController.getText(drContentRecords["name"])) == UcaseTableColumnName) {
                                         ContentFieldFound = true;
                                         break;
                                     }
@@ -1454,7 +1454,7 @@ namespace Contensive.Processor.Models.Domain {
                                 if (!ContentFieldFound) {
                                     //
                                     // -- create the content field
-                                    ContentFieldMetadataModel.verifyContentFieldFromSqlTableField(core, contentMetadata, dcTableColumns.ColumnName, encodeInteger(dcTableColumns.DataType));
+                                    ContentFieldMetadataModel.verifyContentFieldFromSqlTableField(core, contentMetadata, dcTableColumns.ColumnName, getInteger(dcTableColumns.DataType));
                                 } else {
                                     //
                                     // -- touch field so upgrade does not delete it
@@ -1489,7 +1489,7 @@ namespace Contensive.Processor.Models.Domain {
         public string getContentProperty(CoreController core, string propertyName) {
             string result = "";
             //
-            switch (GenericController.toUCase(encodeText(propertyName))) {
+            switch (GenericController.toUCase(getText(propertyName))) {
                 case "CONTENTCONTROLCRITERIA":
                     result = legacyContentControlCriteria;
                     break;

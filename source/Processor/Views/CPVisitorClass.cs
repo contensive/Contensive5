@@ -269,16 +269,16 @@ namespace Contensive.Processor {
         }
         //
         [Obsolete("Use the get for the appropriate default type.", false)]
-        public override DateTime GetDate(string key, string defaultValue) => cp.core.visitorProperty.getDate(key, encodeDate(defaultValue));
+        public override DateTime GetDate(string key, string defaultValue) => cp.core.visitorProperty.getDate(key, getDate(defaultValue));
         //
         [Obsolete("Use the get for the appropriate default type.", false)]
-        public override int GetInteger(string key, string defaultValue) => cp.core.visitorProperty.getInteger(key, encodeInteger(defaultValue));
+        public override int GetInteger(string key, string defaultValue) => cp.core.visitorProperty.getInteger(key, getInteger(defaultValue));
         //
         [Obsolete("Use the get for the appropriate default type.", false)]
-        public override double GetNumber(string key, string defaultValue) => cp.core.visitorProperty.getNumber(key, encodeNumber(defaultValue));
+        public override double GetNumber(string key, string defaultValue) => cp.core.visitorProperty.getNumber(key, getNumber(defaultValue));
         //
         [Obsolete("Use the get for the appropriate default type.", false)]
-        public override bool GetBoolean(string key, string defaultValue) => cp.core.visitorProperty.getBoolean(key, encodeBoolean(defaultValue));
+        public override bool GetBoolean(string key, string defaultValue) => cp.core.visitorProperty.getBoolean(key, getBoolean(defaultValue));
         //
         #region  IDisposable Support 
         //

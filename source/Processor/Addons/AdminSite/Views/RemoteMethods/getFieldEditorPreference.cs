@@ -38,8 +38,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 DataTable dt = core.db.executeQuery(Sql);
                 if (dt.Rows.Count > 0) {
                     foreach (DataRow rsDr in dt.Rows) {
-                        addonDefaultEditorName = "&nbsp;(" + GenericController.encodeText(rsDr["name"]) + ")";
-                        addonDefaultEditorId = GenericController.encodeInteger(rsDr["id"]);
+                        addonDefaultEditorName = "&nbsp;(" + GenericController.getText(rsDr["name"]) + ")";
+                        addonDefaultEditorId = GenericController.getInteger(rsDr["id"]);
                     }
                 }
                 //
@@ -56,9 +56,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                 dt = core.db.executeQuery(Sql);
                 if (dt.Rows.Count > 0) {
                     foreach (DataRow rsDr in dt.Rows) {
-                        int addonId = GenericController.encodeInteger(rsDr["addonid"]);
+                        int addonId = GenericController.getInteger(rsDr["addonid"]);
                         if ((addonId != 0) && (addonId != addonDefaultEditorId)) {
-                            result += Environment.NewLine + "\t<div class=\"radioCon\">" + HtmlController.inputRadio(radioGroupName, GenericController.encodeText(addonId), currentEditorAddonId.ToString()) + "&nbsp;Use " + GenericController.encodeText(rsDr["addonName"]) + "</div>";
+                            result += Environment.NewLine + "\t<div class=\"radioCon\">" + HtmlController.inputRadio(radioGroupName, GenericController.getText(addonId), currentEditorAddonId.ToString()) + "&nbsp;Use " + GenericController.getText(rsDr["addonName"]) + "</div>";
                         }
                     }
                 }

@@ -97,9 +97,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         hint = 2;
                         //
                         hinttxt = ", HourDuration [" + HourDuration + "], PeriodDatePtr [" + PeriodDatePtr + "], PeriodDatePtr.AddHours(HourDuration / 2.0) [" + PeriodDatePtr.AddHours(HourDuration / 2.0) + "]";
-                        int DateNumber = encodeInteger( (PeriodDatePtr - default(DateTime)).TotalDays);
+                        int DateNumber = getInteger( (PeriodDatePtr - default(DateTime)).TotalDays);
                         // encodeInteger(PeriodDatePtr.AddHours(HourDuration / 2.0).ToOADate());
-                        int TimeNumber = encodeInteger(PeriodDatePtr.TimeOfDay.TotalHours);
+                        int TimeNumber = getInteger(PeriodDatePtr.TimeOfDay.TotalHours);
                         DateTime DateStart = default;
                         DateStart = PeriodDatePtr.Date;
                         DateTime DateEnd = default;

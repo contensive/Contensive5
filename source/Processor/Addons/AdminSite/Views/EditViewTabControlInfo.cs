@@ -118,7 +118,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 {
                     string guidSetHtmlId = "guidSet" + GenericController.getRandomInteger().ToString();
                     string guidInputHtmlId = "guidInput" + GenericController.getRandomInteger().ToString();
-                    string fieldValue = GenericController.encodeText(adminData.editRecord.fieldsLc["ccguid"].value_content);
+                    string fieldValue = GenericController.getText(adminData.editRecord.fieldsLc["ccguid"].value_content);
                     string fieldEditor = "";
                     if (adminData.editRecord.userReadOnly) {
                         //
@@ -153,8 +153,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         field = adminData.adminContent.fields["contentcontrolid"];
                         //
                         // if this record has a parent id, only include CDefs compatible with the parent record - otherwise get all for the table
-                        FieldHelp = GenericController.encodeText(field.helpMessage);
-                        FieldRequired = GenericController.encodeBoolean(field.required);
+                        FieldHelp = GenericController.getText(field.helpMessage);
+                        FieldRequired = GenericController.getBoolean(field.required);
                         int FieldValueInteger = (adminData.editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : adminData.editRecord.contentControlId;
                         if (core.session.isAuthenticatedAdmin() && !string.IsNullOrEmpty(adminData.editRecord.contentControlId_Name)) {
                             //

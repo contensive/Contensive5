@@ -109,7 +109,7 @@ namespace Contensive.Processor {
             if (GroupNameIdOrGuid.isNumeric()) {
                 //
                 // -- id
-                GroupModel.delete<GroupModel>(core.cpParent, GenericController.encodeInteger(GroupNameIdOrGuid));
+                GroupModel.delete<GroupModel>(core.cpParent, GenericController.getInteger(GroupNameIdOrGuid));
                 return;
             }
             //
@@ -151,7 +151,7 @@ namespace Contensive.Processor {
             if (GroupIdOrGuid.isNumeric()) {
                 //
                 // id
-                return DbBaseModel.getRecordName<GroupModel>(core.cpParent, GenericController.encodeInteger(GroupIdOrGuid));
+                return DbBaseModel.getRecordName<GroupModel>(core.cpParent, GenericController.getInteger(GroupIdOrGuid));
             } else {
                 //
                 // guid

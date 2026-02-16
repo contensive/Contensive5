@@ -607,7 +607,7 @@ namespace Contensive.Processor.Controllers {
                                     if (!string.IsNullOrEmpty(ArgName)) {
                                         DataTable dt = core.db.executeQuery("select layout from ccLayouts where name=" + DbController.encodeSQLText(ArgName));
                                         if (dt != null) {
-                                            CmdAccumulator = GenericController.encodeText(dt.Rows[0]["layout"]);
+                                            CmdAccumulator = GenericController.getText(dt.Rows[0]["layout"]);
                                         }
                                         dt.Dispose();
                                     }

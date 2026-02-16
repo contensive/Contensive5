@@ -74,7 +74,7 @@ namespace Contensive.Processor.Models.Domain {
                                     collection.contensiveVersion = CollectionNode.InnerText;
                                     break;
                                 case "lastchangedate":
-                                    collection.lastChangeDate = GenericController.encodeDate(CollectionNode.InnerText);
+                                    collection.lastChangeDate = GenericController.getDate(CollectionNode.InnerText);
                                     break;
                             }
                         }

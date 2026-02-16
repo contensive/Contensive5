@@ -240,7 +240,7 @@ namespace Contensive.Processor.Controllers {
                                     return_ErrorMessage.errors.Add("The collection was not installed because the collection name in the xml collection file is blank");
                                     return false;
                                 }
-                                bool CollectionSystem = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "system", "false"));
+                                bool CollectionSystem = GenericController.getBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "system", "false"));
                                 string collectionOninstalladdonGuid = XmlController.getXMLAttribute(core, Doc.DocumentElement, "onInstallAddonGuid", "");
                                 //string dataRecordList = XmlController.getXMLAttribute(core, Doc.DocumentElement, "DataRecordList", "");
                                 int Parent_NavId = BuildController.verifyNavigatorEntry(core, new MetadataMiniCollectionModel.MiniCollectionMenuModel {
@@ -251,8 +251,8 @@ namespace Contensive.Processor.Controllers {
                                     newWindow = false,
                                     active = true,
                                 }, 0);
-                                bool CollectionUpdatable = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "updatable", "true"));
-                                bool CollectionblockNavigatorNode = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "blockNavigatorNode", "false"));
+                                bool CollectionUpdatable = GenericController.getBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "updatable", "true"));
+                                bool CollectionblockNavigatorNode = GenericController.getBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "blockNavigatorNode", "false"));
                                 string FileGuid = XmlController.getXMLAttribute(core, Doc.DocumentElement, "guid", CollectionName);
                                 if (string.IsNullOrEmpty(FileGuid)) {
                                     FileGuid = CollectionName;

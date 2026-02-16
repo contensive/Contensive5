@@ -85,7 +85,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     // Verify there are 24 hour records for every day back the past 90 days
                     //
                     using (var csData = new CsModel(env.core)) {
-                        if (csData.openSql("select count(id) as HoursPerDay from ccVisitSummary where TimeDuration=1 and DateNumber=" + encodeInteger(PeriodDatePtr) + " group by DateNumber")) {
+                        if (csData.openSql("select count(id) as HoursPerDay from ccVisitSummary where TimeDuration=1 and DateNumber=" + getInteger(PeriodDatePtr) + " group by DateNumber")) {
                             HoursPerDay = csData.getInteger("HoursPerDay");
                         }
                     }
@@ -196,8 +196,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     PeriodDatePtr = PeriodStart;
                     while (PeriodDatePtr < EndTimeDate) {
                         //
-                        int DateNumber = encodeInteger(PeriodDatePtr.AddHours(HourDuration / 2.0).ToOADate());
-                        int TimeNumber = encodeInteger(PeriodDatePtr.TimeOfDay.TotalHours);
+                        int DateNumber = getInteger(PeriodDatePtr.AddHours(HourDuration / 2.0).ToOADate());
+                        int TimeNumber = getInteger(PeriodDatePtr.TimeOfDay.TotalHours);
                         DateTime DateStart = default;
                         DateStart = PeriodDatePtr;
                         DateTime DateEnd = default;
@@ -368,7 +368,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             }
                             //
                             if ((MultiPageHitCnt > MultiPageVisitCnt) && (HitCnt > 0)) {
-                                int AveReadTime = encodeInteger(MultiPageTimetoLastHitSum / (MultiPageHitCnt - MultiPageVisitCnt));
+                                int AveReadTime = getInteger(MultiPageTimetoLastHitSum / (MultiPageHitCnt - MultiPageVisitCnt));
                                 double TotalTimeOnSite = MultiPageTimetoLastHitSum + (AveReadTime * VisitCnt);
                                 AveTimeOnSite = TotalTimeOnSite / VisitCnt;
                             }

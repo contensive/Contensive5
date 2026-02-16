@@ -5,16 +5,19 @@
 [Detailed explanation, history, why this pattern exists]
 The Contensive platform creates an extensabilty framework for managing and executing addons in several context, including websites, web applications, command line, and background tasks (windows services)
 
+Outside repositories reference this document with this link
+- [Contensive Architecture](https://github.com/contensive/contensive5/blob/master/contensive-architecture.md)
+
 ## Patterns
 
 Contensive5 follows several key patterns documented in the public repository:
 
+- [AdminUI pattern](https://github.com/contensive/contensive5/blob/master/patterns/adminui-pattern.md)
+- [Control Panel pattern](https://github.com/contensive/contensive5/blob/master/patterns/control-panel-pattern.md)
 - [Dashboard widget pattern](https://github.com/contensive/contensive5/blob/master/patterns/dashboard-widget-pattern.md)
 - [Page widget pattern](https://github.com/contensive/contensive5/blob/master/patterns/page-widget-pattern.md)
-- [Remote method pattern](https://github.com/contensive/contensive5/blob/master/patterns/remote-method-pattern.md)
-- [Control Panel pattern](https://github.com/contensive/contensive5/blob/master/patterns/control-panel-pattern.md)
 - [Portal pattern](https://github.com/contensive/contensive5/blob/master/patterns/portal-pattern.md)
-- [AdminUI pattern](https://github.com/contensive/contensive5/blob/master/patterns/adminui-pattern.md)
+- [Remote method pattern](https://github.com/contensive/contensive5/blob/master/patterns/remote-method-pattern.md)
 
 ## Contensive Collections
 A collection is a group of features that are installed and maintained together. For example Ecommerce is a collection that includes account management features, reports, and an online catalog.

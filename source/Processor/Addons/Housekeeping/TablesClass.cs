@@ -49,8 +49,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     DataTable dt = env.core.db.executeQuery("select name,id from cctables");
                     if (dt?.Rows is null || dt.Rows.Count == 0) { return; }
                     foreach (DataRow dr in dt.Rows) {
-                        string tableName = GenericController.encodeText(dr[0]);
-                        int tableId = GenericController.encodeInteger(dr[1]);
+                        string tableName = GenericController.getText(dr[0]);
+                        int tableId = GenericController.getInteger(dr[1]);
                         string sql = "";
                         try {
                             if (string.IsNullOrEmpty(tableName)) {

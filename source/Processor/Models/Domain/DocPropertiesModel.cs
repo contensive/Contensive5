@@ -202,7 +202,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public double getNumber(string RequestName) {
             try {
-                return GenericController.encodeNumber(getProperty(RequestName).value);
+                return GenericController.getNumber(getProperty(RequestName).value);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -217,7 +217,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public int getInteger(string RequestName) {
             try {
-                return GenericController.encodeInteger(getProperty(RequestName).value);
+                return GenericController.getInteger(getProperty(RequestName).value);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -232,7 +232,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public string getText(string RequestName) {
             try {
-                return GenericController.encodeText(getProperty(RequestName).value);
+                return GenericController.getText(getProperty(RequestName).value);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -247,7 +247,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public string getTextFromWysiwygEditor(string key) {
             try {
-                return ContentRenderController.processWysiwygResponseForSave(core, GenericController.encodeText(getProperty(key).value));
+                return ContentRenderController.processWysiwygResponseForSave(core, GenericController.getText(getProperty(key).value));
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -262,7 +262,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public bool getBoolean(string RequestName) {
             try {
-                return GenericController.encodeBoolean(getProperty(RequestName).value);
+                return GenericController.getBoolean(getProperty(RequestName).value);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -273,7 +273,7 @@ namespace Contensive.Processor.Models.Domain {
         //
         public DateTime getDate(string RequestName) {
             try {
-                return GenericController.encodeDate(getProperty(RequestName).value);
+                return GenericController.getDate(getProperty(RequestName).value);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -324,12 +324,12 @@ namespace Contensive.Processor.Models.Domain {
                     if (!string.IsNullOrEmpty(nameValuePair)) {
                         if (GenericController.strInstr(1, nameValuePair, "=") != 0) {
                             string[] ValuePair = nameValuePair.Split('=');
-                            string key = decodeResponseVariable(encodeText(ValuePair[0]));
+                            string key = decodeResponseVariable(GenericController.getText(ValuePair[0]));
                             if (!string.IsNullOrEmpty(key)) {
                                 DocPropertyModel docProperty = new() {
                                     name = key,
                                     propertyType = DocPropertyModel.DocPropertyTypesEnum.queryString,
-                                    value = (ValuePair.GetUpperBound(0) > 0) ? decodeResponseVariable(encodeText(ValuePair[1])) : ""
+                                    value = (ValuePair.GetUpperBound(0) > 0) ? decodeResponseVariable(GenericController.getText(ValuePair[1])) : ""
                                 };
                                 core.docProperties.setProperty(key, docProperty);
                             }

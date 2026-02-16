@@ -279,7 +279,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         [Obsolete("Use ProcessCheckList with corrected type ", false)] public override void ProcessCheckList(string htmlName, string PrimaryContentName, string PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
-            cp.core.html.processCheckList(htmlName, PrimaryContentName, GenericController.encodeInteger( PrimaryRecordId), SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
+            cp.core.html.processCheckList(htmlName, PrimaryContentName, GenericController.getInteger( PrimaryRecordId), SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
         }
         //
         // ====================================================================================================
@@ -313,7 +313,7 @@ namespace Contensive.Processor {
         // ==========================================================================================
         //
         public override string SelectContent(string htmlName, string htmlValue, string contentName, string sqlCriteria, string noneCaption, string htmlClass, string htmlId) {
-            string result = cp.core.html.selectFromContent(htmlName, GenericController.encodeInteger(htmlValue), contentName, sqlCriteria, noneCaption);
+            string result = cp.core.html.selectFromContent(htmlName, GenericController.getInteger(htmlValue), contentName, sqlCriteria, noneCaption);
             if (!string.IsNullOrEmpty(htmlClass)) {
                 result = result.Replace("<select ", "<select class=\"" + htmlClass + "\" ");
             }
@@ -350,16 +350,16 @@ namespace Contensive.Processor {
         // ==========================================================================================
         //
         public override string SelectList(string htmlName, string htmlValue, string optionList) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), "", "");
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), "", "");
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "");
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "");
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "", htmlClass);
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "", htmlClass);
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass, string htmlId) {
-            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.getInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
         }
         //
         // ====================================================================================================

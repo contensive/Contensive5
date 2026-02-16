@@ -194,7 +194,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 ContentFieldMetadataModel field = keyValuePair.Value;
                                 EditRecordFieldModel editRecordField = adminData.editRecord.fieldsLc[field.nameLc];
                                 object fieldValueObject = editRecordField.value_content;
-                                string FieldValueText = GenericController.encodeText(fieldValueObject);
+                                string FieldValueText = GenericController.getText(fieldValueObject);
                                 string fieldName = field.nameLc;
                                 string UcaseFieldName = GenericController.toUCase(fieldName);
                                 //
@@ -204,7 +204,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                     case "NAME": {
                                             //
                                             // -- update cache for next view
-                                            adminData.editRecord.nameLc = GenericController.encodeText(fieldValueObject);
+                                            adminData.editRecord.nameLc = GenericController.getText(fieldValueObject);
                                             break;
                                         }
                                     case "SORTORDER": {
@@ -230,16 +230,16 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                             break;
                                         }
                                     case "CONTENTCONTROLID": {
-                                            if (csData.getInteger(fieldName) != encodeInteger(fieldValueObject)) {
-                                                SaveCCIDValue = encodeInteger(fieldValueObject);
+                                            if (csData.getInteger(fieldName) != getInteger(fieldValueObject)) {
+                                                SaveCCIDValue = getInteger(fieldValueObject);
                                                 recordChanged = true;
                                             }
                                             break;
                                         }
                                     case "ACTIVE": {
-                                            if (csData.getBoolean(fieldName) != encodeBoolean(fieldValueObject)) {
+                                            if (csData.getBoolean(fieldName) != getBoolean(fieldValueObject)) {
                                                 recordChanged = true;
-                                                csData.set(fieldName, encodeBoolean(fieldValueObject));
+                                                csData.set(fieldName, getBoolean(fieldValueObject));
                                             }
                                             break;
                                         }
@@ -298,7 +298,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                                 //
                                                 // boolean
                                                 //
-                                                bool saveValue = GenericController.encodeBoolean(fieldValueObject);
+                                                bool saveValue = GenericController.getBoolean(fieldValueObject);
                                                 if (csData.getBoolean(fieldName) != saveValue) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, saveValue);
@@ -309,12 +309,12 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                                 //
                                                 // Floating pointer numbers, allow nullable
-                                                if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
+                                                if (string.IsNullOrWhiteSpace(getText(fieldValueObject))) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
-                                                } else if (encodeText(fieldValueObject) != csData.getText(fieldName)) {
+                                                } else if (getText(fieldValueObject) != csData.getText(fieldName)) {
                                                     recordChanged = true;
-                                                    csData.set(fieldName, encodeNumber(fieldValueObject));
+                                                    csData.set(fieldName, getNumber(fieldValueObject));
                                                 }
                                                 break;
                                             }
@@ -322,14 +322,14 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                                 //
                                                 // Date
                                                 //
-                                                if (cp.core.docProperties.getBoolean(fieldName + ".clearFlag") || string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
+                                                if (cp.core.docProperties.getBoolean(fieldName + ".clearFlag") || string.IsNullOrWhiteSpace(getText(fieldValueObject))) {
                                                     //
                                                     // -- blank field, or clear checkbox checked
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
-                                                } else if (encodeDate(fieldValueObject) != csData.getDate(fieldName)) {
+                                                } else if (getDate(fieldValueObject) != csData.getDate(fieldName)) {
                                                     recordChanged = true;
-                                                    csData.set(fieldName, encodeDate(fieldValueObject));
+                                                    csData.set(fieldName, getDate(fieldValueObject));
                                                 }
                                                 break;
                                             }
@@ -337,12 +337,12 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
                                                 //
                                                 // Integers, allow nullable
-                                                if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
+                                                if (string.IsNullOrWhiteSpace(getText(fieldValueObject))) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
-                                                } else if (encodeInteger(fieldValueObject) != csData.getInteger(fieldName)) {
+                                                } else if (getInteger(fieldValueObject) != csData.getInteger(fieldName)) {
                                                     recordChanged = true;
-                                                    csData.set(fieldName, encodeInteger(fieldValueObject));
+                                                    csData.set(fieldName, getInteger(fieldValueObject));
                                                 }
                                                 break;
                                             }
@@ -359,7 +359,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                                 //
                                                 // Text
                                                 //
-                                                string saveValue = GenericController.encodeText(fieldValueObject);
+                                                string saveValue = GenericController.getText(fieldValueObject);
                                                 if (csData.getText(fieldName) != saveValue) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, saveValue);
@@ -375,7 +375,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         default: {
                                                 //
                                                 // Unknown other types
-                                                string saveValue = GenericController.encodeText(fieldValueObject);
+                                                string saveValue = GenericController.getText(fieldValueObject);
                                                 recordChanged = true;
                                                 csData.set(UcaseFieldName, saveValue);
                                                 break;
@@ -454,23 +454,23 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                     //
                     editRecord.menuHeadline = "";
                     if (editRecord.fieldsLc.ContainsKey("menuheadline")) {
-                        editRecord.menuHeadline = GenericController.encodeText(editRecord.fieldsLc["menuheadline"].value_content);
+                        editRecord.menuHeadline = GenericController.getText(editRecord.fieldsLc["menuheadline"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("name")) {
-                        editRecord.nameLc = GenericController.encodeText(editRecord.fieldsLc["name"].value_content);
+                        editRecord.nameLc = GenericController.getText(editRecord.fieldsLc["name"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("active")) {
-                        editRecord.active = GenericController.encodeBoolean(editRecord.fieldsLc["active"].value_content);
+                        editRecord.active = GenericController.getBoolean(editRecord.fieldsLc["active"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("contentcontrolid")) {
-                        editRecord.contentControlId = GenericController.encodeInteger(editRecord.fieldsLc["contentcontrolid"].value_content);
+                        editRecord.contentControlId = GenericController.getInteger(editRecord.fieldsLc["contentcontrolid"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("parentid")) {
-                        editRecord.parentId = GenericController.encodeInteger(editRecord.fieldsLc["parentid"].value_content);
+                        editRecord.parentId = GenericController.getInteger(editRecord.fieldsLc["parentid"].value_content);
                     }
                     //
                     // ----- Set the local global copy of Edit Record Locks
@@ -479,7 +479,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                     editRecord.editLock = WorkflowController.getEditLock(core, table.id, editRecord.id);
                     editRecord.submitLock = authoringStatus.isWorkflowSubmitted;
                     editRecord.submittedName = authoringStatus.workflowSubmittedMemberName;
-                    editRecord.submittedDate = encodeDate(authoringStatus.workflowSubmittedDate);
+                    editRecord.submittedDate = getDate(authoringStatus.workflowSubmittedDate);
                     editRecord.approveLock = authoringStatus.isWorkflowApproved;
                     editRecord.approvedName = authoringStatus.workflowApprovedMemberName;
                     editRecord.approvedDate = authoringStatus.workflowApprovedDate;
@@ -487,7 +487,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                     editRecord.isDeleted = authoringStatus.isWorkflowDeleted;
                     editRecord.isModified = authoringStatus.isWorkflowModified;
                     editRecord.lockModifiedName = authoringStatus.workflowModifiedByMemberName;
-                    editRecord.lockModifiedDate = encodeDate(authoringStatus.workflowModifiedDate);
+                    editRecord.lockModifiedDate = getDate(authoringStatus.workflowModifiedDate);
                     //
                     // ----- Set flags used to determine the Authoring State
                     PermissionController.UserContentPermissions userPermissions = PermissionController.getUserContentPermissions(core, adminContent);
@@ -504,7 +504,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                     if (GenericController.toUCase(adminContent.tableName) == GenericController.toUCase("ccMembers")) {
                         if (!core.session.isAuthenticatedDeveloper()) {
                             if (editRecord.fieldsLc.ContainsKey("developer")) {
-                                if (GenericController.encodeBoolean(editRecord.fieldsLc["developer"].value_content)) {
+                                if (GenericController.getBoolean(editRecord.fieldsLc["developer"].value_content)) {
                                     editRecord.userReadOnly = true;
                                     Processor.Controllers.ErrorController.addUserError(core, "You do not have access rights To edit this record.");
                                     adminData.blockEditForm = true;
@@ -562,27 +562,27 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                             case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value_content = encodeInteger(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = getInteger(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Currency:
                             case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value_content = encodeNumber(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = getNumber(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value_content = encodeBoolean(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = getBoolean(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Date: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value_content = encodeDate(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = getDate(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
-                                    DefaultValueText = encodeText(field.defaultValue);
+                                    DefaultValueText = getText(field.defaultValue);
                                     if (!string.IsNullOrEmpty(DefaultValueText)) {
                                         if (DefaultValueText.isNumeric()) {
                                             editRecord.fieldsLc[field.nameLc].value_content = DefaultValueText;
@@ -619,12 +619,12 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                     //string pathFilename = FileController.getVirtualRecordUnixPathFilename(adminContent.tableName, field.nameLc, editRecord.id, field.fieldTypeId);
                                     //core.cdnFiles.saveFile(pathFilename, defaultValue);
                                     //editRecord.fieldsLc[field.nameLc].value = pathFilename;
-                                    editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeText(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = GenericController.getText(defaultValue);
                                     break;
                                 }
                             default: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeText(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = GenericController.getText(defaultValue);
                                     break;
                                 }
                         }
@@ -679,23 +679,23 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                                 case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeInteger(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.getInteger(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Currency:
                                 case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeNumber(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.getNumber(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeBoolean(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.getBoolean(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Date: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeDate(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.getDate(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
@@ -1059,7 +1059,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 throw (new GenericException("Unexpected exception"));
                             }
                         }
-                        if (GenericController.encodeInteger(ResponseFieldValueText) != GenericController.encodeInteger(editRecord.fieldsLc[field.nameLc].value_content)) {
+                        if (GenericController.getInteger(ResponseFieldValueText) != GenericController.getInteger(editRecord.fieldsLc[field.nameLc].value_content)) {
                             //
                             // new value
                             editRecord.fieldsLc[field.nameLc].value_content = ResponseFieldValueText;
@@ -1074,7 +1074,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                             return;
                         }
                         bool responseValue = core.docProperties.getBoolean(field.nameLc);
-                        if (!responseValue.Equals(encodeBoolean(editRecord.fieldsLc[field.nameLc].value_content))) {
+                        if (!responseValue.Equals(getBoolean(editRecord.fieldsLc[field.nameLc].value_content))) {
                             //
                             // new value
                             editRecord.fieldsLc[field.nameLc].value_content = responseValue;
@@ -1093,7 +1093,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 return;
                             }
                         }
-                        if (ResponseFieldValueText != encodeText(editRecord.fieldsLc[field.nameLc].value_content)) {
+                        if (ResponseFieldValueText != getText(editRecord.fieldsLc[field.nameLc].value_content)) {
                             //
                             // new value
                             editRecord.fieldsLc[field.nameLc].value_content = ResponseFieldValueText;
@@ -1215,14 +1215,14 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         //
                                         // ----- translate to boolean
                                         //
-                                        ResponseFieldValueText = GenericController.encodeBoolean(ResponseFieldValueText).ToString();
+                                        ResponseFieldValueText = GenericController.getBoolean(ResponseFieldValueText).ToString();
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Link: {
                                         //
                                         // ----- Link field - if it starts with 'www.', add the http:// automatically
                                         //
-                                        ResponseFieldValueText = GenericController.encodeText(ResponseFieldValueText);
+                                        ResponseFieldValueText = GenericController.getText(ResponseFieldValueText);
                                         if (ResponseFieldValueText.ToLowerInvariant().left(4) == "www.") {
                                             ResponseFieldValueText = "https://" + ResponseFieldValueText;
                                         }
@@ -1293,7 +1293,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                             if (field.nameLc == "parentid") {
                                 //
                                 // check circular reference on all parentid fields
-                                int ParentId = encodeInteger(ResponseFieldValueText);
+                                int ParentId = getInteger(ResponseFieldValueText);
                                 int LoopPtr = 0;
                                 List<int> usedIdList = new List<int> { editRecord.id };
                                 const int LoopPtrMax = 100;

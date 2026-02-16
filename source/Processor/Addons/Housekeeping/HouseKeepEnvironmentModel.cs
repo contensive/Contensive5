@@ -166,7 +166,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// <summary>
         /// How many days the email log stores the email body (large data)
         /// </summary>
-        public int emailLogBodyRetainDays { get { return GenericController.encodeInteger(core.siteProperties.getText("EmailLogBodyRetainDays", "7")); } }
+        public int emailLogBodyRetainDays { get { return GenericController.getInteger(core.siteProperties.getText("EmailLogBodyRetainDays", "7")); } }
         //
         //====================================================================================================
         /// <summary>

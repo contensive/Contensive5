@@ -185,7 +185,7 @@ namespace Contensive.Processor.Controllers {
                         visit = visitTest;
                         trackVisits = true;
                         // todo - incorrect. This should be visittoken.created, token must be enhanced to support visitStateOK. consider cookie length and other effects
-                        visitStateOk = (visitToken.expires - encodeDate(visit.lastVisitTime)).TotalSeconds < 2;
+                        visitStateOk = (visitToken.expires - getDate(visit.lastVisitTime)).TotalSeconds < 2;
                     }
                 }
                 //
@@ -240,7 +240,7 @@ namespace Contensive.Processor.Controllers {
                         // -- visit record is missing, create a new visit
                         logger.Trace($"{core.logCommonMessage},visit invalid, create a new visit");
                         createNewVisit = true;
-                    } else if ((visit.lastVisitTime != null) && (encodeDate(visit.lastVisitTime).AddHours(1) < core.doc.profileStartTime)) {
+                    } else if ((visit.lastVisitTime != null) && (getDate(visit.lastVisitTime).AddHours(1) < core.doc.profileStartTime)) {
                         //
                         // -- visit has expired, create new visit
                         logger.Trace($"{core.logCommonMessage},visit expired, create new visit");
@@ -302,7 +302,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- visit object is valid, update details
-                    visit.timeToLastHit = encodeInteger((core.doc.profileStartTime - encodeDate(visit.startTime)).TotalSeconds);
+                    visit.timeToLastHit = getInteger((core.doc.profileStartTime - getDate(visit.startTime)).TotalSeconds);
                     if (visit.timeToLastHit < 0) { visit.timeToLastHit = 0; }
                     visit.excludeFromAnalytics |= visit.bot || user.excludeFromAnalytics || user.admin || user.developer;
                     visit.pageVisits += 1;
@@ -477,7 +477,7 @@ namespace Contensive.Processor.Controllers {
             logger.Trace($"{core.logCommonMessage},SessionController.setVisitCookie, enter");
             //
             if (sessionContext.visit.id.Equals(0)) { return; }
-            DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddMinutes(60);
+            DateTime expirationDate = getDate(sessionContext.visit.startTime).AddMinutes(60);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visit.id, expirationDate);
             logger.Trace($"{core.logCommonMessage},set visit cookie, visitId [" + sessionContext.visit.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
             core.webServer.addResponseCookie(sessionContext.cookiePrefix + Constants.cookieNameVisit, cookieValue);
@@ -494,7 +494,7 @@ namespace Contensive.Processor.Controllers {
             logger.Trace($"{core.logCommonMessage},SessionController.setVisitorCookie, enter");
             //
             if (sessionContext.visitor.id.Equals(0)) { return; }
-            DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddYears(1);
+            DateTime expirationDate = getDate(sessionContext.visit.startTime).AddYears(1);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visitor.id, expirationDate);
             logger.Trace($"{core.logCommonMessage},set visitor cookie, visitorId [" + sessionContext.visitor.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
             core.webServer.addResponseCookie(sessionContext.cookiePrefix + cookieNameVisitor, cookieValue, expirationDate);
@@ -805,7 +805,7 @@ namespace Contensive.Processor.Controllers {
         public bool isEditing(string contentNameOrId) {
             try {
                 if (string.IsNullOrEmpty(contentNameOrId)) { return isEditing(); }
-                if (contentNameOrId.isNumeric()) { return isEditing_ContentId(encodeInteger(contentNameOrId)); }
+                if (contentNameOrId.isNumeric()) { return isEditing_ContentId(getInteger(contentNameOrId)); }
                 return isEditing_ContentName(contentNameOrId);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -891,7 +891,7 @@ namespace Contensive.Processor.Controllers {
             // ----- site does not support workflow authoring
             string result = strReplace(Msg_EditLock, "<EDITNAME>", main_EditLockName);
             result = strReplace(result, "<EDITEXPIRES>", main_EditLockExpires.ToString());
-            result = strReplace(result, "<EDITEXPIRESMINUTES>", encodeText(encodeInteger((main_EditLockExpires - core.doc.profileStartTime).TotalMinutes)));
+            result = strReplace(result, "<EDITEXPIRESMINUTES>", getText(getInteger((main_EditLockExpires - core.doc.profileStartTime).TotalMinutes)));
             result += "<br>" + Msg_WorkflowDisabled;
             return result;
         }

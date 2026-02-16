@@ -123,7 +123,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     cdefActiveText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Active", activeDefaultText);
                                     if (string.IsNullOrEmpty(cdefActiveText)) { cdefActiveText = "1"; }
-                                    targetMetaData.active = encodeBoolean(cdefActiveText);
+                                    targetMetaData.active = getBoolean(cdefActiveText);
                                     targetMetaData.activeOnly = true;
                                     //.adminColumns = ?
                                     targetMetaData.adminOnly = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AdminOnly", DefaultMetaData.adminOnly);
@@ -203,7 +203,7 @@ namespace Contensive.Processor.Controllers {
                                             var metaDataField = result.metaData[contentName.ToLowerInvariant()].fields[FieldName.ToLowerInvariant()];
                                             metaDataField.nameLc = FieldName.ToLowerInvariant();
                                             string cdefFieldActiveText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Active", (DefaultMetaDataField.active) ? "1" : "0");
-                                            metaDataField.active = (string.IsNullOrEmpty(cdefFieldActiveText)) ? true : encodeBoolean(cdefFieldActiveText);
+                                            metaDataField.active = (string.IsNullOrEmpty(cdefFieldActiveText)) ? true : getBoolean(cdefFieldActiveText);
                                             //
                                             // Convert Field Descriptor (text) to field type (integer)
                                             //
@@ -235,7 +235,7 @@ namespace Contensive.Processor.Controllers {
                                             } else {
                                                 // -- allow typo where "memberselectgroupid" is set to the name
                                                 memberSelectGroup = XmlController.getXMLAttribute(core, MetaDataChildNode, "MemberSelectGroupId", "");
-                                                if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup != "0") && encodeInteger(memberSelectGroup) == 0) {
+                                                if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup != "0") && getInteger(memberSelectGroup) == 0) {
                                                     logger.Warn($"{core.logCommonMessage}", new GenericException("CollectionInstallMetadataController.loadXML, error in collection file [" + collectionName + "], the content field [" + targetMetaData.name + "." + DefaultMetaDataField.nameLc + "], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'"));
                                                     metaDataField.memberSelectGroupName_set(core, memberSelectGroup);
                                                 }
@@ -334,7 +334,7 @@ namespace Contensive.Processor.Controllers {
                                             name = MenuName,
                                             guid = MenuGuid,
                                             key = MenuKey,
-                                            active = GenericController.encodeBoolean(cdefActiveText),
+                                            active = GenericController.getBoolean(cdefActiveText),
                                             menuNameSpace = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NameSpace", ""),
                                             parentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ParentName", ""),
                                             contentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ContentName", ""),
@@ -569,7 +569,7 @@ namespace Contensive.Processor.Controllers {
                             int fieldId = 0;
                             using (var rs = core.db.executeQuery("select f.id from ccfields f left join cccontent c on c.id=f.contentid where (f.name=" + DbController.encodeSQLText(workingField.nameLc) + ")and(c.name=" + DbController.encodeSQLText(workingMetaData.name) + ") order by f.id")) {
                                 if (DbController.isDataTableOk(rs)) {
-                                    fieldId = GenericController.encodeInteger(DbController.getDataRowFieldText(rs.Rows[0], "id"));
+                                    fieldId = GenericController.getInteger(DbController.getDataRowFieldText(rs.Rows[0], "id"));
                                 }
                             }
                             if (fieldId == 0) {
@@ -578,7 +578,7 @@ namespace Contensive.Processor.Controllers {
                                 int FieldHelpId = 0;
                                 using (var rs = core.db.executeQuery("select id from ccfieldhelp where fieldid=" + fieldId + " order by id")) {
                                     if (DbController.isDataTableOk(rs)) {
-                                        FieldHelpId = GenericController.encodeInteger(rs.Rows[0]["id"]);
+                                        FieldHelpId = GenericController.getInteger(rs.Rows[0]["id"]);
                                     } else {
                                         FieldHelpId = core.db.insertGetId("ccfieldhelp", 0);
                                     }

@@ -100,7 +100,7 @@ namespace Contensive.Processor.Controllers {
                     string criteria = "(createdby<>" + core.session.user.id + ")and" + getAuthoringControlCriteria(getTableRecordKey(table.id, recordId), AuthoringControls.Editing, core.dateTimeNowMockable);
                     var authoringControlList = DbBaseModel.createList<AuthoringControlModel>(core.cpParent, criteria, "dateexpires desc");
                     if (authoringControlList.Count > 0) {
-                        var person = DbBaseModel.create<PersonModel>(core.cpParent, GenericController.encodeInteger(authoringControlList.First().createdBy));
+                        var person = DbBaseModel.create<PersonModel>(core.cpParent, GenericController.getInteger(authoringControlList.First().createdBy));
                         return new editLockClass {
                             isEditLocked = true,
                             editLockExpiresDate = authoringControlList.First().dateExpires,
@@ -197,7 +197,7 @@ namespace Contensive.Processor.Controllers {
                     if (CDef.id > 0) {
                         var nameDict = new Dictionary<int, string>();
                         foreach (var recordLock in DbBaseModel.createList<AuthoringControlModel>(core.cpParent, getAuthoringControlCriteria(core, ContentName, RecordID))) {
-                            int createdBy = GenericController.encodeInteger(recordLock.createdBy);
+                            int createdBy = GenericController.getInteger(recordLock.createdBy);
                             switch ((AuthoringControls)recordLock.controlType) {
                                 case AuthoringControls.Editing:
                                     if (!result.isEditLocked) {
@@ -238,7 +238,7 @@ namespace Contensive.Processor.Controllers {
                                 case AuthoringControls.Approved:
                                     if (!result.isWorkflowApproved) {
                                         result.isWorkflowApproved = true;
-                                        result.workflowApprovedDate = encodeDate(recordLock.dateAdded);
+                                        result.workflowApprovedDate = getDate(recordLock.dateAdded);
                                         if (nameDict.ContainsKey(createdBy)) {
                                             result.workflowApprovedMemberName = nameDict[createdBy];
                                         } else {

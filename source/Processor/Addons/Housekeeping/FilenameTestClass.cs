@@ -50,7 +50,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         using DataTable dtFileNames = env.core.db.executeQuery(sql);
                         if (dtFileNames?.Rows == null || dtFileNames.Rows.Count <= 0) { continue; }
                         foreach (DataRow drFilename in dtFileNames.Rows) {
-                            string pathFilename = GenericController.encodeText(drFilename[0]);
+                            string pathFilename = GenericController.getText(drFilename[0]);
                             if (string.IsNullOrEmpty(pathFilename)) { continue; }
                             // -- unix test
                             pathFilename = FileController.convertToUnixSlash(pathFilename);

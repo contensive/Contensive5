@@ -339,7 +339,7 @@ namespace Contensive.Processor.Models.Domain {
                     _redirectContentName = "";
                     DataTable dt = core.db.executeQuery("select name from cccontent where id=" + redirectContentId.ToString());
                     if (dt.Rows.Count > 0) {
-                        _redirectContentName = GenericController.encodeText(dt.Rows[0][0]);
+                        _redirectContentName = GenericController.getText(dt.Rows[0][0]);
                     }
                 }
             }
@@ -364,7 +364,7 @@ namespace Contensive.Processor.Models.Domain {
                     _manyToManyRuleContentName = "";
                     DataTable dt = core.db.executeQuery("select name from cccontent where id=" + manyToManyContentId.ToString());
                     if (dt.Rows.Count > 0) {
-                        _manyToManyContentName = GenericController.encodeText(dt.Rows[0][0]);
+                        _manyToManyContentName = GenericController.getText(dt.Rows[0][0]);
                     }
                 }
             }
@@ -389,7 +389,7 @@ namespace Contensive.Processor.Models.Domain {
                     _manyToManyRuleContentName = "";
                     DataTable dt = core.db.executeQuery("select name from cccontent where id=" + manyToManyRuleContentId.ToString());
                     if (dt.Rows.Count > 0) {
-                        _manyToManyRuleContentName = GenericController.encodeText(dt.Rows[0][0]);
+                        _manyToManyRuleContentName = GenericController.getText(dt.Rows[0][0]);
                     }
                 }
             }
@@ -437,7 +437,7 @@ namespace Contensive.Processor.Models.Domain {
                 if (_memberSelectGroupId == 0) {
                     _memberSelectGroupName = "";
                 } else {
-                    _memberSelectGroupName = MetadataController.getRecordName(core, "groups", GenericController.encodeInteger(_memberSelectGroupId));
+                    _memberSelectGroupName = MetadataController.getRecordName(core, "groups", GenericController.getInteger(_memberSelectGroupId));
                 }
             }
             return (_memberSelectGroupName as string);
@@ -455,7 +455,7 @@ namespace Contensive.Processor.Models.Domain {
         /// For memberSelect type content. memberSelectGroup, name set by xml file load, name get for xml file save, id and name get and set in code
         /// </summary>
         public int memberSelectGroupId_get(CoreController core, string contentName, string fieldName ) {
-            if (_memberSelectGroupId != null) { return GenericController.encodeInteger(_memberSelectGroupId); }
+            if (_memberSelectGroupId != null) { return GenericController.getInteger(_memberSelectGroupId); }
             //
             // -- memberSelectGroupId is not provided
             if (string.IsNullOrEmpty(_memberSelectGroupName)) {
@@ -490,7 +490,7 @@ namespace Contensive.Processor.Models.Domain {
             }
             if ( groupByName != null) {
                 _memberSelectGroupId = groupByName.id;
-                return GenericController.encodeInteger(_memberSelectGroupId);
+                return GenericController.getInteger(_memberSelectGroupId);
             }
             //
             // -- memberSelectGroupName was not valid

@@ -46,7 +46,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
             //
             object fieldValueObject = adminData.editRecord.fieldsLc[field.nameLc].value_content;
-            string fieldValue_text = encodeText(fieldValueObject);
+            string fieldValue_text = getText(fieldValueObject);
             try {
                 EditorRequest request = new() {
                     contentName = adminData.adminContent.name,
@@ -152,7 +152,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case "active": {
                                 //
                                 // if active, it is read only -- if inactive, let them set it active.
-                                fieldForceReadOnly = encodeBoolean(request.currentValue);
+                                fieldForceReadOnly = getBoolean(request.currentValue);
                                 if (fieldForceReadOnly) {
                                     whyReadOnlyMsg = "&nbsp;(disabled because you can not mark the landing page inactive)";
                                 }
@@ -302,7 +302,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 // -- replace field name with field value
                                 DataTable dt = core.db.executeQuery($"select {contentLookupFieldName} from {request.tableName} where id={request.editRecordId}");
                                 if (dt?.Rows != null && dt.Rows.Count == 1) {
-                                    field_LookupContentSqlFilter.replace($"{{{contentLookupFieldName}}}", encodeText(dt.Rows[0][0]), StringComparison.CurrentCultureIgnoreCase);
+                                    field_LookupContentSqlFilter.replace($"{{{contentLookupFieldName}}}", getText(dt.Rows[0][0]), StringComparison.CurrentCultureIgnoreCase);
                                 }
                             }
                         }
@@ -336,7 +336,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                                     //
                                     // ----- Boolean ReadOnly
-                                    response.editorString += AdminUIEditorController.getBooleanEditor(core, request.field.nameLc, encodeBoolean(request.currentValue), editorReadOnly, response.fieldHtmlId);
+                                    response.editorString += AdminUIEditorController.getBooleanEditor(core, request.field.nameLc, getBoolean(request.currentValue), editorReadOnly, response.fieldHtmlId);
                                     request.formFieldList += "," + request.field.nameLc;
                                     break;
                                 }
@@ -344,11 +344,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Lookup, readonly
                                     if (request.field.lookupContentId != 0) {
-                                        response.editorString = AdminUIEditorController.getLookupContentEditor(core, request.field.nameLc, encodeInteger(request.currentValue), request.field.lookupContentId, ref IsEmptyList, editorReadOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required, field_LookupContentSqlFilter);
+                                        response.editorString = AdminUIEditorController.getLookupContentEditor(core, request.field.nameLc, getInteger(request.currentValue), request.field.lookupContentId, ref IsEmptyList, editorReadOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required, field_LookupContentSqlFilter);
                                         request.formFieldList += "," + request.field.nameLc;
                                         response.editorWrapperClass = "ccTextEditMaxWidth";
                                     } else if (!string.IsNullOrEmpty(request.field.lookupList)) {
-                                        response.editorString = AdminUIEditorController.getLookupListEditor(core, request.field.nameLc, encodeInteger(request.currentValue), request.field.lookupList.Split(',').ToList(), editorReadOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required);
+                                        response.editorString = AdminUIEditorController.getLookupListEditor(core, request.field.nameLc, getInteger(request.currentValue), request.field.lookupList.Split(',').ToList(), editorReadOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required);
                                         request.formFieldList += "," + request.field.nameLc;
                                         response.editorWrapperClass = "ccTextEditMaxWidth";
                                     } else {
@@ -363,7 +363,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- date, readonly
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString = AdminUIEditorController.getDateTimeEditor(core, request.field.nameLc, encodeDate(request.currentValue), editorReadOnly, response.fieldHtmlId, request.field.required);
+                                    response.editorString = AdminUIEditorController.getDateTimeEditor(core, request.field.nameLc, getDate(request.currentValue), editorReadOnly, response.fieldHtmlId, request.field.required);
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -371,7 +371,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Member Select ReadOnly
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString = AdminUIEditorController.getMemberSelectEditor(core, request.field.nameLc, encodeInteger(request.currentValue), request.field.memberSelectGroupId_get(core, request.contentName, request.field.nameLc), request.field.memberSelectGroupName_get(core), editorReadOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
+                                    response.editorString = AdminUIEditorController.getMemberSelectEditor(core, request.field.nameLc, getInteger(request.currentValue), request.field.memberSelectGroupId_get(core, request.contentName, request.field.nameLc), request.field.memberSelectGroupName_get(core), editorReadOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -385,7 +385,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Currency ReadOnly
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString += (HtmlController.inputCurrency(core, request.field.nameLc, encodeNumber(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
+                                    response.editorString += (HtmlController.inputCurrency(core, request.field.nameLc, getNumber(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -393,7 +393,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- double/number/float
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString += (HtmlController.inputNumber(core, request.field.nameLc, encodeNumber(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
+                                    response.editorString += (HtmlController.inputNumber(core, request.field.nameLc, getNumber(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -402,7 +402,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Others that simply print
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString += (HtmlController.inputInteger(core, request.field.nameLc, encodeInteger(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
+                                    response.editorString += (HtmlController.inputInteger(core, request.field.nameLc, getInteger(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -522,7 +522,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                                     //
                                     // ----- Boolean
-                                    response.editorString += AdminUIEditorController.getBooleanEditor(core, request.field.nameLc, encodeBoolean(request.currentValue), false, response.fieldHtmlId);
+                                    response.editorString += AdminUIEditorController.getBooleanEditor(core, request.field.nameLc, getBoolean(request.currentValue), false, response.fieldHtmlId);
                                     request.formFieldList += "," + request.field.nameLc;
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
@@ -531,11 +531,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Lookup
                                     if (!request.field.lookupContentId.Equals(0)) {
-                                        response.editorString = AdminUIEditorController.getLookupContentEditor(core, request.field.nameLc, encodeInteger(request.currentValue), request.field.lookupContentId, ref IsEmptyList, request.field.readOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required, field_LookupContentSqlFilter);
+                                        response.editorString = AdminUIEditorController.getLookupContentEditor(core, request.field.nameLc, getInteger(request.currentValue), request.field.lookupContentId, ref IsEmptyList, request.field.readOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required, field_LookupContentSqlFilter);
                                         request.formFieldList += "," + request.field.nameLc;
                                         response.editorWrapperClass = "ccTextEditMaxWidth";
                                     } else if (!string.IsNullOrEmpty(request.field.lookupList)) {
-                                        response.editorString = AdminUIEditorController.getLookupListEditor(core, request.field.nameLc, encodeInteger(request.currentValue), request.field.lookupList.Split(',').ToList(), request.field.readOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required);
+                                        response.editorString = AdminUIEditorController.getLookupListEditor(core, request.field.nameLc, getInteger(request.currentValue), request.field.lookupList.Split(',').ToList(), request.field.readOnly, response.fieldHtmlId, whyReadOnlyMsg, request.field.required);
                                         request.formFieldList += "," + request.field.nameLc;
                                         response.editorWrapperClass = "ccTextEditMaxWidth";
                                     } else {
@@ -550,7 +550,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Date
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString = AdminUIEditorController.getDateTimeEditor(core, request.field.nameLc, encodeDate(request.currentValue), request.field.readOnly, response.fieldHtmlId, request.field.required);
+                                    response.editorString = AdminUIEditorController.getDateTimeEditor(core, request.field.nameLc, getDate(request.currentValue), request.field.readOnly, response.fieldHtmlId, request.field.required);
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -558,7 +558,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Member Select
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString = AdminUIEditorController.getMemberSelectEditor(core, request.field.nameLc, encodeInteger(request.currentValue), request.field.memberSelectGroupId_get(core, request.contentName, request.field.nameLc), request.field.memberSelectGroupName_get(core), request.field.readOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
+                                    response.editorString = AdminUIEditorController.getMemberSelectEditor(core, request.field.nameLc, getInteger(request.currentValue), request.field.memberSelectGroupId_get(core, request.contentName, request.field.nameLc), request.field.memberSelectGroupName_get(core), request.field.readOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -588,7 +588,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- currency
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString += AdminUIEditorController.getCurrencyEditor(core, request.field.nameLc, encodeNumberNullable(request.currentValue), request.field.readOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
+                                    response.editorString += AdminUIEditorController.getCurrencyEditor(core, request.field.nameLc, getNumberNullable(request.currentValue), request.field.readOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -596,7 +596,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- double/number/float
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString += AdminUIEditorController.getNumberEditor(core, request.field.nameLc, encodeNumberNullable(request.currentValue), request.field.readOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
+                                    response.editorString += AdminUIEditorController.getNumberEditor(core, request.field.nameLc, getNumberNullable(request.currentValue), request.field.readOnly, response.fieldHtmlId, request.field.required, whyReadOnlyMsg);
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }
@@ -605,7 +605,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Others that simply print
                                     request.formFieldList += "," + request.field.nameLc;
-                                    response.editorString += (HtmlController.inputInteger(core, request.field.nameLc, encodeIntegerNullable(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
+                                    response.editorString += (HtmlController.inputInteger(core, request.field.nameLc, getntegerNullable(request.currentValue), response.fieldHtmlId, "text form-control", editorReadOnly, false));
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
                                 }

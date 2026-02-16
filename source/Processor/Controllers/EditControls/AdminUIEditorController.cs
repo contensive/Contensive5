@@ -47,8 +47,8 @@ namespace Contensive.Processor.Controllers.EditControls {
         /// <returns></returns>
         public static string getCurrencyEditor(CoreController core, string fieldName, double? fieldValue, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
             if (readOnly) {
-                double FieldValueNumber = encodeNumber(fieldValue);
-                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(FieldValueNumber));
+                double FieldValueNumber = getNumber(fieldValue);
+                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), getText(FieldValueNumber));
                 EditorString += HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), FieldValueNumber, htmlId, "text form-control", readOnly, required);
                 EditorString += whyReadOnlyMsg;
                 return EditorString;
@@ -276,7 +276,7 @@ namespace Contensive.Processor.Controllers.EditControls {
         //
         public static string getIntegerEditor(CoreController core, string fieldName, int? fieldValue, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
             if (readOnly) {
-                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(fieldValue));
+                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), getText(fieldValue));
                 EditorString += HtmlController.inputInteger(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, required);
                 EditorString += whyReadOnlyMsg;
                 return EditorString;
@@ -309,7 +309,7 @@ namespace Contensive.Processor.Controllers.EditControls {
             if (readOnly) {
                 //
                 // -- lookup readonly
-                result += HtmlController.inputHidden(fieldName, encodeText(fieldValue));
+                result += HtmlController.inputHidden(fieldName, getText(fieldValue));
                 using (var csData = new CsModel(core)) {
                     csData.openRecord(lookupContentMetacontent.name, fieldValue, "Name,ContentControlID");
                     if (csData.ok()) {
@@ -419,7 +419,7 @@ namespace Contensive.Processor.Controllers.EditControls {
             if (readOnly) {
                 //
                 // ----- Lookup ReadOnly
-                result += HtmlController.inputHidden(htmlName, encodeText(currentValue));
+                result += HtmlController.inputHidden(htmlName, getText(currentValue));
                 if (currentValue == null) {
                     result += getTextEditor(core, htmlName + "-readonly-fpo", "None", readOnly, htmlId);
                 } else {
@@ -556,7 +556,7 @@ namespace Contensive.Processor.Controllers.EditControls {
         /// <returns></returns>
         public static string getNumberEditor(CoreController core, string fieldName, double? fieldValue, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
             if (readOnly) {
-                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(fieldValue));
+                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), getText(fieldValue));
                 EditorString += HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, required);
                 EditorString += whyReadOnlyMsg;
                 return EditorString;
@@ -900,7 +900,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                                 Array.Resize(ref membershipListRoleId, membershipSize + 1);
                             }
                             membershipListGroupId[membershipCount] = memberRule.groupId;
-                            membershipListDateExpires[membershipCount] = encodeDate(memberRule.dateExpires);
+                            membershipListDateExpires[membershipCount] = getDate(memberRule.dateExpires);
                             membershipListActive[membershipCount] = memberRule.active;
                             membershipListRoleId[membershipCount] = memberRule.groupRoleId;
                             membershipCount += 1;
@@ -932,7 +932,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                                             GroupActive = membershipListActive[MembershipPointer];
                                             if (membershipListDateExpires[MembershipPointer] > DateTime.MinValue) {
                                                 DateExpire = membershipListDateExpires[MembershipPointer];
-                                                DateExpireValue = encodeText(DateExpire);
+                                                DateExpireValue = getText(DateExpire);
                                             }
                                             groupRoleId = membershipListRoleId[MembershipPointer];
                                             break;

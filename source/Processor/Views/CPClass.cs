@@ -162,7 +162,7 @@ namespace Contensive.Processor {
                 } else if (addonNameOrGuid.isNumeric()) {
                     //
                     // -- compatibility - call by id
-                    return executeAddon(GenericController.encodeInteger(addonNameOrGuid), addonContext);
+                    return executeAddon(GenericController.getInteger(addonNameOrGuid), addonContext);
                 } else {
                     throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");
                 }

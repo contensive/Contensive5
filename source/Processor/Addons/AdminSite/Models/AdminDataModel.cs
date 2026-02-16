@@ -299,10 +299,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (!string.IsNullOrEmpty(criteria)) {
                         using (DataTable dt = core.db.executeQuery("select top 1 id,contentControlId from " + adminContent.tableName + " where " + criteria)) {
                             if (dt?.Rows != null && dt.Rows.Count > 0) {
-                                editRecord.id = encodeInteger(dt.Rows[0]["id"]);
+                                editRecord.id = getInteger(dt.Rows[0]["id"]);
                                 //
                                 // -- if this record is within a sub-content, reload adminContent
-                                int recordContentId = encodeInteger(dt.Rows[0]["contentControlId"]);
+                                int recordContentId = getInteger(dt.Rows[0]["contentControlId"]);
                                 if ((recordContentId > 0) && (recordContentId != adminContent.id)) {
                                     // -- protect from use-case where cdef is deleted after records created. Record's cdef is invalid
                                     var testContent = ContentMetadataModel.create(core, recordContentId);
@@ -352,8 +352,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         dstFormId = AdminFormEdit;
                         int Pos = GenericController.strInstr(1, fieldEditorPreference, ":");
                         if (Pos > 0) {
-                            int fieldEditorFieldId = GenericController.encodeInteger(fieldEditorPreference.left(Pos - 1));
-                            int fieldEditorAddonId = GenericController.encodeInteger(fieldEditorPreference.Substring(Pos));
+                            int fieldEditorFieldId = GenericController.getInteger(fieldEditorPreference.left(Pos - 1));
+                            int fieldEditorAddonId = GenericController.getInteger(fieldEditorPreference.Substring(Pos));
                             if (fieldEditorFieldId != 0) {
                                 bool editorOk = true;
                                 string SQL = "select id from ccfields where (active<>0) and id=" + fieldEditorFieldId;

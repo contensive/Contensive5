@@ -46,8 +46,8 @@ namespace Contensive.Processor.Controllers {
                 string decodedString = decryptTwoWay(core, token);
                 string[] parts = decodedString.Split(Convert.ToChar("\t"));
                 if (parts.Length == 2) {
-                    result.id = GenericController.encodeInteger(parts[0]);
-                    result.expires = GenericController.encodeDate(parts[1]);
+                    result.id = GenericController.getInteger(parts[0]);
+                    result.expires = GenericController.getDate(parts[1]);
                 }
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "DecodeToken failure. Returning blank result for token [" + token + "]");
@@ -392,7 +392,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
                 // Convert size of hash from bits to bytes.
-                int hashSizeInBytes = encodeInteger(hashSizeInBits / 8.0);
+                int hashSizeInBytes = getInteger(hashSizeInBits / 8.0);
                 //
                 // Copy salt from the end of the hash to the new array.
                 byte[] saltBytes = new byte[hashWithSaltBytes.Length - hashSizeInBytes];

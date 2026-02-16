@@ -63,7 +63,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- read wc (whereclause) into wherepair dictionary also
                 // -- whereclause wc=id%3D1 (means id=1)
-                string WhereClauseContent = GenericController.encodeText(cp.Doc.GetText("wc"));
+                string WhereClauseContent = GenericController.getText(cp.Doc.GetText("wc"));
                 if (!string.IsNullOrEmpty(WhereClauseContent)) {
                     string[] QSSplit = WhereClauseContent.Split(',');
                     for (int QSPointer = 0; QSPointer <= QSSplit.GetUpperBound(0); QSPointer++) {
@@ -175,22 +175,22 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----------------------------------------------------------------------------------------------------------------------------------
                 //
                 if (adminData.adminContent.id != 0) {
-                    cp.core.doc.addRefreshQueryString("cid", GenericController.encodeText(adminData.adminContent.id));
+                    cp.core.doc.addRefreshQueryString("cid", GenericController.getText(adminData.adminContent.id));
                 }
                 if (adminData.editRecord.id != 0) {
-                    cp.core.doc.addRefreshQueryString("id", GenericController.encodeText(adminData.editRecord.id));
+                    cp.core.doc.addRefreshQueryString("id", GenericController.getText(adminData.editRecord.id));
                 }
                 if (!string.IsNullOrEmpty(adminData.editViewTitleSuffix)) {
                     cp.core.doc.addRefreshQueryString(RequestNameTitleExtension, GenericController.encodeRequestVariable(adminData.editViewTitleSuffix));
                 }
                 if (adminData.listViewRecordTop != 0) {
-                    cp.core.doc.addRefreshQueryString("rt", GenericController.encodeText(adminData.listViewRecordTop));
+                    cp.core.doc.addRefreshQueryString("rt", GenericController.getText(adminData.listViewRecordTop));
                 }
                 if (adminData.listViewRecordsPerPage != Constants.RecordsPerPageDefault) {
-                    cp.core.doc.addRefreshQueryString("rs", GenericController.encodeText(adminData.listViewRecordsPerPage));
+                    cp.core.doc.addRefreshQueryString("rs", GenericController.getText(adminData.listViewRecordsPerPage));
                 }
                 if (adminData.dstFormId != 0) {
-                    cp.core.doc.addRefreshQueryString(rnAdminForm, GenericController.encodeText(adminData.dstFormId));
+                    cp.core.doc.addRefreshQueryString(rnAdminForm, GenericController.getText(adminData.dstFormId));
                 }
                 //
                 // normalize guid
@@ -703,7 +703,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + Environment.NewLine + "IndexFilterOpen";
             }
             //
-            cp.core.visitProperty.setProperty(AdminDataModel.IndexConfigPrefix + encodeText(gridConfig.contentID), FilterText);
+            cp.core.visitProperty.setProperty(AdminDataModel.IndexConfigPrefix + getText(gridConfig.contentID), FilterText);
             //
             //   Member Properties (persistant)
             //
@@ -731,7 +731,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             if (!string.IsNullOrEmpty(SubList)) {
                 FilterText += Environment.NewLine + "Sorts" + SubList + Environment.NewLine;
             }
-            cp.core.userProperty.setProperty(AdminDataModel.IndexConfigPrefix + encodeText(gridConfig.contentID), FilterText);
+            cp.core.userProperty.setProperty(AdminDataModel.IndexConfigPrefix + getText(gridConfig.contentID), FilterText);
         }
     }
 }

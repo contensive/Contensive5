@@ -22,7 +22,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                     //
                     string currentLinkAlias = "";
                     if (adminData.adminContent.fields.ContainsKey("linkalias")) {
-                        currentLinkAlias = GenericController.encodeText(adminData.editRecord.fieldsLc["linkalias"].value_content);
+                        currentLinkAlias = GenericController.getText(adminData.editRecord.fieldsLc["linkalias"].value_content);
                     }
                     StringBuilderLegacyController form = new StringBuilderLegacyController();
 

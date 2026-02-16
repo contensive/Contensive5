@@ -31,12 +31,12 @@ namespace Contensive.Processor.Addons.PageManager {
                 string[] ParentPageValues = request.listId.Split('_');
                 if (ParentPageValues.Count() < 3) { return new ChildListSaveResponse { success = false, errors = new List<string> { "invalid parent id format" } }; };
                 //
-                int parentPageId = encodeInteger(ParentPageValues[1]);
+                int parentPageId = getInteger(ParentPageValues[1]);
                 if (parentPageId == 0) { return new ChildListSaveResponse { success = false, errors = new List<string> { "parent id 0" } }; };
                 //
                 List<int> childPageIdList = new List<int>();
                 foreach (string PageIDText in pageList) {
-                    int pageId = encodeInteger(PageIDText.Replace("page", ""));
+                    int pageId = getInteger(PageIDText.Replace("page", ""));
                     if (pageId > 0) {
                         childPageIdList.Add(pageId);
                     }

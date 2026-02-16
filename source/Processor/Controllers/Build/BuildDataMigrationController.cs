@@ -60,7 +60,7 @@ namespace Contensive.Processor.Controllers.Build {
                                 + " where (Col.Constraint_Name = Tab.Constraint_Name) AND (Col.Table_Name = Tab.Table_Name) AND (Constraint_Type = 'PRIMARY KEY') AND (Col.Table_Name = '" + table.name + "')";
                             bool idPrimaryKeyFound = false;
                             foreach (DataRow dr in core.db.executeQuery(sql).Rows) {
-                                if (GenericController.encodeText(dr["Column_Name"]).ToLower().Equals("id")) {
+                                if (GenericController.getText(dr["Column_Name"]).ToLower().Equals("id")) {
                                     idPrimaryKeyFound = true;
                                     break;
                                 }

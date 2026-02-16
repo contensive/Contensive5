@@ -119,7 +119,7 @@ namespace Contensive.Processor.Controllers {
         public static void addUser(CoreController core, string groupNameIdOrGuid, int userid, DateTime dateExpires) {
             GroupModel group = null;
             if (groupNameIdOrGuid.isNumeric()) {
-                group = DbBaseModel.create<GroupModel>(core.cpParent, GenericController.encodeInteger(groupNameIdOrGuid));
+                group = DbBaseModel.create<GroupModel>(core.cpParent, GenericController.getInteger(groupNameIdOrGuid));
                 if (group == null) {
                     logger.Error($"{core.logCommonMessage}", new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"));
                     return;

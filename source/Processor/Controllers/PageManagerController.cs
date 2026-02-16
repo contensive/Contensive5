@@ -654,7 +654,7 @@ namespace Contensive.Processor.Controllers {
                     int BlockSourceId = main_BlockSourceDefaultMessage;
                     int ContentPadding = 20;
                     string[] BlockedPages = BlockedRecordIDList.Split(',');
-                    int BlockedPageRecordId = GenericController.encodeInteger(BlockedPages[BlockedPages.GetUpperBound(0)]);
+                    int BlockedPageRecordId = GenericController.getInteger(BlockedPages[BlockedPages.GetUpperBound(0)]);
                     int RegistrationGroupId = 0;
                     if (BlockedPageRecordId != 0) {
                         using (var csData = new CsModel(core)) {
@@ -864,13 +864,13 @@ namespace Contensive.Processor.Controllers {
                                         emailBody.Append(get2ColumnTableRow("Link", core.webServer.requestUrl, false));
                                         emailBody.Append(get2ColumnTableRow("Page Name", PageName, true));
                                         emailBody.Append(get2ColumnTableRow("Member Name", core.session.user.name, false));
-                                        emailBody.Append(get2ColumnTableRow("Member #", encodeText(core.session.user.id), true));
-                                        emailBody.Append(get2ColumnTableRow("Visit Start Time", encodeText(core.session.visit.startTime), false));
-                                        emailBody.Append(get2ColumnTableRow("Visit #", encodeText(core.session.visit.id), true));
+                                        emailBody.Append(get2ColumnTableRow("Member #", getText(core.session.user.id), true));
+                                        emailBody.Append(get2ColumnTableRow("Visit Start Time", getText(core.session.visit.startTime), false));
+                                        emailBody.Append(get2ColumnTableRow("Visit #", getText(core.session.visit.id), true));
                                         emailBody.Append(get2ColumnTableRow("Visit IP", core.webServer.requestRemoteIP, false));
                                         emailBody.Append(get2ColumnTableRow("Browser ", core.webServer.requestBrowser, true));
-                                        emailBody.Append(get2ColumnTableRow("Visitor #", encodeText(core.session.visitor.id), false));
-                                        emailBody.Append(get2ColumnTableRow("Visit Authenticated", encodeText(core.session.visit.visitAuthenticated), true));
+                                        emailBody.Append(get2ColumnTableRow("Visitor #", getText(core.session.visitor.id), false));
+                                        emailBody.Append(get2ColumnTableRow("Visit Authenticated", getText(core.session.visit.visitAuthenticated), true));
                                         emailBody.Append(get2ColumnTableRow("Visit Referrer", core.session.visit.http_referer, false));
                                         emailBody.Append(kmaEndTable);
                                         string queryStringForLinkAppend = "";
@@ -1096,17 +1096,17 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Last Modified line
                 if (core.doc.pageController.page.allowLastModifiedFooter) {
-                    DateTime pageModifiedDate = (core.doc.pageController.page.modifiedDate != null) ? encodeDate(core.doc.pageController.page.modifiedDate) : DateTime.MinValue;
+                    DateTime pageModifiedDate = (core.doc.pageController.page.modifiedDate != null) ? getDate(core.doc.pageController.page.modifiedDate) : DateTime.MinValue;
                     core.cpParent.Content.LatestContentModifiedDate.Track(pageModifiedDate);
                     pageModifiedDate = core.cpParent.Content.LatestContentModifiedDate.Get();
                     if (pageModifiedDate != DateTime.MinValue) {
-                        result.Append($"<div class=\"container pt-4\"><p>This page was last modified {encodeDate(pageModifiedDate).ToString("G")}</p></div>");
+                        result.Append($"<div class=\"container pt-4\"><p>This page was last modified {getDate(pageModifiedDate).ToString("G")}</p></div>");
                     }
                 }
                 //
                 // -- Last Reviewed line
                 if ((core.doc.pageController.page.dateReviewed != DateTime.MinValue) && core.doc.pageController.page.allowReviewedFooter) {
-                    result.Append($"<div class=\"container pt-4\"><p>This page was last reviewed {encodeDate(core.doc.pageController.page.dateReviewed).ToString("")}");
+                    result.Append($"<div class=\"container pt-4\"><p>This page was last reviewed {getDate(core.doc.pageController.page.dateReviewed).ToString("")}");
                     if (core.session.isAuthenticatedAdmin()) {
                         if (core.doc.pageController.page.reviewedBy == 0) {
                             result.Append(" (by unknown)");
@@ -1269,7 +1269,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.redirectBecausePageNotFound = false;
                     return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
-                core.doc.addRefreshQueryString(rnPageId, encodeText(requestedPage.id));
+                core.doc.addRefreshQueryString(rnPageId, getText(requestedPage.id));
                 //
                 // -- build parentpageList (first = current page, last = root)
                 // -- add a 0, then repeat until another 0 is found, or there is a repeat
@@ -1369,11 +1369,11 @@ namespace Contensive.Processor.Controllers {
                 // ----- Set Headers
                 // ------------------------------------------------------------------------------------------------------------------------------------
                 //
-                DateTime pageModifiedDate = (core.doc.pageController.page.modifiedDate != null) ? encodeDate(core.doc.pageController.page.modifiedDate) : DateTime.MinValue;
+                DateTime pageModifiedDate = (core.doc.pageController.page.modifiedDate != null) ? getDate(core.doc.pageController.page.modifiedDate) : DateTime.MinValue;
                 core.cpParent.Content.LatestContentModifiedDate.Track(pageModifiedDate);
                 pageModifiedDate = core.cpParent.Content.LatestContentModifiedDate.Get();
                 if (pageModifiedDate != DateTime.MinValue) {
-                    core.webServer.addResponseHeader("LAST-MODIFIED", GenericController.getRFC1123PatternDateFormat(encodeDate(pageModifiedDate)));
+                    core.webServer.addResponseHeader("LAST-MODIFIED", GenericController.getRFC1123PatternDateFormat(getDate(pageModifiedDate)));
                 }
                 //
                 // ------------------------------------------------------------------------------------------------------------------------------------
@@ -1803,7 +1803,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Join Groups requested by pageform
                         if (pageForm.addGroupNameList != "") {
-                            string[] Groups = (encodeText(pageForm.addGroupNameList).Trim(' ')).Split(',');
+                            string[] Groups = (getText(pageForm.addGroupNameList).Trim(' ')).Split(',');
                             for (Ptr = 0; Ptr <= Groups.GetUpperBound(0); Ptr++) {
                                 string GroupName = Groups[Ptr].Trim(' ');
                                 if (!string.IsNullOrEmpty(GroupName)) {
@@ -1867,8 +1867,8 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // decode Version 1 arguments, then start instructions line at line 1
                                         //
-                                        result.addGroupNameList = GenericController.encodeText(formInstructionLine[1]);
-                                        result.authenticateOnFormProcess = GenericController.encodeBoolean(formInstructionLine[2]);
+                                        result.addGroupNameList = GenericController.getText(formInstructionLine[1]);
+                                        result.authenticateOnFormProcess = GenericController.getBoolean(formInstructionLine[2]);
                                         IStart = 3;
                                     }
                                     //
@@ -1881,8 +1881,8 @@ namespace Contensive.Processor.Controllers {
                                         string[] IArgs = formInstructionLine[IPtr + IStart].Split(',');
                                         if (IArgs.GetUpperBound(0) >= main_IPosMax) {
                                             pageFormField.caption = IArgs[main_IPosCaption];
-                                            pageFormField.type = GenericController.encodeInteger(IArgs[main_IPosType]);
-                                            pageFormField.required = GenericController.encodeBoolean(IArgs[main_IPosRequired]);
+                                            pageFormField.type = GenericController.getInteger(IArgs[main_IPosType]);
+                                            pageFormField.required = GenericController.getBoolean(IArgs[main_IPosRequired]);
                                             switch (pageFormField.type) {
                                                 case 1: {
                                                         //
@@ -1976,8 +1976,8 @@ namespace Contensive.Processor.Controllers {
                     // -- get the cut contentid and recordId from the clip
                     if (cutClip.IndexOf('.') < 0) { return; }
                     string[] clipBoardArray = cutClip.Split('.');
-                    int cutClipContentId = GenericController.encodeInteger(clipBoardArray[0]);
-                    int cutClipRecordId = GenericController.encodeInteger(clipBoardArray[1]);
+                    int cutClipContentId = GenericController.getInteger(clipBoardArray[0]);
+                    int cutClipRecordId = GenericController.getInteger(clipBoardArray[1]);
                     if (!pasteParentContentMetadata.isParentOf(core, cutClipContentId)) { return; }
                     var clipChildContentMetadata = Models.Domain.ContentMetadataModel.create(core, cutClipContentId);
                     if (DbBaseModel.isChildOf<PageManagerController>(core.cpParent, pasteParentRecordId, cutClipRecordId, new List<int>())) {
@@ -2021,10 +2021,10 @@ namespace Contensive.Processor.Controllers {
                                         if (NameValues.GetUpperBound(0) == 0) {
                                             ErrorController.addUserError(core, "The paste operation failed because the clipboard data Field List is not configured correctly.");
                                         } else {
-                                            if (!csData.isFieldSupported(encodeText(NameValues[0]))) {
-                                                ErrorController.addUserError(core, "The paste operation failed because the clipboard data Field [" + encodeText(NameValues[0]) + "] is not supported by the location data.");
+                                            if (!csData.isFieldSupported(getText(NameValues[0]))) {
+                                                ErrorController.addUserError(core, "The paste operation failed because the clipboard data Field [" + getText(NameValues[0]) + "] is not supported by the location data.");
                                             } else {
-                                                csData.set(encodeText(NameValues[0]), encodeText(NameValues[1]));
+                                                csData.set(getText(NameValues[0]), getText(NameValues[1]));
                                             }
                                         }
                                     }

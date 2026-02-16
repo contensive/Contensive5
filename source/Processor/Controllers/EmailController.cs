@@ -606,7 +606,7 @@ namespace Contensive.Processor.Controllers {
                     if (emailName.isNumeric()) {
                         //
                         // -- compatibility for really ugly legacy nonsense where old interface has argument "EmailIdOrName".
-                        email = DbBaseModel.create<SystemEmailModel>(core.cpParent, GenericController.encodeInteger(emailName));
+                        email = DbBaseModel.create<SystemEmailModel>(core.cpParent, GenericController.getInteger(emailName));
                     }
                     if (email == null) {
                         //

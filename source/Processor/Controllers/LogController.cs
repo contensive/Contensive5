@@ -272,7 +272,7 @@ namespace Contensive.Processor.Controllers {
                 if (dt.Rows.Count > 0) {
                     //
                     // -- increment count for matching warning
-                    int warningId = GenericController.encodeInteger(dt.Rows[0]["id"]);
+                    int warningId = GenericController.getInteger(dt.Rows[0]["id"]);
                     sql = "update ccsitewarnings "
                         + " set count=count+1,"
                         + " dateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " "

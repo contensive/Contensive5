@@ -340,8 +340,8 @@ namespace Contensive.Processor {
         /// <param name="BodyIsHTML"></param>
         [Obsolete()]
         public override void sendUser(string toUserId, string FromAddress, string Subject, string Body, bool SendImmediately, bool BodyIsHTML) {
-            if (GenericController.encodeInteger(toUserId) <= 0) throw new ArgumentException("The To-User argument is not valid, [" + toUserId + "]");
-            sendUser(GenericController.encodeInteger(toUserId), FromAddress, Subject, Body, SendImmediately, BodyIsHTML);
+            if (GenericController.getInteger(toUserId) <= 0) throw new ArgumentException("The To-User argument is not valid, [" + toUserId + "]");
+            sendUser(GenericController.getInteger(toUserId), FromAddress, Subject, Body, SendImmediately, BodyIsHTML);
         }
         //
         //====================================================================================================
@@ -355,8 +355,8 @@ namespace Contensive.Processor {
         /// <param name="SendImmediately"></param>
         [Obsolete()]
         public override void sendUser(string toUserId, string FromAddress, string Subject, string Body, bool SendImmediately) {
-            if (GenericController.encodeInteger(toUserId) <= 0) throw new ArgumentException("The To-User argument is not valid, [" + toUserId + "]");
-            sendUser(GenericController.encodeInteger(toUserId), FromAddress, Subject, Body, SendImmediately);
+            if (GenericController.getInteger(toUserId) <= 0) throw new ArgumentException("The To-User argument is not valid, [" + toUserId + "]");
+            sendUser(GenericController.getInteger(toUserId), FromAddress, Subject, Body, SendImmediately);
         }
         //
         //====================================================================================================
@@ -369,8 +369,8 @@ namespace Contensive.Processor {
         /// <param name="Body"></param>
         [Obsolete()]
         public override void sendUser(string toUserId, string FromAddress, string Subject, string Body) {
-            if (GenericController.encodeInteger(toUserId) <= 0) throw new ArgumentException("The To-User argument is not valid, [" + toUserId + "]");
-            sendUser(GenericController.encodeInteger(toUserId), FromAddress, Subject, Body);
+            if (GenericController.getInteger(toUserId) <= 0) throw new ArgumentException("The To-User argument is not valid, [" + toUserId + "]");
+            sendUser(GenericController.getInteger(toUserId), FromAddress, Subject, Body);
         }
         //
         //====================================================================================================

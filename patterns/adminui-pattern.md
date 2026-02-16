@@ -1,5 +1,5 @@
 
-#AdminUI Pattern
+# AdminUI Pattern
 
 The adminUI pattern is used to create tools and reports that display in the contensive control panel with a consistent look and feel.
 

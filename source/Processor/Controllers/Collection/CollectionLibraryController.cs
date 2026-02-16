@@ -128,7 +128,7 @@ namespace Contensive.Processor.Controllers {
                                                     collectionGuid = metaDataInterfaces.InnerText;
                                                     break;
                                                 case "lastmodifieddate":
-                                                    return_CollectionLastModifiedDate = GenericController.encodeDate(metaDataInterfaces.InnerText);
+                                                    return_CollectionLastModifiedDate = GenericController.getDate(metaDataInterfaces.InnerText);
                                                     break;
                                                 case "version":
                                                     CollectionVersion = metaDataInterfaces.InnerText;

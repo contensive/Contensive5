@@ -316,7 +316,7 @@ namespace Contensive.Processor.Controllers {
                     DataTable dt = core.db.executeQuery(SQL);
                     int RowCnt = 0;
                     if (dt.Rows.Count > 0) {
-                        RowCnt = GenericController.encodeInteger(dt.Rows[0]["cnt"]);
+                        RowCnt = GenericController.getInteger(dt.Rows[0]["cnt"]);
                     }
                     int RowMax = 0;
                     if (RowCnt == 0) {
@@ -454,7 +454,7 @@ namespace Contensive.Processor.Controllers {
                                 int RowPointer = 0;
                                 int RecordID = 0;
                                 for (RowPointer = 0; RowPointer <= RowMax; RowPointer++) {
-                                    RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, RowPointer]);
+                                    RecordID = GenericController.getInteger(RowsArray[IDFieldPointer, RowPointer]);
                                     Copy = DropDownPreField;
                                     for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
                                         Copy += RowsArray[DropDownFieldPointer[FieldPointer], RowPointer] + DropDownDelimiter[FieldPointer];
@@ -479,13 +479,13 @@ namespace Contensive.Processor.Controllers {
                                     if (!string.IsNullOrEmpty(contentSqlCriteria)) {
                                         contentSqlCriteria = contentSqlCriteria + "and";
                                     }
-                                    contentSqlCriteria = contentSqlCriteria + "(id=" + GenericController.encodeInteger(CurrentValue) + ")";
+                                    contentSqlCriteria = contentSqlCriteria + "(id=" + GenericController.getInteger(CurrentValue) + ")";
                                     if (csData.open(ContentName, contentSqlCriteria, SortFieldList, false, 0, SelectFields)) {
                                         RowsArray = csData.getRows();
                                         RowFieldArray = csData.getSelectFieldList().Split(',');
                                         RowMax = RowsArray.GetUpperBound(1);
                                         ColumnMax = RowsArray.GetUpperBound(0);
-                                        RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, 0]);
+                                        RecordID = GenericController.getInteger(RowsArray[IDFieldPointer, 0]);
                                         Copy = DropDownPreField;
                                         for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
                                             Copy += RowsArray[DropDownFieldPointer[FieldPointer], 0] + DropDownDelimiter[FieldPointer];
@@ -543,14 +543,14 @@ namespace Contensive.Processor.Controllers {
                 const string MenuNameFPO = "<MenuName>";
                 const string NoneCaptionFPO = "<NoneCaption>";
                 //
-                string iMenuName = GenericController.encodeText(MenuName);
-                currentValue = GenericController.encodeInteger(currentValue);
-                noneCaption = GenericController.encodeEmpty(noneCaption, "Select One");
+                string iMenuName = GenericController.getText(MenuName);
+                currentValue = GenericController.getInteger(currentValue);
+                noneCaption = GenericController.getText(noneCaption, "Select One");
                 string sqlCriteria = "";
                 //
                 string SelectRaw = "";
                 foreach (CacheInputSelectClass cacheInputSelect in core.doc.inputSelectCache) {
-                    if ((cacheInputSelect.contentName == "Group:" + GroupID) && (cacheInputSelect.criteria == sqlCriteria) && (GenericController.encodeInteger(cacheInputSelect.currentValue) == currentValue)) {
+                    if ((cacheInputSelect.contentName == "Group:" + GroupID) && (cacheInputSelect.criteria == sqlCriteria) && (GenericController.getInteger(cacheInputSelect.currentValue) == currentValue)) {
                         SelectRaw = cacheInputSelect.selectRaw;
                         break;
                     }
@@ -667,13 +667,13 @@ namespace Contensive.Processor.Controllers {
                             // ----- Start select box
                             //
                             string TagClass = "";
-                            if (GenericController.encodeEmpty(HtmlClass, "") != "") {
-                                TagClass = " Class=\"" + GenericController.encodeEmpty(HtmlClass, "") + "\"";
+                            if (GenericController.getText(HtmlClass, "") != "") {
+                                TagClass = " Class=\"" + GenericController.getText(HtmlClass, "") + "\"";
                             }
                             //
                             string TagId = "";
-                            if (GenericController.encodeEmpty(HtmlId, "") != "") {
-                                TagId = " ID=\"" + GenericController.encodeEmpty(HtmlId, "") + "\"";
+                            if (GenericController.getText(HtmlId, "") != "") {
+                                TagId = " ID=\"" + GenericController.getText(HtmlId, "") + "\"";
                             }
                             //
                             FastString.add("<select size=\"1\" name=\"" + MenuNameFPO + "\"" + TagId + TagClass + ">");
@@ -724,7 +724,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     int LastRecordId = -1;
                                     for (int RowPointer = 0; RowPointer <= RowMax; RowPointer++) {
-                                        int RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, RowPointer]);
+                                        int RecordID = GenericController.getInteger(RowsArray[IDFieldPointer, RowPointer]);
                                         if (RecordID != LastRecordId) {
                                             string Copy = DropDownPreField;
                                             for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
@@ -1263,7 +1263,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         public static string checkbox(string TagName, string DefaultValue) {
-            return checkbox(TagName, GenericController.encodeBoolean(DefaultValue));
+            return checkbox(TagName, GenericController.getBoolean(DefaultValue));
         }
         //
         //====================================================================================================
@@ -1344,7 +1344,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Handle Password Fields
                         //
-                        FieldValueText = GenericController.encodeText(FieldValueVariant);
+                        FieldValueText = GenericController.getText(FieldValueVariant);
                         returnResult = inputText_Legacy(core, fieldName, FieldValueText, Height, Width, "", true);
                     } else {
                         string FieldLookupContentName = null;
@@ -1355,7 +1355,7 @@ namespace Contensive.Processor.Controllers {
                         switch (fieldTypeId) {
                             case CPContentBaseClass.FieldTypeIdEnum.HTML:
                             case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (FieldReadOnly) {
                                     returnResult = FieldValueText;
                                 } else {
@@ -1367,7 +1367,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // html files, read from cdnFiles and use html editor
                                 //
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (!string.IsNullOrEmpty(FieldValueText)) {
                                     FieldValueText = core.cdnFiles.readFileText(FieldValueText);
                                 }
@@ -1381,7 +1381,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // text cdnFiles files, read from cdnFiles and use text editor
                                 //
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (!string.IsNullOrEmpty(FieldValueText)) {
                                     FieldValueText = core.cdnFiles.readFileText(FieldValueText);
                                 }
@@ -1397,7 +1397,7 @@ namespace Contensive.Processor.Controllers {
                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                             case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                             case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (!string.IsNullOrEmpty(FieldValueText)) {
                                     FieldValueText = core.cdnFiles.readFileText(FieldValueText);
                                 }
@@ -1409,42 +1409,42 @@ namespace Contensive.Processor.Controllers {
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.Boolean:
                                 if (FieldReadOnly) {
-                                    returnResult = GenericController.encodeText(GenericController.encodeBoolean(FieldValueVariant));
+                                    returnResult = GenericController.getText(GenericController.getBoolean(FieldValueVariant));
                                 } else {
-                                    returnResult = checkbox(fieldName, GenericController.encodeBoolean(FieldValueVariant));
+                                    returnResult = checkbox(fieldName, GenericController.getBoolean(FieldValueVariant));
                                 }
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
-                                returnResult = GenericController.encodeText(GenericController.encodeNumber(FieldValueVariant));
+                                returnResult = GenericController.getText(GenericController.getNumber(FieldValueVariant));
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.Float:
                             case CPContentBaseClass.FieldTypeIdEnum.Currency:
                             case CPContentBaseClass.FieldTypeIdEnum.Integer:
-                                FieldValueVariant = GenericController.encodeNumber(FieldValueVariant).ToString();
+                                FieldValueVariant = GenericController.getNumber(FieldValueVariant).ToString();
                                 if (FieldReadOnly) {
-                                    returnResult = GenericController.encodeText(FieldValueVariant);
+                                    returnResult = GenericController.getText(FieldValueVariant);
                                 } else {
-                                    returnResult = inputText_Legacy(core, fieldName, GenericController.encodeText(FieldValueVariant), Height, Width);
+                                    returnResult = inputText_Legacy(core, fieldName, GenericController.getText(FieldValueVariant), Height, Width);
                                 }
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.File:
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (FieldReadOnly) {
                                     returnResult = FieldValueText;
                                 } else {
-                                    returnResult = FieldValueText + "<br>change: " + inputFile(fieldName, GenericController.encodeText(FieldValueVariant));
+                                    returnResult = FieldValueText + "<br>change: " + inputFile(fieldName, GenericController.getText(FieldValueVariant));
                                 }
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.FileImage:
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (FieldReadOnly) {
                                     returnResult = FieldValueText;
                                 } else {
-                                    returnResult = "<img src=\"" + GenericController.getCdnFileLink(core, FieldValueText) + "\"><br>change: " + inputFile(fieldName, GenericController.encodeText(FieldValueVariant));
+                                    returnResult = "<img src=\"" + GenericController.getCdnFileLink(core, FieldValueText) + "\"><br>change: " + inputFile(fieldName, GenericController.getText(FieldValueVariant));
                                 }
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.Lookup:
-                                FieldValueInteger = GenericController.encodeInteger(FieldValueVariant);
+                                FieldValueInteger = GenericController.getInteger(FieldValueVariant);
                                 FieldLookupContentName = MetadataController.getContentNameByID(core, FieldLookupContentId);
                                 if (!string.IsNullOrEmpty(FieldLookupContentName)) {
                                     //
@@ -1473,11 +1473,11 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect:
-                                FieldValueInteger = GenericController.encodeInteger(FieldValueVariant);
+                                FieldValueInteger = GenericController.getInteger(FieldValueVariant);
                                 returnResult = selectUserFromGroup(fieldName, FieldValueInteger, FieldMemberSelectGroupId);
                                 break;
                             default:
-                                FieldValueText = GenericController.encodeText(FieldValueVariant);
+                                FieldValueText = GenericController.getText(FieldValueVariant);
                                 if (FieldReadOnly) {
                                     returnResult = FieldValueText;
                                 } else {
@@ -1662,7 +1662,7 @@ namespace Contensive.Processor.Controllers {
                             string LastAddonName = "";
                             while (csData.ok()) {
                                 string addonGuid = csData.getText("ccguid");
-                                string addonName = encodeText(csData.getText("name")).Trim(' ');
+                                string addonName = getText(csData.getText("name")).Trim(' ');
                                 if (!string.IsNullOrEmpty(addonName) && (addonName != LastAddonName)) {
                                     //
                                     // Icon (fieldtyperesourcelink)
@@ -1898,9 +1898,9 @@ namespace Contensive.Processor.Controllers {
                                     int RowPtr = 0;
                                     for (RowPtr = 0; RowPtr < RowCnt; RowPtr++) {
                                         //
-                                        string RecordName = GenericController.encodeText(Cell[1, RowPtr]);
+                                        string RecordName = GenericController.getText(Cell[1, RowPtr]);
                                         RecordName = GenericController.strReplace(RecordName, Environment.NewLine, " ");
-                                        int RecordID = GenericController.encodeInteger(Cell[0, RowPtr]);
+                                        int RecordID = GenericController.getInteger(Cell[0, RowPtr]);
                                         if (string.IsNullOrEmpty(RecordName)) {
                                             RecordName = "record " + RecordID;
                                         } else if (RecordName.Length > 50) {
@@ -2045,19 +2045,19 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // ----- AllowAdminLinks
                                     //
-                                    core.visitProperty.setProperty("AllowEditing", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowEditing")));
+                                    core.visitProperty.setProperty("AllowEditing", getText(core.docProperties.getBoolean(legacyFormSn + "AllowEditing")));
                                     //
                                     // ----- Quick Editor
                                     //
-                                    core.visitProperty.setProperty("AllowQuickEditor", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowQuickEditor")));
+                                    core.visitProperty.setProperty("AllowQuickEditor", getText(core.docProperties.getBoolean(legacyFormSn + "AllowQuickEditor")));
                                     //
                                     // ----- Advanced Editor
                                     //
-                                    core.visitProperty.setProperty("AllowAdvancedEditor", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowAdvancedEditor")));
+                                    core.visitProperty.setProperty("AllowAdvancedEditor", getText(core.docProperties.getBoolean(legacyFormSn + "AllowAdvancedEditor")));
                                     //
                                     // ----- developer Only parts
                                     //
-                                    core.visitProperty.setProperty("AllowDebugging", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowDebugging")));
+                                    core.visitProperty.setProperty("AllowDebugging", getText(core.docProperties.getBoolean(legacyFormSn + "AllowDebugging")));
                                 }
                                 break;
                         }
@@ -2177,7 +2177,7 @@ namespace Contensive.Processor.Controllers {
                     if (!string.IsNullOrEmpty(AddonOptionConstructor)) {
                         AddonOptionConstructor = AddonOptionConstructor + Environment.NewLine;
                     }
-                    if (GenericController.encodeBoolean(addon.isInline)) {
+                    if (GenericController.getBoolean(addon.isInline)) {
                         AddonOptionConstructor = AddonOptionConstructor + AddonOptionConstructor_Inline;
                     } else {
                         AddonOptionConstructor = AddonOptionConstructor + AddonOptionConstructor_Block;
@@ -2307,14 +2307,14 @@ namespace Contensive.Processor.Controllers {
                                         AddonModel embeddedAddon = core.cacheRuntime.addonCache.createByUniqueName(AddonName);
                                         if (embeddedAddon != null) {
                                             FoundAddon = true;
-                                            AddonOptionConstructor = GenericController.encodeText(embeddedAddon.argumentList);
+                                            AddonOptionConstructor = GenericController.getText(embeddedAddon.argumentList);
                                             AddonOptionConstructor = GenericController.strReplace(AddonOptionConstructor, Environment.NewLine, "\r");
                                             AddonOptionConstructor = GenericController.strReplace(AddonOptionConstructor, "\n", "\r");
                                             AddonOptionConstructor = GenericController.strReplace(AddonOptionConstructor, "\r", Environment.NewLine);
                                             if (!string.IsNullOrEmpty(AddonOptionConstructor)) {
                                                 AddonOptionConstructor = AddonOptionConstructor + Environment.NewLine;
                                             }
-                                            if (GenericController.encodeBoolean(embeddedAddon.isInline)) {
+                                            if (GenericController.getBoolean(embeddedAddon.isInline)) {
                                                 AddonOptionConstructor = AddonOptionConstructor + AddonOptionConstructor_Inline;
                                             } else {
                                                 AddonOptionConstructor = AddonOptionConstructor + AddonOptionConstructor_Block;
@@ -2422,7 +2422,7 @@ namespace Contensive.Processor.Controllers {
                     // main_Get the id of the field, and save the input as the caption and help
                     //
                     if (IDSplit.GetUpperBound(0) > 0) {
-                        RecordID = GenericController.encodeInteger(IDSplit[1]);
+                        RecordID = GenericController.getInteger(IDSplit[1]);
                         if (RecordID > 0) {
                             HelpCaption = core.docProperties.getText("helpcaption");
                             HelpMessage = core.docProperties.getText("helptext");
@@ -2500,7 +2500,7 @@ namespace Contensive.Processor.Controllers {
                 StringBuilder result = new("");
                 //
                 // ----- argument validate
-                captionFieldName = encodeEmpty(captionFieldName, "name");
+                captionFieldName = getText(captionFieldName, "name");
                 if (string.IsNullOrEmpty(primaryContentName) || string.IsNullOrEmpty(secondaryContentName) || string.IsNullOrEmpty(rulesContentName) || string.IsNullOrEmpty(rulesPrimaryFieldname) || string.IsNullOrEmpty(rulesSecondaryFieldName)) {
                     logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, all required fields were not supplied, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
                     return "[Checklist not configured]";
@@ -2541,7 +2541,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- New record, prepopulate with defaults from DefaultSecondaryIDList
                         foreach (var idtext in defaultSecondaryIDList.Split(',')) {
-                            int id = encodeInteger(idtext);
+                            int id = getInteger(idtext);
                             if (id == 0) { continue; }
                             if (secondaryIdDict.ContainsKey(id)) { continue; }
                             secondaryIdDict.Add(id, new RuleIdSecondaryIdModel() { ruleId = id, secondaryId = 0 });
@@ -2565,9 +2565,9 @@ namespace Contensive.Processor.Controllers {
                         using DataTable dt = core.cpParent.Db.ExecuteQuery(sql);
                         if (dt?.Rows != null) {
                             foreach (DataRow row in dt.Rows) {
-                                int secondaryId = GenericController.encodeInteger(row["secondaryId"]);
+                                int secondaryId = GenericController.getInteger(row["secondaryId"]);
                                 if (secondaryIdDict.ContainsKey(secondaryId)) { continue; }
-                                secondaryIdDict.Add(secondaryId, new RuleIdSecondaryIdModel() { secondaryId = secondaryId, ruleId = GenericController.encodeInteger(row["ruleId"]) });
+                                secondaryIdDict.Add(secondaryId, new RuleIdSecondaryIdModel() { secondaryId = secondaryId, ruleId = GenericController.getInteger(row["ruleId"]) });
                             }
                         }
                     }
@@ -2622,12 +2622,12 @@ namespace Contensive.Processor.Controllers {
                                 string editLink = EditUIController.getEditUrl(core, secondaryMeta.id, -1);
                                 string editLinkTemplate = !isAdmin ? "" : EditUIController.getEditIcon(core, editLink, "", "");
                                 foreach (DataRow dr in dt.Rows) {
-                                    string OptionName = GenericController.encodeText(dr["OptionName"]);
+                                    string OptionName = GenericController.getText(dr["OptionName"]);
                                     if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
                                         //
                                         // Current checkbox is visible
-                                        int secondaryId = GenericController.encodeInteger(dr["id"]);
-                                        string OptionCaption = GenericController.encodeText(dr["OptionCaption"]);
+                                        int secondaryId = GenericController.getInteger(dr["id"]);
+                                        string OptionCaption = GenericController.getText(dr["OptionCaption"]);
                                         if (string.IsNullOrEmpty(OptionCaption)) {
                                             OptionCaption = OptionName;
                                         }
@@ -2796,8 +2796,8 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         public string getPanelTop(string StylePanel = "", string StyleHilite = "", string StyleShadow = "", string Width = "", string Padding = "", string HeightMin = "") {
-            string MyWidth = encodeEmpty(Width, "100%");
-            string MyPadding = encodeEmpty(Padding, "5");
+            string MyWidth = getText(Width, "100%");
+            string MyPadding = getText(Padding, "5");
             string ContentPanelWidth = (MyWidth.isNumeric()) ? (int.Parse(MyWidth) - 2).ToString() : "100%";
             return ""
                 + "\r<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"" + MyWidth + "\">"
@@ -2833,7 +2833,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         public string getPanelInput(string PanelContent, string PanelWidth = "", string PanelHeightMin = "1") {
-            return getPanel(PanelContent, "ccPanelInput", "ccPanelShadow", "ccPanelHilite", PanelWidth, 2, GenericController.encodeInteger(PanelHeightMin));
+            return getPanel(PanelContent, "ccPanelInput", "ccPanelShadow", "ccPanelHilite", PanelWidth, 2, GenericController.getInteger(PanelHeightMin));
         }
         //
         //=================================================================================================================
@@ -2849,7 +2849,7 @@ namespace Contensive.Processor.Controllers {
             if (Pos > 0) {
                 result = result.left(Pos - 1);
             }
-            return encodeText(GenericController.decodeNvaArgument(result)).Trim(' ');
+            return getText(GenericController.decodeNvaArgument(result)).Trim(' ');
         }
         //
         //====================================================================================================
@@ -3303,7 +3303,7 @@ namespace Contensive.Processor.Controllers {
                         if (csData.ok()) {
                             RecordID = csData.getInteger("ID");
                             csData.set("name", CopyName);
-                            csData.set("copy", GenericController.encodeText(DefaultContent));
+                            csData.set("copy", GenericController.getText(DefaultContent));
                             csData.save();
                             //   Call WorkflowController.publishEdit("copy content", RecordID)
                         }
@@ -3409,7 +3409,7 @@ namespace Contensive.Processor.Controllers {
                     int ruleId = 0;
                     int testRecordIDLast = 0;
                     for (int ptr = 0; ptr < currentRulesCnt; ptr++) {
-                        int testRecordId = encodeInteger(currentRules.Rows[ptr][0]);
+                        int testRecordId = getInteger(currentRules.Rows[ptr][0]);
                         if (testRecordId == 0) {
                             //
                             // skip
@@ -3417,12 +3417,12 @@ namespace Contensive.Processor.Controllers {
                             //
                             // hit
                             ruleFound = true;
-                            ruleId = encodeInteger(currentRules.Rows[ptr][1]);
+                            ruleId = getInteger(currentRules.Rows[ptr][1]);
                             break;
                         } else if (testRecordId == testRecordIDLast) {
                             //
                             // dup
-                            dupRuleIdList = dupRuleIdList + "," + encodeInteger(currentRules.Rows[ptr][1]);
+                            dupRuleIdList = dupRuleIdList + "," + getInteger(currentRules.Rows[ptr][1]);
                             currentRules.Rows[ptr][0] = 0;
                         }
                         testRecordIDLast = testRecordId;
@@ -3904,7 +3904,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.formInputTextCnt += 1;
                 core.doc.inputDateCnt = core.doc.inputDateCnt + 1;
                 result = "<input type=\"number\" step=\"any\" name=\"" + encodeHtml(htmlName) + "\"";
-                if ((htmlValue != null)) result += " value=\"" + encodeNumber(htmlValue).ToString("F2") + "\"";
+                if ((htmlValue != null)) result += " value=\"" + getNumber(htmlValue).ToString("F2") + "\"";
                 result += (string.IsNullOrEmpty(htmlId)) ? "" : " id=\"" + htmlId + "\"";
                 result += (string.IsNullOrEmpty(htmlClass)) ? "" : " class=\"" + htmlClass + "\"";
                 result += (!readOnly) ? "" : " readonly";
@@ -3972,7 +3972,7 @@ namespace Contensive.Processor.Controllers {
                         + "<div  class=\"ccHintWrapperContent\">"
                         + "<b>Administrator</b>"
                         + "<br>"
-                        + "<br>" + GenericController.encodeText(innerHtml) + "</div>"
+                        + "<br>" + GenericController.getText(innerHtml) + "</div>"
                     + "</div>";
             }
             return string.Empty;

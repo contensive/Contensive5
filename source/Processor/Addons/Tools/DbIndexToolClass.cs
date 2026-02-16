@@ -127,12 +127,12 @@ namespace Contensive.Processor.Addons.Tools {
                             Rows = db.convertDataTabletoArray(RSSchema);
                             RowMax = Rows.GetUpperBound(1);
                             for (RowPointer = 0; RowPointer <= RowMax; RowPointer++) {
-                                IndexName = GenericController.encodeText(Rows[5, RowPointer]);
+                                IndexName = GenericController.getText(Rows[5, RowPointer]);
                                 if (!string.IsNullOrEmpty(IndexName)) {
                                     body += HtmlController.tableRowStart();
-                                    Copy = HtmlController.checkbox("DropIndex." + RowPointer, false) + HtmlController.inputHidden("DropIndexName." + RowPointer, IndexName) + GenericController.encodeText(IndexName);
+                                    Copy = HtmlController.checkbox("DropIndex." + RowPointer, false) + HtmlController.inputHidden("DropIndexName." + RowPointer, IndexName) + GenericController.getText(IndexName);
                                     body += HtmlController.td(Copy, "", 0, TableRowEven);
-                                    body += HtmlController.td(GenericController.encodeText(Rows[17, RowPointer]), "", 0, TableRowEven);
+                                    body += HtmlController.td(GenericController.getText(Rows[17, RowPointer]), "", 0, TableRowEven);
                                     body += HtmlController.td("&nbsp;", "", 0, TableRowEven);
                                     body += kmaEndTableRow;
                                     TableRowEven = !TableRowEven;
@@ -159,7 +159,7 @@ namespace Contensive.Processor.Addons.Tools {
                             RowMax = Rows.GetUpperBound(1);
                             for (RowPointer = 0; RowPointer <= RowMax; RowPointer++) {
                                 body += HtmlController.tableRowStart();
-                                Copy = HtmlController.checkbox("AddIndex." + RowPointer, false) + HtmlController.inputHidden("AddIndexFieldName." + RowPointer, Rows[3, RowPointer]) + GenericController.encodeText(Rows[3, RowPointer]);
+                                Copy = HtmlController.checkbox("AddIndex." + RowPointer, false) + HtmlController.inputHidden("AddIndexFieldName." + RowPointer, Rows[3, RowPointer]) + GenericController.getText(Rows[3, RowPointer]);
                                 body += HtmlController.td(Copy, "", 0, TableRowEven);
                                 body += HtmlController.td("&nbsp;", "", 0, TableRowEven);
                                 body += HtmlController.td("&nbsp;", "", 0, TableRowEven);

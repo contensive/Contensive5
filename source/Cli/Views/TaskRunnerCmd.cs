@@ -39,7 +39,7 @@ namespace Contensive.CLI {
                 case "off":
                     //
                     // -- turn the windows service scheduler on/off
-                    cpServer.core.serverConfig.allowTaskRunnerService = Processor.Controllers.GenericController.encodeBoolean(arg);
+                    cpServer.core.serverConfig.allowTaskRunnerService = Processor.Controllers.GenericController.getBoolean(arg);
                     cpServer.core.serverConfig.save(cpServer.core);
                     Console.WriteLine("allowtaskrunner set " + cpServer.core.serverConfig.allowTaskSchedulerService.ToString());
                     return;

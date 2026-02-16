@@ -136,11 +136,24 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// get property
+        /// return a value for a key=value pair as string. No check is made for html encoding, so this is the raw value of the request variable. 
+        /// To a user might inject html or script content, protect against XSS attacks, use GetTextSafe
         /// </summary>
         /// <param name="RequestName"></param>
         /// <returns></returns>
         public override string GetText(string RequestName) {
+            return cp.core.docProperties.getText(RequestName);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// get a value as string, but encode it for safe display on a page. 
+        /// This is the value to use for any user input that might include html or script content, to protect against XSS attacks. 
+        /// If you want the raw value, use GetText
+        /// </summary>
+        /// <param name="RequestName"></param>
+        /// <returns></returns>
+        public override string GetTextSafe(string RequestName) {
             return cp.core.docProperties.getText(RequestName);
         }
         //

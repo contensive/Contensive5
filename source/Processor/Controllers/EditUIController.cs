@@ -147,7 +147,7 @@ namespace Contensive.Processor.Controllers {
                         getEditIcon(core, getEditUrl(core, contentMetadata.id, recordId), getEditCaption(core, "Edit", contentMetadata.name, customCaption), "ccRecordEditLink")
                     };
                     if (allowCut) {
-                        string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
+                        string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.getText(contentMetadata.id) + "." + GenericController.getText(recordId), true);
                         editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditCaption(core, "Cut", contentMetadata.name, customCaption)) + "</a>");
                     }
                     return joinOldEditSegments(core, editSegmentList);
@@ -455,8 +455,8 @@ namespace Contensive.Processor.Controllers {
                     if (Position == 0) { return result; }
                     string[] ClipBoardArray = ClipBoard.Split('.');
                     if (ClipBoardArray.GetUpperBound(0) == 0) { return result; }
-                    int ClipboardContentId = GenericController.encodeInteger(ClipBoardArray[0]);
-                    int ClipChildRecordId = GenericController.encodeInteger(ClipBoardArray[1]);
+                    int ClipboardContentId = GenericController.getInteger(ClipBoardArray[0]);
+                    int ClipChildRecordId = GenericController.getInteger(ClipBoardArray[1]);
                     if (content.isParentOf<ContentModel>(core.cpParent, ClipboardContentId)) {
                         int ParentId = 0;
                         if (GenericController.strInstr(1, presetNameValueList, "PARENTID=", 1) != 0) {
@@ -467,7 +467,7 @@ namespace Contensive.Processor.Controllers {
                             BufferString = BufferString.Replace("(", "");
                             BufferString = BufferString.Replace(")", "");
                             BufferString = BufferString.Replace(",", "&");
-                            ParentId = encodeInteger(GenericController.main_GetNameValue_Internal(core, BufferString, "Parentid"));
+                            ParentId = getInteger(GenericController.main_GetNameValue_Internal(core, BufferString, "Parentid"));
                         }
                         if ((ParentId != 0) && (!DbBaseModel.isChildOf<PageContentModel>(core.cpParent, ParentId, 0, new List<int>()))) {
                             //

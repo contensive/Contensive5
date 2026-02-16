@@ -73,7 +73,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 // -- TextFile types with no controlling record
                 //
-                if (GenericController.encodeBoolean(env.core.siteProperties.getText("ArchiveAllowFileClean", "false"))) {
+                if (GenericController.getBoolean(env.core.siteProperties.getText("ArchiveAllowFileClean", "false"))) {
                     //
                     int DSType = env.core.db.getDataSourceType();
                     env.log("Content TextFile types with no controlling record.");

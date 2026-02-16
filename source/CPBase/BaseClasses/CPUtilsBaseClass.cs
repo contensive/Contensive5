@@ -316,11 +316,21 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Convert to string. If no valid rendition exists, returns empty.
+        /// return an input argument as string, or empty string if it can not be converted.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
         public abstract string EncodeText(object expression);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Use only for text input that might contain XSS attacks, such as user input.
+        /// return an input argument as string, or empty string if it can not be converted.
+        /// Checks for XSS injection
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public abstract string EncodeTextSafe(object expression);
         //
         //====================================================================================================
         /// <summary>

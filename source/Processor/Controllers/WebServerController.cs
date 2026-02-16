@@ -254,7 +254,7 @@ namespace Contensive.Processor.Controllers {
                     return false;
                 }
                 var serverVariables = httpContext.Request.ServerVariables;
-                local_requestSecure = serverVariables.ContainsKey("SERVER_PORT_SECURE") && encodeBoolean(serverVariables["SERVER_PORT_SECURE"]);
+                local_requestSecure = serverVariables.ContainsKey("SERVER_PORT_SECURE") && getBoolean(serverVariables["SERVER_PORT_SECURE"]);
                 return (bool)local_requestSecure;
             }
         }
@@ -875,15 +875,15 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool redirectByRecord_ReturnStatus(string contentName, int recordId, string fieldName) {
             try {
-                string iContentName = GenericController.encodeText(contentName);
-                int iRecordId = GenericController.encodeInteger(recordId);
-                string iFieldName = GenericController.encodeEmpty(fieldName, "link");
+                string iContentName = GenericController.getText(contentName);
+                int iRecordId = GenericController.getInteger(recordId);
+                string iFieldName = GenericController.getText(fieldName, "link");
                 bool result = false;
                 using (var csData = new CsModel(core)) {
                     if (csData.open(iContentName, "ID=" + iRecordId)) {
                         //
                         // Assume all Link fields are already encoded -- as this is how they would appear if the admin cut and pasted
-                        string EncodedLink = encodeText(csData.getText(iFieldName)).Trim(' ');
+                        string EncodedLink = getText(csData.getText(iFieldName)).Trim(' ');
                         bool BlockRedirect = false;
                         string LinkPrefix = "";
                         string NonEncodedLink = "";

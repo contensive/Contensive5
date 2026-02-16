@@ -95,7 +95,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 allowHeaderAtBottom = true;
                 //
                 // Setup Member Properties
-                string ConfigList = core.userProperty.getText(AdminDataModel.IndexConfigPrefix + encodeText(adminData.adminContent.id), "");
+                string ConfigList = core.userProperty.getText(AdminDataModel.IndexConfigPrefix + getText(adminData.adminContent.id), "");
                 if (!string.IsNullOrEmpty(ConfigList)) {
                     //
                     // load values
@@ -122,7 +122,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 if (adminData.adminContent.fields[fieldName].authorable || fieldsThatAllowNotAuthorable.Contains(fieldName, StringComparer.OrdinalIgnoreCase)) {
                                                     columns.Add(new IndexConfigColumnClass {
                                                         Name = fieldName,
-                                                        Width = encodeInteger(LineSplit[1]),
+                                                        Width = getInteger(LineSplit[1]),
                                                         SortDirection = 0,
                                                         SortPriority = 0
                                                     });
@@ -160,7 +160,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 //
                 // Setup Visit Properties
-                ConfigList = core.visitProperty.getText(AdminDataModel.IndexConfigPrefix + encodeText(adminData.adminContent.id), "");
+                ConfigList = core.visitProperty.getText(AdminDataModel.IndexConfigPrefix + getText(adminData.adminContent.id), "");
                 if (!string.IsNullOrEmpty(ConfigList)) {
                     //
                     // load values
@@ -182,7 +182,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             findWords.Add(LineSplit[0], new GridConfigFindWordClass {
                                                 Name = LineSplit[0],
                                                 Value = LineSplit[1],
-                                                MatchOption = (FindWordMatchEnum)GenericController.encodeInteger(LineSplit[2])
+                                                MatchOption = (FindWordMatchEnum)GenericController.getInteger(LineSplit[2])
                                             });
                                         }
                                         Ptr += 1;
@@ -200,7 +200,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "cdeflist":
                                     Ptr += 1;
-                                    subCDefID = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    subCDefID = GenericController.getInteger(ConfigListLines[Ptr]);
                                     break;
                                 case "indexfiltercategoryid":
                                     // -- remove deprecated value
@@ -226,7 +226,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "recordsperpage":
                                     Ptr += 1;
-                                    recordsPerPage = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    recordsPerPage = GenericController.getInteger(ConfigListLines[Ptr]);
                                     if (recordsPerPage <= 0) {
                                         recordsPerPage = 50;
                                     }
@@ -234,7 +234,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "pagenumber":
                                     Ptr += 1;
-                                    pageNumber = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    pageNumber = GenericController.getInteger(ConfigListLines[Ptr]);
                                     if (pageNumber <= 0) {
                                         pageNumber = 1;
                                     }
@@ -323,7 +323,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         if (!string.IsNullOrWhiteSpace(fieldName)) {
                                             columns.Add(new IndexConfigColumnClass {
                                                 Name = fieldName,
-                                                Width = encodeInteger(LineSplit[1]),
+                                                Width = getInteger(LineSplit[1]),
                                                 SortDirection = 0,
                                                 SortPriority = 0
                                             });
@@ -381,7 +381,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             findWords.Add(LineSplit[0], new GridConfigFindWordClass {
                                                 Name = LineSplit[0],
                                                 Value = LineSplit[1],
-                                                MatchOption = (FindWordMatchEnum)GenericController.encodeInteger(LineSplit[2])
+                                                MatchOption = (FindWordMatchEnum)GenericController.getInteger(LineSplit[2])
                                             });
                                         }
                                         Ptr += 1;
@@ -399,7 +399,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "cdeflist":
                                     Ptr += 1;
-                                    subCDefID = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    subCDefID = GenericController.getInteger(ConfigListLines[Ptr]);
                                     break;
                                 case "indexfiltercategoryid":
                                     // -- remove deprecated value
@@ -425,7 +425,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "recordsperpage":
                                     Ptr += 1;
-                                    recordsPerPage = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    recordsPerPage = GenericController.getInteger(ConfigListLines[Ptr]);
                                     if (recordsPerPage <= 0) {
                                         recordsPerPage = 50;
                                     }
@@ -433,7 +433,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "pagenumber":
                                     Ptr += 1;
-                                    pageNumber = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    pageNumber = GenericController.getInteger(ConfigListLines[Ptr]);
                                     if (pageNumber <= 0) {
                                         pageNumber = 1;
                                     }

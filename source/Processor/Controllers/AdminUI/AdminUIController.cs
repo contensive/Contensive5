@@ -245,7 +245,7 @@ namespace Contensive.Processor.Controllers {
                 // pageCount = total pages for all records in the dataset
                 int pageCount = 1;
                 if (recordCnt > 1) {
-                    pageCount = encodeInteger(1 + encodeInteger(Math.Floor(encodeNumber((recordCnt - 1) / recordsPerPage))));
+                    pageCount = getInteger(1 + getInteger(Math.Floor(getNumber((recordCnt - 1) / recordsPerPage))));
                 }
                 //
                 // 1-based navStart is the first page number in the navigation list (after [1] which always displays)
@@ -433,7 +433,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         private static string getReport_Cell(string Copy, string Align, int Columns, int RowPointer) {
-            string iAlign = encodeEmpty(Align, "left");
+            string iAlign = getText(Align, "left");
             string Style = "ccGridRowEven";
             if ((RowPointer % 2) > 0) {
                 Style = "ccGridRowOdd";
@@ -514,7 +514,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static int getReportSortColumnPtr(CoreController core, int DefaultSortColumnPtr) {
             string VarText = core.docProperties.getText("ColPtr");
-            int tempGetReportSortColumnPtr = GenericController.encodeInteger(VarText);
+            int tempGetReportSortColumnPtr = GenericController.getInteger(VarText);
             if ((tempGetReportSortColumnPtr == 0) && (VarText != "0")) {
                 tempGetReportSortColumnPtr = DefaultSortColumnPtr;
             }
@@ -535,7 +535,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static int getReportSortType(CoreController core) {
             string VarText = core.docProperties.getText("ColPtr");
-            if ((encodeInteger(VarText) != 0) || (VarText == "0")) {
+            if ((getInteger(VarText) != 0) || (VarText == "0")) {
                 //
                 // A valid ColPtr was found
                 //
@@ -651,9 +651,9 @@ namespace Contensive.Processor.Controllers {
                 // ----- Post Table copy
                 //
                 if ((DataRowCount / (double)reportPageSize) != Math.Floor((DataRowCount / (double)reportPageSize))) {
-                    PageCount = encodeInteger((DataRowCount / (double)reportPageSize) + 0.5);
+                    PageCount = getInteger((DataRowCount / (double)reportPageSize) + 0.5);
                 } else {
-                    PageCount = encodeInteger(DataRowCount / (double)reportPageSize);
+                    PageCount = getInteger(DataRowCount / (double)reportPageSize);
                 }
                 if (PageCount > 1) {
                     result.Append("<br>Page " + reportPageNumber + " (Row " + (RowBase) + " of " + DataRowCount + ")");

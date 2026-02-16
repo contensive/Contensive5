@@ -208,7 +208,7 @@ namespace Contensive.Processor.Controllers {
                                                     cs.set("scriptinglanguageid", scriptinglanguageid);
                                                     string ScriptingEntryPoint = XmlController.getXMLAttribute(core,  Addonfield, "entrypoint", "");
                                                     cs.set("ScriptingEntryPoint", ScriptingEntryPoint);
-                                                    int ScriptingTimeout = GenericController.encodeInteger(XmlController.getXMLAttribute(core, Addonfield, "timeout", "5000"));
+                                                    int ScriptingTimeout = GenericController.getInteger(XmlController.getXMLAttribute(core, Addonfield, "timeout", "5000"));
                                                     cs.set("ScriptingTimeout", ScriptingTimeout);
                                                     string ScriptingCode = "";
                                                     foreach (XmlNode ScriptingNode in Addonfield.ChildNodes) {
@@ -263,7 +263,7 @@ namespace Contensive.Processor.Controllers {
                                                     // import exclusive style
                                                     //
                                                     string NodeName = XmlController.getXMLAttribute(core,  Addonfield, "name", "");
-                                                    string NewValue = encodeText(Addonfield.InnerText).Trim(' ');
+                                                    string NewValue = getText(Addonfield.InnerText).Trim(' ');
                                                     if (NewValue.left(1) != "{") {
                                                         NewValue = "{" + NewValue;
                                                     }
@@ -302,7 +302,7 @@ namespace Contensive.Processor.Controllers {
                                                         //
                                                     } else {
                                                         cs.set(fieldName, FieldValue);
-                                                        if (GenericController.encodeBoolean(Addonfield.InnerText)) {
+                                                        if (GenericController.getBoolean(Addonfield.InnerText)) {
                                                             //
                                                             // if template, admin or content - let non-developers have navigator entry
                                                             //
@@ -340,9 +340,9 @@ namespace Contensive.Processor.Controllers {
                                                         }
                                                         cs.set("IconFilename", FieldValue);
                                                         {
-                                                            cs.set("IconWidth", GenericController.encodeInteger(XmlController.getXMLAttribute(core,  Addonfield, "width", "0")));
-                                                            cs.set("IconHeight", GenericController.encodeInteger(XmlController.getXMLAttribute(core,  Addonfield, "height", "0")));
-                                                            cs.set("IconSprites", GenericController.encodeInteger(XmlController.getXMLAttribute(core,  Addonfield, "sprites", "0")));
+                                                            cs.set("IconWidth", GenericController.getInteger(XmlController.getXMLAttribute(core,  Addonfield, "width", "0")));
+                                                            cs.set("IconHeight", GenericController.getInteger(XmlController.getXMLAttribute(core,  Addonfield, "height", "0")));
+                                                            cs.set("IconSprites", GenericController.getInteger(XmlController.getXMLAttribute(core,  Addonfield, "sprites", "0")));
                                                         }
                                                     }
                                                     break;
@@ -387,7 +387,7 @@ namespace Contensive.Processor.Controllers {
                                                     break;
                                                 }
                                             case "diagnostic": {
-                                                    bool fieldValue = encodeBoolean(Addonfield.InnerText);
+                                                    bool fieldValue = getBoolean(Addonfield.InnerText);
                                                     cs.set("diagnostic", fieldValue);
                                                     collectionIncludesDiagnosticAddons = collectionIncludesDiagnosticAddons || fieldValue;
                                                     break;

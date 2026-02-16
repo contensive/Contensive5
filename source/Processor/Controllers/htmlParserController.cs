@@ -93,7 +93,7 @@ namespace Contensive.Processor.Controllers {
                 // get a unique signature
                 //
                 do {
-                    BlobSN = "/blob" + encodeText(GenericController.getRandomInteger()) + ":";
+                    BlobSN = "/blob" + getText(GenericController.getRandomInteger()) + ":";
                     Ptr = Ptr + 1;
                 } while ((WorkingSrc.IndexOf(BlobSN, System.StringComparison.OrdinalIgnoreCase) != -1) && (Ptr < 10));
                 //
@@ -478,7 +478,7 @@ namespace Contensive.Processor.Controllers {
             //
             if (NewWay) {
                 if (!(LocalElements[ElementPtr].Loaded)) {
-                    SplitPtr = encodeInteger(ElementPtr / 2.0);
+                    SplitPtr = getInteger(ElementPtr / 2.0);
                     ElementBasePtr = SplitPtr * 2;
                     SplitSrc = SplitStore[SplitPtr];
                     Ptr = GenericController.strInstr(1, SplitSrc, ">");

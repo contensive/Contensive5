@@ -94,7 +94,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                                 collectionPath = CollectionNode.InnerText.ToLower(CultureInfo.InvariantCulture);
                                                 break;
                                             case "lastchangedate":
-                                                lastChangeDate = GenericController.encodeDate(CollectionNode.InnerText);
+                                                lastChangeDate = GenericController.getDate(CollectionNode.InnerText);
                                                 break;
                                             default:
                                                 logger.Warn($"{env.core.logCommonMessage}, Collection node contains unrecognized child [" + CollectionNode.Name.ToLower(CultureInfo.InvariantCulture) + "]");

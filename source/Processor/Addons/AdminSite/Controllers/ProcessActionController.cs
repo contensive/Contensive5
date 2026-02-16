@@ -73,7 +73,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         int deleteRecordId = adminData.editRecord.id;
                                         using (DataTable dt = cp.Db.ExecuteQuery($"select contentcontrolid from {adminContent.tableName} where id={deleteRecordId}")) {
                                             if (dt?.Rows != null && dt.Rows.Count > 0) {
-                                                string contentName = cp.Content.GetName(encodeInteger(dt.Rows[0][0]));
+                                                string contentName = cp.Content.GetName(getInteger(dt.Rows[0][0]));
                                                 cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
                                                 cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
                                                 cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
@@ -176,7 +176,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                             //
                                             int EmailToConfirmationMemberId = 0;
                                             if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
-                                                EmailToConfirmationMemberId = GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content);
+                                                EmailToConfirmationMemberId = GenericController.getInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content);
                                                 EmailController.sendConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
                                                 //
                                                 if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
@@ -207,11 +207,11 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             //
-                                            PersonModel recipient = DbBaseModel.create<PersonModel>(cp, GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content));
+                                            PersonModel recipient = DbBaseModel.create<PersonModel>(cp, GenericController.getInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content));
                                             if (recipient == null) {
                                                 ErrorController.addUserError(cp.core, "The test text message could not be sent because the 'Send Confirmation To' selection is not valid.");
                                             } else {
-                                                string textBody = encodeText(adminData.editRecord.fieldsLc["body"].value_content);
+                                                string textBody = getText(adminData.editRecord.fieldsLc["body"].value_content);
                                                 int textMessageId = adminData.editRecord.id;
                                                 string userErrorMessage = "";
                                                 TextMessageSendRequest request = new() {
@@ -324,7 +324,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     int deleteRecordId = cp.core.docProperties.getInteger("rowid" + RowPtr);
                                                     using (DataTable dt = cp.Db.ExecuteQuery($"select contentcontrolid from {adminContent.tableName} where id={deleteRecordId}")) {
                                                         if (dt?.Rows != null && dt.Rows.Count > 0) {
-                                                            string contentName = cp.Content.GetName(encodeInteger(dt.Rows[0][0]));
+                                                            string contentName = cp.Content.GetName(getInteger(dt.Rows[0][0]));
                                                             cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
                                                             cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
                                                             cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
@@ -411,7 +411,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                 }
                                 //
                                 adminData.editRecord.id = 0;
-                                cp.core.doc.addRefreshQueryString("id", GenericController.encodeText(adminData.editRecord.id));
+                                cp.core.doc.addRefreshQueryString("id", GenericController.getText(adminData.editRecord.id));
                             }
                             break;
                         default:
@@ -446,7 +446,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                 foreach (KeyValuePair<string, Contensive.Processor.Models.Domain.ContentFieldMetadataModel> keyValuePair in adminData.adminContent.fields) {
                                     ContentFieldMetadataModel field = keyValuePair.Value;
                                     if (GenericController.toLCase(field.nameLc) == "email") {
-                                        if ((adminData.adminContent.tableName.ToLowerInvariant() == "ccmembers") && (GenericController.encodeBoolean(cp.core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false)))) {
+                                        if ((adminData.adminContent.tableName.ToLowerInvariant() == "ccmembers") && (GenericController.getBoolean(cp.core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false)))) {
                                             adminData.editRecord.fieldsLc[field.nameLc].value_content = "";
                                         }
                                     }
@@ -455,7 +455,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     }
                                 }
                                 //
-                                cp.core.doc.addRefreshQueryString("id", GenericController.encodeText(adminData.editRecord.id));
+                                cp.core.doc.addRefreshQueryString("id", GenericController.getText(adminData.editRecord.id));
                             }
                             break;
                     }
@@ -689,7 +689,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         /// <param name="ParentIDString"></param>
         private static void LoadAndSaveGroupRules_ForContentAndChildren(CPClass cp, int ContentID, string ParentIDString) {
             try {
-                if (encodeBoolean(ParentIDString.IndexOf("," + ContentID + ",") + 1)) {
+                if (getBoolean(ParentIDString.IndexOf("," + ContentID + ",") + 1)) {
                     throw (new Exception("Child ContentID [" + ContentID + "] Is its own parent"));
                 } else {
                     string MyParentIDString = ParentIDString + "," + ContentID + ",";

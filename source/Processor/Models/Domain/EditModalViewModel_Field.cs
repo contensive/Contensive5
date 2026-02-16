@@ -84,7 +84,7 @@ namespace Contensive.Processor.Models.Domain {
                 fieldClearName = $"field{field.id}delete";
                 placeholder = $"{field.caption}";
                 fieldId = $"{editModalSn}{field.id}";
-                isChecked = isBoolean && GenericController.encodeBoolean(currentValue);
+                isChecked = isBoolean && GenericController.getBoolean(currentValue);
                 sort = field.editSortPriority;
                 selectOptionList = !isSelect ? "" : getSelectOptionList(core, field, currentValue, contentMetaData);
                 imageUrl = !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "/baseassets/picturePlaceholder.jpg" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
@@ -171,19 +171,19 @@ namespace Contensive.Processor.Models.Domain {
             string whyReadOnlyMsg = "";
             string fieldHtmlId = "not used";
             if (!field.lookupContentId.Equals(0)) {
-                EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required, field.LookupContentSqlFilter);
+                EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, GenericController.getInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required, field.LookupContentSqlFilter);
                 EditorString = removeOptionsFromSelect(EditorString);
                 return EditorString;
             }
             if (!string.IsNullOrEmpty(field.lookupList)) {
-                EditorString = AdminUIEditorController.getLookupListEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupList.Split(',').ToList(), field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required);
+                EditorString = AdminUIEditorController.getLookupListEditor(core, field.nameLc, GenericController.getInteger(fieldValueObject), field.lookupList.Split(',').ToList(), field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required);
                 EditorString = removeOptionsFromSelect(EditorString);
                 return EditorString;
             }
             if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.MemberSelect) {
                 int groupId = field.memberSelectGroupId_get(core, contentMetaData.name, field.nameLc);
                 string groupName = core.cpParent.Content.GetRecordName("groups", groupId);
-                EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), groupId, groupName, field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, GenericController.getInteger(fieldValueObject), groupId, groupName, field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
                 EditorString = removeOptionsFromSelect(EditorString);
                 return EditorString;
             }
@@ -261,7 +261,7 @@ namespace Contensive.Processor.Models.Domain {
                             if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                                 switch (field.fieldTypeId) {
                                     case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                            DateTime? dateValue = GenericController.encodeDate(prepopulateValue[fieldName.ToLowerInvariant()]);
+                                            DateTime? dateValue = GenericController.getDate(prepopulateValue[fieldName.ToLowerInvariant()]);
                                             currentValue = GenericController.encodeDateIsoString(dateValue);
                                             break;
                                         }

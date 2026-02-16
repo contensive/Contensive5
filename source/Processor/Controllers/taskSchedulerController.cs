@@ -207,7 +207,7 @@ namespace Contensive.Processor.Controllers {
         //
         private static void processAddonTask(CoreController core, CPClass cpApp, AddonModel addon) {
             //
-            int addonProcessInterval = encodeInteger(addon.processInterval);
+            int addonProcessInterval = getInteger(addon.processInterval);
             if (addon.processRunOnce) {
                 //
                 // -- run once checked 
