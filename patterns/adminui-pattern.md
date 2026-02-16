@@ -7,7 +7,16 @@ The adminUI pattern is used to create tools and reports that display in the cont
 
 Admin UI is implemented with LayoutBuilder classes that create the html for common Admin UI cases.
 
-LayoutBuilder classes are created using one of the following factory methods. The primary adminUI workflow is
+LayoutBuilder classes are created using one of the following factory methods, explained later
+- cp.AdminUI.CreateLayoutBuilder
+- cp.AdminUI.CreateLayoutBuilderList
+- cp.AdminUI.CreateLayoutBuilderNameValue
+- cp.AdminUI.CreateLayoutBuilderTabbedBody
+- cp.AdminUI.CreateLayoutBuilderToolForm
+- cp.AdminUI.CreateLayoutBuilderTwoColumnLeft
+- cp.AdminUI.CreateLayoutBuilderTwoColumnRight
+
+The primary adminUI code workflow is
 - the client program creates a layoutbuilder instance by calling one of the cp.AdminUI methods
 - the client populates its properties
 - calls the getHtml method and returns its response. it is imporatant that the client program return the unmodified complete response from the the getHtml method.
@@ -17,7 +26,7 @@ The resulting string includes the entire view, including possible pagination, fi
 - the endpoint executes the client program (which initially called the cpAdminUI interface)
 - the LayoutBuilder then returns in the getHtml() methods the expected response for the ajac call, which the client program should return without modification.
 
-These are the layout builder options
+These LayoutBuilder helpers are created internally with the Contensive Layout Design Pattern using layouts in the ui folder.
 
 ### CreateLayoutBuilder
 
