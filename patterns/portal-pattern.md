@@ -17,14 +17,14 @@ addonGuid=%7BA1BCA00C-2657-42A1-8F98-BED1E5A42025%7D -- executes the Portals add
 setPortalGuid=(portal-guid) -- where portal-guid is the ccguid field on the Portals record
 
 A portal is installed with the xml addon collection file with <record> nodes in <data> nodes. For example, this is the xml structure from the Crm.xml file that installs the CRM Portal
-
+```
 	<data>
 		<record content="Portals" Guid="{ebf26a0a-e058-4933-a57c-baf7d46e6543}" Name="CRM">
 			<field Name="defaultfeatureid">{19665f07-ae26-4ebb-93c2-235461fd1991}</field>
 			<field Name="icon">crm/crm.svg</field>
 		</record>
   </data>
-
+```
 the record guid -- a unique guid for this portal
 defaultfeatureid -- the guid of the portal feature record that is executed when no other feature is selected
 icon -- optional, the url of the icon that displays on the control-panel left navigation for the portal
@@ -41,7 +41,7 @@ An Addon Feature should include
 - An authorization test requiring the admin role
 - a verification that the addon is running within the port. If not it should redirect
 - this is a typical example of these tests:
-
+```
 	// 
 	// -- authenticate/authorize
 	if (!CP.User.IsAdmin)
@@ -51,7 +51,7 @@ An Addon Feature should include
 	if (!CP.AdminUI.EndpointContainsPortal())
 		return CP.AdminUI.RedirectToPortalFeature( (guid of portal), ( guid of portal feature ), "");
 	// 
-
+```
 The Portal creates a navigation element at the top of the portal and executes the current portal feature under the navigation.
 
 Navigation is hierarchical using the parentfeatureid field:
@@ -61,7 +61,7 @@ Navigation is hierarchical using the parentfeatureid field:
 - Navigation depth is unlimited but typically 2-3 levels for usability
 
 A Portal Feature is installed with the xml addon collection file with <record> nodes in <data> nodes. For example, this is the xml structure from the Crm.xml file that installs a list of people records in the CRM Portal
-
+```
   <data>
 		<record content="Portal Features" Guid="{c623d7fe-6a72-4e9e-a463-f0ae33bcb718}" Name="CRM Data People">
 			<field Name="portalid">{ebf26a0a-e058-4933-a57c-baf7d46e6543}</field>
@@ -72,6 +72,7 @@ A Portal Feature is installed with the xml addon collection file with <record> n
 			<field Name="addpadding">False</field>
 		</record>	
   </data>
+```
 the record guid -- a unique guid for this record
 portalid -- the guid of the portal where this feature is used
 addonid -- the addon that is executed when a user clicks this feature. Non-widget addons return the html/css/js for this feature, displayed in the main section of the portal display. They follow the addon pattern defined in contensive-architecture.md. Dashbaord Widget adds return objects defined in the dashboard-widget-pattern.md file.
@@ -85,7 +86,7 @@ In the Portals record there is a selection for the default Feature which is run 
 For example, this xml block defines the Account Manager portal with one Data Feature and two Addon Features. One of the Addon Features is in the Portal, and one is a dashboard widget that displays when the portal is opened
 
 ## Complete Example
-
+```
 <!-- collection file -->
 <Collection name="Ecommerce" guid="{8dbe6b55-18db-44eb-9a4a-5cbba84df35a}">
   <!-- define the executable addon for a Sales Dashboard Widget -->
@@ -145,3 +146,4 @@ For example, this xml block defines the Account Manager portal with one Data Fea
 		</record>    
 	</Data>
 </Collection>
+```
