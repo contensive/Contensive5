@@ -62,6 +62,7 @@ Navigation is hierarchical using the parentfeatureid field:
 
 A Portal Feature is installed with the xml addon collection file with <record> nodes in <data> nodes. For example, this is the xml structure from the Crm.xml file that installs a list of people records in the CRM Portal
 
+
   <data>
 		<record content="Portal Features" Guid="{c623d7fe-6a72-4e9e-a463-f0ae33bcb718}" Name="CRM Data People">
 			<field Name="portalid">{ebf26a0a-e058-4933-a57c-baf7d46e6543}</field>
@@ -72,6 +73,8 @@ A Portal Feature is installed with the xml addon collection file with <record> n
 			<field Name="addpadding">False</field>
 		</record>	
   </data>
+
+
 the record guid -- a unique guid for this record
 portalid -- the guid of the portal where this feature is used
 addonid -- the addon that is executed when a user clicks this feature. Non-widget addons return the html/css/js for this feature, displayed in the main section of the portal display. They follow the addon pattern defined in contensive-architecture.md. Dashbaord Widget adds return objects defined in the dashboard-widget-pattern.md file.

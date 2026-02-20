@@ -6,7 +6,7 @@ UI Design and server-side code at managed separately. All UI design elements are
 
 ## Base architecture and other pattens
 
-- [Contensive Architecture](https://github.com/contensive/contensive5/blob/master/contensive-architecture.md)
+- [Contensive Architecture](https://github.com/contensive/Contensive5/blob/master/patterns/contensive-architecture.md)
 
 Best practice is to never include html code elements in the programming code. Html code is developed in html files in the /ui folder and is deployed to Layout records. Programming code reads layout records with the cp.Layout methods and merges html with data using the cp.Mustache methods.
 
