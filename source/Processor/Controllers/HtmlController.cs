@@ -2960,8 +2960,13 @@ namespace Contensive.Processor.Controllers {
                         headList.Add("<link rel=\"icon\" type=\"image/gif\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".jpg":
-                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); };
+                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); }
+                        ;
                         headList.Add("<link rel=\"icon\" type=\"image/jpg\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
+                        break;
+                    case ".svg":
+                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); }
+                        headList.Add("<link rel=\"icon\" type=\"image/svg+xml\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                 }
                 headList.Add($"<meta name=\"generator\" content=\"Contensive v{core.cpParent.Version}\">");

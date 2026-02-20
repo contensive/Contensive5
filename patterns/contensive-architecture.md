@@ -16,7 +16,7 @@ Contensive5 follows several key patterns documented in the public repository:
 - [Control Panel pattern](https://github.com/contensive/contensive5/blob/master/patterns/control-panel-pattern.md)
 - [Dashboard widget pattern](https://github.com/contensive/contensive5/blob/master/patterns/dashboard-widget-pattern.md)
 - [Page widget pattern](https://github.com/contensive/contensive5/blob/master/patterns/page-widget-pattern.md)
-- [Portal pattern](https://github.com/contensive/contensive5/blob/master/patterns/portal-pattern.md)
+- [Portal pattern](https://github.com/contensive/Contensive5/blob/master/patterns/portal-pattern.md)
 - [Remote method pattern](https://github.com/contensive/contensive5/blob/master/patterns/remote-method-pattern.md)
 - [Layout Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/layout-design-pattern.md)
 
