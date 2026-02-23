@@ -19,9 +19,51 @@ Contensive5 follows several key patterns documented in the public repository:
 - [Portal pattern](https://github.com/contensive/Contensive5/blob/master/patterns/portal-pattern.md)
 - [Remote method pattern](https://github.com/contensive/contensive5/blob/master/patterns/remote-method-pattern.md)
 - [Layout Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/layout-design-pattern.md)
+- [Template Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/page-template-design-pattern.md)
 
 ## Contensive Collections
 A collection is a group of features that are installed and maintained together. For example Ecommerce is a collection that includes account management features, reports, and an online catalog.
+
+### Collection Collection Addon Pattern
+
+### Collection Collection CDef Pattern
+
+### Collection Collection Data Record Pattern
+The collection XML file supports a <data> section that deploys database records automatically when the collection is installed. This is used to seed required configuration data such as portal definitions, system emails, dashboard widgets, and other content records that the application depends on.
+
+Structure:
+```
+<data>
+    <record content="{Content-Name}" guid="{record-guid}" name="{record-name}">
+        <field name="ccguid"><![CDATA[{record-guid}]]></field>
+        <field name="name"><![CDATA[{record-name}]]></field>
+        <field name="fieldName"><![CDATA[field value]]></field>
+    </record>
+</data>
+```
+Key attributes:
+
+content - The content definition (table) where the record will be created (e.g., "Dashboard Widgets", "System Email", "Portal Features")
+guid - A unique GUID that identifies this record. Used for upsert behavior: if a record with this GUID exists it is updated, otherwise it is inserted
+name - The display name of the record
+Field elements:
+
+Each <field> sets a column value in the target table
+ccguid and name should always be included and match the record attributes
+Lookup fields that reference other records use the referenced record's GUID (e.g., portalid references a Portals record by GUID)
+Text values are wrapped in <![CDATA[...]]> to avoid XML escaping issues
+Boolean values use True/False without CDATA
+Common use cases:
+
+Dashboard Widgets - Registers widget records in pcDashboardWidgets so they can be assigned to workspaces and users
+System Emails - Seeds email templates with subject, from address, and active flag
+Portal Features - Defines portal navigation structure with parent-child relationships via portalid and parentfeatureid
+Portals - Creates top-level portal entries
+Behavior:
+
+Records are processed during collection installation (cc.exe -a appname --installfile collection.zip)
+The GUID serves as the unique key — existing records are updated, new records are inserted
+This eliminates the need to manually add records to the database on each deployment target
 
 ## Contensive Features
 A Feature is a single funtionality. For example a SiteMap is a feature that can be dropped on a page and might be composed of multiple addons. Many features might be installed and maintained together in one collection. For example to create a sitemap that can be drag-and-dropped on a Contensive website, you would first create a Page-Widget addon that renders the html with javascript and styles for the page, and would also process any form submissions. But it might use a second addon that is a Remote-Method addon which responds to an endpoint and would return the list of pages from the server used in the map.
