@@ -6,7 +6,7 @@
 The Contensive platform creates an extensabilty framework for managing and executing addons in several context, including websites, web applications, command line, and background tasks (windows services)
 
 Outside repositories reference this document with this link
-- [Contensive Architecture](https://github.com/contensive/contensive5/blob/master/contensive-architecture.md)
+- [Contensive Architecture](https://github.com/contensive/Contensive5/blob/master/patterns/contensive-architecture.md)
 
 ## Patterns
 
@@ -20,7 +20,7 @@ Contensive5 follows several key patterns documented in the public repository:
 - [Remote method pattern](https://github.com/contensive/contensive5/blob/master/patterns/remote-method-pattern.md)
 - [Layout Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/layout-design-pattern.md)
 - [Template Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/page-template-design-pattern.md)
-- [Help documentation Pattern](https://github.com/contensive/contensive5/blob/master/patterns/help-pattern.md)
+- [Help Doc Pattern](https://github.com/contensive/contensive5/blob/master/patterns/help-doc-pattern.md)
 
 ## Contensive Collections
 A collection is a group of features that are installed and maintained together. For example Ecommerce is a collection that includes account management features, reports, and an online catalog.
