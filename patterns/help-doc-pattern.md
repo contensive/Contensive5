@@ -1,6 +1,6 @@
-# Contensive Help Pattern
+# Contensive Help Doc Pattern
 
-This document describes the Contensive Help Files pattern — a markdown-based help system with AI-powered semantic search. Every Contensive addon collection can contribute help content by including markdown files in its build. The Help Pages addon indexes all content and provides a unified search and navigation experience at /help.
+This document describes the Contensive Help Documentation pattern — a markdown-based help system with AI-powered semantic search. Every Contensive addon collection can contribute help content by including markdown files in its build. The Help Pages addon indexes all content and provides a unified search and navigation experience at /help.
 
 All new projects should follow this pattern for help content.
 
