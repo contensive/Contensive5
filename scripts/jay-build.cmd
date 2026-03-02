@@ -113,11 +113,11 @@ rd /s /q  "..\source\taskservice\obj"
 
 del /q "..\WebDeploymentPackage\*.*"
 
-del /s /q "C:\Git\Contensive5\source\Cli.Installer\bin"
-rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\bin"
+rem del /s /q "C:\Git\Contensive5\source\Cli.Installer\bin"
+rem rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\bin"
 
-del /s /q "C:\Git\Contensive5\source\Cli.Installer\obj"
-rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\obj"
+rem del /s /q "C:\Git\Contensive5\source\Cli.Installer\obj"
+rem rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\obj"
 
 rem pause
 
@@ -336,6 +336,8 @@ rem build cli installer
 rem
 
 cd ..\source
+rem reset integrity label on existing msi so WiX linker can overwrite it from a non-elevated process
+icacls "Cli.Installer\bin\Debug\en-us\ContensiveConsole-Debug-x64.msi" /setintegritylevel Medium 2>nul
 rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe" ContensiveCLIInstaller\ContensiveCLIInstaller.wixproj
 "%msbuildLocation%msbuild.exe" cli.installer\cli.installer.wixproj
 if errorlevel 1 (

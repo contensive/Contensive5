@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"HtmlImport\\\\|html-import\")",
+      "Bash(find /c/Git/Contensive5/source/Processor/Addons -type f -name \"*.cs\" -exec grep -l \"importLayout\\\\|ImportLayout\" {} ;)",
+      "Bash(find /c/Git/Contensive5 -type f -name \"*.xml\" -exec grep -l \"importLayout\\\\|html-import\\\\|HtmlImport\" {} ;)",
+      "Bash(xargs grep -l \"UploadLayout\")",
+      "Bash(find /c/Git/Contensive5/source/Processor -type f -name \"*.cs\" -exec grep -l \"class.*CPLayout\\\\|: CPLayoutBaseClass\" {} ;)",
+      "Bash(grep -r \"importLayout\\\\|import.*Layout\" /c/Git/Contensive5/help/*.md)",
+      "Bash(cmd /c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts && jay-build.cmd\")",
+      "Bash(printf '\\\\n\\\\n\\\\n')",
+      "Bash(dotnet --version)",
+      "Bash(cmd /c \"echo %date% && echo %time%\")",
+      "Bash(cmd //c \"echo %date%\")",
+      "Bash(cmd //c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts && jay-build.cmd\")",
+      "Bash(cmd //c \"C:\\\\Git\\\\Contensive5\\\\scripts\\\\jay-build.cmd\")",
+      "Bash(cmd //c \"C:\\\\Git\\\\Contensive5\\\\scripts\\\\jay-build.cmd < nul\")",
+      "Bash(cmd //c \"icacls \"\"C:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\\\\bin\\\\Debug\\\\en-us\\\\ContensiveConsole-Debug-x64.msi\"\"\")",
+      "Bash(cmd //c \"whoami\")",
+      "Bash(icacls \"C:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\\\\bin\\\\Debug\\\\en-us\\\\ContensiveConsole-Debug-x64.msi\")",
+      "Bash(dotnet build:*)",
+      "Bash(cmd //c jay-build.cmd:*)"
+    ]
+  }
+}
