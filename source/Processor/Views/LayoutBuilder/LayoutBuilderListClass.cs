@@ -269,7 +269,14 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string sqlSearchTerm {
             get {
                 if (_sqlSearchTerm != null) { return _sqlSearchTerm; }
-                _sqlSearchTerm = cp.Request.GetText("searchTerm");
+                string propertyKey = $"AdminUIListSearch_{callbackAddonGuid}";
+                if (cp.Doc.IsProperty("searchTerm")) {
+                    //
+                    // -- ajax callback, use submitted value and save it
+                    _sqlSearchTerm = cp.Request.GetText("searchTerm");
+                    cp.User.SetProperty(propertyKey, _sqlSearchTerm);
+                }
+                _sqlSearchTerm = cp.User.GetText(propertyKey);
                 return _sqlSearchTerm;
             }
         }
@@ -453,7 +460,8 @@ namespace Contensive.Processor.LayoutBuilder {
                     grid = getGridHtml(),
                     allowSearch = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid),
                     allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid) && (recordCount > paginationPageSize),
-                    rowsFoundMessage = $"{recordCount} {paginationRecordAlias} found"
+                    rowsFoundMessage = $"{recordCount} {paginationRecordAlias} found",
+                    searchTerm = sqlSearchTerm
                 };
                 //
                 // -- prepend navigation to before-table

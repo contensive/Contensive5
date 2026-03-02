@@ -41,43 +41,45 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // -- check for uploaded file
                 string uploadedFilename = "";
-                string uploadPath = $"uploadLayoutRemoteTmp{cp.Utils.GetRandomString(10)}";
+                string uploadPath = $"uploadLayoutRemoteTmp{cp.Utils.GetRandomString(10)}\\";
                 if (!cp.TempFiles.SaveUpload("htmlFile", uploadPath, ref uploadedFilename)) {
                     return createJsonResponse(false, noFileMessage, null);
                 }
+                string uploadPathFilename = uploadPath + uploadedFilename;
                 //
                 // Check if user has uploaded too many files recently
                 int recentUploads = cp.Db.ExecuteScalar($"SELECT COUNT(*) FROM ccActivityLog WHERE MemberId={cp.User.Id} AND TypeId=11 AND DateAdded > DATEADD(minute, -5, GETDATE())");
                 if (recentUploads > 10) {
+                    cp.TempFiles.DeleteFile(uploadPathFilename);
                     return createJsonResponse(false, tooManyUploadsMessage, null);
                 }
                 //
                 // After successful upload
                 cp.Db.ExecuteNonQuery($@"
-                    INSERT INTO ccActivityLog 
-                        (Name, MemberId, TypeId, Message, DateAdded) 
-                    VALUES 
-                        ('Layout Upload', {cp.User.Id}, 11, 'Uploaded: {uploadedFilename}', GETDATE())
+                    INSERT INTO ccActivityLog
+                        (Name, MemberId, TypeId, Message, DateAdded)
+                    VALUES
+                        ('Layout Upload', {cp.User.Id}, 11, {cp.Db.EncodeSQLText($"Uploaded: {uploadedFilename}")}, GETDATE())
                     ");
                 //
                 // -- verify file extension
                 string extension = Path.GetExtension(uploadedFilename).ToLowerInvariant();
                 if (extension != ".html" && extension != ".htm" && extension != ".zip") {
-                    cp.TempFiles.DeleteFile(uploadedFilename);
+                    cp.TempFiles.DeleteFile(uploadPathFilename);
                     return createJsonResponse(false, onlyHtmlFilesMessage, null);
                 }
                 //
-                // After SaveUpload, before processing
-                var fileDetails = cp.TempFiles.FileDetails(uploadedFilename);
-                if (fileDetails != null && fileDetails.Size > 104857600) { // 10MB limit
-                    cp.TempFiles.DeleteFile(uploadedFilename);
+                // -- verify file size
+                var fileDetails = cp.TempFiles.FileDetails(uploadPathFilename);
+                if (fileDetails != null && fileDetails.Size > 104857600) { // 100MB limit
+                    cp.TempFiles.DeleteFile(uploadPathFilename);
                     return createJsonResponse(false, fileSizeLimitMessage, null);
                 }
                 //
                 // -- process the uploaded file
                 var userMessageList = new List<string>();
                 bool success = cp.Layout.processImportFile(
-                    uploadedFilename,
+                    uploadPathFilename,
                     ImporttypeEnum.SetInMetadata,
                     0, // layoutid
                     0, // pageTemplateId
@@ -87,7 +89,7 @@ namespace Contensive.Processor.Addons.Tools {
                 );
                 //
                 // -- cleanup temp file
-                cp.TempFiles.DeleteFile(uploadedFilename);
+                cp.TempFiles.DeleteFile(uploadPathFilename);
                 //
                 // -- prepare response
                 if (success) {
