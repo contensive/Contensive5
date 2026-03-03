@@ -21,6 +21,8 @@ Contensive5 follows several key patterns documented in the public repository:
 - [Layout Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/layout-design-pattern.md)
 - [Template Design Pattern](https://github.com/contensive/contensive5/blob/master/patterns/page-template-design-pattern.md)
 - [Help Doc Pattern](https://github.com/contensive/contensive5/blob/master/patterns/help-doc-pattern.md)
+- [Process Addon Pattern](https://github.com/contensive/contensive5/blob/master/patterns/process-addon-pattern.md)
+- [Diagnostic Addon Pattern](https://github.com/contensive/contensive5/blob/master/patterns/diagnostic-addon-pattern.md)
 
 ## Contensive Collections
 A collection is a group of features that are installed and maintained together. For example Ecommerce is a collection that includes account management features, reports, and an online catalog.
