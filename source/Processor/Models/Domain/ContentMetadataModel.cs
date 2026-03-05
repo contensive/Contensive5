@@ -882,7 +882,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="blockCacheClear"></param>
         /// <param name="logMsgContext">A message to be added to log entries to help understand the context of the issue.</param>
         /// <returns></returns>
-        public void verifyContentField(CoreController core, ContentFieldMetadataModel fieldMetadata, bool blockCacheClear, string logMsgContext) {
+        public void verifyContentField(CoreController core, ContentFieldMetadataModel fieldMetadata, bool blockCacheClear, string logMsgContext, Dictionary<string, ContentFieldModel> preloadedFields = null, int? cachedInstalledByCollectionId = null) {
             try {
                 if (fieldMetadata == null) {
                     throw (new GenericException("Could not create Field for content [" + name + "] because the field metadata is not valid."));
@@ -891,13 +891,18 @@ namespace Contensive.Processor.Models.Domain {
                     throw (new GenericException("Could not create Field for content [" + name + "] because the field metadata has a blank name."));
                 }
                 if (fieldMetadata.fieldTypeId <= 0) {
-                    throw (new GenericException("Could not create Field [" + fieldMetadata.nameLc + "] for content [" + name + "] because the field type [" + fieldMetadata.fieldTypeId + "] is not valid."));
+                    throw (new GenericException($"Could not create Field [{fieldMetadata.nameLc}] for content [{name}] because the field type [{fieldMetadata.fieldTypeId}] is not valid."));
                 }
                 bool RecordIsBaseField = false;
-                var contentFieldList = DbBaseModel.createList<ContentFieldModel>(core.cpParent, "(ContentID=" + DbController.encodeSQLNumber(id) + ")and(name=" + DbController.encodeSQLText(fieldMetadata.nameLc) + ")");
-                if (contentFieldList.Count > 0) {
-                    fieldMetadata.id = contentFieldList.First().id;
-                    RecordIsBaseField = contentFieldList.First().isBaseField;
+                if (preloadedFields != null && preloadedFields.TryGetValue(fieldMetadata.nameLc, out ContentFieldModel existingField)) {
+                    fieldMetadata.id = existingField.id;
+                    RecordIsBaseField = existingField.isBaseField;
+                } else if (preloadedFields == null) {
+                    var contentFieldList = DbBaseModel.createList<ContentFieldModel>(core.cpParent, $"(ContentID={DbController.encodeSQLNumber(id)})and(name={DbController.encodeSQLText(fieldMetadata.nameLc)})");
+                    if (contentFieldList.Count > 0) {
+                        fieldMetadata.id = contentFieldList.First().id;
+                        RecordIsBaseField = contentFieldList.First().isBaseField;
+                    }
                 }
                 //
                 // check if this is a non-base field updating a base field
@@ -910,7 +915,9 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // -- Get the installedByCollectionId
                 int InstalledByCollectionId = 0;
-                if (!string.IsNullOrEmpty(fieldMetadata.installedByCollectionGuid)) {
+                if (cachedInstalledByCollectionId.HasValue) {
+                    InstalledByCollectionId = cachedInstalledByCollectionId.Value;
+                } else if (!string.IsNullOrEmpty(fieldMetadata.installedByCollectionGuid)) {
                     var addonCollection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
                     if (addonCollection != null) {
                         InstalledByCollectionId = addonCollection.id;

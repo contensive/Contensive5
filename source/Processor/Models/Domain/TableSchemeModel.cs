@@ -124,6 +124,19 @@ namespace Contensive.Processor.Models.Domain {
         public static void tableSchemaListClear(CoreController core) {
             core.cacheRuntime.tableSchemaDictionary.Clear();
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Mark a single table's schema cache entry as dirty so it will be re-queried on next access,
+        /// instead of clearing all cached schemas.
+        /// </summary>
+        public static void tableSchemaSetDirty(CoreController core, string tableName) {
+            if (string.IsNullOrEmpty(tableName)) { return; }
+            string lowerTablename = tableName.ToLowerInvariant();
+            if (core.cacheRuntime.tableSchemaDictionary.TryGetValue(lowerTablename, out TableSchemaModel tableSchema)) {
+                tableSchema.dirty = true;
+            }
+        }
     }
 
 }

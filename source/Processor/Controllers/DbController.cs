@@ -588,7 +588,7 @@ namespace Contensive.Processor.Controllers {
                     createSQLIndex(tableName, tableName + "CcGuid", "ccGuid");
                 }
                 //
-                TableSchemaModel.tableSchemaListClear(core);
+                TableSchemaModel.tableSchemaSetDirty(core, tableName);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -615,7 +615,7 @@ namespace Contensive.Processor.Controllers {
                 logger.Info($"{core.logCommonMessage},creating sql table field[" + fieldName + "],table[" + tableName + "], datasource[" + dataSourceName + "]");
                 //
                 executeNonQuery("ALTER TABLE " + tableName + " ADD " + fieldName + " " + getSQLAlterColumnType(fieldType));
-                TableSchemaModel.tableSchemaListClear(core);
+                TableSchemaModel.tableSchemaSetDirty(core, tableName);
                 //
                 if (clearMetadataCache) {
                     core.cache.invalidateAll();

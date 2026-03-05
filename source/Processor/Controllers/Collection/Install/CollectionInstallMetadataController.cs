@@ -716,12 +716,27 @@ namespace Contensive.Processor.Controllers {
                         ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext);
                     }
                     //
+                    // -- pre-load all content fields for this content in batch to avoid per-field DB queries
+                    var allContentFields = DbBaseModel.createList<ContentFieldModel>(core.cpParent, $"(ContentID={contentMetadata.id})");
+                    var contentFieldsByName = allContentFields.ToDictionary(f => f.name.ToLowerInvariant(), f => f);
+                    //
+                    // -- resolve installedByCollectionId once for the entire field loop
+                    int? cachedInstalledByCollectionId = null;
+                    if (!string.IsNullOrEmpty(contentMetadata.installedByCollectionGuid)) {
+                        var collection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, contentMetadata.installedByCollectionGuid);
+                        if (collection != null) {
+                            cachedInstalledByCollectionId = collection.id;
+                        }
+                    }
+                    //
                     // -- update Content Field Records and Content Field Help records
+                    bool anyFieldInserted = false;
                     ContentMetadataModel metaDataFieldHelp = ContentMetadataModel.createByUniqueName(core, ContentFieldHelpModel.tableMetadata.contentName);
                     foreach (var nameValuePair in contentMetadata.fields) {
                         ContentFieldMetadataModel fieldMetadata = nameValuePair.Value;
                         if (fieldMetadata.dataChanged) {
-                            contentMetadata.verifyContentField(core, fieldMetadata, false, logMsgContext);
+                            contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext, contentFieldsByName, cachedInstalledByCollectionId);
+                            anyFieldInserted = true;
                         }
                         //
                         // -- update content field help records
@@ -748,6 +763,12 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                         }
+                    }
+                    //
+                    // -- single cache clear after all fields processed instead of per-field
+                    if (anyFieldInserted) {
+                        core.cache.invalidateAll();
+                        core.cacheRuntime.clear();
                     }
                 }
             } catch (Exception ex) {
