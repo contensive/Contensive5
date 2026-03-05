@@ -154,6 +154,10 @@ namespace Contensive.Processor.Controllers.Build {
                     // -- verify many to many triggers for all many-to-many fields
                     verifyManyManyDeleteTriggers(core);
                     //
+                    // -- remove duplicate navigator entries (same name and parentId)
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, remove duplicate navigator entries");
+                    removeDuplicateNavigatorEntries(core);
+                    //
                     logger.Info($"{core.logCommonMessage},{logPrefix}, verify Site Properties");
                     if (repair) {
                         //
@@ -846,7 +850,26 @@ namespace Contensive.Processor.Controllers.Build {
         }
         //
         //====================================================================================================
-        //  todo deprecate 
+        /// <summary>
+        /// Remove duplicate navigator entries that have the same name and parentId, keeping the lowest id
+        /// </summary>
+        private static void removeDuplicateNavigatorEntries(CoreController core) {
+            try {
+                string sql = "delete from ccmenuentries where id in ("
+                    + "select e.id from ccmenuentries e"
+                    + " inner join ("
+                    + "select name, parentid, min(id) as minId from ccmenuentries group by name, parentid having count(*) > 1"
+                    + ") d on e.name = d.name and e.parentid = d.parentid and e.id > d.minId"
+                    + ")";
+                core.db.executeNonQuery(sql);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        //  todo deprecate
         private static void appendUpgradeLog(CoreController core, string appName, string Method, string Message) {
             logger.Info($"{core.logCommonMessage},app [" + appName + "], Method [" + Method + "], Message [" + Message + "]");
         }
@@ -876,15 +899,22 @@ namespace Contensive.Processor.Controllers.Build {
                     addon ??= (!string.IsNullOrWhiteSpace(menu.addonName) ? core.cacheRuntime.addonCache.createByUniqueName(menu.addonName) : null);
                     int parentId = verifyNavigatorEntry_getParentIdFromNameSpace(core, menu.menuNameSpace);
                     int contentId = ContentMetadataModel.getContentId(core, menu.contentName);
-                    string listCriteria = "(name=" + DbController.encodeSQLText(menu.name) + ")and(Parentid=" + parentId + ")";
-                    List<NavigatorEntryModel> entryList = DbBaseModel.createList<NavigatorEntryModel>(core.cpParent, listCriteria, "id");
+                    //
+                    // -- find existing entry by name and parentId, including inactive records to prevent duplicates
+                    string findSql = $"select top 1 id from ccmenuentries where (name={DbController.encodeSQLText(menu.name)}) and (parentid={parentId}) order by id";
                     NavigatorEntryModel entry = null;
-                    if (entryList.Count == 0) {
+                    using (DataTable dt = core.db.executeQuery(findSql)) {
+                        if (dt?.Rows != null && dt.Rows.Count > 0) {
+                            int existingId = core.cpParent.Utils.EncodeInteger(dt.Rows[0]["id"]);
+                            if (existingId > 0) {
+                                entry = DbBaseModel.create<NavigatorEntryModel>(core.cpParent, existingId);
+                            }
+                        }
+                    }
+                    if (entry == null) {
                         entry = DbBaseModel.addEmpty<NavigatorEntryModel>(core.cpParent);
                         entry.name = menu.name.Trim();
                         entry.parentId = parentId;
-                    } else {
-                        entry = entryList.First();
                     }
                     if (contentId <= 0) {
                         entry.contentId = 0;
