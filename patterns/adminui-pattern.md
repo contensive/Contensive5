@@ -103,6 +103,74 @@ if (filterAfterDate.HasValue) { sqlWhere += $" and(dateAdded>={cp.Db.EncodeSQLDa
 ```
 
 
+### Implementing Pagination in a List LayoutBuilder
+
+The List LayoutBuilder supports built-in pagination. The layout handles the pagination UI automatically — the client program is responsible for setting the total record count, using the page number and page size in its SQL query, and providing the callback addon GUID so the layout can re-execute the addon on page changes.
+
+#### Key Properties
+
+- **`layoutBuilder.paginationPageNumber`** — The current page number (1-based). Read this value and use it in your SQL OFFSET calculation.
+- **`layoutBuilder.paginationPageSize`** — The number of rows per page. Read this value to limit your SQL query results.
+- **`layoutBuilder.callbackAddonGuid`** — Set this to your addon's GUID. The pagination UI uses this to call back into your addon when the user navigates pages.
+- **`layoutBuilder.recordCount`** — Set this to the total number of records matching your query (before pagination). The layout uses this to calculate total pages and render pagination controls.
+- **`layoutBuilder.sqlOrderBy`** — The current sort order selected by the user through column header clicks. Use this in your SQL `ORDER BY` clause, falling back to a default if empty.
+
+#### Pagination Pattern
+
+The implementation follows these steps:
+
+1. **Set the callback GUID** so the layout can re-invoke your addon on page changes.
+2. **Run a COUNT query** to get the total record count and assign it to `layoutBuilder.recordCount`.
+3. **Run a SELECT query** using `layoutBuilder.paginationPageNumber` and `layoutBuilder.paginationPageSize` in a SQL `OFFSET...FETCH NEXT` clause.
+4. **Use `layoutBuilder.sqlOrderBy`** in your `ORDER BY` clause, with a fallback default.
+
+#### Example: AccountManagerUsersAddon
+
+See `\examples\LayoutBuilderListExample\AccountManagerUsersAddon.cs` for a full working example. The key sections are shown below.
+
+```csharp
+// -- init layoutbuilder with callback guid for pagination
+var layoutBuilder = cp.AdminUI.CreateLayoutBuilderList();
+layoutBuilder.title = "Users";
+layoutBuilder.callbackAddonGuid = Constants.guidAddonUserList;
+
+// -- get the total record count (before pagination)
+string sqlCount = @$"
+    select count(*)
+    from ccmembers u
+        left join mmMembershipPeopleRules mar on mar.memberId=u.id
+        left join abaccounts a on a.id=mar.accountid
+    where 1=1
+        and(a.id>0)
+        {sqlWhere}
+    ";
+using (DataTable dt = cp.Db.ExecuteQuery(sqlCount)) {
+    if (dt?.Rows != null && dt.Rows.Count == 1) {
+        layoutBuilder.recordCount = cp.Utils.EncodeInteger(dt.Rows[0][0]);
+    }
+}
+
+// -- query data with pagination using OFFSET...FETCH NEXT
+string sql = @$"
+    select
+        u.id as userId, u.name as userName,
+        a.id as accountid, a.name as accountname
+    from ccmembers u
+        left join mmMembershipPeopleRules mar on mar.memberId=u.id
+        left join abaccounts a on a.id=mar.accountid
+    where 1=1
+        and(a.id>0)
+        {sqlWhere}
+    order by
+        {(string.IsNullOrEmpty(layoutBuilder.sqlOrderBy) ? "u.name" : layoutBuilder.sqlOrderBy)}
+    OFFSET
+        {(layoutBuilder.paginationPageNumber - 1) * layoutBuilder.paginationPageSize} ROWS
+        FETCH NEXT {layoutBuilder.paginationPageSize} ROWS ONLY
+    ";
+```
+
+The `OFFSET` is calculated as `(paginationPageNumber - 1) * paginationPageSize` because `paginationPageNumber` is 1-based. The layout automatically renders page navigation controls based on `recordCount` and `paginationPageSize`.
+
 ### CreateLayoutBuilder
 
 creates an instance of LayoutBuilderBaseClass for basic forms
