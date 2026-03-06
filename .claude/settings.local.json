@@ -19,7 +19,9 @@
       "Bash(cmd //c \"whoami\")",
       "Bash(icacls \"C:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\\\\bin\\\\Debug\\\\en-us\\\\ContensiveConsole-Debug-x64.msi\")",
       "Bash(dotnet build:*)",
-      "Bash(cmd //c jay-build.cmd:*)"
+      "Bash(cmd //c jay-build.cmd:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)"
     ]
   }
 }

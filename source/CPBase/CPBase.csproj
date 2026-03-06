@@ -8,6 +8,7 @@
 	<SignAssembly>True</SignAssembly>
 	<AssemblyOriginatorKeyFile>CPBase2.snk</AssemblyOriginatorKeyFile>
 	<PackageId>Contensive.CPBaseClass</PackageId>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>
