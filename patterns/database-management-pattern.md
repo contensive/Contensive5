@@ -7,8 +7,8 @@ The Contensive architecture provides a database api
 ## Naming Convensions
 
 - tables are named first with a 2 letter prefix that represents the collection that installed them
-- table names are camel case with no dashes
-- fields are camelcase with no dashes
+- table names are camel case with no dashes and no underscores
+- fields are camelcase with no dashes and no underscores
 - foreign keys are named with the table they refernce followed by the field in that table where they connect
 
 ## Basic required Fields
