@@ -6,8 +6,12 @@
   href: control-panel-pattern.md
 - name: Dashboard Widget Pattern
   href: dashboard-widget-pattern.md
+- name: Addon Collection Pattern
+  href: addon-collection-pattern.md
 - name: Database Management Pattern
   href: database-management-pattern.md
+- name: Database Models Pattern
+  href: database-models-pattern.md
 - name: Diagnostic Addon Pattern
   href: diagnostic-addon-patter.md
 - name: Help Doc Pattern
