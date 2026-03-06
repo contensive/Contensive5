@@ -1,6 +1,6 @@
 - name: Docs
   href: docs/
 - name: Patterns
-  href: patterns/
+  href: patterns/index.html
 - name: API
   href: api/
