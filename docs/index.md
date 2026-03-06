@@ -2,10 +2,7 @@
 _layout: landing
 ---
 
-# This is the **HOMEPAGE**.
+# Contensive
 
-Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
-
-## Quick Start Notes:
-
-1. Add images to the *images* folder if the file is referencing an image.
+- The API is human and AI readable
+- The Patterns documents are available for AI coding assistance.
