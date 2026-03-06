@@ -5,7 +5,7 @@
 [Detailed explanation, history, why this pattern exists]
 The Contensive platform creates an extensabilty framework for managing and executing addons in several context, including websites, web applications, command line, and background tasks (windows services)
 
-Outside repositories reference this document with this link
+Contensive Add-on collections follow the contensive architecture
 - [Contensive Architecture](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/contensive-architecture.md)
 
 ## Patterns

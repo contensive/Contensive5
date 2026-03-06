@@ -21,7 +21,9 @@
       "Bash(dotnet build:*)",
       "Bash(cmd //c jay-build.cmd:*)",
       "Bash(find:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(cmd /c jay-build.cmd:*)",
+      "Bash(cmd.exe /c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts && jay-build.cmd\")"
     ]
   }
 }

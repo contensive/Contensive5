@@ -79,6 +79,7 @@ Active filters are managed automatically. When a filter has a value, an active f
 
 ```csharp
 var layoutBuilder = cp.AdminUI.CreateLayoutBuilderList();
+// addon guid string best practice is to include the curly brace prefix and suffix
 layoutBuilder.callbackAddonGuid = "{your-addon-guid}";
 
 // -- read filter values first (persisted in visit)
@@ -111,7 +112,7 @@ The List LayoutBuilder supports built-in pagination. The layout handles the pagi
 
 - **`layoutBuilder.paginationPageNumber`** — The current page number (1-based). Read this value and use it in your SQL OFFSET calculation.
 - **`layoutBuilder.paginationPageSize`** — The number of rows per page. Read this value to limit your SQL query results.
-- **`layoutBuilder.callbackAddonGuid`** — Set this to your addon's GUID. The pagination UI uses this to call back into your addon when the user navigates pages.
+- **`layoutBuilder.callbackAddonGuid`** — Set this to your addon's GUID. Best practice is to include the curly brace prefix and suffix. The pagination UI uses this to call back into your addon when the user navigates pages.
 - **`layoutBuilder.recordCount`** — Set this to the total number of records matching your query (before pagination). The layout uses this to calculate total pages and render pagination controls.
 - **`layoutBuilder.sqlOrderBy`** — The current sort order selected by the user through column header clicks. Use this in your SQL `ORDER BY` clause, falling back to a default if empty.
 

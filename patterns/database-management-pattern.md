@@ -2,30 +2,47 @@
 # Database Management Pattern
 
 ## Overview
-The Contensive architecture provides a database api and 
+The Contensive architecture provides a database api
 
-## AdminUI Pattern
+## Naming Convensions
 
-The adminUI is a pattern used to create all tools and views and is created from methods available in the common progamming object used for object injection, the CP object.
+- tables are named first with a 2 letter prefix that represents the collection that installed them
+- table names are camel case with no dashes
+- fields are camelcase with no dashes
+- foreign keys are named with the table they refernce followed by the field in that table where they connect
 
-For details about how to use the AdminUI pattern see the adminui-pattern.md document in the patterns folder of the github contensive account, contensive5 repo
+## Basic required Fields
 
-## Top Navigation
+These fields are automatically created when a table is created in a Contensive Definition
 
-The top nav is made of the following sections
-- Help
-- Warnings
-- Content
-- System
-- Design
-- Comm
-- Reports
-- Tools 
-- Settings
-- Users
+- id
+- name
+- dateAdded
+- createdBy
+- modifiedBy
+- modifiedDate
+- sortOrder
+- active
+- ccGuid
 
-Features selected from the nav can be content or addons. They are installed from collection xml files they are added to nav
-- A content definition cdef node has an attribute NavTypeId set to the nav section
-- The attribute addoncategoryid is used to group features within a drop-down. 
-- Addons are added to the nav with the collection file addon node's type attribute.
-- addons categories in the nav are created with the cdef node Category
+## Content Definitions
+
+Contensive defines database tables and fields by creating Contensive Definitions in the xml collection files used to install add-on collections.
+
+Database indexes are automatically added for the required fields. Additional indexes required are added with SqlIndex nodes in the xml addon collection.
+
+## CP.Db methods
+
+Interface to the database is through the cp.db methods. Queries should be written in the Db Model at the center of the query.
+
+All query construction must wrap input values to prevent sql injection
+- cp.db.EncodeSqlText() to manage strings
+- cp.db.EncodeSqlTextLike() for like queries
+- cp.db.EncodeSqlInteger() for integers
+- cp.db.EncodeSqlNumber() for float
+- cp.db.EncodeSqlBoolean() for boolean
+- cp.db.EncodeSqlDate() for datetime
+
+## Code Models
+
+The ORM pattern created by Contensive.Models should be used for convenient coding.

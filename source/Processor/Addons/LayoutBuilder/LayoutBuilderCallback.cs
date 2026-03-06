@@ -1,8 +1,6 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.Models.Db;
 using System;
-using System.Reflection;
-using System.Text;
+using System.Data;
 //
 namespace Contensive.Processor.Addons.LayoutBuilder {
     /// <summary>
@@ -24,7 +22,12 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 //
                 // -- get the addon from the callback
                 var callbackAddonGuid = cp.Doc.GetText("callbackAddonGuid");
-                if (string.IsNullOrEmpty(callbackAddonGuid)) { return "<!-- callbackAddonGuid empty -->"; }
+                if (string.IsNullOrEmpty(callbackAddonGuid)) { return "The callbackAddonGuid is missing."; }
+                //
+                // -- verify the addon exists
+                using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 id from ccaggregatefunctions where ccguid={cp.Db.EncodeSQLText(callbackAddonGuid)} and active>0")) {
+                    if (dt?.Rows == null || dt.Rows.Count == 0) { return $"The callbackAddonGuid [{callbackAddonGuid}] does not match an addon."; }
+                }
                 //
                 // -- execute the addon with the requests filter doc properties
                 return cp.Addon.Execute(callbackAddonGuid);
