@@ -1,0 +1,26 @@
+- name: Contensive Architecture
+  href: contensive-architecture.md
+- name: AdminUI Pattern
+  href: adminui-pattern.md
+- name: Control Panel Pattern
+  href: control-panel-pattern.md
+- name: Dashboard Widget Pattern
+  href: dashboard-widget-pattern.md
+- name: Database Management Pattern
+  href: database-management-pattern.md
+- name: Diagnostic Addon Pattern
+  href: diagnostic-addon-patter.md
+- name: Help Doc Pattern
+  href: help-doc-pattern.md
+- name: Layout Design Pattern
+  href: layout-design-pattern.md
+- name: Page Template Design Pattern
+  href: page-template-design-pattern.md
+- name: Page Widget Pattern
+  href: page-widget-pattern.md
+- name: Portal Pattern
+  href: portal-pattern.md
+- name: Process Addon Pattern
+  href: process-addon-pattern.md
+- name: Remote Method Pattern
+  href: remote-method-pattern.md
