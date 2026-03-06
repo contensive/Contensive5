@@ -8,10 +8,7 @@ Contensive5 is an enterprise-grade addon execution framework that provides hardw
 
 ## Common Patterns
 
-- \patterns\contensive-architecture.md
-- \patterns\dashboard-widget-pattern.md
-- \patterns\page-widget-pattern.md
-- \patterns\remote-method-pattern.md
+- https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/contensive-architecture.md
 
 ## Samples 
 
