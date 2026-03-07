@@ -1,5 +1,5 @@
 # Getting Started
-===========
+
 This section describes the core concepts around how Contensive renders a document. The concepts will be accompanied by hands-on examples that will allow you to learn as you go. Get started here to learn how to configure a web server with Contensive and start implementing new features!
 * * *
 Optional: Create a Server
