@@ -1,6 +1,8 @@
 
 # Diagnostic Addon Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 A diagnostic addon is an addon configured to be run by the system when the /status method is executed. 
 

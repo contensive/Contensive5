@@ -1,6 +1,8 @@
 
 # Dashboard Widget Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 A Dashboard Widget is a Contensive addon that can be added to the control panel dashboard.
 

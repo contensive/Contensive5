@@ -1,6 +1,8 @@
 
 # AdminUI Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 The adminUI pattern is used to create tools and reports that display in the contensive control panel with a consistent look and feel.
 
 ## Overview

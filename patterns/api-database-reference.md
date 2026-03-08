@@ -1,5 +1,7 @@
 # Database API Reference
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 > Source files: `source/Models/Models/Db/DbBaseModel.cs`, `source/Models/Models/Db/DbBaseFieldsModel.cs`, `source/CPBase/BaseClasses/CPDbBaseClass.cs`, `source/CPBase/BaseClasses/CPCSBaseClass.cs`
 
 ## When to Use Which API

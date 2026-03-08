@@ -1,6 +1,8 @@
 
 # TEmpalte Design Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 The Contensive Page Manager addon creates a website using Contensive when configured. Page Manager composes a page by creating the body from a page template and constructing the content prepared by content managers.
 

@@ -1,6 +1,8 @@
 
 # Layout Design Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 UI Design and server-side code at managed separately. All UI design elements are managed with layout files for addon design and template files for website design. Server-side code are created as dotnet classes compatible with the Contensive addon pattern.
 

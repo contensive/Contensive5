@@ -1,6 +1,8 @@
 
 # Remote Method Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 [Detailed explanation, history, why this pattern exists]
 A Remote Method is an addon that can is executed when an endpoint is hit that matches the addon's name. The addon can update the application data and its return is returned as the response to the endpoint.

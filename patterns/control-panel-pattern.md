@@ -1,6 +1,8 @@
 
 # Control Panel Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 The control panel is an addon called Admin Site, insalled with the base collection, aoBase51.xml. It is executed on the endpoint defined in the config.json file. 
 

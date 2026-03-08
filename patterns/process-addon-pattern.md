@@ -1,6 +1,8 @@
 
 # Process Addon Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 A process addon is an addon configured to run in the background without a UI on a periodic or on-demand schedule.
 

@@ -1,6 +1,8 @@
 
 # Database Management Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 The Contensive architecture provides a database api
 

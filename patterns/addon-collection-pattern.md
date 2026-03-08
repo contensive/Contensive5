@@ -1,6 +1,8 @@
 
 # Addon Collection XML Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 
 An Addon Collection XML file defines everything needed to install and configure a Contensive addon collection. It declares the collection metadata, content definitions (CDefs), addons, navigator entries, SQL indexes, data records, resource files, and dependency imports. The installer reads this file to create or update all database metadata, deploy files, and register addons.

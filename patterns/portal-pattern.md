@@ -1,6 +1,8 @@
 
 # Portal Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 A portal is a way to group one or more features together into a single UI environment with a common subject. For example the Account Manager portal groups together all individual features related to managing ecommerce accounts. Features can be data from content definitions or executable code form addons. Portals should be installed from the same Addon Collection xml file.
 

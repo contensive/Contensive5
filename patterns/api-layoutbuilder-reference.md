@@ -1,5 +1,7 @@
 # LayoutBuilder API Reference
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 > Source files: `source/CPBase/BaseClasses/LayoutBuilder/LayoutBuilderBaseClass.cs`, `LayoutBuilderListBaseClass.cs`, `LayoutBuilderToolFormBaseClass.cs`, `LayoutBuilderTwoColumnLeftBaseClass.cs`, `LayoutBuilderTwoColumnRightBaseClass.cs`, `LayoutBuilderTabbedBodyBaseClass.cs`, `LayoutBuilderNameValueBaseClass.cs`
 
 LayoutBuilder classes create admin UI forms, lists, and layouts. All inherit from `LayoutBuilderBaseClass`.

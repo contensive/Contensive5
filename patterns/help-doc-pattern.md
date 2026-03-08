@@ -1,5 +1,7 @@
 # Contensive Help Doc Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 This document describes the Contensive Help Documentation pattern — a markdown-based help system with AI-powered semantic search. Every Contensive addon collection can contribute help content by including markdown files in its build. The Help Pages addon indexes all content and provides a unified search and navigation experience at /help.
 
 All new projects should follow this pattern for help content.

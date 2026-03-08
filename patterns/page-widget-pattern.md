@@ -1,6 +1,8 @@
 
 # Page Widget Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 [Detailed explanation, history, why this pattern exists]
 A Page Widget is an addon that can be drag-and-dropped on a web page of a Contensive Website using the Contensive Widget Tool.

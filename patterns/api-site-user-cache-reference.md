@@ -1,5 +1,7 @@
 # Site, User & Cache API Reference
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 > Source files: `source/CPBase/BaseClasses/CPSiteBaseClass.cs`, `CPUserBaseClass.cs`, `CPCacheBaseClass.cs`, `CPContentBaseClass.cs`, `CPVisitBaseClass.cs`, `CPVisitorBaseClass.cs`
 
 ---

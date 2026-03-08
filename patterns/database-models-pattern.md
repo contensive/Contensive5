@@ -1,6 +1,8 @@
 
 # Database Models Pattern
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 ## Overview
 
 Contensive database models are C# classes that map to database tables and provide CRUD operations, caching, and type-safe access to record data. All models inherit from `DbBaseModel`, which provides a rich set of static and instance methods for creating, reading, updating, and deleting records.

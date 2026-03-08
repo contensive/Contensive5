@@ -1,5 +1,7 @@
 # Filesystem & Utilities API Reference
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 > Source files: `source/CPBase/BaseClasses/CPFileSystemBaseClass.cs`, `CPHttpBaseClass.cs`, `CPUtilsBaseClass.cs`, `CPGroupBaseClass.cs`, `CPHtmlBaseClass.cs`, `CPMustacheBaseClass.cs`, `CPSecurityBaseClass.cs`, `CPSecretsBaseClass.cs`
 
 ---

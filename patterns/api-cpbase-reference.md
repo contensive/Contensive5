@@ -1,5 +1,7 @@
 # CPBase API Reference
 
+> All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
 > Source files: `source/CPBase/BaseClasses/CPBaseClass.cs`, `CPAddonBaseClass.cs`, `CPDocBaseClass.cs`, `CPRequestBaseClass.cs`, `CPResponseBaseClass.cs`, `CPEmailBaseClass.cs`, `CPLogBaseClass.cs`
 
 ## CPBaseClass — The `cp` Object
