@@ -8,30 +8,11 @@ The Contensive platform creates an extensabilty framework for managing and execu
 Contensive Add-on collections follow the contensive architecture
 - [Contensive Architecture](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/contensive-architecture.md)
 
-## Patterns
+## Patterns & API Reference
 
-Contensive5 follows key patterns documented in the public repository:
+All patterns and API reference documents are indexed in a single location:
 
-- [CPBaseClass Api] (https://contensive.github.io/Contensive5/api/Contensive.BaseClasses.html)
-- [LayoutBuilder Api] (https://contensive.github.io/Contensive5/api/Contensive.BaseClasses.LayoutBuilder.html)
-- [PortalBuilder Api] (https://contensive.github.io/Contensive5/api/Contensive.BaseClasses.PortalBuilder.html)
-- [BaseModels Api] (https://contensive.github.io/Contensive5/api/Contensive.BaseModels.html)
-
-
-- [AdminUI Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/adminui-pattern.md)
-- [Control Panel Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/control-panel-pattern.md)
-- [Dashboard Widget Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/dashboard-widget-pattern.md)
-- [Addon Collection Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/addon-collection-pattern.md)
-- [Database Management Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/database-management-pattern.md)
-- [Database Models Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/database-models-pattern.md)
-- [Diagnostic Addon Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/diagnostic-addon-patter.md)
-- [Help Doc Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/help-doc-pattern.md)
-- [Layout Design Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/layout-design-pattern.md)
-- [Page Template Design Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/page-template-design-pattern.md)
-- [Page Widget Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/page-widget-pattern.md)
-- [Portal Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/portal-pattern.md)
-- [Process Addon Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/process-addon-pattern.md)
-- [Remote Method Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/remote-method-pattern.md)
+- [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
 
 ## Contensive Collections
 A collection is a group of features that are installed and maintained together. For example Ecommerce is a collection that includes account management features, reports, and an online catalog.
