@@ -119,6 +119,9 @@ namespace Contensive.Processor.Controllers {
             using CPClass cpApp = new(appKvp.Value.name);
             try {
                 //
+                // -- delete stale tasks that have a runner assigned but are more than 24 hours old
+                cpApp.Db.ExecuteNonQuery("delete from cctasks where (cmdRunner is not null) and (DateAdded < DATEADD(hour, -24, GETDATE()))");
+                //
                 // -- runonce
                 string sql = $@"
                     update ccAggregateFunctions

@@ -6,11 +6,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Contensive5 is an enterprise-grade addon execution framework that provides hardware abstraction and simplifies code reuse through a modular addon system. It's a sophisticated runtime environment that executes addons (extensible modules) while providing abstraction layers for system resources.
 
-## Common Patterns
+## Patterns & API Reference
 
-- https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/contensive-architecture.md
+- https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md
 
-## Samples 
+## External API Documentation (HTML)
+
+- [CPBaseClass Api](https://contensive.github.io/Contensive5/api/Contensive.BaseClasses.html)
+- [LayoutBuilder Api](https://contensive.github.io/Contensive5/api/Contensive.BaseClasses.LayoutBuilder.html)
+- [PortalBuilder Api](https://contensive.github.io/Contensive5/api/Contensive.BaseClasses.PortalBuilder.html)
+- [BaseModels Api](https://contensive.github.io/Contensive5/api/Contensive.BaseModels.html)
+
+## Samples
 
 - Page Widget Example,  \examples\PageWidgetExample
 - Remote Method Example, \examples\RemoteMethodExample
