@@ -110,7 +110,7 @@ cd ..\..\scripts
 
 ### 4. Package UI Assets (optional)
 
-If the project has UI files (layouts, CSS, JS, images), zip them into the collection folder using 7-Zip. Each UI subfolder is typically zipped separately.
+If the project has UI files (layouts, CSS, JS, images), zip them into a `ui.zip` in the collection folder using 7-Zip.
 
 ```cmd
 rem ==============================================================
@@ -118,12 +118,12 @@ rem
 rem copy UI files
 rem
 
-cd ..\ui\featureName
-"c:\program files\7-zip\7z.exe" a "..\..\collections\collectionName\uiFeatureName.zip"
-cd ..\..\scripts
+cd ..\ui
+"c:\program files\7-zip\7z.exe" a "%collectionPath%ui.zip"
+cd ..\scripts
 ```
 
-UI zip files are included as resources in the collection XML and installed to the site's content files.
+The `ui.zip` is included as a resource in the collection XML and installed to the site's content files.
 
 ### 5. Package Help Files (optional)
 
@@ -142,7 +142,7 @@ cd ..\scripts
 
 The collection XML must include a corresponding resource node:
 ```xml
-<Resource name="HelpFiles.zip" type="privatefiles" path="helpfiles/collectionName" />
+<Resource name="HelpFiles.zip" type="helpfiles" path="" />
 ```
 
 ### 6. Build the Solution
@@ -221,7 +221,7 @@ cd ..\..\scripts
 
 ### 9. Clean Up Collection Folder
 
-After the collection zip is built, remove the DLLs and temporary zip files from the collection folder. This prevents developers from accidentally editing files in the wrong location.
+After the collection zip is built, remove the DLLs and the temporary resource zip files (like `HelpFiles.zip` and UI zips) from the collection folder. These resource zips were created during the build from source folders and will be recreated on the next build. The collection zip itself stays in the collection folder.
 
 ```cmd
 rem ==============================================================
@@ -232,7 +232,8 @@ rem
 cd %collectionPath%
 
 del *.dll
-del *.zip
+del HelpFiles.zip
+del ui.zip
 
 cd ..\..\scripts
 ```

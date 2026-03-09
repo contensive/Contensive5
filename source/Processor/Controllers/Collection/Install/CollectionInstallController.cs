@@ -358,6 +358,7 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping www file [{core.appConfig.localWwwPath}{dstDosPath}{filename}].");
                                                                 core.wwwFiles.unzipFile(dstDosPath + filename);
+                                                                core.wwwFiles.deleteFile(dstDosPath + filename);
                                                                 // -- track the base folder and recursively track all extracted files and subfolders
                                                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "www", folderPath = dstDosPath });
                                                                 ResourceManifestModel.addFilesAndFoldersRecursively(core.wwwFiles, dstDosPath, "www", resourceManifest);
@@ -378,6 +379,7 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping privateFiles file [{dstDosPath}{filename}].");
                                                                 core.privateFiles.unzipFile(dstDosPath + filename);
+                                                                core.privateFiles.deleteFile(dstDosPath + filename);
                                                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "private", folderPath = dstDosPath });
                                                                 trackedFolders.Add($"private::{dstDosPath}");
                                                                 ResourceManifestModel.addFilesAndFoldersRecursively(core.privateFiles, dstDosPath, "private", resourceManifest);
@@ -400,6 +402,7 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping cdnFiles [{dstDosPath}{filename}].");
                                                                 core.cdnFiles.unzipFile(dstDosPath + filename);
+                                                                core.cdnFiles.deleteFile(dstDosPath + filename);
                                                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "cdn", folderPath = dstDosPath });
                                                                 trackedFolders.Add($"cdn::{dstDosPath}");
                                                                 ResourceManifestModel.addFilesAndFoldersRecursively(core.cdnFiles, dstDosPath, "cdn", resourceManifest);
@@ -433,6 +436,16 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping helpFiles file [{helpFilesDstPath}{filename}].");
                                                                 core.privateFiles.unzipFile(helpFilesDstPath + filename);
+                                                                core.privateFiles.deleteFile(helpFilesDstPath + filename);
+                                                                //
+                                                                // -- prefix each extracted file with collection name
+                                                                foreach (var extractedFile in core.privateFiles.getFileList(helpFilesDstPath)) {
+                                                                    string prefixedName = $"{CollectionName}.{extractedFile.Name}";
+                                                                    if (!extractedFile.Name.Equals(prefixedName, StringComparison.OrdinalIgnoreCase)) {
+                                                                        core.privateFiles.copyFile(helpFilesDstPath + extractedFile.Name, helpFilesDstPath + prefixedName);
+                                                                        core.privateFiles.deleteFile(helpFilesDstPath + extractedFile.Name);
+                                                                    }
+                                                                }
                                                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "helpfiles", folderPath = helpFilesDstPath });
                                                                 trackedFolders.Add($"helpfiles::{helpFilesDstPath}");
                                                                 ResourceManifestModel.addFilesAndFoldersRecursively(core.privateFiles, helpFilesDstPath, "helpfiles", resourceManifest);
