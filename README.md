@@ -5,9 +5,11 @@ Contensive5 is an enterprise-grade addon execution framework that provides hardw
 Add this reference to projects needing to reference Contensive development
 - https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/README.md
 
-## Patterns & API Reference
+## Contensive Patterns
 
-- https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md
+When a "contensive pattern" is referenced (e.g., "build-script-pattern"), find the pattern in this document:
+
+https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md
 
 ## External API Documentation (HTML)
 
