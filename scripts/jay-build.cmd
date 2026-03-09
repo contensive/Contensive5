@@ -12,7 +12,6 @@ cls
 @echo When ready, hit any key to continue
 @echo .
 @echo +++++++++++++++++++++++++++++
-pause
 rem 
 rem echo on
 
@@ -119,7 +118,7 @@ rem rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\bin"
 rem del /s /q "C:\Git\Contensive5\source\Cli.Installer\obj"
 rem rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\obj"
 
-rem pause
+rem
 
 rem ==============================================================
 rem
@@ -141,7 +140,7 @@ rem copy default article and articles for the  Help Pages collection
 "c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 
 cd ..\scripts
 
-rem pause
+rem
 
 rem ==============================================================
 rem
@@ -172,7 +171,7 @@ rem
 c:
 copy "C:\Git\Contensive5\source\Processor\Collection.xsd" "%deploymentFolderRoot%%versionNumber%\"
 
-rem pause
+rem
 
 rem ==============================================================
 rem
@@ -185,7 +184,7 @@ copy "C:\Git\Contensive5\etc\install-readme.txt" "%deploymentFolderRoot%%version
 copy "C:\Git\Contensive5\etc\install.cmd" "%deploymentFolderRoot%%versionNumber%\"
 copy "C:\Git\Contensive5\etc\uninstall.cmd" "%deploymentFolderRoot%%versionNumber%\"
 
-rem pause
+rem
 
 rem ==============================================================
 rem
@@ -199,14 +198,14 @@ cd ..\source
 dotnet clean contensivecommon.sln
 if errorlevel 1 (
    echo failure cleaning common solution
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building CPBase
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
@@ -214,49 +213,49 @@ rem asssembly product version was set 20.0.0.0, properties, package, packageid w
 dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building Models
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
    echo failure building Processor
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet build taskservice/taskservice.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
    echo failure building taskservice
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet build cli/cli.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
    echo failure building cli
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack CPBase
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack Models
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
 dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net48
 if errorlevel 1 (
    echo failure pack Processor
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
@@ -297,7 +296,7 @@ dotnet remove package Contensive.Processor
 dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
 cd ..\..\scripts
 
-rem pause 
+rem 
 
 rem ==============================================================
 rem
@@ -308,7 +307,7 @@ cd ..\source
 "%msbuildLocation%msbuild.exe" contensiveAspx.sln /p:DeployOnBuild=true /p:PublishProfile=defaultSite
 if errorlevel 1 (
    echo failure building contensiveAspx
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
@@ -316,7 +315,7 @@ xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
 
 cd ..\scripts
 
-rem pause
+rem
 
 rem ==============================================================
 rem
@@ -326,8 +325,6 @@ rem
 
 
 copy "C:\Git\Contensive5\source\Cli\bin\Debug\net48\cc.exe.config" "C:\Git\Contensive5\source\TaskService\bin\Debug\TaskService.exe.config"
-
- pause
 
 
 rem ==============================================================
@@ -342,7 +339,7 @@ rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Curre
 "%msbuildLocation%msbuild.exe" cli.installer\cli.installer.wixproj
 if errorlevel 1 (
 echo failure building cli installer
-   pause
+   rem pause
    exit /b %errorlevel%
 )
 
@@ -372,11 +369,9 @@ nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %Nu
 nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-rem pause
+rem
 
 rem ==============================================================
 rem
 rem done
 rem
-
-pause

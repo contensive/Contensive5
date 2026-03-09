@@ -300,6 +300,14 @@ namespace Contensive.Processor.Controllers {
                                 string ContentFileList = "";
                                 string ExecFileList = "";
                                 bool collectionIncludesDiagnosticAddon = false;
+                                //
+                                // -- create resource manifest to track installed resource files
+                                var resourceManifest = new ResourceManifestModel {
+                                    collectionGuid = collectionGuid,
+                                    collectionName = CollectionName,
+                                    installedDate = core.dateTimeNowMockable
+                                };
+                                var trackedFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                                 foreach (XmlNode MetaDataSection in Doc.DocumentElement.ChildNodes) {
                                     switch (MetaDataSection.Name.ToLowerInvariant()) {
                                         case "resource": {
@@ -345,26 +353,40 @@ namespace Contensive.Processor.Controllers {
                                                     case "wwwroot":
                                                     case "www": {
                                                             wwwFileList += Environment.NewLine + dstDosPath + filename;
-                                                            logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to wwwFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + core.appConfig.localWwwPath + dstDosPath + "].");
+                                                            logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, copying file to wwwFiles, src [{CollectionVersionFolder}{SrcPath}], dst [{core.appConfig.localWwwPath}{dstDosPath}].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.wwwFiles);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping www file [" + core.appConfig.localWwwPath + dstDosPath + filename + "].");
+                                                                logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping www file [{core.appConfig.localWwwPath}{dstDosPath}{filename}].");
                                                                 core.wwwFiles.unzipFile(dstDosPath + filename);
-                                                                // cannot delete the zip because it may need to be exported
-                                                                //core.wwwFiles.deleteFile(dstDosPath + filename);
+                                                                // -- track the base folder and recursively track all extracted files and subfolders
+                                                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "www", folderPath = dstDosPath });
+                                                                ResourceManifestModel.addFilesAndFoldersRecursively(core.wwwFiles, dstDosPath, "www", resourceManifest);
+                                                            } else {
+                                                                resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "www", destinationPath = dstDosPath + filename });
+                                                                if (!string.IsNullOrEmpty(dstDosPath) && !trackedFolders.Contains($"www::{dstDosPath}")) {
+                                                                    trackedFolders.Add($"www::{dstDosPath}");
+                                                                    resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "www", folderPath = dstDosPath });
+                                                                }
                                                             }
                                                             break;
                                                         }
                                                     case "privatefiles":
                                                     case "private": {
                                                             ContentFileList += Environment.NewLine + dstDosPath + filename;
-                                                            logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to privateFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
+                                                            logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, copying file to privateFiles, src [{CollectionVersionFolder}{SrcPath}], dst [{dstDosPath}].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping privateFiles file [" + dstDosPath + filename + "].");
+                                                                logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping privateFiles file [{dstDosPath}{filename}].");
                                                                 core.privateFiles.unzipFile(dstDosPath + filename);
-                                                                // cannot delete the zip because it may need to be exported
-                                                                //core.privateFiles.deleteFile(dstDosPath + filename);
+                                                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "private", folderPath = dstDosPath });
+                                                                trackedFolders.Add($"private::{dstDosPath}");
+                                                                ResourceManifestModel.addFilesAndFoldersRecursively(core.privateFiles, dstDosPath, "private", resourceManifest);
+                                                            } else {
+                                                                resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "private", destinationPath = dstDosPath + filename });
+                                                                if (!string.IsNullOrEmpty(dstDosPath) && !trackedFolders.Contains($"private::{dstDosPath}")) {
+                                                                    trackedFolders.Add($"private::{dstDosPath}");
+                                                                    resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "private", folderPath = dstDosPath });
+                                                                }
                                                             }
                                                             break;
                                                         }
@@ -373,13 +395,20 @@ namespace Contensive.Processor.Controllers {
                                                     case "cdnfiles":
                                                     case "content": {
                                                             ContentFileList += Environment.NewLine + dstDosPath + filename;
-                                                            logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to cdnFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
+                                                            logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, copying file to cdnFiles, src [{CollectionVersionFolder}{SrcPath}], dst [{dstDosPath}].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.cdnFiles);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping cdnFiles [" + dstDosPath + filename + "].");
+                                                                logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping cdnFiles [{dstDosPath}{filename}].");
                                                                 core.cdnFiles.unzipFile(dstDosPath + filename);
-                                                                // cannot delete the zip because it may need to be exported
-                                                                //core.cdnFiles.deleteFile(dstDosPath + filename);
+                                                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "cdn", folderPath = dstDosPath });
+                                                                trackedFolders.Add($"cdn::{dstDosPath}");
+                                                                ResourceManifestModel.addFilesAndFoldersRecursively(core.cdnFiles, dstDosPath, "cdn", resourceManifest);
+                                                            } else {
+                                                                resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "cdn", destinationPath = dstDosPath + filename });
+                                                                if (!string.IsNullOrEmpty(dstDosPath) && !trackedFolders.Contains($"cdn::{dstDosPath}")) {
+                                                                    trackedFolders.Add($"cdn::{dstDosPath}");
+                                                                    resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "cdn", folderPath = dstDosPath });
+                                                                }
                                                             }
                                                             break;
                                                         }
@@ -429,8 +458,66 @@ namespace Contensive.Processor.Controllers {
                                     ExecFileList = ExecFileList + Environment.NewLine + filename;
                                 }
                                 //
+                                // -- save the resource manifest and clean up orphaned files from previous version
+                                {
+                                    //
+                                    // -- load old manifest before saving new one
+                                    var oldManifest = ResourceManifestModel.load(core, CollectionVersionFolder);
+                                    //
+                                    // -- save the new manifest
+                                    ResourceManifestModel.save(core, CollectionVersionFolder, resourceManifest);
+                                    //
+                                    // -- delete orphaned files from the previous version
+                                    if (oldManifest != null && oldManifest.resources != null) {
+                                        var newPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                        foreach (var entry in resourceManifest.resources) {
+                                            newPaths.Add($"{entry.type}::{entry.destinationPath}");
+                                        }
+                                        foreach (var oldEntry in oldManifest.resources) {
+                                            if (!newPaths.Contains($"{oldEntry.type}::{oldEntry.destinationPath}")) {
+                                                switch (oldEntry.type.ToLowerInvariant()) {
+                                                    case "www":
+                                                        core.wwwFiles.deleteFile(oldEntry.destinationPath);
+                                                        break;
+                                                    case "private":
+                                                        core.privateFiles.deleteFile(oldEntry.destinationPath);
+                                                        break;
+                                                    case "cdn":
+                                                        core.cdnFiles.deleteFile(oldEntry.destinationPath);
+                                                        break;
+                                                }
+                                                logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], deleted orphaned resource [{oldEntry.type}::{oldEntry.destinationPath}]");
+                                            }
+                                        }
+                                    }
+                                    //
+                                    // -- delete orphaned folders from the previous version (only if empty)
+                                    if (oldManifest != null && oldManifest.folders != null) {
+                                        var newFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                                        foreach (var entry in resourceManifest.folders) {
+                                            newFolders.Add($"{entry.type}::{entry.folderPath}");
+                                        }
+                                        // -- process in reverse so deepest subfolders are checked first
+                                        for (int i = oldManifest.folders.Count - 1; i >= 0; i--) {
+                                            var oldFolder = oldManifest.folders[i];
+                                            if (!newFolders.Contains($"{oldFolder.type}::{oldFolder.folderPath}")) {
+                                                FileController fileSystem = oldFolder.type.ToLowerInvariant() switch {
+                                                    "www" => core.wwwFiles,
+                                                    "private" => core.privateFiles,
+                                                    "cdn" => core.cdnFiles,
+                                                    _ => null
+                                                };
+                                                if (fileSystem != null && fileSystem.getFileList(oldFolder.folderPath).Count == 0 && fileSystem.getFolderList(oldFolder.folderPath).Count == 0) {
+                                                    fileSystem.deleteFolder(oldFolder.folderPath);
+                                                    logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], deleted orphaned empty folder [{oldFolder.type}::{oldFolder.folderPath}]");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //
                                 // ----------------------------------------------------------------------------------------------------------------------------------
-                                logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-2, determine if this collection is already installed");
+                                logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], stage-2, determine if this collection is already installed");
                                 // ----------------------------------------------------------------------------------------------------------------------------------
                                 //
                                 bool OKToInstall = false;

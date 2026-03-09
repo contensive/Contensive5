@@ -2,9 +2,11 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Xml;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -38,7 +40,52 @@ namespace Contensive.Processor.Controllers {
             // -- if this is an add or delete, manage the collection folders
             if (isDelete) {
                 //
-                // todo - if a collection is deleted, consider deleting the collection folder (or saving as archive)
+                // -- collection deleted, use resource manifest to clean up installed files
+                try {
+                    //
+                    // -- the db record is already deleted, so find the collection folder config by name from Collections.xml
+                    CollectionFolderModel folderConfig = findCollectionFolderConfigByName(core, recordName);
+                    if (folderConfig != null && !string.IsNullOrEmpty(folderConfig.path)) {
+                        string collectionVersionFolder = AddonController.getPrivateFilesAddonPath() + folderConfig.path + "\\";
+                        var manifest = ResourceManifestModel.load(core, collectionVersionFolder);
+                        if (manifest != null && manifest.resources != null) {
+                            //
+                            // -- delete all tracked resource files
+                            foreach (var entry in manifest.resources) {
+                                switch (entry.type.ToLowerInvariant()) {
+                                    case "www":
+                                        core.wwwFiles.deleteFile(entry.destinationPath);
+                                        break;
+                                    case "private":
+                                        core.privateFiles.deleteFile(entry.destinationPath);
+                                        break;
+                                    case "cdn":
+                                        core.cdnFiles.deleteFile(entry.destinationPath);
+                                        break;
+                                }
+                            }
+                            //
+                            // -- delete tracked folders if empty (deepest first so subfolders are removed before parents)
+                            if (manifest.folders != null) {
+                                for (int i = manifest.folders.Count - 1; i >= 0; i--) {
+                                    var folder = manifest.folders[i];
+                                    FileController fileSystem = folder.type.ToLowerInvariant() switch {
+                                        "www" => core.wwwFiles,
+                                        "private" => core.privateFiles,
+                                        "cdn" => core.cdnFiles,
+                                        _ => null
+                                    };
+                                    if (fileSystem != null && fileSystem.getFileList(folder.folderPath).Count == 0 && fileSystem.getFolderList(folder.folderPath).Count == 0) {
+                                        fileSystem.deleteFolder(folder.folderPath);
+                                    }
+                                }
+                            }
+                            logger.Info($"{core.logCommonMessage}, collection [{recordName}] deleted, removed {manifest.resources.Count} resource files and checked {manifest.folders?.Count ?? 0} folders via manifest");
+                        }
+                    }
+                } catch (Exception ex) {
+                    logger.Error(ex, $"{core.logCommonMessage}, error cleaning up resource files for deleted collection [{recordName}]");
+                }
             } else {
                 //
                 // -- add or modify collection, verify collection /addon folder
@@ -231,6 +278,44 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Find a collection folder config by name from Collections.xml.
+        /// Used during delete when the db record is already gone and only the record name is available.
+        /// </summary>
+        private static CollectionFolderModel findCollectionFolderConfigByName(CoreController core, string collectionName) {
+            try {
+                string configXml = CollectionFolderModel.getCollectionFolderConfigXml(core);
+                if (string.IsNullOrWhiteSpace(configXml)) { return null; }
+                var doc = new XmlDocument();
+                doc.LoadXml(configXml);
+                foreach (XmlNode configNode in doc.DocumentElement.ChildNodes) {
+                    if (!configNode.Name.ToLowerInvariant().Equals("collection")) { continue; }
+                    var result = new CollectionFolderModel();
+                    foreach (XmlNode childNode in configNode.ChildNodes) {
+                        switch (childNode.Name.ToLowerInvariant()) {
+                            case "name":
+                                result.name = childNode.InnerText;
+                                break;
+                            case "guid":
+                                result.guid = childNode.InnerText;
+                                break;
+                            case "path":
+                                result.path = childNode.InnerText;
+                                break;
+                            case "lastchangedate":
+                                result.lastChangeDate = GenericController.getDate(childNode.InnerText);
+                                break;
+                        }
+                    }
+                    if (result.name.Equals(collectionName, StringComparison.OrdinalIgnoreCase)) { return result; }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}, error finding collection folder config by name [{collectionName}]");
+            }
+            return null;
         }
         //
         //====================================================================================================

@@ -174,8 +174,21 @@ namespace Contensive.Processor.Controllers {
         public static void deleteContentRecord(CoreController core, string contentName, int recordId) {
             var meta = ContentMetadataModel.createByUniqueName(core, contentName);
             if (meta == null) { return; }
-            using var db = new DbController(core, meta.dataSourceName); 
+            //
+            // -- fetch record name before deleting so processAfterSave can use it
+            string recordName = "";
+            int parentId = 0;
+            bool hasParentId = meta.fields.ContainsKey("parentid");
+            string selectFields = hasParentId ? "name, parentid" : "name";
+            using (var dt = core.db.executeQuery($"select {selectFields} from {meta.tableName} where id={recordId}")) {
+                if (dt?.Rows != null && dt.Rows.Count > 0) {
+                    recordName = GenericController.getText(dt.Rows[0]["name"]);
+                    if (hasParentId) { parentId = GenericController.getInteger(dt.Rows[0]["parentid"]); }
+                }
+            }
+            using var db = new DbController(core, meta.dataSourceName);
             core.db.delete(recordId, meta.tableName);
+            ContentController.processAfterSave(core, true, contentName, recordId, recordName, parentId);
         }
         //
         //========================================================================
@@ -189,8 +202,23 @@ namespace Contensive.Processor.Controllers {
         public static void deleteContentRecords(CoreController core, string contentName, string sqlCriteria, int userId = 0) {
             var meta = ContentMetadataModel.createByUniqueName(core, contentName);
             if (meta == null) { return; }
+            //
+            // -- fetch record data before deleting so processAfterSave can use it
+            bool hasParentId = meta.fields.ContainsKey("parentid");
+            string selectFields = hasParentId ? "id, name, parentid" : "id, name";
+            DataTable dt = core.db.executeQuery($"select {selectFields} from {meta.tableName} where {sqlCriteria}");
             using (var db = new DbController(core, meta.dataSourceName)) {
                 core.db.deleteRows(meta.tableName, sqlCriteria);
+            }
+            //
+            // -- call processAfterSave for each deleted record
+            if (dt?.Rows != null) {
+                foreach (DataRow row in dt.Rows) {
+                    int recordId = GenericController.getInteger(row["id"]);
+                    string recordName = GenericController.getText(row["name"]);
+                    int parentId = hasParentId ? GenericController.getInteger(row["parentid"]) : 0;
+                    ContentController.processAfterSave(core, true, contentName, recordId, recordName, parentId);
+                }
             }
         }
         //
