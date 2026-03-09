@@ -38,6 +38,10 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 - [Database Models Pattern](database-models-pattern.md) — creating and using typed database model classes
 - [Database Management Pattern](database-management-pattern.md) — database schema management and conventions
 
+## Build & Deployment
+
+- [Build Script Pattern](build-script-pattern.md) — automating compile, package, and deploy of addon collections
+
 ## Documentation
 
 - [Help Doc Pattern](help-doc-pattern.md) — creating help documentation for addons

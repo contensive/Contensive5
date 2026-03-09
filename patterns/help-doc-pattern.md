@@ -73,11 +73,18 @@ cd ..\scripts
 
 ### 3. Add a Resource Element to the Collection XML
 
-In the collection's XML file, add a Resource element that installs the help zip to the correct privateFiles location:
+In the collection's XML file, add a Resource element using the `helpfiles` resource type:
 
 ```xml
-<Resource name="HelpFiles.zip" type="privatefiles" path="helpfiles" />
+<Resource name="HelpFiles.zip" type="helpfiles" path="" />
 ```
+
+The `helpfiles` resource type (aliases: `helpfile`, `help`) is purpose-built for help content. It differs from a generic `privatefiles` resource in the following ways:
+
+- **Automatic path prefix** — Files are installed into `privateFiles/helpFiles/` automatically. The `path` attribute specifies a subfolder within `helpFiles/` and must be empty, `admin`, `dev`, or `member`. Any other path logs an error and the resource is skipped.
+- **Collection name prepended to filename** — Each installed file is renamed by prepending the collection name and a period. For example, if the collection is named "Blog" and the file is `getting-started.md`, it is installed as `Blog.getting-started.md`. This namespacing prevents filename collisions between collections.
+- **Automatic cleanup on uninstall** — Files installed with the `helpfiles` type are tracked in the collection's resource manifest. When the collection is updated or uninstalled, orphaned help files and empty help folders are automatically removed. This ensures that uninstalling a collection cleanly removes all of its help content.
+- **Zip support** — If the resource is a `.zip` file, it is extracted in place and all contained files and folders are tracked in the manifest for cleanup.
 
 ## AI Search Architecture
 

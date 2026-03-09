@@ -412,6 +412,39 @@ namespace Contensive.Processor.Controllers {
                                                             }
                                                             break;
                                                         }
+                                                    case "helpfiles":
+                                                    case "helpfile":
+                                                    case "help": {
+                                                            //
+                                                            // -- validate the subpath under helpFiles\
+                                                            string helpFilesDstPath = $"helpFiles\\{dstDosPath}";
+                                                            string subFolder = dstDosPath.TrimEnd('\\').ToLowerInvariant();
+                                                            if (!string.IsNullOrEmpty(subFolder) && subFolder != "admin" && subFolder != "dev" && subFolder != "member") {
+                                                                logger.Error($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], helpfiles resource has invalid subpath [{dstDosPath}]. Valid subpaths are empty, admin\\, dev\\, or member\\.");
+                                                                continue;
+                                                            }
+                                                            //
+                                                            // -- prefix filename with collection name
+                                                            string originalFilename = filename;
+                                                            filename = $"{CollectionName}.{filename}";
+                                                            //
+                                                            logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, copying file to privateFiles helpFiles, src [{CollectionVersionFolder}{SrcPath}], dst [{helpFilesDstPath}].");
+                                                            core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + originalFilename, helpFilesDstPath + filename);
+                                                            if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
+                                                                logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], pass 1, unzipping helpFiles file [{helpFilesDstPath}{filename}].");
+                                                                core.privateFiles.unzipFile(helpFilesDstPath + filename);
+                                                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "helpfiles", folderPath = helpFilesDstPath });
+                                                                trackedFolders.Add($"helpfiles::{helpFilesDstPath}");
+                                                                ResourceManifestModel.addFilesAndFoldersRecursively(core.privateFiles, helpFilesDstPath, "helpfiles", resourceManifest);
+                                                            } else {
+                                                                resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "helpfiles", destinationPath = helpFilesDstPath + filename });
+                                                                if (!string.IsNullOrEmpty(helpFilesDstPath) && !trackedFolders.Contains($"helpfiles::{helpFilesDstPath}")) {
+                                                                    trackedFolders.Add($"helpfiles::{helpFilesDstPath}");
+                                                                    resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "helpfiles", folderPath = helpFilesDstPath });
+                                                                }
+                                                            }
+                                                            break;
+                                                        }
                                                     default: {
                                                             if (assembliesInZip.Contains(filename)) {
                                                                 assembliesInZip.Remove(filename);
@@ -485,6 +518,9 @@ namespace Contensive.Processor.Controllers {
                                                     case "cdn":
                                                         core.cdnFiles.deleteFile(oldEntry.destinationPath);
                                                         break;
+                                                    case "helpfiles":
+                                                        core.privateFiles.deleteFile(oldEntry.destinationPath);
+                                                        break;
                                                 }
                                                 logger.Info($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], deleted orphaned resource [{oldEntry.type}::{oldEntry.destinationPath}]");
                                             }
@@ -505,6 +541,7 @@ namespace Contensive.Processor.Controllers {
                                                     "www" => core.wwwFiles,
                                                     "private" => core.privateFiles,
                                                     "cdn" => core.cdnFiles,
+                                                    "helpfiles" => core.privateFiles,
                                                     _ => null
                                                 };
                                                 if (fileSystem != null && fileSystem.getFileList(oldFolder.folderPath).Count == 0 && fileSystem.getFolderList(oldFolder.folderPath).Count == 0) {
