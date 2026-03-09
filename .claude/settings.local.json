@@ -34,7 +34,8 @@
       "Bash(yes:*)",
       "Bash(cmd.exe /c \"C:\\\\Git\\\\Contensive5\\\\scripts\\\\jay-build.cmd\")",
       "Bash(/c/Windows/System32/cmd.exe //c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts & C:\\\\Git\\\\Contensive5\\\\scripts\\\\jay-build.cmd\")",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(grep:*)"
     ]
   }
 }

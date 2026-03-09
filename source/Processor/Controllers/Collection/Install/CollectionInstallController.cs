@@ -419,13 +419,8 @@ namespace Contensive.Processor.Controllers {
                                                     case "helpfile":
                                                     case "help": {
                                                             //
-                                                            // -- validate the subpath under helpFiles\
-                                                            string helpFilesDstPath = $"helpFiles\\{dstDosPath}";
-                                                            string subFolder = dstDosPath.TrimEnd('\\').ToLowerInvariant();
-                                                            if (!string.IsNullOrEmpty(subFolder) && subFolder != "admin" && subFolder != "dev" && subFolder != "member") {
-                                                                logger.Error($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], helpfiles resource has invalid subpath [{dstDosPath}]. Valid subpaths are empty, admin\\, dev\\, or member\\.");
-                                                                continue;
-                                                            }
+                                                            // -- ignore the resource path for helpfiles, always install to helpFiles\
+                                                            string helpFilesDstPath = "helpFiles\\";
                                                             //
                                                             // -- prefix filename with collection name
                                                             string originalFilename = filename;
@@ -438,14 +433,8 @@ namespace Contensive.Processor.Controllers {
                                                                 core.privateFiles.unzipFile(helpFilesDstPath + filename);
                                                                 core.privateFiles.deleteFile(helpFilesDstPath + filename);
                                                                 //
-                                                                // -- prefix each extracted file with collection name
-                                                                foreach (var extractedFile in core.privateFiles.getFileList(helpFilesDstPath)) {
-                                                                    string prefixedName = $"{CollectionName}.{extractedFile.Name}";
-                                                                    if (!extractedFile.Name.Equals(prefixedName, StringComparison.OrdinalIgnoreCase)) {
-                                                                        core.privateFiles.copyFile(helpFilesDstPath + extractedFile.Name, helpFilesDstPath + prefixedName);
-                                                                        core.privateFiles.deleteFile(helpFilesDstPath + extractedFile.Name);
-                                                                    }
-                                                                }
+                                                                // -- prefix each extracted file with collection name (recursively)
+                                                                prefixExtractedHelpFiles(core, helpFilesDstPath, CollectionName);
                                                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "helpfiles", folderPath = helpFilesDstPath });
                                                                 trackedFolders.Add($"helpfiles::{helpFilesDstPath}");
                                                                 ResourceManifestModel.addFilesAndFoldersRecursively(core.privateFiles, helpFilesDstPath, "helpfiles", resourceManifest);
@@ -1398,6 +1387,25 @@ namespace Contensive.Processor.Controllers {
         /// log the contextLog stack
         /// ContextLog stack is a tool to trace the collection installation to trace recursion
         /// </summary>
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Recursively prefix all files in a helpFiles folder with the collection name.
+        /// Files extracted from a zip may be in subdirectories, so this walks the full tree.
+        /// </summary>
+        private static void prefixExtractedHelpFiles(CoreController core, string folderPath, string collectionName) {
+            foreach (var extractedFile in core.privateFiles.getFileList(folderPath)) {
+                string prefixedName = $"{collectionName}.{extractedFile.Name}";
+                if (!extractedFile.Name.Equals(prefixedName, StringComparison.OrdinalIgnoreCase)) {
+                    core.privateFiles.copyFile(folderPath + extractedFile.Name, folderPath + prefixedName);
+                    core.privateFiles.deleteFile(folderPath + extractedFile.Name);
+                }
+            }
+            foreach (var subFolder in core.privateFiles.getFolderList(folderPath)) {
+                prefixExtractedHelpFiles(core, $"{folderPath}{subFolder.Name}\\", collectionName);
+            }
+        }
+        //
         /// <param name="core"></param>
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
