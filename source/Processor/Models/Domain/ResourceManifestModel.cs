@@ -72,39 +72,50 @@ namespace Contensive.Processor.Models.Domain {
         }
         //
         /// <summary>
-        /// Recursively collect all files under a path in the given file system, adding them to the manifest resources list.
-        /// Also collects all subfolders into the manifest folders list.
-        /// Skips files and folders that existed before extraction (passed in existingFiles/existingFolders).
+        /// Unzip a file into a temp folder, then copy each extracted file to the destination one at a time.
+        /// If the file does not already exist at the destination, add it to the manifest.
+        /// Then copy the file to the destination regardless.
         /// </summary>
-        public static void addFilesAndFoldersRecursively(FileController fileSystem, string basePath, string type, ResourceManifestModel manifest, HashSet<string> existingFiles, HashSet<string> existingFolders) {
-            string normalizedPath = FileController.normalizeDosPath(basePath);
-            foreach (var file in fileSystem.getFileList(normalizedPath)) {
-                string filePath = normalizedPath + file.Name;
-                if (existingFiles.Contains(filePath)) { continue; }
-                manifest.resources.Add(new ResourceManifestEntry { type = type, destinationPath = filePath });
-            }
-            foreach (var folder in fileSystem.getFolderList(normalizedPath)) {
-                if (string.IsNullOrEmpty(folder.Name)) { continue; }
-                string subFolderPath = normalizedPath + folder.Name + "\\";
-                if (!existingFolders.Contains(subFolderPath)) {
-                    manifest.folders.Add(new ResourceManifestFolderEntry { type = type, folderPath = subFolderPath });
-                }
-                addFilesAndFoldersRecursively(fileSystem, subFolderPath, type, manifest, existingFiles, existingFolders);
+        public static void unzipToTempThenCopy(CoreController core, FileController dstFileSystem, string dstPath, string zipPathFilename, string type, ResourceManifestModel manifest) {
+            string tempPath = $"installZip{GenericController.getRandomInteger()}\\";
+            try {
+                core.tempFiles.createPath(tempPath);
+                //
+                // -- copy the zip to temp and extract there
+                dstFileSystem.copyFile(zipPathFilename, tempPath + System.IO.Path.GetFileName(zipPathFilename), core.tempFiles);
+                core.tempFiles.unzipFile(tempPath + System.IO.Path.GetFileName(zipPathFilename));
+                core.tempFiles.deleteFile(tempPath + System.IO.Path.GetFileName(zipPathFilename));
+                //
+                // -- iterate extracted files and copy to destination
+                string normalizedDstPath = FileController.normalizeDosPath(dstPath);
+                copyTempToDestRecursively(core, dstFileSystem, tempPath, normalizedDstPath, type, manifest);
+            } finally {
+                core.tempFiles.deleteFolder(tempPath);
             }
         }
         //
         /// <summary>
-        /// Recursively collect all file paths and folder paths under a path. Used to snapshot existing content before zip extraction.
+        /// Recursively copy files from temp folder to destination. Track new files in the manifest.
         /// </summary>
-        public static void collectExistingFilesAndFolders(FileController fileSystem, string basePath, HashSet<string> files, HashSet<string> folders) {
-            string normalizedPath = FileController.normalizeDosPath(basePath);
-            foreach (var file in fileSystem.getFileList(normalizedPath)) {
-                files.Add(normalizedPath + file.Name);
+        public static void copyTempToDestRecursively(CoreController core, FileController dstFileSystem, string tempPath, string dstPath, string type, ResourceManifestModel manifest) {
+            string normalizedTempPath = FileController.normalizeDosPath(tempPath);
+            string normalizedDstPath = FileController.normalizeDosPath(dstPath);
+            foreach (var file in core.tempFiles.getFileList(normalizedTempPath)) {
+                string dstFilePath = normalizedDstPath + file.Name;
+                if (!dstFileSystem.fileExists(dstFilePath)) {
+                    manifest.resources.Add(new ResourceManifestEntry { type = type, destinationPath = dstFilePath });
+                }
+                core.tempFiles.copyFile(normalizedTempPath + file.Name, dstFilePath, dstFileSystem);
             }
-            foreach (var folder in fileSystem.getFolderList(normalizedPath)) {
-                string subFolderPath = normalizedPath + folder.Name + "\\";
-                folders.Add(subFolderPath);
-                collectExistingFilesAndFolders(fileSystem, subFolderPath, files, folders);
+            foreach (var folder in core.tempFiles.getFolderList(normalizedTempPath)) {
+                if (string.IsNullOrEmpty(folder.Name)) { continue; }
+                string subTempPath = normalizedTempPath + folder.Name + "\\";
+                string subDstPath = normalizedDstPath + folder.Name + "\\";
+                if (!dstFileSystem.pathExists(subDstPath)) {
+                    manifest.folders.Add(new ResourceManifestFolderEntry { type = type, folderPath = subDstPath });
+                    dstFileSystem.createPath(subDstPath);
+                }
+                copyTempToDestRecursively(core, dstFileSystem, subTempPath, subDstPath, type, manifest);
             }
         }
     }

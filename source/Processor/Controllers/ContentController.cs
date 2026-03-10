@@ -62,6 +62,9 @@ namespace Contensive.Processor.Controllers {
                                     case "cdn":
                                         core.cdnFiles.deleteFile(entry.destinationPath);
                                         break;
+                                    case "helpfiles":
+                                        core.privateFiles.deleteFile(entry.destinationPath);
+                                        break;
                                 }
                             }
                             //
@@ -73,6 +76,7 @@ namespace Contensive.Processor.Controllers {
                                         "www" => core.wwwFiles,
                                         "private" => core.privateFiles,
                                         "cdn" => core.cdnFiles,
+                                        "helpfiles" => core.privateFiles,
                                         _ => null
                                     };
                                     if (fileSystem != null && fileSystem.getFileList(folder.folderPath).Count == 0 && fileSystem.getFolderList(folder.folderPath).Count == 0) {
