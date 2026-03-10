@@ -35,7 +35,11 @@
       "Bash(cmd.exe /c \"C:\\\\Git\\\\Contensive5\\\\scripts\\\\jay-build.cmd\")",
       "Bash(/c/Windows/System32/cmd.exe //c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts & C:\\\\Git\\\\Contensive5\\\\scripts\\\\jay-build.cmd\")",
       "Bash(python3:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" l /c/Git/Contensive5/source/Processor/HelpFiles.zip)",
+      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" l /c/Git/Contensive5/source/Processor/baseassets.zip)",
+      "Bash(xargs cat:*)"
     ]
   }
 }

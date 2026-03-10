@@ -74,16 +74,37 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// Recursively collect all files under a path in the given file system, adding them to the manifest resources list.
         /// Also collects all subfolders into the manifest folders list.
+        /// Skips files and folders that existed before extraction (passed in existingFiles/existingFolders).
         /// </summary>
-        public static void addFilesAndFoldersRecursively(FileController fileSystem, string basePath, string type, ResourceManifestModel manifest) {
+        public static void addFilesAndFoldersRecursively(FileController fileSystem, string basePath, string type, ResourceManifestModel manifest, HashSet<string> existingFiles, HashSet<string> existingFolders) {
             string normalizedPath = FileController.normalizeDosPath(basePath);
             foreach (var file in fileSystem.getFileList(normalizedPath)) {
-                manifest.resources.Add(new ResourceManifestEntry { type = type, destinationPath = normalizedPath + file.Name });
+                string filePath = normalizedPath + file.Name;
+                if (existingFiles.Contains(filePath)) { continue; }
+                manifest.resources.Add(new ResourceManifestEntry { type = type, destinationPath = filePath });
+            }
+            foreach (var folder in fileSystem.getFolderList(normalizedPath)) {
+                if (string.IsNullOrEmpty(folder.Name)) { continue; }
+                string subFolderPath = normalizedPath + folder.Name + "\\";
+                if (!existingFolders.Contains(subFolderPath)) {
+                    manifest.folders.Add(new ResourceManifestFolderEntry { type = type, folderPath = subFolderPath });
+                }
+                addFilesAndFoldersRecursively(fileSystem, subFolderPath, type, manifest, existingFiles, existingFolders);
+            }
+        }
+        //
+        /// <summary>
+        /// Recursively collect all file paths and folder paths under a path. Used to snapshot existing content before zip extraction.
+        /// </summary>
+        public static void collectExistingFilesAndFolders(FileController fileSystem, string basePath, HashSet<string> files, HashSet<string> folders) {
+            string normalizedPath = FileController.normalizeDosPath(basePath);
+            foreach (var file in fileSystem.getFileList(normalizedPath)) {
+                files.Add(normalizedPath + file.Name);
             }
             foreach (var folder in fileSystem.getFolderList(normalizedPath)) {
                 string subFolderPath = normalizedPath + folder.Name + "\\";
-                manifest.folders.Add(new ResourceManifestFolderEntry { type = type, folderPath = subFolderPath });
-                addFilesAndFoldersRecursively(fileSystem, subFolderPath, type, manifest);
+                folders.Add(subFolderPath);
+                collectExistingFilesAndFolders(fileSystem, subFolderPath, files, folders);
             }
         }
     }
