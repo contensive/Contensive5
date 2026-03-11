@@ -97,12 +97,12 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// Recursively copy files from temp folder to destination. Track new files in the manifest.
         /// </summary>
-        public static void copyTempToDestRecursively(CoreController core, FileController dstFileSystem, string tempPath, string dstPath, string type, ResourceManifestModel manifest) {
+        public static void copyTempToDestRecursively(CoreController core, FileController dstFileSystem, string tempPath, string dstPath, string type, ResourceManifestModel manifest, bool alwaysAddToManifest = false) {
             string normalizedTempPath = FileController.normalizeDosPath(tempPath);
             string normalizedDstPath = FileController.normalizeDosPath(dstPath);
             foreach (var file in core.tempFiles.getFileList(normalizedTempPath)) {
                 string dstFilePath = normalizedDstPath + file.Name;
-                if (!dstFileSystem.fileExists(dstFilePath)) {
+                if (alwaysAddToManifest || !dstFileSystem.fileExists(dstFilePath)) {
                     manifest.resources.Add(new ResourceManifestEntry { type = type, destinationPath = dstFilePath });
                 }
                 core.tempFiles.copyFile(normalizedTempPath + file.Name, dstFilePath, dstFileSystem);
@@ -111,11 +111,13 @@ namespace Contensive.Processor.Models.Domain {
                 if (string.IsNullOrEmpty(folder.Name)) { continue; }
                 string subTempPath = normalizedTempPath + folder.Name + "\\";
                 string subDstPath = normalizedDstPath + folder.Name + "\\";
-                if (!dstFileSystem.pathExists(subDstPath)) {
+                if (alwaysAddToManifest || !dstFileSystem.pathExists(subDstPath)) {
                     manifest.folders.Add(new ResourceManifestFolderEntry { type = type, folderPath = subDstPath });
-                    dstFileSystem.createPath(subDstPath);
+                    if (!dstFileSystem.pathExists(subDstPath)) {
+                        dstFileSystem.createPath(subDstPath);
+                    }
                 }
-                copyTempToDestRecursively(core, dstFileSystem, subTempPath, subDstPath, type, manifest);
+                copyTempToDestRecursively(core, dstFileSystem, subTempPath, subDstPath, type, manifest, alwaysAddToManifest);
             }
         }
     }

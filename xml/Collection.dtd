@@ -199,5 +199,5 @@
 <!ATTLIST ImportCollection name CDATA #REQUIRED>
 <!ELEMENT Resource EMPTY>
 <!ATTLIST Resource name NMTOKEN #REQUIRED>
-<!ATTLIST Resource type NMTOKEN #REQUIRED>
+<!ATTLIST Resource type (www|wwwroot|wwwfiles|content|file|files|cdnfiles|private|privatefiles|helpfile|helpfiles|help) #REQUIRED>
 <!ATTLIST Resource path CDATA #REQUIRED>
