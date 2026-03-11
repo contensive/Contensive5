@@ -130,7 +130,7 @@ namespace Contensive.Processor.Controllers {
                 case "help": {
                         //
                         // -- ignore the resource path for helpfiles, always install to helpFiles\
-                        string helpFilesDstPath = "helpFiles\\";
+                        string helpFilesDstPath = "helpfiles\\";
                         //
                         // -- prefix filename with collection name
                         string originalFilename = filename;

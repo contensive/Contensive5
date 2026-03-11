@@ -9,6 +9,13 @@ An Addon Collection XML file defines everything needed to install and configure 
 
 The canonical example is `source/Processor/aoBase51.xml` (the Base5 collection). The XSD schema is published at `https://contensive.s3.amazonaws.com/xsd/Collection.xsd`.
 
+The first node of the file should include:
+`
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
+	
+`
+
 ## File Structure
 
 The root element is `<Collection>` and contains child elements in this order:
@@ -209,15 +216,30 @@ An `<Addon>` registers an executable addon with the system.
     <BlockEditTools>Yes</BlockEditTools>
     <HtmlDocument>No</HtmlDocument>
     <OnBodyEnd>No</OnBodyEnd>
+    <Diagnostic>No</Diagnostic>
+    <DashboardWidget>No</DashboardWidget>
+    <IsInline>No</IsInline>
+    <InFrame>No</InFrame>
+    <CopyText><![CDATA[]]></CopyText>
     <ProcessInterval></ProcessInterval>
     <JavascriptForceHead>No</JavascriptForceHead>
     <ArgumentList><![CDATA[argName=[defaultValue]]]></ArgumentList>
     <jsheadscriptsrc>/path/to/script.js</jsheadscriptsrc>
     <styleslinkhref>/path/to/style.css</styleslinkhref>
     <Styles><![CDATA[/* inline CSS */]]></Styles>
+    <Style Name=".myClass">color: red;</Style>
     <JavascriptInHead><![CDATA[/* inline JS */]]></JavascriptInHead>
     <IncludeAddon Name="Dependency Addon" Guid="{...}"/>
     <FormXML><![CDATA[<Form>...</Form>]]></FormXML>
+    <Icon Link="/path/to/icon.png" Width="16" Height="16" Sprites="0"/>
+    <InstanceSettingPrimaryContentId>Content Name</InstanceSettingPrimaryContentId>
+    <Navigator NameSpace="Tools.MyAddon" Type="Addon"/>
+    <Editors>
+        <Type>Text</Type>
+    </Editors>
+    <ProcessTriggers>
+        <ContentChange>Content Name or {GUID}</ContentChange>
+    </ProcessTriggers>
     <Scripting Language="" EntryPoint="" Timeout="5000">
         <Code><![CDATA[ ]]></Code>
     </Scripting>
@@ -258,6 +280,17 @@ An `<Addon>` registers an executable addon with the system.
 | `<IncludeAddon>` | Dependency addon loaded before this addon. Requires `Name` and `Guid` attributes |
 | `<FormXML>` | Settings form definition (for Type="Setting"). Contains `<Form>` with `<Tab>` and `<SiteProperty>` elements |
 | `<Description>` | Human-readable description of the addon |
+| `<Diagnostic>` | `"Yes"` = marks addon as a diagnostic addon |
+| `<DashboardWidget>` | `"Yes"` = addon appears as a dashboard widget |
+| `<IsInline>` | `"Yes"` = addon renders inline |
+| `<InFrame>` | `"Yes"` = addon renders in an iframe. Note: the XML element `iniframe` (typo) is also accepted |
+| `<CopyText>` | Static copy text content for the addon |
+| `<Icon>` | Addon icon. Attributes: `Link` (path to icon image), `Width`, `Height`, `Sprites` (number of sprite frames) |
+| `<Style>` | Individual named CSS rule. `Name` attribute is the CSS selector, inner text is the rule body (braces added automatically if missing) |
+| `<InstanceSettingPrimaryContentId>` | Content definition name for instance settings. Resolved to a content ID during install |
+| `<Navigator>` | Inline navigator entry for this addon. Attributes: `NameSpace` (dot-separated nav path), `Type` (nav icon type, default `"Addon"`) |
+| `<Editors>` | Registers this addon as a field editor. Contains `<Type>` child elements naming the field types this addon can edit |
+| `<ProcessTriggers>` | Events that trigger this addon to run. Contains `<ContentChange>` child elements with content name or GUID |
 
 ### FormXML Structure (for Settings Addons)
 

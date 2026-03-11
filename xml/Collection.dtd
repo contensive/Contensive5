@@ -137,7 +137,7 @@
 <!ATTLIST Field IsBaseField (False) #IMPLIED>
 <!ATTLIST Field MemberSelectGroupID CDATA #IMPLIED>
 <!ELEMENT HelpDefault (#PCDATA)>
-<!ELEMENT Addon (DotNetClass?,RemoteMethod?,DashboardWidget?,Admin?,category?,FormXML?,ProcessInterval?,admin?,BlockEditTools*,jsheadscriptsrc?,styleslinkhref?,Styles?,IncludeAddon*,htmlDocument?,JavascriptInHead?,javascriptforcehead?,Category?,Content?,Template?,Email?,copytext?,ArgumentList?,htmldocument?,IsInline?,Diagnostic?,CopyText?)>
+<!ELEMENT Addon (Description?,DotNetClass?,RemoteMethod?,DashboardWidget?,Admin?,category?,FormXML?,ProcessInterval?,admin?,BlockEditTools*,jsheadscriptsrc?,styleslinkhref?,Styles?,Style*,IncludeAddon*,htmlDocument?,JavascriptInHead?,javascriptforcehead?,Category?,Content?,Template?,Email?,copytext?,ArgumentList?,htmldocument?,IsInline?,Diagnostic?,CopyText?,OnBodyEnd?,InFrame?,Icon?,InstanceSettingPrimaryContentId?,Navigator?,Editors?,ProcessTriggers?,Scripting?)>
 <!ATTLIST Addon name CDATA #REQUIRED>
 <!ATTLIST Addon guid CDATA #REQUIRED>
 <!ATTLIST Addon type (Add-on|Setting|System|Task|Tool|Widget) #REQUIRED>
@@ -169,6 +169,31 @@
 <!ELEMENT IsInline (#PCDATA)>
 <!ELEMENT Diagnostic (#PCDATA)>
 <!ELEMENT CopyText EMPTY>
+<!ELEMENT Description (#PCDATA)>
+<!ELEMENT OnBodyEnd (#PCDATA)>
+<!ELEMENT InFrame (#PCDATA)>
+<!ELEMENT Icon EMPTY>
+<!ATTLIST Icon Link CDATA #REQUIRED>
+<!ATTLIST Icon Width CDATA #IMPLIED>
+<!ATTLIST Icon Height CDATA #IMPLIED>
+<!ATTLIST Icon Sprites CDATA #IMPLIED>
+<!ELEMENT InstanceSettingPrimaryContentId (#PCDATA)>
+<!ELEMENT Navigator EMPTY>
+<!ATTLIST Navigator NameSpace CDATA #REQUIRED>
+<!ATTLIST Navigator Type CDATA #IMPLIED>
+<!ELEMENT Editors (Type*)>
+<!ELEMENT Type (#PCDATA)>
+<!ELEMENT ProcessTriggers (ContentChange*)>
+<!ELEMENT ContentChange (#PCDATA)>
+<!ATTLIST ContentChange guid CDATA #IMPLIED>
+<!ATTLIST ContentChange name CDATA #IMPLIED>
+<!ELEMENT Scripting (Code*)>
+<!ATTLIST Scripting Language CDATA #IMPLIED>
+<!ATTLIST Scripting EntryPoint CDATA #IMPLIED>
+<!ATTLIST Scripting Timeout CDATA #IMPLIED>
+<!ELEMENT Code (#PCDATA)>
+<!ELEMENT Style (#PCDATA)>
+<!ATTLIST Style Name CDATA #REQUIRED>
 <!ELEMENT SQLIndex EMPTY>
 <!ATTLIST SQLIndex IndexName ID #REQUIRED>
 <!ATTLIST SQLIndex DataSourceName NMTOKEN #FIXED "Default">
