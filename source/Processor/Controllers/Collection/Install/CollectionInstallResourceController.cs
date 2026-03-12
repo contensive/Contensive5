@@ -132,9 +132,12 @@ namespace Contensive.Processor.Controllers {
                         // -- ignore the resource path for helpfiles, always install to helpFiles\
                         string helpFilesDstPath = "helpfiles\\";
                         //
-                        // -- prefix filename with collection name
+                        // -- prefix filename with collection name, except for the help pages collection
+                        bool isHelpPagesCollection = collectionGuid.Equals("{88a67652-dd4d-446c-826e-c987de276df9}", StringComparison.OrdinalIgnoreCase);
                         string originalFilename = filename;
-                        filename = $"{collectionName}.{filename}";
+                        if (!isHelpPagesCollection) {
+                            filename = $"{collectionName}.{filename}";
+                        }
                         //
                         logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, copying file to privateFiles helpFiles, src [{collectionVersionFolder}{SrcPath}], dst [{helpFilesDstPath}].");
                         core.privateFiles.copyFile(collectionVersionFolder + SrcPath + originalFilename, helpFilesDstPath + filename);
@@ -142,7 +145,7 @@ namespace Contensive.Processor.Controllers {
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, unzipping helpFiles file [{helpFilesDstPath}{filename}].");
                             resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "helpfiles", folderPath = helpFilesDstPath });
                             trackedFolders.Add($"helpfiles::{helpFilesDstPath}");
-                            unzipHelpFilesToTempThenCopy(core, helpFilesDstPath, helpFilesDstPath + filename, collectionName, resourceManifest);
+                            unzipHelpFilesToTempThenCopy(core, helpFilesDstPath, helpFilesDstPath + filename, collectionName, resourceManifest, isHelpPagesCollection);
                             core.privateFiles.deleteFile(helpFilesDstPath + filename);
                         } else {
                             resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "helpfiles", destinationPath = helpFilesDstPath + filename });
@@ -235,7 +238,7 @@ namespace Contensive.Processor.Controllers {
         /// Unzip a help file zip into a temp folder, prefix extracted files with collection name,
         /// then copy each file to the destination. New files are added to the manifest.
         /// </summary>
-        internal static void unzipHelpFilesToTempThenCopy(CoreController core, string dstPath, string zipPathFilename, string collectionName, ResourceManifestModel resourceManifest) {
+        internal static void unzipHelpFilesToTempThenCopy(CoreController core, string dstPath, string zipPathFilename, string collectionName, ResourceManifestModel resourceManifest, bool skipPrefix = false) {
             string tempPath = $"installHelpZip{GenericController.getRandomInteger()}\\";
             try {
                 core.tempFiles.createPath(tempPath);
@@ -246,8 +249,10 @@ namespace Contensive.Processor.Controllers {
                 core.tempFiles.unzipFile(tempPath + zipFilename);
                 core.tempFiles.deleteFile(tempPath + zipFilename);
                 //
-                // -- prefix all extracted files in temp with collection name
-                prefixTempHelpFiles(core, tempPath, collectionName);
+                // -- prefix all extracted files in temp with collection name (skip for help pages collection)
+                if (!skipPrefix) {
+                    prefixTempHelpFiles(core, tempPath, collectionName);
+                }
                 //
                 // -- copy from temp to destination, tracking new files in manifest
                 ResourceManifestModel.copyTempToDestRecursively(core, core.privateFiles, tempPath, dstPath, "helpfiles", resourceManifest, alwaysAddToManifest: true);
