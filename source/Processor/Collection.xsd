@@ -64,7 +64,7 @@
 											<xs:attribute name="manyToManyContent" type="xs:string" />
 											<xs:attribute name="manyToManyRuleContent" type="xs:string" />
 											<xs:attribute name="manyToManyRulePrimaryField" type="xs:string" />
-											<xs:attribute name="manyToManyRuleSecondaryField" type="xs:string" use="required" />
+											<xs:attribute name="manyToManyRuleSecondaryField" type="xs:string" />
 											<xs:attribute name="memberSelectGroup" type="xs:string" />
 											<xs:attribute name="memberSelectGroupId" type="xs:string" />
 											<xs:attribute name="name" type="xs:string" />
