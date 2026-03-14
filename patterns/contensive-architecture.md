@@ -155,6 +155,30 @@ When a features needs a database table
 - create an ORM model that inherits Contensive.Models.Db.DbBaseModel
 - naming best practice for the table is to include a 2-letter prefix that represents the addon collection and the name is camel-case
 
+## When to Use Models, Controllers, Addons, and Views
+
+### Models (DbBaseModel classes)
+Models are the ORM layer. Add code here for methods that are purely about data access — creating, reading, querying, and saving records. A model method should operate on its own table and return simple results without orchestrating other concerns.
+
+Examples:
+- Setting a single field value (e.g., `setDnAccountBalance()`, `setInvoiceLayoutId()`)
+- Mapping an enum to a display string (e.g., `getMembershipStatusName()`)
+- Running a query and returning a count (e.g., `getUserCount()`)
+
+### Controllers
+Controllers contain business logic and orchestration. Add code here when an operation coordinates multiple models, applies business rules, calls external services, or involves decision-making that goes beyond simple data access.
+
+Examples:
+- Loading an account, querying billing rules, conditionally creating a record, and aggregating data from multiple contacts (e.g., `getBillingContacts()`)
+- Orchestrating the creation of an account with related records (e.g., `createAccount()`)
+- Removing an organization and cascading related data (e.g., `removeOrganization()`)
+
+### Addons
+Addons are the executable entry points of the platform. Add code here for functionality that needs to run in a Contensive context — page widgets, remote methods, background tasks, or dashboard widgets. An addon receives the CP (Contensive Processor) object and returns a string result. Addons should delegate business logic to controllers and data access to models, keeping addon code focused on handling the request and composing the response.
+
+### Views (Layouts and Templates)
+Views are the HTML markup layer. Add code here for presentation — the HTML structure, CSS classes, and client-side JavaScript that define what the user sees. Views are stored as layout files in the UI folder and installed via the addon collection. Keep views free of business logic; use mustache-style replacement tokens or JavaScript calls to remote-method addons to populate dynamic content.
+
 ## Design Pattern
 
 See the Layout Design Pattern document references above
