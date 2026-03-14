@@ -139,7 +139,15 @@ namespace Contensive.Processor.Controllers {
                                     targetMetaData.dataChanged = setAllDataChanged;
                                     targetMetaData.legacyContentControlCriteria = "";
                                     targetMetaData.dataSourceName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ContentDataSourceName", DefaultMetaData.dataSourceName);
+                                    if (string.IsNullOrEmpty(targetMetaData.dataSourceName)) {
+                                        // -- fall back to deprecated AuthoringDataSourceName for old collections
+                                        targetMetaData.dataSourceName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AuthoringDataSourceName", DefaultMetaData.dataSourceName);
+                                    }
                                     targetMetaData.tableName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ContentTableName", DefaultMetaData.tableName);
+                                    if (string.IsNullOrEmpty(targetMetaData.tableName)) {
+                                        // -- fall back to deprecated AuthoringTableName for old collections
+                                        targetMetaData.tableName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AuthoringTableName", DefaultMetaData.tableName);
+                                    }
                                     targetMetaData.dataSourceId = 0;
                                     targetMetaData.defaultSortMethod = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "DefaultSortMethod", DefaultMetaData.defaultSortMethod);
                                     if ((targetMetaData.defaultSortMethod == null) || (targetMetaData.defaultSortMethod == "") || (targetMetaData.defaultSortMethod.ToLowerInvariant() == "name")) {

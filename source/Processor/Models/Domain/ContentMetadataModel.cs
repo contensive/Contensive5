@@ -328,8 +328,6 @@ namespace Contensive.Processor.Models.Domain {
                         + ", c.DropDownFieldList"
                         + ", ContentTable.Name AS ContentTableName"
                         + ", ContentDataSource.Name AS ContentDataSourceName"
-                        + ", '' AS AuthoringTableName"
-                        + ", '' AS AuthoringDataSourceName"
                         + ", 0 AS AllowWorkflowAuthoring"
                         + ", c.AllowCalendarEvents as AllowCalendarEvents"
                         + ", ContentTable.DataSourceID"
@@ -358,9 +356,9 @@ namespace Contensive.Processor.Models.Domain {
                             //
                         } else {
                             DataRow contentRow = dtContent.Rows[0];
-                            string contentName = getText(GenericController.getText(contentRow[1])).Trim(' ');
-                            string contentTablename = GenericController.getText(contentRow[10]);
-                            string defaultSortMethod = GenericController.getText(contentRow[17]);
+                            string contentName = getText(GenericController.getText(contentRow["Name"])).Trim(' ');
+                            string contentTablename = GenericController.getText(contentRow["ContentTableName"]);
+                            string defaultSortMethod = GenericController.getText(contentRow["DefaultSortMethod"]);
                             if (string.IsNullOrEmpty(defaultSortMethod)) {
                                 defaultSortMethod = "name";
                             }
@@ -371,25 +369,25 @@ namespace Contensive.Processor.Models.Domain {
                                 adminColumns = new SortedList<string, MetaAdminColumnClass>(),
                                 name = contentName,
                                 id = content.id,
-                                allowAdd = GenericController.getBoolean(contentRow[3]),
-                                developerOnly = GenericController.getBoolean(contentRow[4]),
-                                adminOnly = GenericController.getBoolean(contentRow[5]),
-                                allowDelete = GenericController.getBoolean(contentRow[6]),
-                                parentId = GenericController.getInteger(contentRow[7]),
-                                dropDownFieldList = GenericController.toUCase(GenericController.getText(contentRow[9])),
+                                allowAdd = GenericController.getBoolean(contentRow["AllowAdd"]),
+                                developerOnly = GenericController.getBoolean(contentRow["DeveloperOnly"]),
+                                adminOnly = GenericController.getBoolean(contentRow["AdminOnly"]),
+                                allowDelete = GenericController.getBoolean(contentRow["AllowDelete"]),
+                                parentId = GenericController.getInteger(contentRow["ParentID"]),
+                                dropDownFieldList = GenericController.toUCase(GenericController.getText(contentRow["DropDownFieldList"])),
                                 tableName = GenericController.getText(contentTablename),
                                 dataSourceName = "default",
-                                allowCalendarEvents = GenericController.getBoolean(contentRow[15]),
+                                allowCalendarEvents = GenericController.getBoolean(contentRow["AllowCalendarEvents"]),
                                 defaultSortMethod = defaultSortMethod,
-                                editorGroupName = GenericController.getText(contentRow[18]),
-                                allowContentTracking = GenericController.getBoolean(contentRow[19]),
-                                allowTopicRules = GenericController.getBoolean(contentRow[20]),
+                                editorGroupName = GenericController.getText(contentRow["EditorGroupName"]),
+                                allowContentTracking = GenericController.getBoolean(contentRow["AllowContentTracking"]),
+                                allowTopicRules = GenericController.getBoolean(contentRow["AllowTopicRules"]),
                                 activeOnly = true,
                                 aliasId = "ID",
                                 aliasName = "NAME",
-                                installedByCollectionGuid = getText(contentRow[21]),
-                                isBaseContent = getBoolean(contentRow[22]),
-                                guid = getText(contentRow[23])
+                                installedByCollectionGuid = getText(contentRow["addonCollectionGuid"]),
+                                isBaseContent = getBoolean(contentRow["isBaseContent"]),
+                                guid = getText(contentRow["ccGuid"])
                             };
                             //
                             // load parent metadata fields first so we can overlay the current metadata field
@@ -1155,7 +1153,6 @@ namespace Contensive.Processor.Models.Domain {
                         }
                         table.save(core.cpParent);
                         content.contentTableId = table.id;
-                        content.authoringTableId = table.id;
                         content.save(core.cpParent);
                     }
                     //
@@ -1188,7 +1185,6 @@ namespace Contensive.Processor.Models.Domain {
                         { "defaultsortmethodid", DbController.encodeSQLNumber(defaultSortMethodId) },
                         { "dropdownfieldlist", DbController.encodeSQLText(getText(contentMetadata.dropDownFieldList, "Name")) },
                         { "contenttableid", DbController.encodeSQLNumber(table.id) },
-                        { "authoringtableid", DbController.encodeSQLNumber(table.id) },
                         { "modifieddate", DbController.encodeSQLDate(core.dateTimeNowMockable) },
                         { "createdby", DbController.encodeSQLNumber(SystemMemberId) },
                         { "modifiedby", DbController.encodeSQLNumber(SystemMemberId) },

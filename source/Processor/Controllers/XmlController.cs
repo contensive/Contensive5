@@ -137,7 +137,7 @@ namespace Contensive.Processor.Controllers {
                 string ContentSelectList = ""
                     + " id,name,active,adminonly,allowadd"
                     + ",allowcalendarevents,allowcontentchildtool,allowcontenttracking,allowdelete,allowmetacontent"
-                    + ",allowtopicrules,AllowWorkflowAuthoring,AuthoringTableID"
+                    + ",allowtopicrules,AllowWorkflowAuthoring"
                     + ",ContentTableID,DefaultSortMethodID,DeveloperOnly,DropDownFieldList"
                     + ",EditorGroupID,ParentID,ccGuid,IsBaseContent"
                     + ",IconLink,IconHeight,IconWidth,IconSprites"
@@ -159,7 +159,6 @@ namespace Contensive.Processor.Controllers {
                 int lastFieldID;
                 int RecordID;
                 string RecordName;
-                int AuthoringTableID;
                 string HelpDefault;
                 int HelpCnt;
                 int fieldId;
@@ -272,33 +271,17 @@ namespace Contensive.Processor.Controllers {
                                 sb.Append($" NavTypeId=\"{value}\"");
                                 sb.Append($" AddonCategoryId=\"{GetRSXMLAttribute(contentCs, "AddonCategoryId")}\"");
                                 //
-                                AuthoringTableID = (contentCs.GetInteger("AuthoringTableID"));
+                                ContentTableID = (contentCs.GetInteger("ContentTableID"));
                                 TableName = "";
                                 DataSourceName = "";
-                                if (tables.ContainsKey(AuthoringTableID)) {
-                                    TableName = tables[AuthoringTableID].tableName;
-                                    DataSourceName = tables[AuthoringTableID].dataSourceName;
+                                if (tables.ContainsKey(ContentTableID)) {
+                                    TableName = tables[ContentTableID].tableName;
+                                    DataSourceName = tables[ContentTableID].dataSourceName;
                                 }
-                                if (DataSourceName == "")
+                                if (string.IsNullOrEmpty(DataSourceName))
                                     DataSourceName = "Default";
                                 if (VisualBasicConvert.Strings_Ucase(TableName) == "CCMENUENTRIES")
                                     FoundMenuTable = true;
-                                sb.Append($" AuthoringDataSourceName=\"{encodeXMLattribute(DataSourceName)}\"");
-                                sb.Append($" AuthoringTableName=\"{encodeXMLattribute(TableName)}\"");
-                                // 
-                                ContentTableID = (contentCs.GetInteger("ContentTableID"));
-                                if (ContentTableID != AuthoringTableID) {
-                                    if (ContentTableID != 0) {
-                                        TableName = "";
-                                        DataSourceName = "";
-                                        if (tables.ContainsKey(ContentTableID)) {
-                                            TableName = tables[ContentTableID].tableName;
-                                            DataSourceName = tables[ContentTableID].dataSourceName;
-                                            if (DataSourceName == "")
-                                                DataSourceName = "Default";
-                                        }
-                                    }
-                                }
                                 sb.Append($" ContentDataSourceName=\"{encodeXMLattribute(DataSourceName)}\"");
                                 sb.Append($" ContentTableName=\"{encodeXMLattribute(TableName)}\"");
                                 {
