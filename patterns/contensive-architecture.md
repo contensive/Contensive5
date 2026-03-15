@@ -5,8 +5,17 @@
 [Detailed explanation, history, why this pattern exists]
 The Contensive platform creates an extensabilty framework for managing and executing addons in several context, including websites, web applications, command line, and background tasks (windows services)
 
-Contensive Add-on collections follow the contensive architecture
-- [Contensive Architecture](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/contensive-architecture.md)
+<-- For contensive projects, /init then add this to claude.md.
+
+    ## Architecture References
+    **On every session start, read the following before any task:**
+    - [Contensive Architecture](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/contensive-architecture.md)
+    - [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
+
+    ## Architecture Overview
+    This project uses the Contensive framework. Key conventions:
+    - Use string interpolation, not concatenation  
+-->
 
 ## Patterns & API Reference
 

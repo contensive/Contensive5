@@ -100,7 +100,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 // -- if user has autoLogin, turn off
-                if (session.user.autoLogin) {
+                if (session.user != null && session.user.autoLogin) {
                     session.user.autoLogin = false;
                     session.user.save(core.cpParent);
                 }

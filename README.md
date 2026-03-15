@@ -144,7 +144,7 @@ Addons follow this pattern:
 - Local NuGet package folder: `C:\NuGetLocalPackages\`
 
 ### Main Build Script
-The primary build entry point is `scripts/jay-build.cmd`. This script:
+The primary build entry point is `scripts/build.cmd`. This script:
 1. Cleans all bin/obj folders across projects
 2. Generates version numbers based on current date
 3. Builds and packages CPBase, Models, and Processor (core suite)
@@ -204,7 +204,7 @@ dotnet clean source/Processor/Processor.csproj
 2. **Build**: Use specific project build commands (see Build Commands) for incremental changes
 3. **Test Locally**: Run MSTest projects with `dotnet test`
 4. **Assembly Redirects**: If adding NuGet packages, update app.config binding redirects
-5. **Full Build**: Run `scripts/jay-build.cmd` when ready for deployment package
+5. **Full Build**: Run `scripts/build.cmd` when ready for deployment package
 6. **Deployment**: Packages are created in versioned folder at `C:\Deployments\Contensive5\Dev\`
 
 ## Important Implementation Notes
@@ -243,4 +243,4 @@ dotnet clean source/Processor/Processor.csproj
 - `source/CPBase/BaseClasses/CPBaseClass.cs`: Main public API definition
 - `source/Models/Models/Db/`: Database entity definitions
 - `source/Processor/Processor.csproj`: Main project with dependencies and package configuration
-- `scripts/jay-build.cmd`: Complete build orchestration
+- `scripts/build.cmd`: Complete build orchestration

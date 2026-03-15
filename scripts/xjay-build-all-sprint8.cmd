@@ -12,7 +12,7 @@ cls
 @echo IF NEEDED -- run contensive build and install now.
 @echo .
 @echo - cd C:\Git\Contensive5\scripts
-@echo - call "jay-build.cmd"
+@echo - call "build.cmd"
 @echo .
 @echo - stop Contensive Task Service
 @echo - uninstall Contensive CLI

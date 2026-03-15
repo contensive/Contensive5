@@ -110,7 +110,7 @@ ere is Claude's plan:
  ---
  Phase 6: Update Build Script & CI
 
- Update scripts/jay-build.cmd:
+ Update scripts/build.cmd:
  - Change all -p:TargetFramework=net48 → -p:TargetFramework=net9.0-windows
  - Remove iisDefaultSite NuGet update and MSBuild steps (lines 288-314)
  - Add WebApi dotnet publish step
@@ -126,7 +126,7 @@ ere is Claude's plan:
  4. WebApi — HTTP requests through route map, cookie handling, file operations
  5. TaskService — Starts and runs as Windows Service via sc create
  6. IIS management — verifyAppPool/verifyWebsite with updated runtime version
- 7. Build script — jay-build.cmd produces correct deployment artifacts
+ 7. Build script — build.cmd produces correct deployment artifacts
 
  ---
  Risk Summary
