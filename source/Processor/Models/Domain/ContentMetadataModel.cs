@@ -1044,17 +1044,11 @@ namespace Contensive.Processor.Models.Domain {
                     sqlList.Add("DATEADDED", DbController.encodeSQLDate(core.dateTimeNowMockable));
                     sqlList.Add("CREATEDBY", DbController.encodeSQLNumber(SystemMemberId));
                     fieldMetadata.id = db.insertGetId("ccFields", 0);
-                    //
-                    if (!blockCacheClear) {
-                        core.cache.invalidateAll();
-                        core.cacheRuntime.clear();
-                    }
                 }
                 if (fieldMetadata.id == 0) {
                     throw (new GenericException("Could not create Field [" + fieldMetadata.nameLc + "] because insert into ccfields failed."));
                 }
                 db.update("ccFields", "ID=" + fieldMetadata.id, sqlList);
-                ContentFieldModel.invalidateCacheOfRecord<ContentFieldModel>(core.cpParent, fieldMetadata.id);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -1203,8 +1197,6 @@ namespace Contensive.Processor.Models.Domain {
                         { "abbreviation", DbController.encodeSQLText(getText(contentMetadata.abbreviation, "")) }
                     };
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
-                    DbBaseModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);
-                    core.cacheRuntime.clear();
                     //
                     // -- reload metadata
                     contentMetadata = create(core, contentMetadata.id, false, true);
