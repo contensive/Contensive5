@@ -20,9 +20,19 @@ Git/
       collectionName/ <-- unzipped collection files including the collection XML
     server/ or source/
       projectName/    <-- Visual Studio project folder
-    ui/               <-- UI assets (HTML, CSS, JS, images)
+    ui/
+      wwwfiles/      <-- UI assets that will be copied to the www folder (HTML, CSS, JS, images)
+      cdnfiles/      <-- assets that can be access by the http interace but a different url than the www
+      privatefiles/  <-- assets used by the code but cannot be accessed from the http interface
     help/             <-- help/documentation files (optional)
 ```
+
+- all folders that install on the servers should be lowercase letters.
+- the "design" folder is where we store working design files that do no install with the deployment
+- the "ui" folder (lowercase) has only three subfolders where we will put files that are going to be installed on the server in the addons collection file every time the project installs.
+- /ui/wwwfiles/ folder and all its subfolders will be copied to the root www folder of the server when it is installed. So if you want images in an /img folder on the server, jsut put them in /ui/wwwfiles/img
+- /ui/cdnfiles folder will be copied to cdnFiles. These files can be accessed by the website, but only by a url the code creates
+- /ui/privatefiles folder is copies to privateFiles on the server. These files can only be accessed by the code.
 
 ## Script Sections
 

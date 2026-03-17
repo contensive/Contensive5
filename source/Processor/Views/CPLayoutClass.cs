@@ -77,7 +77,7 @@ namespace Contensive.Processor {
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <returns></returns>
         public override void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
-            LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
+            _ = LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
         }
         //
         //====================================================================================================
@@ -89,7 +89,7 @@ namespace Contensive.Processor {
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <returns></returns>
         public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
-            LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
+            _ = LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
         }
         //
         //====================================================================================================
@@ -103,7 +103,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
-            LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+            _ = LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
         }
         //
         //====================================================================================================
@@ -117,7 +117,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
-            LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+            _ = LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
         }
         //
         //====================================================================================================
