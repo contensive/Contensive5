@@ -125,15 +125,23 @@ If the project has UI files (layouts, CSS, JS, images), zip them into a `ui.zip`
 ```cmd
 rem ==============================================================
 rem
-rem copy UI files
+echo package ui
 rem
 
-cd ..\ui
-"c:\program files\7-zip\7z.exe" a "%collectionPath%ui.zip"
-cd ..\scripts
+cd ..\ui\wwwfiles
+"c:\program files\7-zip\7z.exe" a "%collectionPath%uiwwwfiles.zip"
+cd ..\..\scripts
+
+cd ..\ui\cdnfiles
+"c:\program files\7-zip\7z.exe" a "%collectionPath%uicdnfiles.zip"
+cd ..\..\scripts
+
+cd ..\ui\privatefiles
+"c:\program files\7-zip\7z.exe" a "%collectionPath%uiprivatefiles.zip"
+cd ..\..\..\scripts
 ```
 
-The `ui.zip` is included as a resource in the collection XML and installed to the site's content files.
+The  `uiwwwfiles.zip`, `uicdnfiles.zip`, and `uiprivatefiles.zip` are included as a resource in the collection XML and installed to the root of the three site content file systems.
 
 ### 5. Package Help Files (optional)
 
@@ -142,7 +150,7 @@ If the project has documentation, zip the help files into a `HelpFiles.zip` in t
 ```cmd
 rem ==============================================================
 rem
-rem create helpfiles.zip
+rem package helpfiles
 rem
 
 cd ..\help
@@ -243,7 +251,9 @@ cd %collectionPath%
 
 del *.dll
 del HelpFiles.zip
-del ui.zip
+del uiwwwfiles.zip
+del uicdnfiles.zip
+del uiprivatefiles.zip
 
 cd ..\..\scripts
 ```
