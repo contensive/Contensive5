@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="windows-1252"?>
-<Collection name="ContensiveTest" guid="{67645B3B-937B-4E25-9FD6-5EBC6E6BB37D}" system="No" updatable="Yes" blockNavigatorNode="Yes" onInstallAddonGuid="">
+<Collection name="ContensiveTest" guid="{67645B3B-937B-4E25-9FD6-5EBC6E6BB37D}" system="No" updatable="Yes" blockNavigatorNode="Yes" onInstallAddonGuid=""
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
+>
 
 	<Addon Name="ContensiveTest Addon With a Long Name" Guid="{FDBC9AC3-B9A9-4261-9855-5AF3281068F7}" Type="Tool">
 		<Abbreviation>a test addon</Abbreviation>

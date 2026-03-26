@@ -24,6 +24,7 @@ Git/
       wwwfiles/      <-- UI assets that will be copied to the www folder (HTML, CSS, JS, images)
       cdnfiles/      <-- assets that can be access by the http interace but a different url than the www
       privatefiles/  <-- assets used by the code but cannot be accessed from the http interface
+      layoutFiles/   <-- HTML layout files installed via the layout system (optional)
     help/             <-- help/documentation files (optional)
 ```
 
@@ -33,6 +34,7 @@ Git/
 - /ui/wwwfiles/ folder and all its subfolders will be copied to the root www folder of the server when it is installed. So if you want images in an /img folder on the server, jsut put them in /ui/wwwfiles/img
 - /ui/cdnfiles folder will be copied to cdnFiles. These files can be accessed by the website, but only by a url the code creates
 - /ui/privatefiles folder is copies to privateFiles on the server. These files can only be accessed by the code.
+- /ui/layoutFiles folder contains HTML layout files. They are zipped into `uilayoutfiles.zip` and included as a resource with `Type="layoutFiles"` in the collection XML. During installation, these layouts are processed by the layout system.
 
 ## Script Sections
 
@@ -138,10 +140,25 @@ cd ..\..\scripts
 
 cd ..\ui\privatefiles
 "c:\program files\7-zip\7z.exe" a "%collectionPath%uiprivatefiles.zip"
-cd ..\..\..\scripts
+cd ..\..\scripts
 ```
 
 The  `uiwwwfiles.zip`, `uicdnfiles.zip`, and `uiprivatefiles.zip` are included as a resource in the collection XML and installed to the root of the three site content file systems.
+
+### 4b. Package Layout Files (optional)
+
+If the project has HTML layout files, zip them from `ui/layoutFiles/` into a `uilayoutfiles.zip` in the collection folder. Layout files are HTML fragments managed by the Contensive layout system.
+
+```cmd
+cd ..\ui\layoutFiles
+"c:\program files\7-zip\7z.exe" a "%collectionPath%uilayoutfiles.zip"
+cd ..\..\scripts
+```
+
+The collection XML must include a corresponding resource node with type `layoutFiles`:
+```xml
+<Resource Name="uilayoutfiles.zip" Type="layoutFiles" path="" />
+```
 
 ### 5. Package Help Files (optional)
 
@@ -179,9 +196,9 @@ dotnet clean %solutionName%
 
 dotnet build projectName/projectName.csproj --configuration %DebugRelease% --no-dependencies /property:Version=%versionNumber% /property:AssemblyVersion=%versionNumber% /property:FileVersion=%versionNumber%
 if errorlevel 1 (
-   echo failure building
-   pause
-   exit /b %errorlevel%
+   echo ERROR: failure building projectName
+   set buildError=1
+   goto :builddone
 )
 
 cd ..\scripts
@@ -189,7 +206,7 @@ cd ..\scripts
 
 Key points:
 - Use `dotnet clean` before building to ensure a fresh compile
-- Always check `errorlevel` after the build and exit on failure
+- Always check `errorlevel` after the build and use `goto :builddone` on failure (see [Interactive vs Automation Mode](#interactive-vs-automation-mode-nopause))
 - Pass `/property:Version`, `/property:AssemblyVersion`, and `/property:FileVersion` to stamp the version
 - If the project produces NuGet packages, delete old `.nupkg` files before building
 
@@ -254,9 +271,71 @@ del HelpFiles.zip
 del uiwwwfiles.zip
 del uicdnfiles.zip
 del uiprivatefiles.zip
+del uilayoutfiles.zip
 
 cd ..\..\scripts
 ```
+
+## Interactive vs Automation Mode (`/nopause`)
+
+Build scripts are run both manually (double-click or command prompt) and by automation tools (CI, Claude Code, etc.). The `/nopause` flag controls error behavior:
+
+- **Manual** (`build.cmd`) — On error, pauses so the user can read the output before the window closes. On success, exits cleanly.
+- **Automation** (`build.cmd /nopause`) — On error, prints the error message and exits with error code 1 (no pause). On success, exits cleanly.
+
+### Setup
+
+Add these variables at the top of the script, after the header comments and before the configuration variables:
+
+```cmd
+set nopause=0
+if /i "%~1"=="/nopause" set nopause=1
+set buildError=0
+```
+
+### Error Handling in Build Steps
+
+Instead of `pause` and `exit /b` inline, set the error flag and jump to a common exit label:
+
+```cmd
+dotnet build projectName/projectName.csproj --configuration %DebugRelease% --no-dependencies /property:Version=%versionNumber% /property:AssemblyVersion=%versionNumber% /property:FileVersion=%versionNumber%
+if errorlevel 1 (
+   echo ERROR: failure building projectName
+   set buildError=1
+   goto :builddone
+)
+```
+
+This skips the remaining steps (collection packaging, cleanup) since there is no point packaging a failed build.
+
+### Exit Label
+
+Add this at the very end of the script, after the cleanup section:
+
+```cmd
+:builddone
+if %buildError%==1 (
+   echo.
+   echo ========== BUILD FAILED ==========
+   if %nopause%==0 (
+      pause
+   )
+   exit /b 1
+)
+
+echo.
+echo ========== BUILD SUCCEEDED ==========
+```
+
+### Calling from Automation
+
+When invoking the build script from a non-interactive context (e.g., Claude Code via bash), always pass `/nopause`:
+
+```bash
+cmd //c "C:\Git\projectName\scripts\build.cmd /nopause" 2>&1
+```
+
+Note: Use `//c` (double slash) when calling from bash, as a single slash gets consumed by the shell.
 
 ## Primary Example: aoEcommerce
 
@@ -281,6 +360,17 @@ This project demonstrates:
 - Clean build by removing `bin/` and `obj/` folders before compiling
 - Standard collection assembly with only `.dll` files copied
 
+## Third Example: aoDesignBlocks
+
+Source: `C:\Git\aoDesignBlocks\scripts\build.cmd`
+
+This project demonstrates:
+- Layout files packaging from `ui/layoutFiles/` into `uilayoutfiles.zip` with `Type="layoutFiles"` resource entry
+- Help files packaging
+- All four UI asset folders (wwwfiles, cdnfiles, privatefiles, layoutFiles)
+- Two .NET projects built in sequence (`DesignBlockBase` and `aoDesignBlocks`) with error checking after each
+- NuGet package output from `DesignBlockBase`
+
 ## Checklist for Creating a New Build Script
 
 1. Create a `scripts/` folder in the project root
@@ -288,9 +378,11 @@ This project demonstrates:
 3. Copy the version number generation block as-is
 4. Add clean steps for build and collection folders
 5. Add UI packaging if the project has UI assets
+5b. Add layout file packaging if the project has layout files in `ui/layoutFiles/`
 6. Add help file packaging if the project has documentation
 7. Add the `dotnet build` step with version properties and error checking
 8. Add NuGet copy steps if the project produces packages
 9. Add the collection zip assembly step
 10. Add cleanup to remove temporary files from the collection folder
 11. Verify all `cd` commands return to the `scripts/` folder before the next section
+12. Add `/nopause` support with `buildError` tracking and the `:builddone` exit label

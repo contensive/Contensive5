@@ -27,7 +27,7 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
         /// <param name="holeHeight">The height of the final image to be returned.</param>
-        /// <param name="userId"></param>
+        /// <param name="userId">The id of the user whose avatar is returned.</param>
         /// <returns></returns>
         public abstract string GetAvatarCdnPathFilename(int holeWidth, int holeHeight, int userId);
         //

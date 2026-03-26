@@ -2,8 +2,12 @@
 
 Contensive5 is an enterprise-grade addon execution framework that provides hardware abstraction and simplifies code reuse through a modular addon system. It's a sophisticated runtime environment that executes addons (extensible modules) while providing abstraction layers for system resources.
 
-Add this reference to projects needing to reference Contensive development
-- https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/README.md
+<!-- add to contensive project README.md,  CLAUDE.md, or AGENT.md
+
+This project uses Contensive patterns and follows the contensive architecture and patterns
+- [Contensive Architecture](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/README.md)
+
+-->
 
 ## Contensive Patterns
 

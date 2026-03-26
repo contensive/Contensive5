@@ -16,32 +16,35 @@ namespace Contensive.Processor.Controllers {
         // 
         // ====================================================================================================
         /// <summary>
-        /// get a design block layout object from the layout record, create the record from layoutCdnPathFilename if invalid.
+        /// get a design block layout object from the layout record, create the record from the layout file if invalid.
         /// There are two typical design block layout patterns:
-        /// 
-        /// 1 - the addon has a single layout. 
+        ///
+        /// 1 - the addon has a single layout.
         /// The addon reads it from the layout table by guid (layoutGuid) with the cp.layout.verify() method
-        /// If the layout record is not found or is blank, the layout record is created from content in an html file installed with the collection (defaultLayoutCdnPathFilename).
-        /// The layout record is cached so this read is sub-millisecond. 
+        /// If the layout record is not found or is blank, the layout record is created from content in an html file installed with the collection (defaultLayoutFilename).
+        /// The layout record is cached so this read is sub-millisecond.
         /// A designer can update the addon's design by replacing the content of the layout record.This update is never overwritten by the collection.
         /// To restore a layout to its default, delete the layout record.
-        /// 
+        ///
         /// 2 - the addon can have multiple layouts that the user can swith between (it only used one layout at a time)
         /// The addon has a settings record where the user selects the layout to be used. The addon reads the layout from the layout table by the selected ID in the settings record.
         /// If the layout record is not found or is blank, the verify method returns the 'default layout' for the addon using the verify-by-guid pattern (#1 above).
-        /// The layout record is cached so this read is sub-millisecond. 
+        /// The layout record is cached so this read is sub-millisecond.
         /// A designer can add new layouts and/or update the addon's default design by replacing the content of the layout record.This update is never overwritten by the collection.
         /// To restore a layout to its default, delete the layout record.
-        /// 
+        ///
         /// if platform4, return the default content
         /// if platform5, return the platform5 if it is not empty, else return the platform4
+        ///
+        /// Layout files are read from the "layoutFiles" folder in privateFiles (filename only, path stripped) first; if not found there, cdnFiles is used with the full path and filename as a fallback.
         /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public static string getLayout(CPClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <returns>The html layout content appropriate for the current platform version.</returns>
+        public static string getLayout(CPClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename) {
             try {
                 if (string.IsNullOrEmpty(layoutGuid)) { return ""; }
                 // 
@@ -54,7 +57,7 @@ namespace Contensive.Processor.Controllers {
                     if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
                     return layout.layout.content;
                 }
-                return updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+                return updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutFilename, platform5LayoutFilename);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -63,25 +66,26 @@ namespace Contensive.Processor.Controllers {
         // 
         // ====================================================================================================
         /// <summary>
-        /// create or update the layout record and return the result
+        /// Create or update the layout record and return the result.
+        /// Layout files are read from the "layoutFiles" folder in privateFiles (filename only, path stripped) first; if not found there, cdnFiles is used with the full path and filename as a fallback.
         /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="layoutContentId">The contentcontrolid for this layout. Use to create 'layouts for CTA' for example. Set to 0 and the contentcontrolid is not updated, and for new records, content 'layouts' is used. </param>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <param name="platform5LayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public static string updateLayout(CPClass cp, int layoutContentId, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="layoutContentId">The contentcontrolid for this layout. Use to create 'layouts for CTA' for example. Set to 0 and the contentcontrolid is not updated, and for new records, content 'layouts' is used.</param>
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <returns>The html layout content appropriate for the current platform version.</returns>
+        public static string updateLayout(CPClass cp, int layoutContentId, string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename) {
             try {
                 if (string.IsNullOrEmpty(layoutGuid)) { return ""; }
-                if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = defaultLayoutCdnPathFilename; }
-                if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = platform5LayoutCdnPathFilename; }
+                if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = defaultLayoutFilename; }
+                if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = platform5LayoutFilename; }
                 //
                 // -- create a layout if a layout is found
                 List<string> ignoreErrors = [];
-                string layout1 = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
-                string layout5 = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
+                string layout1 = string.IsNullOrEmpty(defaultLayoutFilename) ? "" : ImportController.processHtml(cp, readFileWithFallback(cp, defaultLayoutFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
+                string layout5 = string.IsNullOrEmpty(platform5LayoutFilename) ? "" : ImportController.processHtml(cp, readFileWithFallback(cp, platform5LayoutFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
                 if (string.IsNullOrEmpty(layout1 + layout5)) {
                     return "";
                 }
@@ -113,12 +117,26 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Get layout field of layout record. Return empty string if not found.
-        /// Return platform5 layout if flag set to 5, and the layout5 is not empty
+        /// Read a file attempting privateFiles first (in the "layoutFiles" folder, filename only with path stripped) and falling back to cdnFiles (full path and filename as provided).
         /// </summary>
-        /// <param name="layoutId"></param>
-        /// <param name="cp"></param>
-        /// <returns></returns>
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="filename">The filename, which may include a path. The filename-only portion is read from the "layoutFiles" folder in privateFiles; the full value is used for cdnFiles.</param>
+        /// <returns>The file content, or an empty string if not found in either file system.</returns>
+        private static string readFileWithFallback(CPClass cp, string filename) {
+            string privateFilePath = $"layoutFiles\\{System.IO.Path.GetFileName(filename)}";
+            string result = cp.PrivateFiles.Read(privateFilePath);
+            if (!string.IsNullOrEmpty(result)) { return result; }
+            return cp.CdnFiles.Read(filename);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Get layout field of layout record. Return empty string if not found.
+        /// Return platform5 layout if flag set to 5, and the layout5 is not empty.
+        /// </summary>
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="layoutId">The record id of the layout to retrieve.</param>
+        /// <returns>The html layout content appropriate for the current platform version, or empty string if not found.</returns>
         public static string getLayout(CPClass cp, int layoutId) {
             try {
                 if (!cp.core.cacheRuntime.layoutIdDict.ContainsKey(layoutId)) { return ""; }
@@ -132,11 +150,11 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Get layout field of layout record. Return empty string if not found.
+        /// Get layout field of layout record by guid. Return empty string if not found.
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="cp"></param>
-        /// <returns></returns>
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <returns>The html layout content appropriate for the current platform version, or empty string if not found.</returns>
         public static string getLayout(CPClass cp, string layoutGuid) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutGuid)) { return ""; }
@@ -151,11 +169,11 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// return a layout by its name. If there are duplicates, return the first by id. Not recommeded, use Guid. For compatibility only
+        /// Return a layout by its name. If there are duplicates, return the first by id. Not recommended, use Guid. For compatibility only.
         /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="layoutName"></param>
-        /// <returns></returns>
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="layoutName">The name of the layout record to retrieve.</param>
+        /// <returns>The html layout content appropriate for the current platform version, or empty string if not found.</returns>
         public static string getLayoutByName(CPClass cp, string layoutName) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return ""; }
@@ -170,12 +188,13 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// return a layout by its name. If there are duplicates, return the first by id. Not recommeded, use Guid. For compatibility only
+        /// Return a layout by its name. If there are duplicates, return the first by id. Not recommended, use Guid. For compatibility only.
+        /// If the layout record does not exist, it is created with the supplied default layout html.
         /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="layoutName"></param>
-        /// <param name="defaultLayout"></param>
-        /// <returns></returns>
+        /// <param name="cp">The Contensive CPClass instance providing access to site resources and services.</param>
+        /// <param name="layoutName">The name of the layout record to retrieve or create.</param>
+        /// <param name="defaultLayout">The default html layout content to save if the layout record must be created.</param>
+        /// <returns>The html layout content appropriate for the current platform version, or the defaultLayout if the record was created.</returns>
         public static string getLayoutByName(CPClass cp, string layoutName, string defaultLayout) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return defaultLayout; }

@@ -299,6 +299,7 @@ namespace Contensive.Processor.Controllers {
                                 string wwwFileList = "";
                                 string ContentFileList = "";
                                 string ExecFileList = "";
+                                string layoutFileList = "";
                                 bool collectionIncludesDiagnosticAddon = false;
                                 //
                                 // -- create resource manifest to track installed resource files
@@ -311,7 +312,7 @@ namespace Contensive.Processor.Controllers {
                                 foreach (XmlNode MetaDataSection in Doc.DocumentElement.ChildNodes) {
                                     switch (MetaDataSection.Name.ToLowerInvariant()) {
                                         case "resource": {
-                                                CollectionInstallResourceController.installResourceNode(core, MetaDataSection, CollectionName, collectionGuid, CollectionVersionFolder, resourceManifest, trackedFolders, assembliesInZip, ref wwwFileList, ref ContentFileList, ref ExecFileList);
+                                                CollectionInstallResourceController.installResourceNode(core, MetaDataSection, CollectionName, collectionGuid, CollectionVersionFolder, resourceManifest, trackedFolders, assembliesInZip, ref wwwFileList, ref ContentFileList, ref ExecFileList, ref layoutFileList);
                                                 break;
                                             }
                                         case "getcollection":
@@ -427,6 +428,7 @@ namespace Contensive.Processor.Controllers {
                                         collection.contentFileList = ContentFileList;
                                         collection.execFileList = ExecFileList;
                                         collection.wwwFileList = wwwFileList;
+                                        collection.layoutFileList = layoutFileList;
                                         //
                                         // ----- remove any current navigator nodes installed by the collection previously
                                         //
@@ -684,6 +686,32 @@ namespace Contensive.Processor.Controllers {
                                                     // do nothing
                                                     break;
                                                 }
+                                        }
+                                    }
+                                    //
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
+                                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], stage-6b, resolve editorAddonId guids in cdef fields now that addons are installed");
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
+                                    //
+                                    if (!skipCdefInstall) {
+                                        foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
+                                            if (!GenericController.toLCase(metaDataSection.Name).Equals("cdef")) { continue; }
+                                            string cdefContentName = XmlController.getXMLAttribute(core, metaDataSection, "name", "");
+                                            if (string.IsNullOrEmpty(cdefContentName)) { continue; }
+                                            int cdefContentId = ContentMetadataModel.getContentId(core, cdefContentName);
+                                            if (cdefContentId <= 0) { continue; }
+                                            foreach (XmlNode cdefChildNode in metaDataSection.ChildNodes) {
+                                                if (!GenericController.toLCase(cdefChildNode.Name).Equals("field")) { continue; }
+                                                string editorAddonGuid = XmlController.getXMLAttribute(core, cdefChildNode, "editorAddonId", "");
+                                                if (string.IsNullOrEmpty(editorAddonGuid)) { continue; }
+                                                int editorAddonId = DbBaseModel.getRecordId<AddonModel>(core.cpParent, editorAddonGuid);
+                                                if (editorAddonId <= 0) { continue; }
+                                                string fieldName = XmlController.getXMLAttribute(core, cdefChildNode, "name", "");
+                                                if (string.IsNullOrEmpty(fieldName)) { continue; }
+                                                int fieldId = DbController.getContentFieldId(core, cdefContentId, fieldName.ToLower(CultureInfo.InvariantCulture));
+                                                if (fieldId <= 0) { continue; }
+                                                core.db.executeNonQuery($"update ccfields set editoraddonid={editorAddonId} where id={fieldId}");
+                                            }
                                         }
                                     }
                                     //

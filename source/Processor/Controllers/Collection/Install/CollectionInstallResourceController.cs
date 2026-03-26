@@ -18,7 +18,7 @@ namespace Contensive.Processor.Controllers {
         /// Process a single resource node from the collection XML. Copies files to the appropriate
         /// file system (www, private, cdn, helpfiles) and tracks them in the resource manifest.
         /// </summary>
-        internal static void installResourceNode(CoreController core, XmlNode metaDataSection, string collectionName, string collectionGuid, string collectionVersionFolder, ResourceManifestModel resourceManifest, HashSet<string> trackedFolders, List<string> assembliesInZip, ref string wwwFileList, ref string contentFileList, ref string execFileList) {
+        internal static void installResourceNode(CoreController core, XmlNode metaDataSection, string collectionName, string collectionGuid, string collectionVersionFolder, ResourceManifestModel resourceManifest, HashSet<string> trackedFolders, List<string> assembliesInZip, ref string wwwFileList, ref string contentFileList, ref string execFileList, ref string layoutFileList) {
             //
             // set wwwfilelist, contentfilelist, execfilelist
             //
@@ -158,6 +158,47 @@ namespace Contensive.Processor.Controllers {
                         }
                         break;
                     }
+                case "layoutfiles":
+                case "layoutfile":
+                case "layout": {
+                        string layoutFilesDstPath = "layoutFiles\\";
+                        string ext = System.IO.Path.GetExtension(filename).ToLowerInvariant();
+                        if (ext == ".zip") {
+                            //
+                            // -- zip file: copy to wwwFiles first, then extract with split logic
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, copying layout zip to wwwFiles for extraction, src [{collectionVersionFolder}{SrcPath}], dst [{dstDosPath}].");
+                            core.privateFiles.copyFile(collectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.wwwFiles);
+                            if (!string.IsNullOrEmpty(dstDosPath)) {
+                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-www", folderPath = dstDosPath });
+                            }
+                            resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-private", folderPath = layoutFilesDstPath });
+                            ResourceManifestModel.unzipLayoutToTempThenCopy(core, dstDosPath, dstDosPath + filename, resourceManifest);
+                            core.wwwFiles.deleteFile(dstDosPath + filename);
+                        } else if (ext == ".htm" || ext == ".html") {
+                            //
+                            // -- HTML file: copy to layoutFiles\ in privateFiles
+                            layoutFileList += Environment.NewLine + layoutFilesDstPath + filename;
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, copying layout HTML to privateFiles, src [{collectionVersionFolder}{SrcPath}], dst [{layoutFilesDstPath}].");
+                            core.privateFiles.copyFile(collectionVersionFolder + SrcPath + filename, layoutFilesDstPath + filename);
+                            resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "layout-private", destinationPath = layoutFilesDstPath + filename });
+                            if (!trackedFolders.Contains($"layout-private::{layoutFilesDstPath}")) {
+                                trackedFolders.Add($"layout-private::{layoutFilesDstPath}");
+                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-private", folderPath = layoutFilesDstPath });
+                            }
+                        } else {
+                            //
+                            // -- non-HTML file: copy to dstDosPath in wwwFiles
+                            layoutFileList += Environment.NewLine + dstDosPath + filename;
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, copying layout file to wwwFiles, src [{collectionVersionFolder}{SrcPath}], dst [{dstDosPath}].");
+                            core.privateFiles.copyFile(collectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.wwwFiles);
+                            resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "layout-www", destinationPath = dstDosPath + filename });
+                            if (!string.IsNullOrEmpty(dstDosPath) && !trackedFolders.Contains($"layout-www::{dstDosPath}")) {
+                                trackedFolders.Add($"layout-www::{dstDosPath}");
+                                resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-www", folderPath = dstDosPath });
+                            }
+                        }
+                        break;
+                    }
                 default: {
                         if (assembliesInZip.Contains(filename)) {
                             assembliesInZip.Remove(filename);
@@ -201,7 +242,11 @@ namespace Contensive.Processor.Controllers {
                                 core.cdnFiles.deleteFile(oldEntry.destinationPath);
                                 break;
                             case "helpfiles":
+                            case "layout-private":
                                 core.privateFiles.deleteFile(oldEntry.destinationPath);
+                                break;
+                            case "layout-www":
+                                core.wwwFiles.deleteFile(oldEntry.destinationPath);
                                 break;
                         }
                         logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], deleted orphaned resource [{oldEntry.type}::{oldEntry.destinationPath}]");
@@ -224,6 +269,8 @@ namespace Contensive.Processor.Controllers {
                             "private" => core.privateFiles,
                             "cdn" => core.cdnFiles,
                             "helpfiles" => core.privateFiles,
+                            "layout-private" => core.privateFiles,
+                            "layout-www" => core.wwwFiles,
                             _ => null
                         };
                         if (fileSystem != null && fileSystem.getFileList(oldFolder.folderPath).Count == 0 && fileSystem.getFolderList(oldFolder.folderPath).Count == 0) {

@@ -1,13 +1,12 @@
-﻿using Contensive.BaseClasses;
+using Contensive.BaseClasses;
 using Contensive.Processor.Models;
-using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
+namespace Contensive.DashboardWidgets {
     public class SamplePieChartWidget : AddonBaseClass {
-        // Fix for CA1861: Use static readonly for the array to avoid recreating it repeatedly  
+        // Fix for CA1861: Use static readonly for the array to avoid recreating it repeatedly
         private static readonly string[] DefaultDataLabels = {
                "Lifetime", "Gold", "Premium", "Silver", "Associate",
                "Part-Time", "Foreign", "Canadian", "Misc", "Other", ""

@@ -398,19 +398,56 @@ The element text content is the GUID of the required collection. The `Name` attr
 
 ## Resources
 
-Declare files to be deployed during installation.
+Declare files to be deployed during installation. No path is needed for type="layoutFiles"
 
 ```xml
 <Resource Name="filename.zip" Type="www" Path="targetFolder" />
 <Resource Name="filename.zip" Type="files" Path="targetFolder" />
 <Resource Name="helpfiles.zip" Type="privatefiles" Path="helpfiles/CollectionName" />
+<Resource Name="myLayout.html" Type="layout" Path="layouts/myCollection" />
+<Resource Name="style.css" Type="layout" Path="layouts/myCollection" />
+<Resource Name="layoutBundle.zip" Type="layoutFiles" />
 ```
 
 | Attribute | Description |
 |-----------|-------------|
 | `Name` | Filename of the resource (must be included in the collection package) |
-| `Type` | Target location: `www` (web root wwwroot), `files` (public files), `privatefiles` (private files) |
+| `Type` | Target location: `www` (web root wwwroot), `files` (public files), `privatefiles` (private files), `layout` (split by extension, see below) |
 | `Path` | Subfolder path within the target location |
+
+### Layout Resources (`Type="layout"`)
+
+Layout resources split files by extension during installation:
+
+- **HTML files** (`.htm`, `.html`): Copied to `layoutFiles\` in **privateFiles**. These are layout templates read by `cp.Layout.updateLayout()` at runtime. The destination path is always `layoutFiles\` regardless of the `Path` attribute.
+- **Non-HTML files** (`.css`, `.js`, images, etc.): Copied to the `Path` in **wwwFiles** (the web root). These are public assets referenced by the HTML layouts.
+- **Zip files** (`.zip`): Extracted and split by the same rules. HTML files inside the zip are flattened into `layoutFiles\` in privateFiles (subfolder structure is not preserved). Non-HTML files are copied to the `Path` in wwwFiles with their zip subfolder structure preserved. The zip itself is deleted after extraction.
+
+During export, the system reads the collection's `layoutFileList` field and determines the source filesystem by extension — HTML files are read from privateFiles, all others from wwwFiles.
+
+Two manifest types are used for orphan cleanup:
+- `layout-private` — tracks HTML files in privateFiles
+- `layout-www` — tracks non-HTML files in wwwFiles
+
+**Example: collection with layout resources**
+
+```xml
+<Collection Name="My Site" Guid="{...}" ...>
+    <!-- HTML layout template → installed to privateFiles\layoutFiles\header.html -->
+    <Resource Name="header.html" Type="layout" Path="layouts/mysite" />
+
+    <!-- CSS file → installed to wwwFiles\layouts\mysite\style.css -->
+    <Resource Name="style.css" Type="layout" Path="layouts/mysite" />
+
+    <!-- Zip containing mixed files → HTML extracted flat to layoutFiles\, others to wwwFiles\layouts\mysite\ -->
+    <Resource Name="myLayouts.zip" Type="layout" Path="layouts/mysite" />
+
+    <!-- OnInstall addon calls cp.Layout.updateLayout() to register the HTML layouts -->
+    <Addon Name="Install My Site" Guid="{...}" Type="Add-on">
+        <DotNetClass><![CDATA[MySite.OnInstallClass]]></DotNetClass>
+    </Addon>
+</Collection>
+```
 
 ## Steps to Create a New Addon Collection XML
 

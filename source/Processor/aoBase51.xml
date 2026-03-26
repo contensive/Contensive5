@@ -8,7 +8,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
 	>
-  <CDef name="Data Sources" NavTypeId="System" AddonCategoryId="" ActiveOnly="1" AdminOnly="1" AliasID="id" AliasName="name" AllowAdd="1" AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccDataSources" ContentDataSourceName="DEFAULT" ContentTableName="ccDataSources" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" Guid="{50EC1B7B-B671-4F40-8DBE-BD74D1E54D7D}">
+  <CDef Name="Data Sources" NavTypeId="System" AddonCategoryId="" ActiveOnly="1" AdminOnly="1" AliasID="id" AliasName="name" AllowAdd="1" AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccDataSources" ContentDataSourceName="DEFAULT" ContentTableName="ccDataSources" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" Guid="{50EC1B7B-B671-4F40-8DBE-BD74D1E54D7D}">
     <Field Name="Name" Active="true" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="30" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="1" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" >
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -244,7 +244,7 @@
     <Field Name="LookupList" Active="true" AdminOnly="0" Authorable="1" Caption="LookupList" DeveloperOnly="0" EditSortPriority="1055" FieldType="Text" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Type Lookup" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault>for field type lookup, when no Lookup Content is selected, this is a comma delimited list of strings used for the editor selection. A numeric value will be stored in the field representing the item order starting with 1.</HelpDefault>
     </Field>
-    <Field Name="EditorAddonId" Active="true" AdminOnly="0" Authorable="1" Caption="Custom editor for this Field" DeveloperOnly="0" EditSortPriority="2000" FieldType="Lookup" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Admin Editing" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Add-ons" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+    <Field Name="EditorAddonId" Active="true" AdminOnly="0" Authorable="1" Caption="Custom Editor for this Field" DeveloperOnly="0" EditSortPriority="2000" FieldType="Lookup" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Admin Editing" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Add-ons" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault>An addon used to edit the data from this field in the admin editor. When set to none, the admin site will use the default editor for the field type.</HelpDefault>
     </Field>
     <Field Name="InstalledByCollectionID" Active="true" AdminOnly="0" Authorable="1" Caption="Installed By Collection" DeveloperOnly="0" EditSortPriority="9999" FieldType="Lookup" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Control Info" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Add-on Collections" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
@@ -2243,6 +2243,9 @@
     <Field Name="ContentFileList" Active="true" AdminOnly="0" Authorable="1" Caption="Cdn File List" DeveloperOnly="0" EditSortPriority="1100" FieldType="LongText" HtmlContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" LookupContent="" NotEditable="0" Password="false" ReadOnly="false" RedirectContent="" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="0" DefaultValue="" RSSTitleField="0" RSSDescriptionField="0" MemberSelectGroup="" EditGroup="" EditTab="Resources" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[List of files in the collection zip file to be installed in the cdn file source.]]></HelpDefault>
     </Field>
+    <Field Name="LayoutFileList" Active="true" AdminOnly="0" Authorable="1" Caption="Layout File List" DeveloperOnly="0" EditSortPriority="1150" FieldType="LongText" HtmlContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" LookupContent="" NotEditable="0" Password="false" ReadOnly="false" RedirectContent="" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="0" DefaultValue="" RSSTitleField="0" RSSDescriptionField="0" MemberSelectGroup="" EditGroup="" EditTab="Resources" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[List of layout resource files. HTML files are installed to the layoutFiles folder in private files. All other files are installed to the www root path.]]></HelpDefault>
+    </Field>
     <Field Name="ExecFileList" Active="true" AdminOnly="0" Authorable="1" Caption="Executable File List" DeveloperOnly="0" EditSortPriority="1200" FieldType="LongText" HtmlContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" LookupContent="" NotEditable="0" Password="false" ReadOnly="false" RedirectContent="" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="0" DefaultValue="" RSSTitleField="0" RSSDescriptionField="0" MemberSelectGroup="" EditGroup="" EditTab="Resources" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[List of files to be stored as executable files, typically DLL assembly files.]]></HelpDefault>
     </Field>
@@ -3093,7 +3096,7 @@
         tools
     -->
 
-	<Addon name="Open Graph" guid="{13231CF9-C06D-4748-83F4-A49545C1B4DA}" type="Add-on">
+	<Addon Name="Open Graph" Guid="{13231CF9-C06D-4748-83F4-A49545C1B4DA}" Type="Add-on">
 		<DotNetClass>Contensive.Processor.Addons.PageManager.OpenGraphEndOfBodyClass</DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 		<OnBodyEnd>Yes</OnBodyEnd>
@@ -3252,8 +3255,8 @@
   <!-- 
     Add-ons
   -->
-	<Addon name="uploadLayout" guid="{C0026ECE-C6A1-4AFD-BE23-291FDE29670D}" type="Add-on">
-		<Description>Remote method for uploading and processing HTML layout files. Monitors local file changes and uploads them to layout records.</Description>
+	<Addon Name="uploadLayout" Guid="{C0026ECE-C6A1-4AFD-BE23-291FDE29670D}" Type="Add-on">
+		<!--<Description>Remote method for uploading and processing HTML layout files. Monitors local file changes and uploads them to layout records.</Description>-->
 		<RemoteMethod>true</RemoteMethod>
 		<DotNetClass>Contensive.Processor.Addons.Tools.UploadLayoutRemoteMethod</DotNetClass>
 	</Addon>
@@ -3376,10 +3379,10 @@
 			</Tab>
 			<Tab Name="Social Media" heading="Social Media" description="">
 				<SiteProperty Caption="Open Graph Default Image" Name="OpenGraphDefaultImageFilename" ReadOnly="0" Type="ImageFile" Selector="" Description="Open Graph images are used to represent your content on social media platforms. Each page can set its Open Graph image in the meta content tab. If no image is set, this default image is used. The recommended size is 1200 x 630 pixels."></SiteProperty>
-			    <SiteProperty caption="Facebook Admins" name="facebook admin Id list" ReadOnly="0" Type="text" Selector="" Description="A comma separated list of Facebook ID numbers for the people who can administer this page."></SiteProperty>
-			    <SiteProperty caption="Site Name" name="open graph site name" ReadOnly="0" Type="text" Selector="" Description="The human-readable name for your site that is sent out in an open graph meta tag."></SiteProperty>
-			    <SiteProperty caption="Twitter Username" name="Twitter Username" Type="text"/>
-			    <SiteProperty caption="Twitter Password" name="Twitter Password" Type="text"/>
+			    <SiteProperty caption="Facebook Admins" Name="facebook admin Id list" ReadOnly="0" Type="text" Selector="" Description="A comma separated list of Facebook ID numbers for the people who can administer this page."></SiteProperty>
+			    <SiteProperty caption="Site Name" Name="open graph site name" ReadOnly="0" Type="text" Selector="" Description="The human-readable name for your site that is sent out in an open graph meta tag."></SiteProperty>
+			    <SiteProperty caption="Twitter Username" Name="Twitter Username" Type="text"/>
+			    <SiteProperty caption="Twitter Password" Name="Twitter Password" Type="text"/>
 			</Tab>
 			<Tab Name="Website" heading="Website Settings used to handle web server requests" description="When used with a webserver, set the Page Manager add-on as the default route (The add-on that runs if the url does not match any other add-on). Page Manager creates a website. These settings control how Page Manager creates web pages.">
 				<SiteProperty Caption="Default Route" Name="Default Route AddonId" ReadOnly="0" Type="text" Selector="[Select One:0|listid(add-ons)]" Description="For a typical application, this is the applications main addon. It is executed when no the request to the server does not specify any other command. For example, in the default application website, this is set to the Page Manager which creates an editable website."></SiteProperty>

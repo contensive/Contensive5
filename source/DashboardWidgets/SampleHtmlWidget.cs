@@ -1,9 +1,8 @@
-﻿using Contensive.BaseClasses;
+using Contensive.BaseClasses;
 using Contensive.Processor.Models;
-using Contensive.Processor.Models.Domain;
 using System;
 
-namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
+namespace Contensive.DashboardWidgets {
     public class SampleHtmlWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {

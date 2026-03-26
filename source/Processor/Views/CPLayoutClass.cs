@@ -44,80 +44,75 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// Get a layout from the layout record. If invalid, create the record from layoutCdnPathFilename.
+        /// Get a layout from the layout record. If invalid, create the record from the layout file (privateFiles first, cdnFiles fallback).
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
-            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <returns>The html layout content appropriate for the current platform version.</returns>
+        public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename) {
+            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutFilename, "");
         }
         //
         //====================================================================================================
         /// <summary>
-        /// Get a layout from the layout record. If invalid, create the record from layoutCdnPathFilename.
+        /// Get a layout from the layout record. If invalid, create the record from the layout files (privateFiles first, cdnFiles fallback).
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <param name="platform5LayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
-            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <returns>The html layout content appropriate for the current platform version.</returns>
+        public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename) {
+            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutFilename, platform5LayoutFilename);
         }
         //
         //====================================================================================================
         /// <summary>
-        /// create or update the record from layoutCdnPathFilename.
+        /// Create or update the layout record from the layout file (privateFiles first, cdnFiles fallback).
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public override void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
-            _ = LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="layoutContentId">The contentcontrolid for this layout. Use to create 'layouts for CTA' for example. Set to 0 and the contentcontrolid is not updated.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public override void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutFilename) {
+            _ = LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutFilename, "");
         }
         //
         //====================================================================================================
         /// <summary>
-        /// create or update the record from layoutCdnPathFilename.
+        /// Create or update the layout record from the layout file (privateFiles first, cdnFiles fallback).
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
-            _ = LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename) {
+            _ = LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutFilename, "");
         }
         //
         //====================================================================================================
         /// <summary>
-        /// create or update the record from layoutCdnPathFilename.
+        /// Create or update the layout record from the layout files (privateFiles first, cdnFiles fallback).
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <param name="platform5LayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
-            _ = LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="layoutContentId">The contentcontrolid for this layout. Use to create 'layouts for CTA' for example. Set to 0 and the contentcontrolid is not updated.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public override void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename) {
+            _ = LayoutController.updateLayout(cp, layoutContentId, layoutGuid, defaultLayoutName, defaultLayoutFilename, platform5LayoutFilename);
         }
         //
         //====================================================================================================
         /// <summary>
-        /// create or update the record from layoutCdnPathFilename.
+        /// Create or update the layout record from the layout files (privateFiles first, cdnFiles fallback).
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <param name="platform5LayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
-            _ = LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename) {
+            _ = LayoutController.updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutFilename, platform5LayoutFilename);
         }
         //
         //====================================================================================================

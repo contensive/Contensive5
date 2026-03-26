@@ -368,9 +368,49 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                // 
+                //
+                // layoutFileList
+                //
+                List<string> layoutUnixPathFilenameList = ExportResourceListController.getUnixPathFilenameList(cp, cs.GetText("layoutFileList"));
+                foreach (var unixPathFilename in layoutUnixPathFilenameList) {
+                    if (!string.IsNullOrEmpty(unixPathFilename)) {
+                        string path = "";
+                        string filename = unixPathFilename;
+                        int layoutPos = VisualBasicConvert.Strings_InStrRev(unixPathFilename, "/");
+                        if (layoutPos > 0) {
+                            filename = VisualBasicConvert.Strings_Mid(unixPathFilename, layoutPos + 1);
+                            path = VisualBasicConvert.Strings_Mid(unixPathFilename, 1, layoutPos - 1);
+                        }
+                        string dosPathFilename = VisualBasicConvert.Strings_Replace(unixPathFilename, "/", @"\");
+                        string fileExt = System.IO.Path.GetExtension(filename).ToLowerInvariant();
+                        if (tempPathFileList.Contains(tempExportPath + filename)) {
+                            cp.UserError.Add($"There was an error exporting this collection because there were multiple files with the same filename [{filename}]");
+                        } else if (fileExt == ".htm" || fileExt == ".html") {
+                            //
+                            // -- HTML layout files come from privateFiles
+                            if (!cp.PrivateFiles.FileExists(dosPathFilename)) {
+                                cp.UserError.Add($"There was an error exporting this collection because the layout file [{dosPathFilename}] was not found in private files.");
+                            } else {
+                                cp.PrivateFiles.Copy(dosPathFilename, tempExportPath + filename, cp.TempFiles);
+                                tempPathFileList.Add(tempExportPath + filename);
+                                collectionXml.Append($"{Environment.NewLine}\t<Resource name=\"{System.Net.WebUtility.HtmlEncode(filename)}\" type=\"layout\" path=\"{System.Net.WebUtility.HtmlEncode(path)}\" />");
+                            }
+                        } else {
+                            //
+                            // -- non-HTML layout files come from wwwFiles
+                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                cp.UserError.Add($"There was an error exporting this collection because the layout file [{dosPathFilename}] was not found in www files.");
+                            } else {
+                                cp.WwwFiles.Copy(dosPathFilename, tempExportPath + filename, cp.TempFiles);
+                                tempPathFileList.Add(tempExportPath + filename);
+                                collectionXml.Append($"{Environment.NewLine}\t<Resource name=\"{System.Net.WebUtility.HtmlEncode(filename)}\" type=\"layout\" path=\"{System.Net.WebUtility.HtmlEncode(path)}\" />");
+                            }
+                        }
+                    }
+                }
+                //
                 // ExecFileListNode
-                // 
+                //
                 collectionXml.Append(execResourceNodeList);
                 // 
                 // Other XML

@@ -149,7 +149,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- domain
-                    domainName = "www." + appConfig.name + ".com";
+                    domainName = appConfig.name + "sitefpo.com";
                     while (promptForArguments) {
                         domainName = GenericController.promptForReply("Primary Domain Name", domainName);
                         domainName = normalizeDomain(domainName);

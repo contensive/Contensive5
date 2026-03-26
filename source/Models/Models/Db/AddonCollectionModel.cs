@@ -46,6 +46,10 @@ namespace Contensive.Models.Db {
         public bool system { get; set; }
         public bool updatable { get; set; }
         public string wwwFileList { get; set; }
+        /// <summary>
+        /// files to install split by extension: HTML to layoutFiles in privateFiles, others to wwwRoot
+        /// </summary>
+        public string layoutFileList { get; set; }
         public int oninstalladdonid { get; set; }
     }
 }

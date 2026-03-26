@@ -23,14 +23,24 @@ namespace Contensive.Processor {
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return the avatar CDN pathFilename for the current user, resized to the provided dimensions.
+        /// </summary>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <returns></returns>
         public override string GetAvatarCdnPathFilename(int holeWidth, int holeHeight) {
             return GetAvatarCdnPathFilename(holeWidth, holeHeight, cp.core.session.user);
         }
         //
         // ====================================================================================================
-        //
-
+        /// <summary>
+        /// Return the avatar CDN pathFilename for the provided user, resized to the provided dimensions.
+        /// </summary>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <param name="userId">The id of the user whose avatar is returned.</param>
+        /// <returns></returns>
         public override string GetAvatarCdnPathFilename(int holeWidth, int holeHeight, int userId) {
             PersonModel user = DbBaseModel.create<PersonModel>(cp, userId);
             if (user is null) { return "";  }
@@ -63,49 +73,105 @@ namespace Contensive.Processor {
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image in .webP format resized so its smallest dimension fits the hole, and the other dimension cropped.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <returns></returns>
         public override string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image in .webP format resized so its smallest dimension fits the hole, and the other dimension cropped.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <param name="imageAltSizes">A list of image sizes already created. Save this string with the original image URL.</param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back.</param>
+        /// <returns></returns>
         public override string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
             return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image in .webP format resized so its largest dimension fits the hole, and the other dimension padded transparent.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <returns></returns>
         public override string ResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image in .webP format resized so its largest dimension fits the hole, and the other dimension padded transparent.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <param name="imageAltSizes">A list of image sizes already created. Save this string with the original image URL.</param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back.</param>
+        /// <returns></returns>
         public override string ResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
             return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image resized so its smallest dimension fits the hole, and the other dimension cropped.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <returns></returns>
         public override string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image resized so its smallest dimension fits the hole, and the other dimension cropped.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <param name="imageAltSizes">A list of image sizes already created. Save this string with the original image URL.</param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back.</param>
+        /// <returns></returns>
         public override string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
             return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image resized so its largest dimension fits the hole, and the other dimension padded transparent.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <returns></returns>
         public override string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndPadNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
         //
         // ====================================================================================================
-        //
+        /// <summary>
+        /// Return an image resized so its largest dimension fits the hole, and the other dimension padded transparent.
+        /// </summary>
+        /// <param name="imagePathFilename">The source image. This is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <param name="imageAltSizes">A list of image sizes already created. Save this string with the original image URL.</param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back.</param>
+        /// <returns></returns>
         public override string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
             return ImageController.resizeAndPadNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }

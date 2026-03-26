@@ -48,69 +48,75 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// returns a layout by Guid. 
-        /// If missing, the layout record is created with the default name 
-        /// and the layout file referenced in the cdn is transformed (data attribute based html transformations)
+        /// Returns a layout by Guid.
+        /// If missing, the layout record is created with the default name
+        /// and the layout file is transformed (data attribute based html transformations).
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <returns>The html layout content appropriate for the current platform version.</returns>
+        public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename);
         //
         //====================================================================================================
         /// <summary>
-        /// returns a layout by Guid. 
-        /// If missing, the layout record is created with the default name and layouts
-        /// The default layout is used when platform5 is not appropriate (platform not set, set to 4, platform5 layout is blank)
-        /// The platform5 layout is used for platform5 (sites set to bootstrap 5 platform)
+        /// Returns a layout by Guid.
+        /// If missing, the layout record is created with the default name and layouts.
+        /// The default layout is used when platform5 is not appropriate (platform not set, set to 4, platform5 layout is blank).
+        /// The platform5 layout is used for platform5 (sites set to bootstrap 5 platform).
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <param name="platform5LayoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <returns>The html layout content appropriate for the current platform version.</returns>
+        public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename);
         //
         //====================================================================================================
         /// <summary>
-        /// the layout record is created or updated with the default name  and layout record
+        /// The layout record is created or updated with the default name and layout record.
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
         /// </summary>
-        /// <param name="layoutGuid">The layout's guid</param>
-        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
-        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
-        public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename);
         //
         //====================================================================================================
         /// <summary>
-        /// the layout record is created or updated with the default name  and layout record
+        /// The layout record is created or updated with the default name and layout record.
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
         /// </summary>
-        /// <param name="layoutGuid">The layout's guid</param>
-        /// <param name="layoutContentId">set to a contentid if this layout should be created in a different segment of Layouts, like 'layouts for CTA'. Use cp.content.getid("layouts for CTA") to determine the contentId</param>
-        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
-        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
-        public abstract void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="layoutContentId">Set to a contentid if this layout should be created in a different segment of Layouts, like 'layouts for CTA'. Use cp.content.getid("layouts for CTA") to determine the contentId.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public abstract void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutFilename);
         //
         //====================================================================================================
         /// <summary>
-        /// the layout record is created or updated with the default name  and layout record
+        /// The layout record is created or updated with the default name and layout record.
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
         /// </summary>
-        /// <param name="layoutGuid">The layout's guid</param>
-        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
-        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
-        /// <param name="platform5LayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout. The platform5 html layout field is used when the site is set to plaform5 (bootstrap 5) and the platform5 field is not empty.</param>
-        public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename);
         //
         //====================================================================================================
         /// <summary>
-        /// the layout record is created or updated with the default name  and layout record
+        /// The layout record is created or updated with the default name and layout record.
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
         /// </summary>
-        /// <param name="layoutGuid">The layout's guid</param>
-        /// <param name="layoutContentId">set to a contentid if this layout should be created in a different segment of Layouts, like 'layouts for CTA'. Use cp.content.getid("layouts for CTA") to determine the contentId</param>
-        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
-        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
-        /// <param name="platform5LayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout. The platform5 html layout field is used when the site is set to plaform5 (bootstrap 5) and the platform5 field is not empty.</param>
-        public abstract void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
+        /// <param name="layoutGuid">The guid that uniquely identifies the layout record.</param>
+        /// <param name="layoutContentId">Set to a contentid if this layout should be created in a different segment of Layouts, like 'layouts for CTA'. Use cp.content.getid("layouts for CTA") to determine the contentId.</param>
+        /// <param name="defaultLayoutName">The name to assign to the layout record if it must be created.</param>
+        /// <param name="defaultLayoutFilename">The filename (may include a path) of the default html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        /// <param name="platform5LayoutFilename">The filename (may include a path) of the platform 5 (Bootstrap 5) html layout file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public abstract void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename);
         //
         //====================================================================================================
         /// <summary>

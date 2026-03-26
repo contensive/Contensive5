@@ -356,7 +356,33 @@
 					<xs:element name="Resource" minOccurs="1" maxOccurs="unbounded">
 						<xs:complexType>
 							<xs:attribute name="name" type="xs:string" use="required" />
-							<xs:attribute name="type" type="xs:string" use="required" />
+							<xs:attribute name="type" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="www" />
+										<xs:enumeration value="wwwfiles" />
+										<xs:enumeration value="wwwfile" />
+										<xs:enumeration value="wwwroot" />
+										<xs:enumeration value="private" />
+										<xs:enumeration value="privatefiles" />
+										<xs:enumeration value="privatefile" />
+										<xs:enumeration value="content" />
+										<xs:enumeration value="cdnfiles" />
+										<xs:enumeration value="file" />
+										<xs:enumeration value="files" />
+										<xs:enumeration value="help" />
+										<xs:enumeration value="helpfiles" />
+										<xs:enumeration value="helpcenter" />
+										<xs:enumeration value="helpcenterfile" />
+										<xs:enumeration value="helpcenterfiles" />
+										<xs:enumeration value="helpfile" />
+										<xs:enumeration value="layout" />
+										<xs:enumeration value="layoutfiles" />
+										<xs:enumeration value="layoutfile" />
+										<xs:enumeration value="executable" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
 							<xs:attribute name="path" type="xs:string" use="required" />
 						</xs:complexType>
 					</xs:element>					

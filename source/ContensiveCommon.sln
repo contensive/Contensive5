@@ -1,3 +1,4 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
@@ -32,6 +33,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{B43502BF-C390-4232-89CF-8F859B3981E7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Processor", "Processor\Processor.csproj", "{285A07A9-A0EF-4BE7-9354-20F25EC05BAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashboardWidgets", "DashboardWidgets\DashboardWidgets.csproj", "{0A32CA2D-2F89-4298-BA2F-14AF4548C721}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,6 +147,18 @@ Global
 		{285A07A9-A0EF-4BE7-9354-20F25EC05BAC}.Release|x64.Build.0 = Release|Any CPU
 		{285A07A9-A0EF-4BE7-9354-20F25EC05BAC}.Release|x86.ActiveCfg = Release|Any CPU
 		{285A07A9-A0EF-4BE7-9354-20F25EC05BAC}.Release|x86.Build.0 = Release|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Debug|x64.Build.0 = Debug|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Debug|x86.Build.0 = Debug|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x64.ActiveCfg = Release|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x64.Build.0 = Release|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x86.ActiveCfg = Release|Any CPU
+		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

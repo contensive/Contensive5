@@ -54,9 +54,11 @@ namespace Contensive.Processor.Controllers {
                             foreach (var entry in manifest.resources) {
                                 switch (entry.type.ToLowerInvariant()) {
                                     case "www":
+                                    case "layout-www":
                                         core.wwwFiles.deleteFile(entry.destinationPath);
                                         break;
                                     case "private":
+                                    case "layout-private":
                                         core.privateFiles.deleteFile(entry.destinationPath);
                                         break;
                                     case "cdn":
@@ -73,8 +75,8 @@ namespace Contensive.Processor.Controllers {
                                 for (int i = manifest.folders.Count - 1; i >= 0; i--) {
                                     var folder = manifest.folders[i];
                                     FileController fileSystem = folder.type.ToLowerInvariant() switch {
-                                        "www" => core.wwwFiles,
-                                        "private" => core.privateFiles,
+                                        "www" or "layout-www" => core.wwwFiles,
+                                        "private" or "layout-private" => core.privateFiles,
                                         "cdn" => core.cdnFiles,
                                         "helpfiles" => core.privateFiles,
                                         _ => null
