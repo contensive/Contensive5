@@ -2,6 +2,10 @@
 
 Documentation for key patterns used in Contensive5 development.
 
+## Best Practices
+
+- [Contensive Best Practices](best-practices-pattern.md) — error handling conventions, try/catch patterns, and exception reporting
+
 ## Architecture
 
 - [Contensive Architecture](contensive-architecture.md) — overall system architecture, addon lifecycle, and design patterns

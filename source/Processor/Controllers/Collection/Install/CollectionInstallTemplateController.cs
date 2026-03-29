@@ -43,7 +43,7 @@ namespace Contensive.Processor.Controllers {
                                     if (!string.IsNullOrEmpty(addonGuid)) {
                                         var addon = core.cacheRuntime.addonCache.create(addonGuid);
                                         if (addon == null) {
-                                            return_ErrorMessage.errors.Add( "Addon dependency [" + addonName + "] for template [" + templateName + "] could not be found by its guid [" + addonGuid + "]");
+                                            return_ErrorMessage.warnings.Add($"Addon dependency [{addonName}] for template [{templateName}] could not be found by its guid [{addonGuid}]. The installation will continue.");
                                         }
                                         var ruleList = DbBaseModel.createList<AddonTemplateRuleModel>(core.cpParent, "(addonId=" + addon.id + ")and(addonId=" + template.id + ")");
                                         if (ruleList.Count.Equals(0)) {

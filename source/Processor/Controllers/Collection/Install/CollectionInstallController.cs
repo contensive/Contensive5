@@ -1031,22 +1031,21 @@ namespace Contensive.Processor.Controllers {
                 // -- collectionsToInstall = collections stored in the collection folder that need to be stored in the Db
                 var collectionsToInstall = new List<string>();
                 var collectionsBuildingFolder = new List<string>();
-                returnSuccess = CollectionFolderController.buildCollectionFoldersFromCollectionZips(core, contextLog, installTempPath, CollectionLastChangeDate, ref collectionsToInstall, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies);
-                if (!returnSuccess) {
+                if (!CollectionFolderController.buildCollectionFoldersFromCollectionZips(core, contextLog, installTempPath, CollectionLastChangeDate, ref collectionsToInstall, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies)) {
                     //
-                    // BuildLocal failed, log it and do not upgrade
-                    //
-                    logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
-                } else {
-                    foreach (string collectionGuid in collectionsToInstall) {
-                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded, skipCdefInstall)) {
-                            logger.Info($"{core.logCommonMessage}, UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
-                            break;
-                        }
-                        //
-                        // -- invalidate cache
-                        core.cache.invalidateAll();
+                    // -- BuildLocal had errors, log warning but continue to install whatever was built
+                    logger.Warn($"{core.logCommonMessage}, BuildLocalCollectionFolder returned false with Error Message [{return_ErrorMessage}], continuing to install successfully built collections");
+                }
+                returnSuccess = true;
+                foreach (string collectionGuid in collectionsToInstall) {
+                    if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded, skipCdefInstall)) {
+                        logger.Warn($"{core.logCommonMessage}, installCollectionFromCollectionFolder returned false for collection [{collectionGuid}] with Error Message [{return_ErrorMessage}]. The installation will continue.");
+                        returnSuccess = false;
+                        continue;
                     }
+                    //
+                    // -- invalidate cache
+                    core.cache.invalidateAll();
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -1078,20 +1077,18 @@ namespace Contensive.Processor.Controllers {
                 var collectionsBuildingFolder = new List<string>();
                 if (!CollectionFolderController.buildCollectionFolderFromCollectionZip(core, contextLog, tempPathFilename, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsDownloaded, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies)) {
                     //
-                    // BuildLocal failed, log it and do not upgrade
-                    //
-                    returnSuccess = false;
-                    logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
-                } else if (collectionsDownloaded.Count > 0) {
+                    // -- BuildLocal had errors, log warning but continue to install whatever was built
+                    logger.Warn($"{core.logCommonMessage}, BuildLocalCollectionFolder returned false with Error Message [{return_ErrorMessage}], continuing to install successfully built collections");
+                }
+                if (collectionsDownloaded.Count > 0) {
                     return_CollectionGUID = collectionsDownloaded.First();
                     foreach (var collection in collectionsDownloaded) {
                         if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collection, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, true, ref collectionsDownloaded, skipCdefInstall)) {
                             //
-                            // Upgrade all apps failed
-                            //
+                            // -- Collection install failed, log warning and continue
                             returnSuccess = false;
-                            logger.Info($"{core.logCommonMessage}, Error, Collection(s) install failed, UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
-                            break;
+                            logger.Warn($"{core.logCommonMessage}, Collection install failed for [{collection}], UpgradeAllAppsFromLocalCollection returned false with Error Message [{return_ErrorMessage}]. The installation will continue.");
+                            continue;
                         }
                     }
                 }

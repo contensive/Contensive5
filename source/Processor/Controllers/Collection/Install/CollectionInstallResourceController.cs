@@ -52,6 +52,13 @@ namespace Contensive.Processor.Controllers {
             // -- if the filename in the collection file is the wrong case, correct it now
             filename = core.privateFiles.correctFilenameCase(collectionVersionFolder + SrcPath + filename);
             //
+            // -- verify the source file exists before attempting to copy
+            string srcPathFilename = collectionVersionFolder + SrcPath + filename;
+            if (!core.privateFiles.fileExists(srcPathFilename)) {
+                logger.Error($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{collectionName}], resource file missing from installation, file [{srcPathFilename}], type [{resourceType}], path [{resourcePath}]. The installation will continue without this file.");
+                return;
+            }
+            //
             // == normalize dst
             string dstDosPath = FileController.normalizeDosPath(dstPath);
             //
