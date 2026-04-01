@@ -4386,6 +4386,9 @@
       <field Name="datacontentid">{425EF73C-0FC5-48D8-BE39-E047F456AF20} </field>
     </Record>
 
+    <Record Content="Add-on Events" Guid="{BC52E864-809D-4B53-A6FE-53468AF8BA7F}" Name="Addon Collection Installed">
+    </Record>
+
   </Data>
 
   <ImportCollection Name="Add-on Manager">{A3E58089-74FC-4FB3-B847-0AD22B51AA72}</ImportCollection>

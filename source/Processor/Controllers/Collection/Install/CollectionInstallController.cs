@@ -807,6 +807,9 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                                 //
+                                // -- throw event so registered addons (e.g. help center reindex) can respond
+                                EventController.throwEventByName(core, "Addon Collection Installed");
+                                //
                                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], upgrade complete, flush cache");
                                 //
                                 // -- import complete, flush caches

@@ -30,6 +30,7 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 - [Diagnostic Addon Pattern](diagnostic-addon-patter.md) — diagnostic/health-check addons
 - [Portal Pattern](portal-pattern.md) — building portal-style admin interfaces
 - [Control Panel Pattern](control-panel-pattern.md) — control panel addons
+- [Addon Event Pattern](addon-event-pattern.md) — publish/subscribe events between addons
 
 ## UI & Layout Patterns
 

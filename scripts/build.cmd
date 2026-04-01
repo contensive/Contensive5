@@ -130,6 +130,7 @@ rem The collection xml includes: <Resource Name="HelpFiles.zip" Type="helpfiles"
 rem
 
 del "%deploymentFolderRoot%%versionNumber%\HelpFiles.zip"
+del "C:\Git\Contensive5\source\Processor\HelpFiles.zip"
 
 rem copy default article and articles for the  Help Pages collection
 "c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" "C:\Git\Contensive5\helpfiles\*"

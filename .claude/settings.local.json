@@ -41,7 +41,11 @@
       "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" l /c/Git/Contensive5/source/Processor/baseassets.zip)",
       "Bash(xargs cat:*)",
       "Bash(/c/Windows/System32/cmd.exe //c \"cd /d C:\\\\Git\\\\Contensive5\\\\source\\\\Processor && dotnet build --no-restore 2>&1\")",
-      "Bash(awk 'NR>=627 && NR<=900' \"C:/Git/Contensive5/source/Processor/aoBase51.xml\")"
+      "Bash(awk 'NR>=627 && NR<=900' \"C:/Git/Contensive5/source/Processor/aoBase51.xml\")",
+      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\":*)",
+      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" l \"C:\\\\Git\\\\Contensive5\\\\source\\\\Processor\\\\HelpFiles.zip\")",
+      "Bash(del \"C:\\\\Git\\\\Contensive5\\\\source\\\\Processor\\\\HelpFiles.zip\")",
+      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" a:*)"
     ]
   }
 }
