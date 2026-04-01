@@ -202,6 +202,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                             }
                             break;
                         }
+                    case "ccmembers": {
+                            //
+                            // -- People / Members: show Create Bearer Token button for existing records
+                            if (adminData.editRecord.id != 0) {
+                                editButtonBarInfo.allowCreateBearerToken = true;
+                                editButtonBarInfo.peopleRecordId = adminData.editRecord.id;
+                            }
+                            break;
+                        }
                     case "ccpagecontent": {
                             //
                             // -- Page Content
@@ -249,6 +258,23 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 Stream.add(editSectionButtonBar);
                 Stream.add(HtmlController.inputHidden("FormFieldList", editorEnv.formFieldList));
+                //
+                // -- People record: inject JS for the Create Bearer Token button
+                if (editButtonBarInfo.allowCreateBearerToken) {
+                    core.html.addScriptCode(@"
+function contensiveCreateBearerToken(userId) {
+    fetch('/createBearerToken?userId=' + userId, { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                prompt('Copy your bearer token (expires ' + data.expires + '). Use as: Authorization: Bearer <token>', data.token);
+            } else {
+                alert('Error creating bearer token: ' + data.message);
+            }
+        })
+        .catch(function(err) { alert('Request failed: ' + err); });
+}", "createBearerToken");
+                }
                 //
                 // -- update page title
                 if (adminData.editRecord.id == 0) {

@@ -155,7 +155,7 @@ This is the typical development folder structure
 - Scripts -- contains automation scripts
 - Server -- contains the dotnet solution, with a subfolder for each dotnet project in the solution
 - UI -- contains the html layouts and html page templates installed with the collections in this repo
-- HelpFiles - contains the markdown help documents installed with this collection
+- helpfiles - contains the markdown help documents installed with this collection
 
 ## Database
 

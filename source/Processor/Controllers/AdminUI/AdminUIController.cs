@@ -78,6 +78,7 @@ namespace Contensive.Processor.Controllers {
                 if (info.allowCreateDuplicate) { buttonsLeft += getButtonPrimary(ButtonCreateDuplicate, "return processSubmit(this)"); }
                 if (info.allowActivate) { buttonsLeft += getButtonPrimary(ButtonActivate, "return processSubmit(this)"); }
                 if (info.allowDeactivate) { buttonsLeft += getButtonPrimary(ButtonDeactivate, "return processSubmit(this)"); }
+                if (info.allowCreateBearerToken) { buttonsLeft += getButtonPrimary("Create Bearer Token", $"contensiveCreateBearerToken({info.peopleRecordId});return false;"); }
                 string JSOnClick = "if(!DeleteCheck())return false;";
                 if (info.isPageContent) {
                     JSOnClick = "if(!DeletePageCheck())return false;";

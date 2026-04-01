@@ -20,6 +20,15 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
         public bool allowCreateDuplicate { get; set; }
         public bool allowDeactivate { get; set; }
         public int contentId { get; set; }
+        /// <summary>
+        /// When true, a "Create Bearer Token" button is shown on the edit button bar.
+        /// Only set for existing People records.
+        /// </summary>
+        public bool allowCreateBearerToken { get; set; }
+        /// <summary>
+        /// The id of the People record being edited. Used by the Create Bearer Token button.
+        /// </summary>
+        public int peopleRecordId { get; set; }
         //
         public EditButtonBarInfoClass(CoreController core, AdminDataModel adminData, bool allowDelete, bool allowRefresh, bool allowSave, bool allowAdd) {
             allowActivate = false;

@@ -25,7 +25,7 @@ Git/
       cdnfiles/      <-- assets that can be access by the http interace but a different url than the www
       privatefiles/  <-- assets used by the code but cannot be accessed from the http interface
       layoutFiles/   <-- HTML layout files installed via the layout system (optional)
-    help/             <-- help/documentation files (optional)
+    helpfiles/        <-- help/documentation files (optional)
 ```
 
 - all folders that install on the servers should be lowercase letters.
@@ -170,7 +170,7 @@ rem
 rem package helpfiles
 rem
 
-cd ..\help
+cd ..\helpfiles
 "c:\program files\7-zip\7z.exe" a "%collectionPath%HelpFiles.zip"
 cd ..\scripts
 ```

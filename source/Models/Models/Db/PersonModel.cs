@@ -141,6 +141,11 @@ namespace Contensive.Models.Db {
         /// The last time the passwordwas updated
         /// </summary>
         public DateTime? passwordModifiedDate { get; set; }
+        /// <summary>
+        /// A random 40-character string used to identify this user when validating a bearer token.
+        /// The bearer token delivered to the user is a two-way encrypted combination of this value and an expiration date.
+        /// </summary>
+        public string bearerToken { get; set; }
         //
         //====================================================================================================
         /// <summary>

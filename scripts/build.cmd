@@ -122,17 +122,14 @@ rem
 
 rem ==============================================================
 rem
-rem create helpfiles.zip file for install in private/helpfiles/
-rem 
-rem make a \help folder in the addon Git folder and store the collections markup files there. 
-rem a comma in the filename represents a topic on the navigation, so to make an article "Shopping" in the "Ecommerce" topic, create a document "Ecommerce,Shopping.md"
-rem help files are installed in the "privateFiles\helpfiles\(collectionname)" folder. The collectionname must match the addoon collections name exactly.
-rem add a resource node to the collection xml file to install the helpfile zip to the site. For example
-rem    <Resource name="HelpFiles.zip" type="privatefiles" path="helpfiles/(collectionname)" />
-rem then if the first install, 
+rem package helpfiles
+rem
+rem The /helpfiles folder contains markdown help files organized by role (admin, dev, member).
+rem The build zips this folder into HelpFiles.zip and saves it to the collection folder.
+rem The collection xml includes: <Resource Name="HelpFiles.zip" Type="helpfiles" Path="" />
 rem
 
-cd ..\help
+cd ..\helpfiles
 
 del "%deploymentFolderRoot%%versionNumber%\HelpFiles.zip" 
 
