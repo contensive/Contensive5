@@ -13,7 +13,7 @@
 											<xs:choice minOccurs="0" maxOccurs="unbounded">
 												<xs:element ref="HelpDefault" />
 											</xs:choice>
-											<xs:attribute name="active" type="xs:boolean" use="required" />
+											<xs:attribute name="active" type="xs:boolean" />
 											<xs:attribute name="adminOnly" type="xs:boolean" />
 											<xs:attribute name="authorable" type="xs:boolean" />
 											<xs:attribute name="caption" type="xs:string" />
@@ -23,7 +23,7 @@
 											<xs:attribute name="editorAddonId" type="xs:string" />
 											<xs:attribute name="editTab" type="xs:string" />
 											<xs:attribute name="editGroup" type="xs:string" />
-											<xs:attribute name="fieldType">
+											<xs:attribute name="fieldType" use="required">
 												<xs:simpleType>
 													<xs:restriction base="xs:NMTOKEN">
 														<xs:enumeration value="boolean" />
@@ -67,7 +67,7 @@
 											<xs:attribute name="manyToManyRuleSecondaryField" type="xs:string" />
 											<xs:attribute name="memberSelectGroup" type="xs:string" />
 											<xs:attribute name="memberSelectGroupId" type="xs:string" />
-											<xs:attribute name="name" type="xs:string" />
+											<xs:attribute name="name" type="xs:string" use="required" />
 											<xs:attribute name="notEditable" type="xs:boolean" />
 											<xs:attribute name="password" type="xs:boolean" />
 											<xs:attribute name="readOnly" type="xs:boolean" />

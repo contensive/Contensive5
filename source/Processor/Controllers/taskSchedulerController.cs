@@ -133,8 +133,9 @@ namespace Contensive.Processor.Controllers {
                                 ELSE DATEADD(MINUTE, ProcessInterval, GETDATE())
                             END
                     output inserted.ID,inserted.name,inserted.argumentlist
-                    where 
-                        ProcessRunOnce>0";
+                    where
+                        (active>0)
+                        and(ProcessRunOnce>0)";
                 using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
                     foreach (DataRow row in dt.Rows) {
                         int addonId = Convert.ToInt32(row["ID"]);
@@ -159,7 +160,8 @@ namespace Contensive.Processor.Controllers {
 	                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
                     output inserted.ID,inserted.name,inserted.argumentlist
                     where
-                        (ProcessInterval>0)
+                        (active>0)
+                        and(ProcessInterval>0)
                         and(ProcessNextRun is null)";
                 using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
                     foreach (DataRow row in dt.Rows) {
@@ -185,7 +187,8 @@ namespace Contensive.Processor.Controllers {
 	                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
                     output inserted.ID,inserted.name,inserted.argumentlist
                     where
-	                    ProcessNextRun<GETDATE()";
+                        (active>0)
+                        and(ProcessNextRun<GETDATE())";
                 using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
                     foreach (DataRow row in dt.Rows) {
                         int addonId = Convert.ToInt32(row["ID"]);
