@@ -129,13 +129,10 @@ rem The build zips this folder into HelpFiles.zip and saves it to the collection
 rem The collection xml includes: <Resource Name="HelpFiles.zip" Type="helpfiles" Path="" />
 rem
 
-cd ..\helpfiles
-
-del "%deploymentFolderRoot%%versionNumber%\HelpFiles.zip" 
+del "%deploymentFolderRoot%%versionNumber%\HelpFiles.zip"
 
 rem copy default article and articles for the  Help Pages collection
-"c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 
-cd ..\scripts
+"c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" "C:\Git\Contensive5\helpfiles\*"
 
 rem
 
