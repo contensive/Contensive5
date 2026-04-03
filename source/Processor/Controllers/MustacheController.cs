@@ -11,6 +11,10 @@ namespace Contensive.Processor.Controllers {
     public static class MustacheController {
         public static string renderStringToString(string template, object dataSet) {
             //
+            if ((dataSet is null) || (string.IsNullOrEmpty(template))){
+                return string.Empty;
+            }
+            //
             // -- stubble (is not signed, manually signed but cannot add to nuget package)
             // -- consider using ILRepack to merge the unsigned assembly into the signed assembly (copilot suggests this)
             //

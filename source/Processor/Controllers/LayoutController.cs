@@ -54,8 +54,12 @@ namespace Contensive.Processor.Controllers {
                     //
                     // --most common cases
                     layout = cp.core.cacheRuntime.layoutGuidDict[layoutGuid];
-                    if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
-                    return layout.layout.content;
+                    if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) {
+                        return layout.layoutPlatform5.content; 
+                    }
+                    if (!string.IsNullOrEmpty(layout.layout.content)) {
+                        return layout.layout.content; 
+                    }
                 }
                 return updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutFilename, platform5LayoutFilename);
             } catch (Exception ex) {
