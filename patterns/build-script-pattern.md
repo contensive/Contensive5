@@ -5,7 +5,22 @@
 
 ## Overview
 
-A build script automates compiling, packaging, and deploying a Contensive addon collection. It is a Windows batch file (`.cmd`) that lives in the project's `scripts/` folder and uses relative paths from that location. The script produces a versioned deployment folder containing the collection zip and optionally NuGet packages or installers.
+A build script automates compiling, packaging, and deploying a Contensive addon collection. It produces a versioned deployment folder containing the collection zip.
+
+Each addon repo contains two files in its `scripts/` folder:
+
+- **`build.cmd`** — a thin entry point that calls `build.ps1` via PowerShell. Handles the `/nopause` flag and prints a `BUILD FAILED` banner on error. Identical across all repos; copy verbatim.
+- **`build.ps1`** — repo-specific configuration only. Imports the shared build library from Contensive5 and calls `Invoke-ContensiveBuild` with the repo's parameters.
+
+All build step logic lives in the shared PowerShell module:
+
+```
+C:\Git\Contensive5\scripts\contensive-build.psm1
+```
+
+To change the build process for every repo, edit that module. No per-repo changes are needed.
+
+---
 
 ## Folder Convention
 
@@ -14,375 +29,210 @@ Build scripts assume the following project folder structure:
 ```
 Git/
   projectName/
-    scripts/          <-- build script lives here, all paths relative to this folder
-      build.cmd
+    scripts/
+      build.cmd           <-- entry point, calls build.ps1
+      build.ps1           <-- repo config, calls Invoke-ContensiveBuild
     collections/
-      collectionName/ <-- unzipped collection files including the collection XML
-    server/ or source/
-      projectName/    <-- Visual Studio project folder
+      collectionName/     <-- collection XML and staged build artifacts
+    server/               <-- Visual Studio solution and projects
+      projectName/
     ui/
-      wwwfiles/      <-- UI assets that will be copied to the www folder (HTML, CSS, JS, images)
-      cdnfiles/      <-- assets that can be access by the http interace but a different url than the www
-      privatefiles/  <-- assets used by the code but cannot be accessed from the http interface
-      layoutFiles/   <-- HTML layout files installed via the layout system (optional)
-    helpfiles/        <-- help/documentation files (optional)
+      wwwFiles/           <-- copied to the www root on install
+      cdnFiles/           <-- accessible via a CDN URL the code generates
+      privateFiles/       <-- accessible only by server-side code
+      layoutFiles/        <-- HTML layout files (optional)
+      helpFiles/          <-- markdown help/documentation files (optional)
 ```
 
-- all folders that install on the servers should be lowercase letters.
-- the "design" folder is where we store working design files that do no install with the deployment
-- the "ui" folder (lowercase) has only three subfolders where we will put files that are going to be installed on the server in the addons collection file every time the project installs.
-- /ui/wwwfiles/ folder and all its subfolders will be copied to the root www folder of the server when it is installed. So if you want images in an /img folder on the server, jsut put them in /ui/wwwfiles/img
-- /ui/cdnfiles folder will be copied to cdnFiles. These files can be accessed by the website, but only by a url the code creates
-- /ui/privatefiles folder is copies to privateFiles on the server. These files can only be accessed by the code.
-- /ui/layoutFiles folder contains HTML layout files. They are zipped into `uilayoutfiles.zip` and included as a resource with `Type="layoutFiles"` in the collection XML. During installation, these layouts are processed by the layout system.
+- All folders that install on servers must be lowercase.
+- The `design/` folder stores working design files that are not deployed.
+- UI sub-folder contents map directly to the corresponding server file system. For example, `ui/wwwFiles/img/logo.png` installs to `/img/logo.png` on the server www root.
+- `ui/layoutFiles/` contains HTML layout fragments managed by the Contensive layout system.
 
-## Script Sections
+---
 
-Every build script follows the same section order. Each section is separated by a `rem ======` comment line.
+## The Shared Build Library
 
-### 1. Header and Configuration Variables
+**Location:** `C:\Git\Contensive5\scripts\contensive-build.psm1`
 
-Declare all configurable values at the top of the script. The script must first set the working directory to the project's `scripts/` folder since all paths are relative to it.
+### `Invoke-ContensiveBuild` — main entry point
 
-```cmd
-rem Must be run from the projects git\project\scripts folder - everything is relative
+Runs all build steps in order. Addon repos call this with their configuration.
 
-c:
-cd \Git\projectName\scripts
+| Parameter | Required | Description |
+|---|---|---|
+| `CollectionName` | Yes | Short name for the collection zip and banner label (e.g. `'FMA'`) |
+| `CollectionPath` | Yes | Absolute path to the collection folder containing the collection XML |
+| `SolutionPath` | Yes | Absolute path to the `.sln` file |
+| `BinPath` | Yes | Absolute path to the Release bin folder the build produces |
+| `DeploymentRoot` | Yes | Root folder where versioned deployment sub-folders are created |
+| `CollectionDlls` | Yes | String array of DLL (and `.dll.config`) file names to include in the collection |
+| `CleanFolders` | No | String array of folders to delete before building (typically `bin\` and `obj\` for each project). Defaults to empty. |
+| `UiPath` | No | Root folder containing UI asset sub-folders. If omitted, UI packaging is skipped. |
+| `UiAssetFolders` | No | Sub-folder names under `UiPath` to zip into the collection. Defaults to `@('wwwFiles','cdnFiles','privateFiles','layoutFiles','helpFiles')`. |
+| `PackagesDirectory` | No | NuGet packages restore target directory. |
+| `Zip7Path` | No | Path to `7z.exe`. Defaults to `'C:\Program Files\7-Zip\7z.exe'`. |
 
-set DebugRelease=Debug
-set solutionName=projectName.sln
-set collectionName=collectionName
-set collectionPath=..\collections\collectionName\
-set binPath=..\server\projectName\bin\Debug\net48\
-set deploymentFolderRoot=C:\Deployments\projectName\Dev\
-set NuGetLocalPackagesFolder=C:\NuGetLocalPackages\
-```
+### Exported helper functions
 
-| Variable | Description |
-|----------|-------------|
-| `DebugRelease` | Build configuration, typically `Debug` or `Release` |
-| `solutionName` | Name of the Visual Studio solution file |
-| `collectionName` | Name of the addon collection (used for the output zip) |
-| `collectionPath` | Relative path to the collection folder containing the collection XML and resource files |
-| `binPath` | Relative path to the compiled output folder |
-| `deploymentFolderRoot` | Root folder where versioned deployment folders are created |
-| `NuGetLocalPackagesFolder` | Local folder for NuGet package copies (optional, only for projects that produce NuGet packages) |
+These are also available for repos that extend the standard flow:
 
-### 2. Version Number Generation
+| Function | Description |
+|---|---|
+| `Get-ContensiveVersion` | Returns a date-based version string `YY.M.D.R` that doesn't collide with existing deployment folders |
+| `Find-MSBuild` | Locates `msbuild.exe` via vswhere; throws if not found |
+| `New-DeploymentFolder` | Creates a versioned deployment folder and returns its path |
+| `Invoke-ZipFolder` | Zips the *contents* of a folder into a zip file using 7-Zip |
+| `Invoke-MSBuildSolution` | Runs NuGet restore then MSBuild `/t:Rebuild /p:Configuration=Release` (legacy .NET Framework / packages.config pattern) |
 
-The version number is auto-generated from the current date in `YYYY.M.D.revision` format. If a deployment folder already exists for that version, the revision number increments until a unique folder name is found.
+---
 
-```cmd
-set year=%date:~12,4%
-set month=%date:~4,2%
-if %month% GEQ 10 goto monthOk
-set month=%date:~5,1%
-:monthOk
-set day=%date:~7,2%
-if %day% GEQ 10 goto dayOk
-set day=%date:~8,1%
-:dayOk
-set versionMajor=%year%
-set versionMinor=%month%
-set versionBuild=%day%
-set versionRevision=1
+## Build Steps (executed by `Invoke-ContensiveBuild`)
 
-:tryagain
-set versionNumber=%versionMajor%.%versionMinor%.%versionBuild%.%versionRevision%
-if not exist "%deploymentFolderRoot%%versionNumber%" goto :makefolder
-set /a versionRevision=%versionRevision%+1
-goto tryagain
-:makefolder
-md "%deploymentFolderRoot%%versionNumber%"
-```
+### Step 1 — Resolve version, deployment folder, and tools
 
-This block should be copied as-is into every build script. Only `deploymentFolderRoot` changes between projects.
+- Generates a version string in `YY.M.D.R` format from the current date. The revision increments if a folder for that version already exists under `DeploymentRoot`.
+- Creates the versioned deployment folder.
+- Locates `msbuild.exe` via vswhere.
 
-### 3. Clean Build and Collection Folders
+### Step 2 — Clean build output
 
-Remove previous build artifacts to ensure a clean build. This includes the compiled `bin/` and `obj/` folders and any leftover files in the collection folder.
+- Deletes every folder listed in `CleanFolders`.
+- Removes any stale DLLs, asset zips, and the collection zip from the collection staging folder.
 
-```cmd
-rem ==============================================================
-rem
-rem clean build folders
-rem
-rd /S /Q "..\server\projectName\bin"
-rd /S /Q "..\server\projectName\obj"
+### Step 3 — Package UI assets
 
-rem ==============================================================
-rem
-rem clean collection folder
-rem
-cd %collectionPath%
-del *.zip
-cd ..\..\scripts
-```
+Skipped if `UiPath` is not provided.
 
-### 4. Package UI Assets (optional)
+For each folder in `UiAssetFolders`, zips the folder contents into `{asset}.zip` in the collection folder. Each zip is named after its source folder (`wwwFiles.zip`, `cdnFiles.zip`, etc.). Missing source folders are created automatically so the zip is valid even if empty.
 
-If the project has UI files (layouts, CSS, JS, images), zip them into a `ui.zip` in the collection folder using 7-Zip.
+The collection XML must include a resource entry for each asset zip that should be installed:
 
-```cmd
-rem ==============================================================
-rem
-echo package ui
-rem
-
-cd ..\ui\wwwfiles
-"c:\program files\7-zip\7z.exe" a "%collectionPath%uiwwwfiles.zip"
-cd ..\..\scripts
-
-cd ..\ui\cdnfiles
-"c:\program files\7-zip\7z.exe" a "%collectionPath%uicdnfiles.zip"
-cd ..\..\scripts
-
-cd ..\ui\privatefiles
-"c:\program files\7-zip\7z.exe" a "%collectionPath%uiprivatefiles.zip"
-cd ..\..\scripts
-```
-
-The  `uiwwwfiles.zip`, `uicdnfiles.zip`, and `uiprivatefiles.zip` are included as a resource in the collection XML and installed to the root of the three site content file systems.
-
-### 4b. Package Layout Files (optional)
-
-If the project has HTML layout files, zip them from `ui/layoutFiles/` into a `uilayoutfiles.zip` in the collection folder. Layout files are HTML fragments managed by the Contensive layout system.
-
-```cmd
-cd ..\ui\layoutFiles
-"c:\program files\7-zip\7z.exe" a "%collectionPath%uilayoutfiles.zip"
-cd ..\..\scripts
-```
-
-The collection XML must include a corresponding resource node with type `layoutFiles`:
 ```xml
-<Resource Name="uilayoutfiles.zip" Type="layoutFiles" path="" />
+<Resource Name="wwwFiles.zip"    Type="wwwFiles"    Path="" />
+<Resource Name="cdnFiles.zip"    Type="cdnFiles"    Path="" />
+<Resource Name="privateFiles.zip" Type="privateFiles" Path="" />
+<Resource Name="layoutFiles.zip" Type="layoutFiles"  Path="" />
+<Resource Name="helpFiles.zip"   Type="helpFiles"    Path="" />
 ```
 
-### 5. Package Help Files (optional)
+Only include resource entries for the asset types the repo actually uses.
 
-If the project has documentation, zip the help files into a `HelpFiles.zip` in the collection folder. Help files use a naming convention where commas in the filename represent topic hierarchy (e.g., `Topic,Article.md`).
+### Step 4 — Build the solution
 
-```cmd
-rem ==============================================================
-rem
-rem package helpfiles
-rem
+Runs NuGet restore then MSBuild in Release configuration (`/t:Rebuild /p:Configuration=Release /p:Platform="Any CPU"`). This uses the legacy packages.config NuGet pattern. Throws on failure.
 
-cd ..\helpfiles
-"c:\program files\7-zip\7z.exe" a "%collectionPath%HelpFiles.zip"
-cd ..\scripts
-```
+### Step 5 — Assemble the collection zip and deploy
 
-The collection XML must include a corresponding resource node:
-```xml
-<Resource name="HelpFiles.zip" type="helpfiles" path="" />
-```
+- Copies each file in `CollectionDlls` from `BinPath` into the collection staging folder.
+- Zips the entire collection staging folder (XML, DLLs, and asset zips) into `{CollectionName}.zip`.
+- Copies the collection zip to the versioned deployment folder.
 
-### 6. Build the Solution
+### Step 6 — Clean staging files
 
-Clean and build the .NET project using `dotnet build`. The version number is passed as a build property so it is embedded in the compiled assemblies.
+Removes DLLs and asset zips from the collection folder, leaving only the collection XML and the final collection zip. The collection zip stays so it can be referenced or re-deployed without a rebuild.
 
-```cmd
-rem ==============================================================
-rem
-rem build
-rem
+---
 
-cd ..\server
+## Version Number Format
 
-dotnet clean %solutionName%
+Versions follow `YY.M.D.R`:
 
-dotnet build projectName/projectName.csproj --configuration %DebugRelease% --no-dependencies /property:Version=%versionNumber% /property:AssemblyVersion=%versionNumber% /property:FileVersion=%versionNumber%
-if errorlevel 1 (
-   echo ERROR: failure building projectName
-   set buildError=1
-   goto :builddone
-)
+- `YY` — two-digit year (e.g. `26`)
+- `M` — month without leading zero (e.g. `4`)
+- `D` — day without leading zero (e.g. `4`)
+- `R` — revision starting at `1`, incrementing if the deployment folder already exists
 
-cd ..\scripts
-```
+Example: `26.4.4.1`
 
-Key points:
-- Use `dotnet clean` before building to ensure a fresh compile
-- Always check `errorlevel` after the build and use `goto :builddone` on failure (see [Interactive vs Automation Mode](#interactive-vs-automation-mode-nopause))
-- Pass `/property:Version`, `/property:AssemblyVersion`, and `/property:FileVersion` to stamp the version
-- If the project produces NuGet packages, delete old `.nupkg` files before building
-
-### 7. Copy NuGet Packages to Deployment (optional)
-
-If the project produces NuGet packages, copy them to both the deployment folder and the local NuGet packages folder.
-
-```cmd
-rem ==============================================================
-rem
-rem copy nuget to deployment
-rem
-
-xcopy projectName\bin\Debug\*.nupkg "%deploymentFolderRoot%%versionNumber%" /Y
-xcopy projectName\bin\Debug\*.nupkg "%NuGetLocalPackagesFolder%" /Y
-```
-
-### 8. Build the Addon Collection Zip
-
-This is the core deployment step. It assembles the collection zip by copying compiled DLLs into the collection folder alongside the collection XML and resource files, then zips everything together.
-
-```cmd
-rem ==============================================================
-rem
-rem Build addon collection
-rem
-
-rem delete old collection zip and DLLs
-del "%collectionPath%%collectionName%.zip" /Q
-del "%collectionPath%*.dll" /Q
-
-rem copy compiled assemblies to collection folder
-copy "%binPath%*.dll" "%collectionPath%"
-
-rem create the collection zip
-cd %collectionPath%
-"c:\program files\7-zip\7z.exe" a "%collectionName%.zip"
-
-rem copy to deployment folder
-xcopy "%collectionName%.zip" "%deploymentFolderRoot%%versionNumber%" /Y
-
-rem optionally copy to a shared sprint folder
-xcopy "%collectionName%.zip" "c:\deployments\_current_sprint" /Y
-
-cd ..\..\scripts
-```
-
-### 9. Clean Up Collection Folder
-
-After the collection zip is built, remove the DLLs and the temporary resource zip files (like `HelpFiles.zip` and UI zips) from the collection folder. These resource zips were created during the build from source folders and will be recreated on the next build. The collection zip itself stays in the collection folder.
-
-```cmd
-rem ==============================================================
-rem
-rem cleanup collection folder
-rem
-
-cd %collectionPath%
-
-del *.dll
-del HelpFiles.zip
-del uiwwwfiles.zip
-del uicdnfiles.zip
-del uiprivatefiles.zip
-del uilayoutfiles.zip
-
-cd ..\..\scripts
-```
+---
 
 ## Interactive vs Automation Mode (`/nopause`)
 
-Build scripts are run both manually (double-click or command prompt) and by automation tools (CI, Claude Code, etc.). The `/nopause` flag controls error behavior:
+`build.cmd` accepts an optional `/nopause` flag:
 
-- **Manual** (`build.cmd`) — On error, pauses so the user can read the output before the window closes. On success, exits cleanly.
-- **Automation** (`build.cmd /nopause`) — On error, prints the error message and exits with error code 1 (no pause). On success, exits cleanly.
-
-### Setup
-
-Add these variables at the top of the script, after the header comments and before the configuration variables:
-
-```cmd
-set nopause=0
-if /i "%~1"=="/nopause" set nopause=1
-set buildError=0
-```
-
-### Error Handling in Build Steps
-
-Instead of `pause` and `exit /b` inline, set the error flag and jump to a common exit label:
-
-```cmd
-dotnet build projectName/projectName.csproj --configuration %DebugRelease% --no-dependencies /property:Version=%versionNumber% /property:AssemblyVersion=%versionNumber% /property:FileVersion=%versionNumber%
-if errorlevel 1 (
-   echo ERROR: failure building projectName
-   set buildError=1
-   goto :builddone
-)
-```
-
-This skips the remaining steps (collection packaging, cleanup) since there is no point packaging a failed build.
-
-### Exit Label
-
-Add this at the very end of the script, after the cleanup section:
-
-```cmd
-:builddone
-if %buildError%==1 (
-   echo.
-   echo ========== BUILD FAILED ==========
-   if %nopause%==0 (
-      pause
-   )
-   exit /b 1
-)
-
-echo.
-echo ========== BUILD SUCCEEDED ==========
-```
-
-### Calling from Automation
-
-When invoking the build script from a non-interactive context (e.g., Claude Code via bash), always pass `/nopause`:
+- **Manual** (`build.cmd`) — pauses after completion so the window stays open.
+- **Automation** (`build.cmd /nopause`) — exits immediately with code `0` (success) or `1` (failure). Use this when invoking from Claude Code or CI.
 
 ```bash
-cmd //c "C:\Git\projectName\scripts\build.cmd /nopause" 2>&1
+# From bash (Claude Code)
+/c/Windows/System32/cmd.exe //c "cd /d C:\Git\projectName\scripts & build.cmd /nopause" 2>&1
 ```
 
-Note: Use `//c` (double slash) when calling from bash, as a single slash gets consumed by the shell.
+---
 
-## Primary Example: aoEcommerce
+## Implementing the Pattern in an Addon Repo
 
-Source: `C:\Git\aoEcommerce\scripts\build-c#.cmd`
+### `scripts/build.cmd` — copy verbatim
 
-This project demonstrates:
-- Two UI folders (`catalog` and `ecommerce`) each zipped separately
-- Two .NET projects built in sequence (`ApiV1` and `accountBilling`) with error checking after each
-- NuGet package output from `ApiV1` copied to deployment and local package folders
-- Additional binary file types copied to the collection (`.pdb`, `.dep`, `.dll.config`)
-- Two deployment folders (`Dev` and `Dev-c#`) for parallel deployment targets
-- Thorough cleanup removing all file types that may have been generated
+```cmd
+@echo off
+setlocal
 
-## Second Example: aoMeetingManager
+set nopause=0
+if /i "%~1"=="/nopause" set nopause=1
 
-Source: `C:\Git\aoMeetingManager\scripts\build.cmd`
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build.ps1"
+set exitcode=%errorlevel%
 
-This project demonstrates:
-- A simpler single-project build
-- Help file packaging with the `HelpFiles.zip` pattern
-- UI assets zipped from a single `ui/` folder
-- Clean build by removing `bin/` and `obj/` folders before compiling
-- Standard collection assembly with only `.dll` files copied
+if not "%exitcode%"=="0" (
+    echo.
+    echo ========================================
+    echo BUILD FAILED
+    echo ========================================
+)
 
-## Third Example: aoDesignBlocks
+if "%nopause%"=="0" pause
+exit /b %exitcode%
+```
 
-Source: `C:\Git\aoDesignBlocks\scripts\build.cmd`
+### `scripts/build.ps1` — repo-specific config
 
-This project demonstrates:
-- Layout files packaging from `ui/layoutFiles/` into `uilayoutfiles.zip` with `Type="layoutFiles"` resource entry
-- Help files packaging
-- All four UI asset folders (wwwfiles, cdnfiles, privatefiles, layoutFiles)
-- Two .NET projects built in sequence (`DesignBlockBase` and `aoDesignBlocks`) with error checking after each
-- NuGet package output from `DesignBlockBase`
+```powershell
+#Requires -Version 5.1
+[CmdletBinding()]
+param()
 
-## Checklist for Creating a New Build Script
+$ErrorActionPreference = 'Stop'
 
-1. Create a `scripts/` folder in the project root
-2. Set all configuration variables (solution name, collection name, paths)
-3. Copy the version number generation block as-is
-4. Add clean steps for build and collection folders
-5. Add UI packaging if the project has UI assets
-5b. Add layout file packaging if the project has layout files in `ui/layoutFiles/`
-6. Add help file packaging if the project has documentation
-7. Add the `dotnet build` step with version properties and error checking
-8. Add NuGet copy steps if the project produces packages
-9. Add the collection zip assembly step
-10. Add cleanup to remove temporary files from the collection folder
-11. Verify all `cd` commands return to the `scripts/` folder before the next section
-12. Add `/nopause` support with `buildError` tracking and the `:builddone` exit label
+Import-Module (Join-Path $PSScriptRoot '..\..\Contensive5\scripts\contensive-build.psm1') -Force
+
+$projectRoot = (Resolve-Path "$PSScriptRoot\..").Path
+
+Invoke-ContensiveBuild `
+    -CollectionName    'MyAddon' `
+    -CollectionPath    "$projectRoot\Collections\MyAddon" `
+    -SolutionPath      "$projectRoot\server\MyAddon.sln" `
+    -BinPath           "$projectRoot\server\MyAddon\bin\Release" `
+    -DeploymentRoot    'C:\deployments\myaddon' `
+    -CollectionDlls    @(
+                           'MyAddon.dll'
+                           'MyAddon.dll.config'
+                           'CPBase.dll'
+                       ) `
+    -CleanFolders      @(
+                           "$projectRoot\server\MyAddon\bin"
+                           "$projectRoot\server\MyAddon\obj"
+                       ) `
+    -UiPath            "$projectRoot\ui" `
+    -PackagesDirectory "$projectRoot\server\packages"
+```
+
+Only supply the parameters relevant to the repo. `UiPath` and `PackagesDirectory` can be omitted if the repo has no UI assets or uses default package restore paths.
+
+---
+
+## Migrating from the Previous CMD Pattern
+
+The previous pattern used a standalone `build.cmd` that contained all build logic inline. To migrate:
+
+1. **Delete** the existing `scripts/build.cmd` content.
+2. **Create** `scripts/build.cmd` using the verbatim template above.
+3. **Create** `scripts/build.ps1` with the repo's configuration block (see template above).
+   - Map the old `collectionName`, `collectionPath`, `binPath`, and `deploymentFolderRoot` variables to the corresponding `Invoke-ContensiveBuild` parameters.
+   - List the specific DLL filenames the old script copied in `CollectionDlls`.
+   - List the `bin\` and `obj\` folders the old script deleted in `CleanFolders`.
+   - If the old script zipped UI assets, set `UiPath` to the `ui\` folder path.
+4. **Remove** the old version number generation block, the 7-Zip calls, the MSBuild/dotnet calls, and the `:builddone` / `:builderror` labels — all of these are now handled by the module.
+
+The build is invoked the same way after migration: run `build.cmd` or `build.cmd /nopause`.
