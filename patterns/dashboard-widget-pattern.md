@@ -77,6 +77,26 @@ All these examples are in this repository. The collection file /source/Processor
 - widgetName is the name that appears on the widget editor
 - layoutGuid is used to lookup the layout needed. If it is missing, the layoutpathfilename file is read and a layout recore is created with the LayoutGuid, LayoutName, and LayoutpathFilename
 
+## Including a Dashboard Widget in a Collection
+
+A collection installs a dashboard widget by including an addon node with the element `<DashboardWidget>Yes</DashboardWidget>`. This makes the dashboard widget available for users to add to the control panel dashboard.
+
+To include the widget on a portal overview page (the dashboard within the portal), create a Portal Feature data-record in the installation collection. This associates the widget addon with a specific portal so it appears on that portal's dashboard automatically.
+
+```xml
+<!-- Step 1: Define the addon with DashboardWidget enabled -->
+<Addon name="My Widget" guid="{widget-addon-guid}">
+    <DotNetClass namespace="MyNamespace.Addons" class="MyWidgetAddon"/>
+    <DashboardWidget>Yes</DashboardWidget>
+</Addon>
+
+<!-- Step 2: Create a Portal Feature to include it on a portal dashboard -->
+<PortalFeature name="My Widget" guid="{portal-feature-guid}">
+    <AddonGuid>{widget-addon-guid}</AddonGuid>
+    <PortalGuid>{target-portal-guid}</PortalGuid>
+</PortalFeature>
+```
+
 ## Steps to Scaffold a new Dashboard Widget Addon
 
 1) Follow the pattern established in the example addons
