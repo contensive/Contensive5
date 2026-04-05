@@ -21,7 +21,7 @@ LayoutBuilder classes are created using one of the following factory methods, ex
 The primary adminUI code workflow is
 - the client program creates a layoutbuilder instance by calling one of the cp.AdminUI methods
 - the client populates its properties
-- calls the getHtml method and returns its response. it is imporatant that the client program return the unmodified complete response from the the getHtml method.
+- calls the getHtml method and returns its response. it is important that the client program return the unmodified complete response from the getHtml method.
 
 The resulting string includes the entire view, including possible pagination, filters, refresh etc. If those features require ajax data, the layout build handles this by
 - calling a layoutbuilder endpoint
@@ -176,7 +176,9 @@ The `OFFSET` is calculated as `(paginationPageNumber - 1) * paginationPageSize` 
 
 ### CreateLayoutBuilder
 
-creates an instance of LayoutBuilderBaseClass for basic forms
+Creates an instance of LayoutBuilderBaseClass for basic forms.
+
+**When to use:** Choose this layout when you need a simple, single-section admin page that displays read-only content, status information, or a basic form that doesn't fit the structured name/value pair pattern. This is the most general-purpose layout and is appropriate when none of the more specialized layouts apply — for example, displaying a schema summary, a confirmation page, or a simple output report.
 
 Examples of this layoutbuilder
 - \source\Processor\Addons\Tools\ContentSchemaToolClass.cs
@@ -186,7 +188,9 @@ Examples of this layoutbuilder
 
 ### CreateLayoutBuilderList
 
-creates an instance of LayoutBuilderListBaseClass object for tabular lists of data rows with filters
+Creates an instance of LayoutBuilderListBaseClass object for tabular lists of data rows with filters.
+
+**When to use:** Choose this layout when displaying a list or table of records that users need to browse, search, filter, and paginate. This is the right choice for any report or data listing — such as a user list, order history, log viewer, or any admin tool that queries rows from a database and presents them in a grid with sortable columns. Supports built-in pagination, column sorting, and the filter system described above.
 
 Examples of this layoutbuilder
 - \source\Processor\Addons\LayoutBuilder\SampleLayoutBuilderList.cs
@@ -194,24 +198,34 @@ Examples of this layoutbuilder
 
 ### CreateLayoutBuilderNameValue
 
-creates an instance of LayoutBuilderNameValueBaseClass for forms with lists of input boxes
+Creates an instance of LayoutBuilderNameValueBaseClass for forms with lists of input boxes.
+
+**When to use:** Choose this layout when building a form or settings tool that collects a series of user inputs as labeled name/value pairs. This is the right choice for configuration screens, settings panels, data entry forms, or any tool where the user fills in a series of fields (text boxes, dropdowns, checkboxes) each with a caption label on the left and an input control on the right. Examples include site settings, user profile editors, import configuration tools, and API key entry forms.
 
 Examples of this layoutbuilder
 - \examples\LayoutBuilderNameValueExample\README.md
 
 ### CreateLayoutBuilderTabbedBody
 
-creates an instance of LayoutBuilderTabbedBodyBaseClass for a layout that includes navigation accross the top and a body of content
+Creates an instance of LayoutBuilderTabbedBodyBaseClass for a layout that includes navigation across the top and a body of content.
+
+**When to use:** Choose this layout when a tool or page has multiple distinct sections that should be organized into tabs. This is appropriate when the content is too complex for a single view and naturally divides into logical groupings — for example, a settings page with "General", "Advanced", and "Permissions" tabs, or a record editor with separate tabs for details, related records, and activity history.
 
 ### CreateLayoutBuilderToolForm
 
-creates an instance of LayoutBuilderToolFormBaseClass for the structure of a tool that the client populates the body
+Creates an instance of LayoutBuilderToolFormBaseClass for the structure of a tool that the client populates the body.
+
+**When to use:** Choose this layout when you need full control over the body HTML while still getting the standard admin UI chrome (title bar, button bar, wrapper structure). This is the right choice for custom tools that require specialized layouts, embedded controls, or HTML structures that don't fit the predefined patterns — such as a drag-and-drop interface, a visual editor, a dashboard with custom widgets, or any tool where you need to build the inner content yourself but want it wrapped consistently in the admin UI frame.
 
 ### CreateLayoutBuilderTwoColumnLeft
 
-creates an instance of LayoutBuilderTwoColumnLeftBaseClass for a simple 2 column layout populated by other layoutbuilders. The left column is wider than the right.
+Creates an instance of LayoutBuilderTwoColumnLeftBaseClass for a simple 2-column layout populated by other layout builders. The left column is wider than the right.
+
+**When to use:** Choose this layout when the page has a primary content area and a secondary sidebar, where the main content should be emphasized on the left. This is appropriate for detail views with a summary sidebar on the right, or any tool where the primary information (a list, form, or report) is in the wider left column and supplemental content (filters, related links, quick stats) sits in the narrower right column. Each column is populated with another layout builder instance.
 
 ### CreateLayoutBuilderTwoColumnRight
 
-creates an instance of LayoutBuilderTwoColumnRightBaseClass for a simple 2 column layout populated by other layoutbuilders. The right column is wider than the left.
+Creates an instance of LayoutBuilderTwoColumnRightBaseClass for a simple 2-column layout populated by other layout builders. The right column is wider than the left.
+
+**When to use:** Choose this layout when the page has a navigation or sidebar panel on the left with primary content on the right. This is appropriate for tools with a left-hand navigation menu, tree view, or category list that drives the main content displayed in the wider right column — for example, a content explorer with a folder tree on the left and file details on the right. Each column is populated with another layout builder instance.
 
