@@ -249,7 +249,6 @@
 										<xs:enumeration value="task" />
 										<xs:enumeration value="tool" />
 										<xs:enumeration value="widget" />
-										<xs:enumeration value="dashboardwidget" />
 									</xs:restriction>
 								</xs:simpleType>
 							</xs:attribute>
