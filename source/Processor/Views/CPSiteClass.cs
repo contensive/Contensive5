@@ -58,6 +58,12 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override void UpdateRouteMap() {
+            cp.core.routeMapRebuild();
+        }
+        //
+        //====================================================================================================
+        //
         public override void SetProperty(string key, string value) {
             cp.core.siteProperties.setProperty(key, value);
         }

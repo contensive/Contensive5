@@ -303,6 +303,13 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Rebuild the route map and restart the IIS application so the updated routes load on the next request.
+        /// Call this after programmatically changing addons or link alias records.
+        /// </summary>
+        public abstract void UpdateRouteMap();
+        //
+        //====================================================================================================
+        /// <summary>
         /// An addon can throw an Event that then executes other addons that bind to that event in their record. 
         /// For example, ecommerce throws an event 'fulfillment'. An item like a giftcard can be emailed on fulfillment which occurs differently on different types of accounts.
         /// </summary>

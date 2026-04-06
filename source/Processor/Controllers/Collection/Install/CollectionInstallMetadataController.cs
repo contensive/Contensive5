@@ -189,6 +189,8 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Get metadata field nodes
                                     //
+                                    var fieldDocumentOrder = new List<string>();
+                                    bool needsEditSortReorder = false;
                                     foreach (XmlNode MetaDataChildNode in metaData_NodeWithinLoop.ChildNodes) {
                                         //
                                         // ----- process metadata Field
@@ -210,16 +212,30 @@ namespace Contensive.Processor.Controllers {
                                             }
                                             var metaDataField = result.metaData[contentName.ToLowerInvariant()].fields[FieldName.ToLowerInvariant()];
                                             metaDataField.nameLc = FieldName.ToLowerInvariant();
-                                            string cdefFieldActiveText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Active", (DefaultMetaDataField.active) ? "1" : "0");
-                                            metaDataField.active = (string.IsNullOrEmpty(cdefFieldActiveText)) ? true : getBoolean(cdefFieldActiveText);
+                                            fieldDocumentOrder.Add(FieldName.ToLowerInvariant());
+                                            string cdefFieldActiveText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Active", "");
+                                            metaDataField.active = string.IsNullOrEmpty(cdefFieldActiveText) ? true : getBoolean(cdefFieldActiveText);
                                             //
                                             // Convert Field Descriptor (text) to field type (integer)
                                             //
                                             string defaultFieldTypeName = ContentFieldMetadataModel.getFieldTypeNameFromFieldTypeId(core, DefaultMetaDataField.fieldTypeId);
                                             string fieldTypeName = XmlController.getXMLAttribute(core, MetaDataChildNode, "FieldType", defaultFieldTypeName);
                                             metaDataField.fieldTypeId = core.db.getFieldTypeIdFromFieldTypeName(fieldTypeName);
-                                            metaDataField.editSortPriority = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "EditSortPriority", DefaultMetaDataField.editSortPriority);
-                                            metaDataField.authorable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Authorable", DefaultMetaDataField.authorable);
+                                            //
+                                            // -- editSortPriority: read as string to detect blank/missing attribute
+                                            //
+                                            string editSortPriorityText = XmlController.getXMLAttribute(core, MetaDataChildNode, "EditSortPriority", "");
+                                            if (!string.IsNullOrEmpty(editSortPriorityText)) {
+                                                metaDataField.editSortPriority = getInteger(editSortPriorityText);
+                                            } else {
+                                                //
+                                                // -- attribute is blank/missing, mark for auto-assignment after all fields are read
+                                                //
+                                                metaDataField.editSortPriority = 0;
+                                                needsEditSortReorder = true;
+                                            }
+                                            string cdefFieldAuthorableText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Authorable", "");
+                                            metaDataField.authorable = string.IsNullOrEmpty(cdefFieldAuthorableText) ? true : getBoolean(cdefFieldAuthorableText);
                                             metaDataField.caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
                                             metaDataField.defaultValue = XmlController.getXMLAttribute(core, MetaDataChildNode, "DefaultValue", DefaultMetaDataField.defaultValue);
                                             metaDataField.notEditable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "NotEditable", DefaultMetaDataField.notEditable);
@@ -282,6 +298,99 @@ namespace Contensive.Processor.Controllers {
                                                     metaDataField.helpCustom = FieldChildNode.InnerText;
                                                 }
                                                 metaDataField.helpChanged = setAllDataChanged;
+                                            }
+                                        }
+                                    }
+                                    //
+                                    // -- auto-assign editSortPriority for fields that had blank/missing attributes
+                                    //
+                                    if (needsEditSortReorder) {
+                                        var contentFields = result.metaData[contentName.ToLowerInvariant()].fields;
+                                        //
+                                        // -- collect explicit values and positions of blanks in document order
+                                        //
+                                        var priorities = new List<(string fieldNameLc, int priority, bool isExplicit)>();
+                                        foreach (string fieldNameLc in fieldDocumentOrder) {
+                                            if (contentFields.ContainsKey(fieldNameLc)) {
+                                                var f = contentFields[fieldNameLc];
+                                                bool isExplicit = f.editSortPriority > 0;
+                                                priorities.Add((fieldNameLc, f.editSortPriority, isExplicit));
+                                            }
+                                        }
+                                        //
+                                        // -- fill in blank priorities by finding a value between previous and next explicit values
+                                        //
+                                        bool collisionDetected = false;
+                                        for (int i = 0; i < priorities.Count; i++) {
+                                            if (!priorities[i].isExplicit) {
+                                                //
+                                                // -- find previous value (explicit or already computed)
+                                                //
+                                                int prevValue = (i > 0) ? priorities[i - 1].priority : 0;
+                                                //
+                                                // -- find next explicit value
+                                                //
+                                                int nextValue = 0;
+                                                for (int n = i + 1; n < priorities.Count; n++) {
+                                                    if (priorities[n].isExplicit) {
+                                                        nextValue = priorities[n].priority;
+                                                        break;
+                                                    }
+                                                }
+                                                //
+                                                // -- count remaining consecutive blanks from here to next explicit
+                                                //
+                                                int blanksRemaining = 0;
+                                                for (int b = i; b < priorities.Count && !priorities[b].isExplicit; b++) {
+                                                    blanksRemaining++;
+                                                }
+                                                //
+                                                // -- calculate the value for this blank
+                                                //
+                                                if (nextValue > 0 && (nextValue - prevValue) > blanksRemaining) {
+                                                    //
+                                                    // -- there is room between prev and next, interpolate
+                                                    //
+                                                    int step = (nextValue - prevValue) / (blanksRemaining + 1);
+                                                    if (step < 1) { step = 1; }
+                                                    int newValue = prevValue + step;
+                                                    priorities[i] = (priorities[i].fieldNameLc, newValue, false);
+                                                } else if (nextValue == 0) {
+                                                    //
+                                                    // -- no next explicit value, assign prevValue + 100
+                                                    //
+                                                    priorities[i] = (priorities[i].fieldNameLc, prevValue + 100, false);
+                                                } else {
+                                                    //
+                                                    // -- not enough room between prev and next, need full reorder
+                                                    //
+                                                    collisionDetected = true;
+                                                    break;
+                                                }
+                                            } else {
+                                                //
+                                                // -- explicit value: check it is not out of order vs. previous
+                                                //
+                                                if (i > 0 && priorities[i].priority <= priorities[i - 1].priority) {
+                                                    collisionDetected = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (collisionDetected) {
+                                            //
+                                            // -- reorder all fields in document order with spacing of 100
+                                            //
+                                            for (int i = 0; i < priorities.Count; i++) {
+                                                priorities[i] = (priorities[i].fieldNameLc, (i + 1) * 100, priorities[i].isExplicit);
+                                            }
+                                        }
+                                        //
+                                        // -- apply computed priorities back to field metadata
+                                        //
+                                        foreach (var entry in priorities) {
+                                            if (contentFields.ContainsKey(entry.fieldNameLc)) {
+                                                contentFields[entry.fieldNameLc].editSortPriority = entry.priority;
                                             }
                                         }
                                     }

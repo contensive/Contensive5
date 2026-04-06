@@ -19,7 +19,6 @@
             -SolutionPath      "$projectRoot\server\MyAddon.sln" `
             -BinPath           "$projectRoot\server\MyAddon\bin\Release" `
             -DeploymentRoot    'C:\deployments\myaddon' `
-            -CollectionDlls    @('MyAddon.dll', 'MyAddon.dll.config') `
             -CleanFolders      @("$projectRoot\server\MyAddon\bin",
                                   "$projectRoot\server\MyAddon\obj") `
             -UiPath            "$projectRoot\ui" `
@@ -187,10 +186,6 @@ function Invoke-ContensiveBuild {
     Root folder under which a new versioned sub-folder is created for
     each build (e.g. 'C:\deployments\fma').
 
-.PARAMETER CollectionDlls
-    Array of DLL (and config) file names to copy from BinPath into the
-    collection folder before zipping.
-
 .PARAMETER CleanFolders
     Array of folders to delete before building (typically bin\ and obj\
     for each project in the solution). Defaults to empty — nothing cleaned.
@@ -216,7 +211,6 @@ function Invoke-ContensiveBuild {
         [Parameter(Mandatory)][string]   $SolutionPath,
         [Parameter(Mandatory)][string]   $BinPath,
         [Parameter(Mandatory)][string]   $DeploymentRoot,
-        [Parameter(Mandatory)][string[]] $CollectionDlls,
         [string[]] $CleanFolders    = @(),
         [string]   $UiPath          = '',
         [string[]] $UiAssetFolders  = @('wwwFiles', 'cdnFiles', 'privateFiles', 'layoutFiles', 'helpFiles'),
@@ -246,10 +240,8 @@ function Invoke-ContensiveBuild {
     }
 
     # Remove stale artifacts from the collection staging folder
-    foreach ($dll in $CollectionDlls) {
-        $f = Join-Path $CollectionPath $dll
-        if (Test-Path $f) { Remove-Item $f -Force }
-    }
+    Get-ChildItem -Path $CollectionPath -Include '*.dll','*.pdb','*.dll.config' -File -ErrorAction SilentlyContinue |
+        Remove-Item -Force
     foreach ($asset in ($UiAssetFolders)) {
         $f = Join-Path $CollectionPath "$asset.zip"
         if (Test-Path $f) { Remove-Item $f -Force }
@@ -282,9 +274,9 @@ function Invoke-ContensiveBuild {
     # Step 5 — Assemble the collection zip and copy to deployment folder
     # -----------------------------------------------------------------------
     Write-Host "Building collection zip..."
-    foreach ($dll in $CollectionDlls) {
-        Copy-Item (Join-Path $BinPath $dll) -Destination $CollectionPath -Force
-    }
+    Copy-Item (Join-Path $BinPath '*.dll') -Destination $CollectionPath -Force
+    Copy-Item (Join-Path $BinPath '*.pdb') -Destination $CollectionPath -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $CollectionPath -Force -ErrorAction SilentlyContinue
 
     Push-Location $CollectionPath
     try {
@@ -303,10 +295,8 @@ function Invoke-ContensiveBuild {
     # Step 6 — Clean staging files from collection folder
     # -----------------------------------------------------------------------
     Write-Host "Cleaning collection staging folder..."
-    foreach ($dll in $CollectionDlls) {
-        $f = Join-Path $CollectionPath $dll
-        if (Test-Path $f) { Remove-Item $f -Force }
-    }
+    Get-ChildItem -Path $CollectionPath -Include '*.dll','*.pdb','*.dll.config' -File -ErrorAction SilentlyContinue |
+        Remove-Item -Force
     foreach ($asset in $UiAssetFolders) {
         $f = Join-Path $CollectionPath "$asset.zip"
         if (Test-Path $f) { Remove-Item $f -Force }

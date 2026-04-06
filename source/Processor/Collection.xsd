@@ -16,7 +16,7 @@
 											<xs:attribute name="active" type="xs:boolean" />
 											<xs:attribute name="adminOnly" type="xs:boolean" />
 											<xs:attribute name="authorable" type="xs:boolean" />
-											<xs:attribute name="caption" type="xs:string" />
+											<xs:attribute name="caption" type="xs:string" use="required" />
 											<xs:attribute name="defaultValue" type="xs:string" />
 											<xs:attribute name="developerOnly" type="xs:boolean" />
 											<xs:attribute name="editSortPriority" type="xs:integer" />
