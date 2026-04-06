@@ -57,20 +57,24 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                     portalCs.Close();
                     //
                     // -- load features and subfeatures
-                    string featureSql = @$" 
-                        select 
-                            f.id,f.name,f.heading,f.sortOrder,f.addPadding,f.ccguid,f.addonId,f.dataContentId,f.parentFeatureId, 
+                    string featureSql = @$"
+                        select
+                            f.id,f.name,f.heading,f.sortOrder,f.addPadding,f.ccguid,f.addonId,f.dataContentId,f.parentFeatureId,
                             sub.id as subId,sub.name as subName,sub.heading as subheading,
                             sub.sortOrder as subSortOrder,sub.addPadding as subAddPadding,sub.ccguid as subccGuid,sub.addonId as subAddonId,
-                            sub.dataContentId as subdatacontentid,sub.parentFeatureId as subparentFeatureId 
-                        from 
-                            ccPortalFeatures f 
-                            left join ccPortalFeatures sub on sub.parentFeatureId=f.id 
-                        where 
-                            (f.active>0) 
+                            sub.dataContentId as subdatacontentid,sub.parentFeatureId as subparentFeatureId
+                        from
+                            ccPortalFeatures f
+                            left join ccPortalFeatures sub on sub.parentFeatureId=f.id
+                            left join ccAggregateFunctions a on a.id=f.addonId
+                            left join ccAggregateFunctions suba on suba.id=sub.addonId
+                        where
+                            (f.active>0)
                             and ((sub.active is null)or(sub.active>0))
-                            and f.portalid={portalId} 
-                        order by 
+                            and f.portalid={portalId}
+                            and (a.id is null or isnull(a.dashboardWidget,0)=0)
+                            and (suba.id is null or isnull(suba.dashboardWidget,0)=0)
+                        order by
                             ISNULL(f.sortorder, f.name),sub.name";
                     using (CPCSBaseClass csFeature = CP.CSNew()) {
                         if (csFeature.OpenSQL(featureSql)) {
