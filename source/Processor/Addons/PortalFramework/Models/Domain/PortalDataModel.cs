@@ -72,8 +72,8 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                             (f.active>0)
                             and ((sub.active is null)or(sub.active>0))
                             and f.portalid={portalId}
-                            and (a.id is null or isnull(a.dashboardWidget,0)=0)
-                            and (suba.id is null or isnull(suba.dashboardWidget,0)=0)
+                            and (a.id is null or (isnull(a.dashboardWidget,0)=0 and isnull(a.remoteMethod,0)=0 and isnull(a.content,0)=0 and isnull(a.template,0)=0 and isnull(a.onBodyStart,0)=0 and isnull(a.onBodyEnd,0)=0 and isnull(a.onPageStartEvent,0)=0 and isnull(a.onPageEndEvent,0)=0))
+                            and (suba.id is null or (isnull(suba.dashboardWidget,0)=0 and isnull(suba.remoteMethod,0)=0 and isnull(suba.content,0)=0 and isnull(suba.template,0)=0 and isnull(suba.onBodyStart,0)=0 and isnull(suba.onBodyEnd,0)=0 and isnull(suba.onPageStartEvent,0)=0 and isnull(suba.onPageEndEvent,0)=0))
                         order by
                             ISNULL(f.sortorder, f.name),sub.name";
                     using (CPCSBaseClass csFeature = CP.CSNew()) {
