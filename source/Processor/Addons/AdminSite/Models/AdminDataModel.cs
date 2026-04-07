@@ -181,6 +181,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static bool isVisibleUserField_AdminEdit(CoreController core, bool adminOnly, bool developerOnly, bool active, bool authorable, string name, string tableName) {
             try {
                 if (!active || !authorable) { return false; }
+                //
+                // -- must be authenticated to view admin fields
+                if (!core.session.isAuthenticated) { return false; }
+                //
                 if (developerOnly && !core.session.user.developer) { return false; }
                 if (adminOnly && !core.session.user.developer && !core.session.user.admin) { return false; }
                 //
@@ -212,6 +216,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static bool isVisibleUserField_EditModal(CoreController core, bool adminOnly, bool developerOnly, bool active, bool authorable, string name, string tableName) {
             try {
                 if (!active || !authorable) { return false; }
+                //
+                // -- must be authenticated to view edit modal fields
+                if (!core.session.isAuthenticated) { return false; }
+                //
                 if (developerOnly && !core.session.user.developer) { return false; }
                 if (adminOnly && !core.session.user.developer && !core.session.user.admin) { return false; }
                 //

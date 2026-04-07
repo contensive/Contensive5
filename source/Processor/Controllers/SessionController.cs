@@ -315,8 +315,35 @@ namespace Contensive.Processor.Controllers {
                     //
                     if ((user is null) || user.id.Equals(0)) {
                         //
-                        // -- setup visit user if not authenticated
-                        if (!visit.memberId.Equals(0)) {
+                        // -- authenticate from Authorization header (Bearer token or Basic credentials)
+                        if (core.webServer?.requestHeaders != null && core.webServer.requestHeaders.TryGetValue("Authorization", out string authorizationHeader) && !string.IsNullOrWhiteSpace(authorizationHeader)) {
+                            if (authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
+                                //
+                                // -- bearer token authentication
+                                BearerTokenAuthController.tryAuthenticateByBearerToken(core, this, authorizationHeader, out _);
+                                user = this.user;
+                            } else if (authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)) {
+                                //
+                                // -- basic authentication: decode base64 "username:password"
+                                try {
+                                    string encoded = authorizationHeader.Substring(6).Trim();
+                                    string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(encoded));
+                                    int colonPos = decoded.IndexOf(':');
+                                    if (colonPos > 0) {
+                                        string basicUsername = decoded.Substring(0, colonPos);
+                                        string basicPassword = decoded.Substring(colonPos + 1);
+                                        string userErrorMessage = "";
+                                        AuthController.tryAuthenticate(core, this, basicUsername, basicPassword, false, ref userErrorMessage);
+                                        user = this.user;
+                                    }
+                                } catch (FormatException) {
+                                    // -- malformed base64, ignore and fall through to guest
+                                }
+                            }
+                        }
+                        //
+                        // -- setup visit user if not authenticated via header
+                        if ((user is null || user.id.Equals(0)) && !visit.memberId.Equals(0)) {
                             user = DbBaseModel.create<PersonModel>(core.cpParent, visit.memberId);
                         }
                         //
@@ -862,6 +889,9 @@ namespace Contensive.Processor.Controllers {
         public bool isAdvancedEditing() {
             //
             logger.Trace($"{core.logCommonMessage},SessionController.isAdvancedEditing, enter");
+            //
+            // -- must be authenticated to access advanced editing
+            if (!isAuthenticated) { return false; }
             //
             // -- todo consider advancedEditing only for developers
             if ((!user.admin) && (!user.developer)) { return false; }

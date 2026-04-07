@@ -19,6 +19,17 @@ namespace Contensive.Processor.Addons.PageManager {
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
                 CoreController core = ((CPClass)cp).core;
+                //
+                // -- authentication required for page modifications
+                if (!core.session.isAuthenticated) {
+                    return new ChildListSaveResponse { success = false, errors = new List<string> { "authentication required" } };
+                }
+                //
+                // -- authorization required for editing page content
+                if (!core.session.isEditing("Page Content")) {
+                    return new ChildListSaveResponse { success = false, errors = new List<string> { "authorization required - user must have edit permissions for page content" } };
+                }
+                //
                 string requestJson = cp.Request.Body;
                 if (string.IsNullOrEmpty(requestJson)) { return new ChildListSaveResponse { success = false, errors = new List<string> { "blank request" } }; };
                 //

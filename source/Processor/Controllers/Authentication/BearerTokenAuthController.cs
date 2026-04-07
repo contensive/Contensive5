@@ -20,9 +20,10 @@ namespace Contensive.Processor.Controllers {
         /// and returns true.
         /// </summary>
         /// <param name="core"></param>
+        /// <param name="session">The session to authenticate into. Passed explicitly so this method can be called during session construction before core.session is assigned.</param>
         /// <param name="authorizationHeader">The full value of the Authorization header.</param>
         /// <param name="authenticatedUserId">The id of the authenticated user, or 0 on failure.</param>
-        public static bool tryAuthenticateByBearerToken(CoreController core, string authorizationHeader, out int authenticatedUserId) {
+        public static bool tryAuthenticateByBearerToken(CoreController core, SessionController session, string authorizationHeader, out int authenticatedUserId) {
             authenticatedUserId = 0;
             try {
                 //
@@ -55,8 +56,8 @@ namespace Contensive.Processor.Controllers {
                 if (userList.Count != 1) { return false; }
                 int userId = userList[0].id;
                 //
-                // -- authenticate into the current session
-                if (!AuthController.authenticateById(core, core.session, userId)) { return false; }
+                // -- authenticate into the provided session
+                if (!AuthController.authenticateById(core, session, userId)) { return false; }
                 authenticatedUserId = userId;
                 return true;
             } catch (Exception ex) {

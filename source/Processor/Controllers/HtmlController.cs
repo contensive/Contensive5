@@ -3971,7 +3971,7 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         //
         public static string adminHint(CoreController core, string innerHtml) {
-            if (core.session.isEditing() || core.session.user.admin || core.session.user.developer) {
+            if (core.session.isEditing() || core.session.isAuthenticatedAdmin() || core.session.isAuthenticatedDeveloper()) {
                 return ""
                     + "<div class=\"ccHintWrapper\">"
                         + "<div  class=\"ccHintWrapperContent\">"
