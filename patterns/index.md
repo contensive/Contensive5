@@ -43,6 +43,11 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 - [Database Models Pattern](database-models-pattern.md) — creating and using typed database model classes
 - [Database Management Pattern](database-management-pattern.md) — database schema management and conventions
 
+## Security
+
+- [Authentication Pattern](authentication-pattern.md) — username/password, bearer token, HTTP Basic, and session cookie authentication flows
+- [Security Best Practices](security-best-practices.md) — authentication vs authorization, the recognized state, secure coding patterns, and common vulnerabilities
+
 ## Build & Deployment
 
 - [Build Script Pattern](build-script-pattern.md) — automating compile, package, and deploy of addon collections
