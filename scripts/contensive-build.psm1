@@ -215,7 +215,8 @@ function Invoke-ContensiveBuild {
         [string]   $UiPath          = '',
         [string[]] $UiAssetFolders  = @('wwwFiles', 'cdnFiles', 'privateFiles', 'layoutFiles', 'helpFiles'),
         [string]   $PackagesDirectory = '',
-        [string]   $Zip7Path        = 'C:\Program Files\7-Zip\7z.exe'
+        [string]   $Zip7Path        = 'C:\Program Files\7-Zip\7z.exe',
+        [string[]] $NuGetProjects   = @()
     )
 
     # -----------------------------------------------------------------------
@@ -269,6 +270,31 @@ function Invoke-ContensiveBuild {
     Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
                            -MSBuild           $msbuild `
                            -PackagesDirectory $PackagesDirectory
+
+    # -----------------------------------------------------------------------
+    # Step 4.5 — Build NuGet packages (if specified)
+    # -----------------------------------------------------------------------
+    if ($NuGetProjects.Count -gt 0) {
+        Write-Host "Building NuGet packages..."
+        foreach ($projPath in $NuGetProjects) {
+            $fullPath = if ([System.IO.Path]::IsPathRooted($projPath)) {
+                $projPath
+            } else {
+                Join-Path (Split-Path $SolutionPath -Parent) $projPath
+            }
+
+            if (-not (Test-Path $fullPath)) {
+                throw "NuGet project not found: $fullPath"
+            }
+
+            Write-Host "  Packing: $projPath"
+            & dotnet pack $fullPath --configuration Release --no-build --output $deploymentFolder
+            if ($LASTEXITCODE -ne 0) {
+                throw "dotnet pack failed for: $fullPath"
+            }
+        }
+        Write-Host "NuGet packages built and copied to deployment folder"
+    }
 
     # -----------------------------------------------------------------------
     # Step 5 — Assemble the collection zip and copy to deployment folder

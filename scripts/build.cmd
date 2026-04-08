@@ -2,17 +2,22 @@ rem ==============================================================
 rem
 rem Must be run from the projects git\project\scripts folder - everything is relative
 rem run >build [versionNumber]
+rem run >build /nopause (for automated builds, no pause on errors)
 rem
 @echo off
 cls
- 
+
+rem Check for /nopause flag
+set PAUSE_ON_ERROR=1
+if "%1"=="/nopause" set PAUSE_ON_ERROR=0
+
 @echo +++++++++++++++++++++++++++++
 @echo Build Process
 @echo .
 @echo When ready, hit any key to continue
 @echo .
 @echo +++++++++++++++++++++++++++++
-rem 
+rem
 rem echo on
 
 c:
@@ -193,14 +198,14 @@ cd ..\source
 dotnet clean contensivecommon.sln
 if errorlevel 1 (
    echo failure cleaning common solution
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building CPBase
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
@@ -208,49 +213,49 @@ rem asssembly product version was set 20.0.0.0, properties, package, packageid w
 dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo failure building Models
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
    echo failure building Processor
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet build taskservice/taskservice.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
    echo failure building taskservice
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet build cli/cli.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
    echo failure building cli
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack CPBase
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=netstandard2.0
 if errorlevel 1 (
    echo failure pack Models
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
 dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net48
 if errorlevel 1 (
    echo failure pack Processor
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
@@ -302,7 +307,7 @@ cd ..\source
 "%msbuildLocation%msbuild.exe" contensiveAspx.sln /p:DeployOnBuild=true /p:PublishProfile=defaultSite
 if errorlevel 1 (
    echo failure building contensiveAspx
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
@@ -334,7 +339,7 @@ rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Curre
 "%msbuildLocation%msbuild.exe" cli.installer\cli.installer.wixproj
 if errorlevel 1 (
 echo failure building cli installer
-   rem pause
+   if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 

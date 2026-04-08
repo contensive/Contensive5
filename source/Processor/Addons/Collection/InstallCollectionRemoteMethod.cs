@@ -36,7 +36,7 @@ namespace Contensive.Processor.Addons.Collection {
                 //
                 // -- authenticate via bearer token
                 string authorizationHeader = core.docProperties.getText("authorization");
-                if (!BearerTokenAuthController.tryAuthenticateByBearerToken(core, authorizationHeader, out int authenticatedUserId)) {
+                if (!BearerTokenAuthController.tryAuthenticateByBearerToken(core, core.session, authorizationHeader, out int authenticatedUserId)) {
                     cp.Response.SetStatus(WebServerController.httpResponseStatus.Unauthorized);
                     return createJsonResponse(false, authMessage, null);
                 }

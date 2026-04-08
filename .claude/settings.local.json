@@ -45,7 +45,9 @@
       "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\":*)",
       "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" l \"C:\\\\Git\\\\Contensive5\\\\source\\\\Processor\\\\HelpFiles.zip\")",
       "Bash(del \"C:\\\\Git\\\\Contensive5\\\\source\\\\Processor\\\\HelpFiles.zip\")",
-      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" a:*)"
+      "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" a:*)",
+      "Bash(git status:*)",
+      "Bash(/c/Windows/System32/cmd.exe //c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts & C:\\\\Git\\\\Contensive5\\\\scripts\\\\build.cmd /nopause\")"
     ]
   }
 }

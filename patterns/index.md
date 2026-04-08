@@ -52,6 +52,25 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 
 - [Build Script Pattern](build-script-pattern.md) — automating compile, package, and deploy of addon collections
 
+## Code Review
+
+The `/review-collection` slash command reviews an addon repo against all Contensive patterns and security practices.
+
+**Using the command** (from any addon repo in Claude Code):
+```
+/review-collection
+```
+Or with a focus area:
+```
+/review-collection security
+```
+
+**Installing for use in any repo** (one-time per machine):
+```
+cp "C:\Git\Contensive5\.claude\commands\review-collection.md" "$HOME\.claude\commands\review-collection.md"
+```
+The command definition is maintained in `C:\Git\Contensive5\.claude\commands\review-collection.md`. When used from within the Contensive5 repo it is available automatically. To use it from other repos, copy it to your user-level commands folder.
+
 ## Documentation
 
 - [Help Doc Pattern](help-doc-pattern.md) — creating help documentation for addons
