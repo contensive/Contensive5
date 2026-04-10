@@ -623,7 +623,8 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// set cookie in iis response. creates a cookie, to the current requestDomain, with "/" path, not secure.
-        /// if requestDomain is domain, use domain
+        /// if requestDomain is a single-label host (e.g. "veronica", "localhost") or an IP address, omit the Domain attribute.
+        ///   Browsers reject Set-Cookie with Domain set to a bare host or IP, so the cookie must be host-only.
         /// if requestDomain is domain.com, use .domain.com
         /// if requestDomain is www.domain.com, use .domain.com
         /// if requestDomain is www.test.domain.com, user .test.domain.com
@@ -635,16 +636,25 @@ namespace Contensive.Processor.Controllers {
             string cookieDomain = "";
             if (!string.IsNullOrEmpty(requestDomain)) {
                 //
+                // -- single-label hosts (e.g. "veronica", "localhost") and IP addresses must omit
+                //    the Domain attribute - browsers silently reject Set-Cookie otherwise.
+                //    An empty cookieDomain results in a host-only cookie scoped to the current origin.
                 // -- convert www.domain.com to .domain.com
                 // -- if a.b.domain.com, convert to .b.domain.com
                 string[] domainSegments = requestDomain.Split('.');
                 if (domainSegments.Length == 1) {
-                    cookieDomain = requestDomain;
+                    //
+                    // -- single-label host, host-only cookie (no Domain attribute)
+                    cookieDomain = "";
+                } else if (System.Net.IPAddress.TryParse(requestDomain, out _)) {
+                    //
+                    // -- IP address host, host-only cookie (no Domain attribute)
+                    cookieDomain = "";
                 } else if (domainSegments.Length == 2) {
-                    cookieDomain = "." + requestDomain;
+                    cookieDomain = $".{requestDomain}";
                 } else {
                     for (var i = 1; i < domainSegments.Count(); i++) {
-                        cookieDomain += "." + domainSegments[i];
+                        cookieDomain += $".{domainSegments[i]}";
                     }
                 }
             }

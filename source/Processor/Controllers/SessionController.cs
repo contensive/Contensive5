@@ -83,7 +83,7 @@ namespace Contensive.Processor.Controllers {
                         // -- try browser language if available
                         string HTTP_Accept_Language = core.webServer.getBrowserAcceptLanguage();
                         if (!string.IsNullOrEmpty(HTTP_Accept_Language)) {
-                            List<LanguageModel> languageList = DbBaseModel.createList<LanguageModel>(core.cpParent, "(HTTP_Accept_Language='" + HTTP_Accept_Language + "')");
+                            List<LanguageModel> languageList = DbBaseModel.createList<LanguageModel>(core.cpParent, "(HTTP_Accept_Language='" + DbController.encodeSQLText( HTTP_Accept_Language ) + "')");
                             if (languageList.Count > 0) {
                                 _language = languageList[0];
                             }
@@ -198,6 +198,11 @@ namespace Contensive.Processor.Controllers {
                     VisitorModel visitorTest = DbBaseModel.create<VisitorModel>(core.cpParent, visitorToken.id);
                     if (!(visitorTest is null)) {
                         visitor = visitorTest;
+                    } else {
+                        //
+                        // -- visitor cookie has a visitorId but the record was not found, create a new visitor
+                        logger.Trace($"{core.logCommonMessage},visitor record not found for visitorToken.id [{visitorToken.id}], creating new visitor");
+                        visitor = DbBaseModel.addEmpty<VisitorModel>(core.cpParent);
                     }
                 }
                 bool resultSessionContect_visitor_changes = false;
@@ -345,6 +350,21 @@ namespace Contensive.Processor.Controllers {
                         // -- setup visit user if not authenticated via header
                         if ((user is null || user.id.Equals(0)) && !visit.memberId.Equals(0)) {
                             user = DbBaseModel.create<PersonModel>(core.cpParent, visit.memberId);
+                        }
+                        //
+                        // -- new visit from a returning visitor cookie: if the site allows auto-login or auto-recognize,
+                        //    reuse the visitor's known memberId instead of creating a new guest record. This prevents a
+                        //    new ccMember record from being created on each new visit when the visitor cookie is valid.
+                        //    Auto-login (visit.visitAuthenticated = true) is finalized later by AuthEventController.
+                        if ((user is null || user.id.Equals(0)) && createNewVisit && !visitor.memberId.Equals(0)) {
+                            if (core.siteProperties.allowAutoRecognize || core.siteProperties.allowAutoLogin) {
+                                PersonModel recognizedUser = DbBaseModel.create<PersonModel>(core.cpParent, visitor.memberId);
+                                if (recognizedUser != null && !recognizedUser.id.Equals(0)) {
+                                    user = recognizedUser;
+                                    visit.memberId = user.id;
+                                    visit.memberNew = false;
+                                }
+                            }
                         }
                         //
                         // -- setup new user if nothing else

@@ -36,16 +36,51 @@
                         Response.Headers.Add(header.name, header.value)
                     Next
                     '
+                    '
+                    ' -- write Set-Cookie headers directly instead of using HttpCookie/AppendCookie.
+                    '    ASP.NET's HttpCookie serializer emits a legacy hyphenated Expires format
+                    '    (dd-MMM-yyyy) that some browsers will not persist reliably. Writing the
+                    '    header directly lets us emit RFC 1123 dates and Max-Age, which RFC 6265
+                    '    says takes precedence over Expires.
                     For Each cookie As KeyValuePair(Of String, Contensive.Processor.Models.Domain.HttpContextResponseCookie) In context.Response.cookies
-                        Dim ck As New HttpCookie(cookie.Key, cookie.Value.value)
-                        ck.Domain = cookie.Value.domain
-                        ck.Expires = cookie.Value.expires
-                        ck.HttpOnly = cookie.Value.httpOnly
-                        ck.Name = cookie.Key
-                        ck.Path = cookie.Value.path
-                        ck.SameSite = cookie.Value.sameSite
-                        ck.Secure = cookie.Value.secure
-                        Response.AppendCookie(ck)
+                        Dim sb As New System.Text.StringBuilder()
+                        sb.Append(cookie.Key)
+                        sb.Append("=")
+                        sb.Append(If(cookie.Value.value, ""))
+                        If (Not String.IsNullOrEmpty(cookie.Value.path)) Then
+                            sb.Append("; Path=")
+                            sb.Append(cookie.Value.path)
+                        Else
+                            sb.Append("; Path=/")
+                        End If
+                        If (Not String.IsNullOrEmpty(cookie.Value.domain)) Then
+                            sb.Append("; Domain=")
+                            sb.Append(cookie.Value.domain)
+                        End If
+                        If (cookie.Value.expires <> DateTime.MinValue) Then
+                            '
+                            ' -- Max-Age (seconds) takes precedence per RFC 6265 and cannot be misparsed
+                            Dim maxAgeSeconds As Long = CLng((cookie.Value.expires.ToUniversalTime() - DateTime.UtcNow).TotalSeconds)
+                            If (maxAgeSeconds < 0) Then
+                                maxAgeSeconds = 0
+                            End If
+                            sb.Append("; Max-Age=")
+                            sb.Append(maxAgeSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                            '
+                            ' -- RFC 1123 Expires as a fallback for clients that do not honor Max-Age
+                            sb.Append("; Expires=")
+                            sb.Append(cookie.Value.expires.ToUniversalTime().ToString("R", System.Globalization.CultureInfo.InvariantCulture))
+                        End If
+                        If (cookie.Value.httpOnly) Then
+                            sb.Append("; HttpOnly")
+                        End If
+                        If (cookie.Value.secure) Then
+                            sb.Append("; Secure")
+                        End If
+                        '
+                        ' -- HttpContextResponseCookieSameSiteMode currently only defines Lax
+                        sb.Append("; SameSite=Lax")
+                        Response.Headers.Add("Set-Cookie", sb.ToString())
                     Next
                     '
                     Response.ContentType = context.Response.contentType
