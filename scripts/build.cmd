@@ -324,7 +324,7 @@ rem -- because the auto-update of assembly redirects does not work correctly for
 rem
 
 
-copy "C:\Git\Contensive5\source\Cli\bin\Debug\net48\cc.exe.config" "C:\Git\Contensive5\source\TaskService\bin\Debug\TaskService.exe.config"
+copy "C:\Git\Contensive5\source\Cli\bin\Debug\net48\cc.exe.config" "C:\Git\Contensive5\source\Cli\bin\Debug\net48\TaskService.exe.config"
 
 
 rem ==============================================================
