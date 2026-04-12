@@ -451,6 +451,8 @@ Two manifest types are used for orphan cleanup:
 
 ## Steps to Create a New Addon Collection XML
 
+> **IMPORTANT: Collection XML is the source of truth for database schema.** When adding any new database table or field to an application, it MUST be defined here in the collection XML first, before adding any corresponding C# model properties or code. The installer reads this file to create or update all database tables and columns. A field in code without a matching `<Field>` in the collection XML will have no database column at runtime.
+
 1. **Create the XML file** with the `<Collection>` root element. Generate a unique GUID for the collection.
 
 2. **Define CDefs** for any custom database tables your addons need. Each CDef requires:

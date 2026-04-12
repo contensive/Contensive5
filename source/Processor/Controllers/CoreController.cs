@@ -824,6 +824,12 @@ namespace Contensive.Processor.Controllers {
                                 db.executeNonQuery(sql);
                             }
                         }
+                        hint = "55";
+                        //
+                        // -- record performance metrics for this request
+                        if (_doc?.appStopWatch != null && appConfig != null) {
+                            PerformanceMetricsController.Record(appConfig.name, doc.appStopWatch.ElapsedMilliseconds);
+                        }
                         hint = "60";
                         //
                         // ----- dispose objects created here

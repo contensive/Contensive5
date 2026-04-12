@@ -31,6 +31,10 @@ These fields are automatically created when a table is created in a Contensive D
 
 Contensive defines database tables and fields by creating Contensive Definitions in the xml collection files used to install add-on collections.
 
+**IMPORTANT: Collection XML first.** When adding a new database table or field, always add the `<CDef>` or `<Field>` element to the addon collection XML file *before* adding any corresponding C# code (model properties, controller logic, etc.). The collection XML is the source of truth for schema — it is what creates and updates database tables and columns when the collection is installed. A field referenced in code but missing from the collection XML will not exist in the database at runtime.
+
+See [Addon Collection Pattern](addon-collection-pattern.md) for full CDef and Field XML syntax.
+
 Database indexes are automatically added for the required fields. Additional indexes required are added with SqlIndex nodes in the xml addon collection.
 
 ## CP.Db methods

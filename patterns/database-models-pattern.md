@@ -437,13 +437,23 @@ See [addon-collection-pattern.md](addon-collection-pattern.md) for full CDef doc
 
 ## Steps to Add a New Model
 
-1. **Create the model class** in `source/Models/Models/Db/{Entity}Model.cs`
-2. **Inherit from `DbBaseModel`**
-3. **Declare `tableMetadata`** with content name, table name, data source, and name uniqueness
-4. **Add properties** for each custom database field using the appropriate C# types
-5. **Create the corresponding CDef** in the addon collection XML (see [addon-collection-pattern.md](addon-collection-pattern.md))
+> **IMPORTANT: Collection XML first.** Always add the CDef/Field to the addon collection XML *before* creating or modifying the C# model. The collection XML is what creates the database table and columns at install time. A model property without a corresponding XML `<Field>` will have no database column at runtime.
+
+1. **Add the CDef to the addon collection XML** with all `<Field>` elements for every custom column (see [addon-collection-pattern.md](addon-collection-pattern.md))
+2. **Create the model class** in `source/Models/Models/Db/{Entity}Model.cs`
+3. **Inherit from `DbBaseModel`**
+4. **Declare `tableMetadata`** with content name, table name, data source, and name uniqueness — the `contentName` must match the CDef `Name` attribute and the `tableName` must match `ContentTableName`
+5. **Add properties** for each custom database field using the appropriate C# types (must match the `<Field>` elements added in step 1)
 6. **Add custom static methods** if the model needs specialized query patterns (optional)
 7. **Build the Models project**: `dotnet build source/Models/Models.csproj`
+
+## Steps to Add a Field to an Existing Model
+
+> **IMPORTANT: Collection XML first.** Never add a property to a model without first adding the `<Field>` to the collection XML.
+
+1. **Add the `<Field>` element** to the existing `<CDef>` in the addon collection XML
+2. **Add the C# property** to the model class with the matching name and type
+3. **Build and verify**: `dotnet build source/Models/Models.csproj`
 
 ## Caching Notes
 

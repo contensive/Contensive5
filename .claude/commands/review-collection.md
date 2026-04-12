@@ -67,6 +67,7 @@ Check against `addon-collection-pattern.md`:
 - Resource entries referencing zip names that don't match the build script's output
 - Missing `<ImportCollection>` entries for dependencies that are referenced in `<IncludeAddon>` elements
 - `OnInstallAddonGuid` referencing a GUID not defined in the collection
+- **Model properties without matching collection XML fields**: Cross-reference every C# model class (inheriting `DbBaseModel`) against the collection XML CDefs. Any model property that represents a database column must have a corresponding `<Field>` element in the collection XML. Flag any model properties that are missing from the XML — these fields will not exist in the database at runtime.
 
 ---
 

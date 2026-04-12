@@ -66,6 +66,15 @@ public void SaveOrder(CPBaseClass cp, int orderId) {
 }
 ```
 
+## Database Changes: Collection XML First
+
+When adding a new database table or field, always define it in the addon collection XML file **before** adding corresponding C# code (model properties, controller logic, etc.). The collection XML is the source of truth for database schema — the installer uses it to create and update tables and columns. A field in code without a matching `<Field>` in the collection XML will not exist in the database at runtime.
+
+**Required workflow:**
+1. Add the `<CDef>` (new table) or `<Field>` (new column) to the collection XML
+2. Then add the C# model property and any code that references the field
+3. See [Addon Collection Pattern](addon-collection-pattern.md) for XML syntax
+
 ## UI: HTML Selector Naming
 
 When creating HTML classes or IDs, separate concerns between JavaScript binding and CSS styling by following these rules:
