@@ -449,6 +449,16 @@ Two manifest types are used for orphan cleanup:
 </Collection>
 ```
 
+## Addon Assembly Requirements
+
+When creating an addon assembly (the .NET DLL included in the collection), it **must** meet these requirements:
+
+1. **Signed** — The assembly must be strong-name signed.
+2. **File version** — The `FileVersion` must be set to the build version.
+3. **Assembly version** — The `AssemblyVersion` must be set to the build version.
+
+These are enforced during the build. The `contensive-build.psm1` script passes `/p:Version=` to set both versions, and the signing key is configured in the `.csproj`.
+
 ## Steps to Create a New Addon Collection XML
 
 > **IMPORTANT: Collection XML is the source of truth for database schema.** When adding any new database table or field to an application, it MUST be defined here in the collection XML first, before adding any corresponding C# model properties or code. The installer reads this file to create or update all database tables and columns. A field in code without a matching `<Field>` in the collection XML will have no database column at runtime.

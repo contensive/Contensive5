@@ -134,11 +134,14 @@ function Invoke-MSBuildSolution {
     Path to msbuild.exe (from Find-MSBuild).
 .PARAMETER PackagesDirectory
     NuGet packages restore directory. Optional.
+.PARAMETER Version
+    Version string to pass to MSBuild as /p:Version. Optional.
 #>
     param(
         [Parameter(Mandatory)][string]$SolutionPath,
         [Parameter(Mandatory)][string]$MSBuild,
-        [string]$PackagesDirectory = ''
+        [string]$PackagesDirectory = '',
+        [string]$Version = ''
     )
     if (-not (Test-Path $SolutionPath)) { throw "Solution not found: $SolutionPath" }
 
@@ -149,7 +152,9 @@ function Invoke-MSBuildSolution {
     if ($LASTEXITCODE -ne 0) { throw "NuGet restore failed for: $SolutionPath" }
 
     Write-Host "Building solution..."
-    & $MSBuild $SolutionPath /p:Configuration=Release /p:Platform="Any CPU" /t:Rebuild /verbosity:minimal
+    $msbuildArgs = @($SolutionPath, '/p:Configuration=Release', '/p:Platform=Any CPU', '/t:Rebuild', '/verbosity:minimal')
+    if ($Version) { $msbuildArgs += "/p:Version=$Version" }
+    & $MSBuild @msbuildArgs
     if ($LASTEXITCODE -ne 0) { throw "MSBuild failed for: $SolutionPath" }
 }
 
@@ -269,7 +274,8 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
                            -MSBuild           $msbuild `
-                           -PackagesDirectory $PackagesDirectory
+                           -PackagesDirectory $PackagesDirectory `
+                           -Version           $version
 
     # -----------------------------------------------------------------------
     # Step 4.5 — Build NuGet packages (if specified)
@@ -292,6 +298,15 @@ function Invoke-ContensiveBuild {
             if ($LASTEXITCODE -ne 0) {
                 throw "dotnet pack failed for: $fullPath"
             }
+        }
+        # Copy .nupkg files to local NuGet feed
+        $localFeed = 'C:\NuGetLocalPackages'
+        if (-not (Test-Path $localFeed)) {
+            New-Item -ItemType Directory -Path $localFeed | Out-Null
+        }
+        Get-ChildItem -Path $deploymentFolder -Filter '*.nupkg' | ForEach-Object {
+            Copy-Item $_.FullName -Destination $localFeed -Force
+            Write-Host "  Copied to local feed: $($_.Name)"
         }
         Write-Host "NuGet packages built and copied to deployment folder"
     }
