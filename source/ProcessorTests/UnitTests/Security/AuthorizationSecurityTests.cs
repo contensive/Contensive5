@@ -6,6 +6,7 @@ using Contensive.Processor.Addons.AdminSite.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using static Tests.TestConstants;
+using Contensive.Processor.Addons.AdminSite;
 
 namespace Tests {
     //
@@ -37,7 +38,7 @@ namespace Tests {
                 // act - attempt to save child page list without authentication
                 var addon = new SaveChildPageListDraggableClass();
                 string requestJson = "{\"listId\":\"childPageList_1_test\",\"childList\":\"page1,page2\"}";
-                cp.core.webServer.requestBody = requestJson;
+                cp.core.webServer.httpContext.Request.requestBody = requestJson;
 
                 var result = addon.Execute(cp);
 
@@ -73,7 +74,7 @@ namespace Tests {
                 // act - attempt to save child page list without edit authorization
                 var addon = new SaveChildPageListDraggableClass();
                 string requestJson = "{\"listId\":\"childPageList_1_test\",\"childList\":\"page1,page2\"}";
-                cp.core.webServer.requestBody = requestJson;
+                cp.core.webServer.httpContext.Request.requestBody = requestJson;
 
                 var result = addon.Execute(cp);
 
@@ -179,7 +180,7 @@ namespace Tests {
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
 
                 // act - check if admin-only field is visible
-                bool result = AdminDataModel.isVisibleUserField_AdminEdit(
+                bool result = Contensive.Processor.Addons.AdminSite.AdminDataModel.isVisibleUserField_AdminEdit(
                     cp.core,
                     adminOnly: true,
                     developerOnly: false,
@@ -209,7 +210,7 @@ namespace Tests {
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
 
                 // act - check if developer-only field is visible in edit modal
-                bool result = AdminDataModel.isVisibleUserField_EditModal(
+                bool result = Contensive.Processor.Addons.AdminSite.AdminDataModel.isVisibleUserField_EditModal(
                     cp.core,
                     adminOnly: false,
                     developerOnly: true,
@@ -249,7 +250,7 @@ namespace Tests {
                 // 1. Cannot save child page list
                 var saveChildPageAddon = new SaveChildPageListDraggableClass();
                 string requestJson = "{\"listId\":\"childPageList_1_test\",\"childList\":\"page1,page2\"}";
-                cp.core.webServer.requestBody = requestJson;
+                cp.core.webServer.httpContext.Request.requestBody = requestJson;
                 var saveResult = saveChildPageAddon.Execute(cp) as SaveChildPageListDraggableClass.ChildListSaveResponse;
                 Assert.IsFalse(saveResult.success, "Recognized but not authenticated user should not be able to save page list");
 

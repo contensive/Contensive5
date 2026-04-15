@@ -364,19 +364,16 @@ namespace Contensive.Processor.Controllers {
                                     // Upgrade addon
                                     //
                                     if (!isDependency) {
-                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], Install non-dependency collection.");
-                                        OKToInstall = true;
-                                    } else if (installDependencies) {
-                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is up-to-date but installation set to reinstall all collections.");
+                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], Install non-dependency collection.");
                                         OKToInstall = true;
                                     } else if (collectionFolderConfig.lastChangeDate == DateTime.MinValue) {
-                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection installedDate could not be determined so it will upgrade.");
+                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], dependent collection installedDate could not be determined so it will upgrade.");
                                         OKToInstall = true;
                                     } else if (collectionFolderConfig.lastChangeDate > collection.modifiedDate) {
-                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is out-of-date and will be upgraded.");
+                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], dependent collection is out-of-date and will be upgraded.");
                                         OKToInstall = true;
                                     } else {
-                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is up-to-date and will not be upgraded, but all imports in the new version will be checked.");
+                                        logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], dependent collection is up-to-date and will not be upgraded, but all imports in the new version will be checked.");
                                         OKToInstall = false;
                                     }
                                 } else {
@@ -384,7 +381,7 @@ namespace Contensive.Processor.Controllers {
                                     // Install new on this application
                                     //
                                     collection = AddonCollectionModel.addEmpty<AddonCollectionModel>(core.cpParent);
-                                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], App does not have this collection so it will be installed.");
+                                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], GUID [{collectionGuid}], App does not have this collection so it will be installed.");
                                     OKToInstall = true;
                                 }
                                 if (!OKToInstall) {

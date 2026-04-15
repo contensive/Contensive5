@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Contensive shared build library.
     Host: C:\Git\Contensive5\scripts\contensive-build.psm1
@@ -238,6 +238,22 @@ function Invoke-ContensiveBuild {
     Write-Host ""
 
     # -----------------------------------------------------------------------
+    # Step 1.5 — Resolve the actual collection folder
+    # -----------------------------------------------------------------------
+    # If CollectionPath has subfolders, each is its own collection — use
+    # the subfolder matching CollectionName. Otherwise use CollectionPath directly.
+    $subFolders = Get-ChildItem -Path $CollectionPath -Directory -ErrorAction SilentlyContinue
+    if ($subFolders) {
+        $collectionFolder = Join-Path $CollectionPath $CollectionName
+        if (-not (Test-Path $collectionFolder)) {
+            throw "Collection subfolder not found: $collectionFolder"
+        }
+        Write-Host "Multi-collection repo detected — using: $collectionFolder"
+    } else {
+        $collectionFolder = $CollectionPath
+    }
+
+    # -----------------------------------------------------------------------
     # Step 2 — Clean build output folders
     # -----------------------------------------------------------------------
     Write-Host "Cleaning build folders..."
@@ -245,15 +261,13 @@ function Invoke-ContensiveBuild {
         if (Test-Path $folder) { Remove-Item $folder -Recurse -Force }
     }
 
-    # Remove stale artifacts from the collection staging folder
-    Get-ChildItem -Path $CollectionPath -Include '*.dll','*.pdb','*.dll.config' -File -ErrorAction SilentlyContinue |
+    # Remove everything from the collection folder except .xml files
+    Get-ChildItem -Path $collectionFolder -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -ne '.xml' } |
         Remove-Item -Force
-    foreach ($asset in ($UiAssetFolders)) {
-        $f = Join-Path $CollectionPath "$asset.zip"
-        if (Test-Path $f) { Remove-Item $f -Force }
-    }
-    $collectionZip = Join-Path $CollectionPath "$CollectionName.zip"
-    if (Test-Path $collectionZip) { Remove-Item $collectionZip -Force }
+    Get-ChildItem -Path $collectionFolder -Directory -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force
+    $collectionZip = Join-Path $collectionFolder "$CollectionName.zip"
 
     # -----------------------------------------------------------------------
     # Step 3 — Package UI assets
@@ -264,7 +278,7 @@ function Invoke-ContensiveBuild {
             $srcFolder = Join-Path $UiPath $asset
             if (-not (Test-Path $srcFolder)) { New-Item -ItemType Directory -Path $srcFolder | Out-Null }
             Invoke-ZipFolder -SourceFolder $srcFolder `
-                             -DestZip      (Join-Path $CollectionPath "$asset.zip") `
+                             -DestZip      (Join-Path $collectionFolder "$asset.zip") `
                              -Zip7Path     $Zip7Path
         }
     }
@@ -283,10 +297,10 @@ function Invoke-ContensiveBuild {
     if ($NuGetProjects.Count -gt 0) {
         Write-Host "Building NuGet packages..."
         foreach ($projPath in $NuGetProjects) {
-            $fullPath = if ([System.IO.Path]::IsPathRooted($projPath)) {
-                $projPath
+            if ([System.IO.Path]::IsPathRooted($projPath)) {
+                $fullPath = $projPath
             } else {
-                Join-Path (Split-Path $SolutionPath -Parent) $projPath
+                $fullPath = Join-Path (Split-Path $SolutionPath -Parent) $projPath
             }
 
             if (-not (Test-Path $fullPath)) {
@@ -315,11 +329,11 @@ function Invoke-ContensiveBuild {
     # Step 5 — Assemble the collection zip and copy to deployment folder
     # -----------------------------------------------------------------------
     Write-Host "Building collection zip..."
-    Copy-Item (Join-Path $BinPath '*.dll') -Destination $CollectionPath -Force
-    Copy-Item (Join-Path $BinPath '*.pdb') -Destination $CollectionPath -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $CollectionPath -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $BinPath '*.dll') -Destination $collectionFolder -Force
+    Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
 
-    Push-Location $CollectionPath
+    Push-Location $collectionFolder
     try {
         & $Zip7Path a -tzip $collectionZip '*'
         if ($LASTEXITCODE -ne 0) { throw "Failed to create collection zip" }
@@ -336,12 +350,12 @@ function Invoke-ContensiveBuild {
     # Step 6 — Clean staging files from collection folder
     # -----------------------------------------------------------------------
     Write-Host "Cleaning collection staging folder..."
-    Get-ChildItem -Path $CollectionPath -Include '*.dll','*.pdb','*.dll.config' -File -ErrorAction SilentlyContinue |
-        Remove-Item -Force
-    foreach ($asset in $UiAssetFolders) {
-        $f = Join-Path $CollectionPath "$asset.zip"
-        if (Test-Path $f) { Remove-Item $f -Force }
-    }
+    $collectionZipName = "$CollectionName.zip"
+    Get-ChildItem -Path $collectionFolder -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -ne '.xml' -and $_.Name -ne $collectionZipName } |
+        Remove-Item -Force -ErrorAction SilentlyContinue
+    Get-ChildItem -Path $collectionFolder -Directory -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 
     Write-Host ""
     Write-Host "========================================"

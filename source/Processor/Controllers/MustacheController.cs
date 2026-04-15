@@ -11,8 +11,11 @@ namespace Contensive.Processor.Controllers {
     public static class MustacheController {
         public static string renderStringToString(string template, object dataSet) {
             //
-            if ((dataSet is null) || (string.IsNullOrEmpty(template))){
+            if (string.IsNullOrEmpty(template)) {
                 return string.Empty;
+            }
+            if (dataSet is null) {
+                return template;
             }
             //
             // -- stubble (is not signed, manually signed but cannot add to nuget package)
