@@ -543,6 +543,26 @@ namespace Contensive.Processor.Controllers.Build {
                         cp.Site.SetProperty("allow edit modal beta", true);
                         cp.Site.SetProperty("allow afw pagination beta", true);
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.4.18.1")) {
+                        //
+                        // -- site properties fieldvalue should be nvarchar(max)
+                        var query = @$"
+                            DECLARE @sql nvarchar(max) = '';
+                            SELECT @sql += 'DROP INDEX ' + QUOTENAME(i.name) + ' ON ccSetup;' + CHAR(13)
+                            FROM sys.indexes i
+                            INNER JOIN sys.index_columns ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+                            INNER JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id
+                            WHERE i.object_id = OBJECT_ID('ccSetup')
+                                AND c.name = 'FieldValue'
+                                AND i.type > 0
+                                AND i.is_primary_key = 0
+                                AND i.is_unique_constraint = 0;
+                            EXEC sp_executesql @sql;";
+                        core.db.executeNonQuery(query);
+                        //
+                        query = "ALTER TABLE ccSetup ALTER COLUMN FieldValue nvarchar(max) NULL;";
+                        core.db.executeNonQuery(query);
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

@@ -62,10 +62,13 @@ namespace Contensive.Processor {
         /// <param name="additionalCopy"></param>
         /// <param name="additionalUserID"></param>
         /// <returns></returns>
-        public override bool SendSystem(string systemTextMessageGuid, string additionalCopy, int additionalUserID) {
-            try {
+        public override bool SendSystem(string systemTextMessageGuid, string additionalCopy, int additionalUserID)
+        {
+            try
+            {
                 SystemTextMessageModel textMessage = DbBaseModel.create<SystemTextMessageModel>(cp, systemTextMessageGuid);
-                if (textMessage == null) {
+                if (textMessage == null)
+                {
                     textMessage = DbBaseModel.addDefault<SystemTextMessageModel>(cp);
                     textMessage.body = "";
                     textMessage.name = $"Text Message {textMessage.id}, created {textMessage.dateAdded}, for guid {systemTextMessageGuid}";
@@ -74,13 +77,38 @@ namespace Contensive.Processor {
                 }
                 string userErrorMessage = "";
                 return TextMessageController.queueSystemTextMessage(cp.core, textMessage, additionalCopy, additionalUserID, ref userErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Send a text message to a user by their user id. Returns false with a userError if the user has no cell phone.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="smsMessage"></param>
+        /// <param name="userError"></param>
+        /// <returns></returns>
+        public override bool SendUser(int userId, string smsMessage, ref string userError) {
+            try {
+                string cellPhone = PersonModel.getCellPhone(cp, userId);
+                if (string.IsNullOrWhiteSpace(cellPhone)) {
+                    userError = $"User [{userId}] does not have a cell phone on file.";
+                    return false;
+                }
+                return Send(cellPhone, smsMessage);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
         }
         //
-        #region  IDisposable Support 
+
+        #region  IDisposable Support
         //
         //====================================================================================================
         /// <summary>

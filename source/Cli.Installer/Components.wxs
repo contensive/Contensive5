@@ -5,9 +5,10 @@
     
     <!-- Product Components -->
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      
+
       <!-- reference the components to install -->
       <ComponentRef Id="MainAppShortcut"/>
+      <ComponentRef Id="ReadmeFile"/>
 <!--
 <ComponentRef Id="TaskServiceExe"/>
 -->
@@ -44,15 +45,25 @@
           Id="RegShortcutKey" 
           Name="Shortcut" 
           Root="HKCU" 
-          Key="SOFTWARE\$(loc.ProductNameFolder)"
+          Key="SOFTWARE\!(loc.ProductNameFolder)"
           Value="1"
           Type="integer"
           KeyPath="yes"          
           />
 
-         <!--Remove Start Menu Items on uninstal--> 
+         <!--Remove Start Menu Items on uninstal-->
         <RemoveFolder Id="RemoveStartFolder" Directory="InstallProgramMenuFolder" On="uninstall"/>
-        
+
+      </Component>
+
+      <!-- README.txt file -->
+      <Component Id="ReadmeFile" Guid="{B8F4E2A3-7C6D-4E9B-A5F1-2D3C4E5F6A7B}">
+        <File
+          Id="ReadmeFile"
+          Name="README.txt"
+          Source="..\..\docs\README.txt"
+          Vital="yes"
+          KeyPath="yes" />
       </Component>
 <!--
       <Component Id="TaskServiceExe" Guid="{AAF0A10E-0297-4CBE-85A6-B9631EBAD7FC}">

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using Contensive.Processor;
+using Contensive.Processor.Models.Domain;
 using System.Security.Principal;
 using Contensive.CLI.Controllers;
 
@@ -54,6 +55,7 @@ namespace Contensive.CLI {
                                 //
                                 // -- set an applications primary domain
                                 string primaryDomain = getNextCmdArg(args, ref argPtr);
+                                if (isAppDisabled(cpServer, appName, "--domain")) { break; }
                                 DomainCmd.execute(cpServer, appName, primaryDomain);
                                 break;
                             case "--iisrecycle":
@@ -63,8 +65,9 @@ namespace Contensive.CLI {
                                     Console.WriteLine("The --iisrecycle command requires elevated permissions (run as administrator).");
                                     return;
                                 }
+                                if (isAppDisabled(cpServer, appName, "--iisrecycle")) { break; }
                                 //
-                                // -- set an applications primary domain
+                                // -- recycle the application pool
                                 IisRecycleCmd.execute(cpServer, appName);
                                 break;
                             case "--iisreset":
@@ -77,6 +80,19 @@ namespace Contensive.CLI {
                                 //
                                 // -- set an applications primary domain
                                 IisResetCmd.execute(cpServer);
+                                break;
+                            case "--serverdiagnostic":
+                            case "--serverdiagnostics": {
+                                    //
+                                    // -- require elevated permissions
+                                    if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                        Console.WriteLine("The --serverdiagnostic command requires elevated permissions (run as administrator).");
+                                        return;
+                                    }                                    
+                                }
+                                //
+                                // -- run server diagnostics for all applications
+                                ServerDiagnosticCmd.execute(cpServer);
                                 break;
                             case "--pause":
                             case "-p":
@@ -96,10 +112,10 @@ namespace Contensive.CLI {
                                     return;
                                 }
                                 if (!cpServer.core.serverConfig.apps.ContainsKey(appName)) {
-                                    Console.WriteLine("The application name following (-a) [" + appName + "] was not found.");
+                                    Console.WriteLine($"The application name following (-a) [{appName}] was not found.");
                                     return;
                                 }
-                                Console.WriteLine("Set application to [" + appName + "].");
+                                Console.WriteLine($"Set application to [{appName}].");
                                 break;
                             case "--addfile": {
                                     //
@@ -121,11 +137,13 @@ namespace Contensive.CLI {
                                     break;
                                 }
                             case "--flushcache": {
+                                    if (isAppDisabled(cpServer, appName, "--flushcache")) { break; }
                                     FlushCacheCmd.execute(cpServer, appName);
                                     break;
                                 }
                             case "--getcache": {
                                     string key = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--getcache")) { break; }
                                     GetCacheCmd.execute(cpServer, appName, key);
                                     break;
                                 }
@@ -184,6 +202,7 @@ namespace Contensive.CLI {
                                 }
                             case "-h":
                             case "--housekeep":
+                                if (isAppDisabled(cpServer, appName, "--housekeep")) { break; }
                                 HousekeepCmd.execute(cpServer, appName);
                                 break;
                             case "--version":
@@ -224,26 +243,38 @@ namespace Contensive.CLI {
                                 // -- upgrade one or more apps
                                 UpgradeCmd.execute(cpServer, appName, false);
                                 break;
-                            case "--taskscheduler":
-                                //
-                                // -- manage the task scheduler
-                                TaskSchedulerCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
-                                break;
-                            case "--taskrunner":
-                                //
-                                // -- manager the task runner
-                                TaskRunnerCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
-                                break;
-                            case "--tasks":
-                                //
-                                // -- turn on, off or run both services together
-                                TasksCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
-                                break;
-                            case "--execute":
-                                //
-                                // -- execute an addon
-                                ExecuteAddonCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
-                                break;
+                            case "--taskscheduler": {
+                                    string taskArg = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--taskscheduler")) { break; }
+                                    //
+                                    // -- manage the task scheduler
+                                    TaskSchedulerCmd.execute(cpServer, appName, taskArg);
+                                    break;
+                                }
+                            case "--taskrunner": {
+                                    string taskArg = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--taskrunner")) { break; }
+                                    //
+                                    // -- manage the task runner
+                                    TaskRunnerCmd.execute(cpServer, appName, taskArg);
+                                    break;
+                                }
+                            case "--tasks": {
+                                    string taskArg = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--tasks")) { break; }
+                                    //
+                                    // -- turn on, off or run both services together
+                                    TasksCmd.execute(cpServer, appName, taskArg);
+                                    break;
+                                }
+                            case "--execute": {
+                                    string addonArg = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--execute")) { break; }
+                                    //
+                                    // -- execute an addon
+                                    ExecuteAddonCmd.execute(cpServer, appName, addonArg);
+                                    break;
+                                }
                             case "--deleteprotection":
                                 //
                                 // turn off delete protection
@@ -260,24 +291,30 @@ namespace Contensive.CLI {
                                 // delete 
                                 DeleteAppCmd.deleteApp(cpServer, appName);
                                 break;
-                            case "--fileupload":
-                                //
-                                // -- upload files
-                                FileUploadCmd.execute(cpServer, appName, new List<string> {
-                                    getNextCmdArg(args, ref argPtr),
-                                    getNextCmdArg(args, ref argPtr),
-                                    getNextCmdArg(args, ref argPtr)
-                                });
-                                break;
-                            case "--filedownload":
-                                //
-                                // -- download files
-                                FileDownloadCmd.execute(cpServer, appName, new List<string> {
-                                    getNextCmdArg(args, ref argPtr),
-                                    getNextCmdArg(args, ref argPtr),
-                                    getNextCmdArg(args, ref argPtr)
-                                });
-                                break;
+                            case "--fileupload": {
+                                    //
+                                    // -- upload files
+                                    var fileArgs = new List<string> {
+                                        getNextCmdArg(args, ref argPtr),
+                                        getNextCmdArg(args, ref argPtr),
+                                        getNextCmdArg(args, ref argPtr)
+                                    };
+                                    if (isAppDisabled(cpServer, appName, "--fileupload")) { break; }
+                                    FileUploadCmd.execute(cpServer, appName, fileArgs);
+                                    break;
+                                }
+                            case "--filedownload": {
+                                    //
+                                    // -- download files
+                                    var fileArgs = new List<string> {
+                                        getNextCmdArg(args, ref argPtr),
+                                        getNextCmdArg(args, ref argPtr),
+                                        getNextCmdArg(args, ref argPtr)
+                                    };
+                                    if (isAppDisabled(cpServer, appName, "--filedownload")) { break; }
+                                    FileDownloadCmd.execute(cpServer, appName, fileArgs);
+                                    break;
+                                }
                             case "--fixtablefoldercase":
                                 //
                                 // -- fix folder case from older version
@@ -288,11 +325,14 @@ namespace Contensive.CLI {
                                 // -- help
                                 HelpCmd.consoleWriteAll(cpServer);
                                 return;
-                            case "--runtask":
-                                //
-                                // -- help
-                                RunTaskCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
-                                return;
+                            case "--runtask": {
+                                    string taskArg = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--runtask")) { break; }
+                                    //
+                                    // -- run a task
+                                    RunTaskCmd.execute(cpServer, appName, taskArg);
+                                    return;
+                                }
                             case "--verifybasicwebsite":
                                 //
                                 // -- require elevated permissions
@@ -300,26 +340,26 @@ namespace Contensive.CLI {
                                     Console.WriteLine("The command requires elevated Administrator permissions.");
                                     return;
                                 }
+                                if (isAppDisabled(cpServer, appName, "--verifybasicwebsite")) { break; }
                                 VerifyBasicWebsiteCmd.execute(cpServer, appName);
                                 return;
-                            case "--addadmin":
-                                //
-                                // -- add an administrator
-                                AddAdminCmd.execute(cpServer,
-                                    appName,
-                                    getNextCmdArg(args, ref argPtr),
-                                    getNextCmdArg(args, ref argPtr)
-                                );
-                                break;
-                            case "--addroot":
-                                //
-                                // -- add root developer
-                                string password = getNextCmdArg(args, ref argPtr);
-                                AddRootCmd.execute(cpServer,
-                                    appName,
-                                    password
-                                );
-                                break;
+                            case "--addadmin": {
+                                    //
+                                    // -- add an administrator
+                                    string adminUser = getNextCmdArg(args, ref argPtr);
+                                    string adminPass = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--addadmin")) { break; }
+                                    AddAdminCmd.execute(cpServer, appName, adminUser, adminPass);
+                                    break;
+                                }
+                            case "--addroot": {
+                                    //
+                                    // -- add root developer
+                                    string password = getNextCmdArg(args, ref argPtr);
+                                    if (isAppDisabled(cpServer, appName, "--addroot")) { break; }
+                                    AddRootCmd.execute(cpServer, appName, password);
+                                    break;
+                                }
 
                             case "":
                                 //
@@ -343,7 +383,18 @@ namespace Contensive.CLI {
             }
         }
         /// <summary>
-        /// Return the next argument attribute (non command). 
+        /// Return true if the appName is set and the application is disabled. Outputs an informative message.
+        /// </summary>
+        private static bool isAppDisabled(CPClass cpServer, string appName, string cmdName) {
+            if (string.IsNullOrEmpty(appName)) { return false; }
+            if (!cpServer.core.serverConfig.apps.ContainsKey(appName)) { return false; }
+            AppConfigModel appConfig = (AppConfigModel)cpServer.core.serverConfig.apps[appName];
+            if (appConfig.enabled) { return false; }
+            Console.WriteLine($"Skipping {cmdName}: application [{appName}] is disabled. Use --enable to activate it.");
+            return true;
+        }
+        /// <summary>
+        /// Return the next argument attribute (non command).
         /// If no more args or next argument is a command (starts with -), return blank
         /// </summary>
         /// <param name="args"></param>

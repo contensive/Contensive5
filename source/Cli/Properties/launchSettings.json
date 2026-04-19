@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "cc -a veronica --installfile C:\\Deployments\\aoCrm\\Dev\\25.7.15.9\\aocrm.zip",
+      "commandLineArgs": "cc --serverdiagnostics",
       "jsWebView2Debugging": false
     }
   }

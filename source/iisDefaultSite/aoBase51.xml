@@ -3469,7 +3469,7 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>Yes</Diagnostic>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.ServerDiagnosticClass</DotNetClass>	
+    <DotNetClass>Contensive.Processor.Addons.Diagnostics.SiteDiagnosticsAddon</DotNetClass>	
   </Addon>
   <Addon name="OnInstallBase" guid="{86739518-9D46-470F-8C76-195D1A19CEDD}" type="Add-on">
     <Category></Category>

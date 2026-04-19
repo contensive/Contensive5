@@ -30,11 +30,12 @@ namespace Contensive.CLI {
             //
             // -- disable app
             if (!cpServer.core.serverConfig.apps.ContainsKey(appName)) {
-                Console.WriteLine("The application [" + appName + "] was not found in this server group.");
+                Console.WriteLine($"The application [{appName}] was not found in this server group.");
                 return;
             }
             cpServer.core.serverConfig.apps[appName].enabled = false;
             cpServer.core.serverConfig.save(cpServer.core);
+            Console.WriteLine($"The application [{appName}] has been disabled.");
         }
     }
 }

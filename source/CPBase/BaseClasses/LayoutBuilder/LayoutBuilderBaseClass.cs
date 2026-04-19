@@ -421,41 +421,78 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
 
+        /// <summary>
+        /// CSS class name constants for the Admin Framework (AFW) layout system.
+        /// These strings are appended to HTML element class attributes to control width, margin, and text alignment.
+        /// Each value includes a trailing space so multiple classes can be concatenated directly.
+        /// </summary>
         public static class AfwStyles {
+            /// <summary>Sets element width to 10% of its container.</summary>
             public const string afwWidth10 = "afwWidth10 ";
+            /// <summary>Sets element width to 20% of its container.</summary>
             public const string afwWidth20 = "afwWidth20 ";
+            /// <summary>Sets element width to 30% of its container.</summary>
             public const string afwWidth30 = "afwWidth30 ";
+            /// <summary>Sets element width to 40% of its container.</summary>
             public const string afwWidth40 = "afwWidth40 ";
+            /// <summary>Sets element width to 50% of its container.</summary>
             public const string afwWidth50 = "afwWidth50 ";
+            /// <summary>Sets element width to 60% of its container.</summary>
             public const string afwWidth60 = "afwWidth60 ";
+            /// <summary>Sets element width to 70% of its container.</summary>
             public const string afwWidth70 = "afwWidth70 ";
+            /// <summary>Sets element width to 80% of its container.</summary>
             public const string afwWidth80 = "afwWidth80 ";
+            /// <summary>Sets element width to 90% of its container.</summary>
             public const string afwWidth90 = "afwWidth90 ";
+            /// <summary>Sets element width to 100% of its container.</summary>
             public const string afwWidth100 = "afwWidth100 ";
             //
+            /// <summary>Sets element to a fixed width of 10 pixels.</summary>
             public const string afwWidth10px = "afwWidth10px ";
+            /// <summary>Sets element to a fixed width of 20 pixels.</summary>
             public const string afwWidth20px = "afwWidth20px ";
+            /// <summary>Sets element to a fixed width of 30 pixels.</summary>
             public const string afwWidth30px = "afwWidth30px ";
+            /// <summary>Sets element to a fixed width of 40 pixels.</summary>
             public const string afwWidth40px = "afwWidth40px ";
+            /// <summary>Sets element to a fixed width of 50 pixels.</summary>
             public const string afwWidth50px = "afwWidth50px ";
+            /// <summary>Sets element to a fixed width of 60 pixels.</summary>
             public const string afwWidth60px = "afwWidth60px ";
+            /// <summary>Sets element to a fixed width of 70 pixels.</summary>
             public const string afwWidth70px = "afwWidth70px ";
+            /// <summary>Sets element to a fixed width of 80 pixels.</summary>
             public const string afwWidth80px = "afwWidth80px ";
+            /// <summary>Sets element to a fixed width of 90 pixels.</summary>
             public const string afwWidth90px = "afwWidth90px ";
+            /// <summary>Sets element to a fixed width of 100 pixels.</summary>
             public const string afwWidth100px = "afwWidth100px ";
+            /// <summary>Sets element to a fixed width of 200 pixels.</summary>
             public const string afwWidth200px = "afwWidth200px ";
+            /// <summary>Sets element to a fixed width of 300 pixels.</summary>
             public const string afwWidth300px = "afwWidth300px ";
+            /// <summary>Sets element to a fixed width of 400 pixels.</summary>
             public const string afwWidth400px = "afwWidth400px ";
+            /// <summary>Sets element to a fixed width of 500 pixels.</summary>
             public const string afwWidth500px = "afwWidth500px ";
             //
+            /// <summary>Sets a left margin of 100 pixels on the element.</summary>
             public const string afwMarginLeft100px = "afwMarginLeft100px ";
+            /// <summary>Sets a left margin of 200 pixels on the element.</summary>
             public const string afwMarginLeft200px = "afwMarginLeft200px ";
+            /// <summary>Sets a left margin of 300 pixels on the element.</summary>
             public const string afwMarginLeft300px = "afwMarginLeft300px ";
+            /// <summary>Sets a left margin of 400 pixels on the element.</summary>
             public const string afwMarginLeft400px = "afwMarginLeft400px ";
+            /// <summary>Sets a left margin of 500 pixels on the element.</summary>
             public const string afwMarginLeft500px = "afwMarginLeft500px ";
             //
+            /// <summary>Aligns text to the right within the element.</summary>
             public const string afwTextAlignRight = "afwTextAlignRight ";
+            /// <summary>Aligns text to the left within the element.</summary>
             public const string afwTextAlignLeft = "afwTextAlignLeft ";
+            /// <summary>Centers text within the element.</summary>
             public const string afwTextAlignCenter = "afwTextAlignCenter ";
         }
         //

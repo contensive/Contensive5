@@ -62,6 +62,7 @@ namespace Contensive.BaseClasses {
         /// <param name="key"></param>
         /// <returns></returns>
         public abstract string GetText(string key);
+        /// <summary>
         /// return a value for a key=value pair.
         /// use only for input that expects text but a user might enter html. 
         /// This method will return the text with html removed. If the input is expected to be html, use GetText() instead.

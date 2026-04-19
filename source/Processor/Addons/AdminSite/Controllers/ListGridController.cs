@@ -382,8 +382,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.HTML:
                         case CPContentBaseClass.FieldTypeIdEnum.HTMLCode: {
                                 string fieldValueText = csData.getText(field.nameLc);
-                                if (fieldValueText.Length > 50) {
-                                    fieldValueText = fieldValueText.left(50) + "[more]";
+                                if (fieldValueText.Length > 255) {
+                                    fieldValueText = fieldValueText.left(255) + "...";
                                 }
                                 Stream.add(fieldValueText);
                                 break;

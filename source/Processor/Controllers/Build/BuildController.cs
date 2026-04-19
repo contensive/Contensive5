@@ -33,6 +33,10 @@ namespace Contensive.Processor.Controllers.Build {
         public static void upgrade(CoreController core, bool isNewBuild, bool repair) {
             try {
                 //
+                // -- increase sql timeout for upgrade operations (default is 30s which can timeout on large databases)
+                int savedSqlCommandTimeout = core.db.sqlCommandTimeout;
+                core.db.sqlCommandTimeout = 300;
+                //
                 logger.Info($"{core.logCommonMessage},AppBuilderController.upgrade, app [" + core.appConfig.name + "], repair (reinstall base with dependencies, update critical site properties, and reinstall all Library collections) [" + repair + "]");
                 string logPrefix = "upgrade[" + core.appConfig.name + "]";
                 //
@@ -245,6 +249,9 @@ namespace Contensive.Processor.Controllers.Build {
                     core.cache.invalidateAll();
                     logger.Info($"{core.logCommonMessage},{logPrefix}, Upgrade Complete");
                 }
+                //
+                // -- restore sql timeout
+                core.db.sqlCommandTimeout = savedSqlCommandTimeout;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

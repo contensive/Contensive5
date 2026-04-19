@@ -34,6 +34,7 @@ namespace Contensive.CLI {
             Console.Write(InstallFileCmd.helpText); 
             Console.Write(RepairCmd.helpText);
             Console.Write(RunTaskCmd.helpText);
+            Console.Write(ServerDiagnosticCmd.helpText);
             Console.Write(StatusCmd.helpText);
             Console.Write(TaskRunnerCmd.helpText);
             Console.Write(TaskSchedulerCmd.helpText);

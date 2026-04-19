@@ -308,6 +308,25 @@ namespace Contensive.Models.Db {
         /// return the best name available for this record
         /// </summary>
         /// <returns></returns>
+        /// <summary>
+        /// Return the cell phone for a user by id. Returns empty string if not found.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public static string getCellPhone(CPBaseClass cp, int userId) {
+            if (userId == 0) { return ""; }
+            using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 cellPhone from ccMembers where id={userId} and active<>0")) {
+                if (dt.Rows.Count == 0) { return ""; }
+                return cp.Utils.EncodeText(dt.Rows[0]["cellPhone"]);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// return the best name available for this record
+        /// </summary>
+        /// <returns></returns>
         public string getDisplayName() {
             if (string.IsNullOrWhiteSpace(name)) {
                 return "unnamed #" + id.ToString();

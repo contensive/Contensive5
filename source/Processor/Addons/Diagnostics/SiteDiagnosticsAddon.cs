@@ -1,17 +1,16 @@
 ﻿
 using System;
-using Contensive.Processor;
-
 using System.Text;
-using System.IO;
+using System.Data;
+using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Contensive.Models.Db;
-using System.Globalization;
-using System.Data;
+using Contensive.Processor.Models.Domain;
+using Newtonsoft.Json;
 //
 namespace Contensive.Processor.Addons.Diagnostics {
     //
-    public class ServerDiagnosticClass : Contensive.BaseClasses.AddonBaseClass {
+    public class SiteDiagnosticsAddon : Contensive.BaseClasses.AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
@@ -25,29 +24,6 @@ namespace Contensive.Processor.Addons.Diagnostics {
             try {
                 var result = new StringBuilder();
                 var core = ((CPClass)cp).core;
-                //
-                // -- tmp, check for 10% free on C-drive and D-drive
-                if (Directory.Exists(@"c:\")) {
-                    DriveInfo driveTest = new DriveInfo("c");
-                    double freeSpace = Math.Round(100.0 * (Convert.ToDouble(driveTest.AvailableFreeSpace) / Convert.ToDouble(driveTest.TotalSize)), 2);
-                    if (freeSpace < 10) { return "ERROR, Drive-C does not have 10% free"; }
-                    result.AppendLine("ok, drive-c free space [" + freeSpace + "%], [" + (driveTest.AvailableFreeSpace / (1024 * 1024)).ToString("F2", CultureInfo.InvariantCulture) + " MB]");
-                }
-                if (Directory.Exists(@"d:\")) {
-                    DriveInfo driveTest = new DriveInfo("d");
-                    double freeSpace = Math.Round( 100.0 * (Convert.ToDouble(driveTest.AvailableFreeSpace) / Convert.ToDouble(driveTest.TotalSize)), 2);
-                    if (freeSpace < 10) { return "ERROR, Drive-D does not have 10% free"; }
-                    result.AppendLine("ok, drive-D free space [" + freeSpace + "%], [" + (driveTest.AvailableFreeSpace / (1024 * 1024)).ToString("F2", CultureInfo.InvariantCulture) + " MB]");
-                }
-                //
-                // -- log files under 1MB
-                if (!core.programDataFiles.pathExists("Logs/")) {
-                    core.programDataFiles.createPath("Logs/");
-                }
-                foreach (var fileDetail in core.programDataFiles.getFileList("Logs/")) {
-                    if (fileDetail.Size > 1000000) { return "ERROR, log file size error [" + fileDetail.Name + "], size [" + fileDetail.Size + "]"; }
-                }
-                result.AppendLine("ok, all log files under 1 MB");
                 //
                 // test default data connection
                 try {
@@ -68,7 +44,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 result.AppendLine("ok, database connection passed.");
                 //
                 // -- test for taskscheduler not running
-                if (DbBaseModel.createList<AddonModel>(core.cpParent, "(ProcessNextRun<" + DbController.encodeSQLDate( core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
+                if (DbBaseModel.createList<AddonModel>(core.cpParent, "(ProcessNextRun<" + DbController.encodeSQLDate(core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
                     return "ERROR, there are process addons unexecuted for over 1 hour. TaskScheduler may not be enabled, or no server is running the Contensive Task Service.";
                 }
                 if (DbBaseModel.createList<TaskModel>(core.cpParent, "(dateCompleted is null)and(dateStarted<" + DbController.encodeSQLDate(core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
@@ -88,23 +64,16 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 }
                 result.AppendLine("ok, email process running.");
                 //
-                // -- last -- if alarm folder is not empty, fail diagnostic. Last so others can add an alarm entry
-                if(!core.programDataFiles.pathExists("Alarms/")) {
-                    core.programDataFiles.createPath("Alarms/");
-                }
-                foreach (var alarmFile in core.programDataFiles.getFileList("Alarms/")) {
-                    return "ERROR, Alarm folder is not empty, [" + core.programDataFiles.readFileText("Alarms/" + alarmFile.Name) + "].";
-                }
                 // -- verify the default username=root, password=contensive is not present
                 var rootUserList = PersonModel.createList<PersonModel>(cp, "((username='root')and(password='contensive')and(active>0))");
-                if ( rootUserList.Count>0 ) {
+                if (rootUserList.Count > 0) {
                     return "ERROR, delete or inactive default user root/contensive.";
                 }
                 //
                 // -- meta data test- lookup field without lookup set
                 string sql = "select c.id as contentid, c.name as contentName, f.* from ccfields f left join ccContent c on c.id = f.LookupContentID where f.Type = 7 and c.id is null and f.LookupContentID > 0 and f.Active > 0 and f.Authorable > 0";
-                using ( DataTable dt = core.db.executeQuery(sql)) {
-                    if ( !dt.Rows.Count.Equals(0)) {
+                using (DataTable dt = core.db.executeQuery(sql)) {
+                    if (!dt.Rows.Count.Equals(0)) {
                         string badFieldList = "";
                         foreach (DataRow row in dt.Rows) {
                             badFieldList += "," + row["contentName"] + "." + row["name"].ToString();
@@ -143,6 +112,59 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 if (warningList.Count > 0) {
                     return $"ERROR, [{warningList.Count}] Site Warning(s) with set alarm true.";
                 }
+                //
+                // -- check server diagnostics status (Windows updates, domain bindings, etc.)
+                string serverDiagnosticsStatusJson = cp.Site.GetText("ServerDiagnosticsStatus");
+                if (string.IsNullOrEmpty(serverDiagnosticsStatusJson)) {
+                    return $"ERROR, Server diagnostics status not available. The serverdiagnostic command must be run with elevated permissions from the task scheduler. See README.txt for details.";
+                }
+                try {
+                    var diagnosticsStatus = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(serverDiagnosticsStatusJson);
+                    if (diagnosticsStatus == null) {
+                        return $"ERROR, Server diagnostics status is null. The serverdiagnostic command must be run with elevated permissions from the task scheduler. See README.txt for details.";
+                    }
+
+                    // -- check drive space
+                    if (!diagnosticsStatus.driveSpaceValid) {
+                        return $"ERROR, {diagnosticsStatus.driveSpaceErrorMessage}";
+                    }
+                    result.AppendLine("ok, drive space check passed");
+                    //
+                    // -- check log files
+                    if (!diagnosticsStatus.logFilesValid) {
+                        return $"ERROR, {diagnosticsStatus.logFilesErrorMessage}";
+                    }
+                    result.AppendLine("ok, log files check passed");
+                    //
+                    // -- check alarms
+                    if (!diagnosticsStatus.alarmsValid) {
+                        return $"ERROR, {diagnosticsStatus.alarmsErrorMessage}";
+                    }
+                    result.AppendLine("ok, alarm folder check passed");
+                    //
+                    // -- check domain bindings
+                    if (!diagnosticsStatus.domainBindingsValid) {
+                        return $"ERROR, {diagnosticsStatus.domainBindingsErrorMessage}";
+                    }
+                    result.AppendLine("ok, all domain bindings valid");
+                    //
+                    // -- check Windows updates
+                    if (!diagnosticsStatus.windowsUpdateCheckSuccessful) {
+                        result.AppendLine($"warning, Windows update check failed: {diagnosticsStatus.windowsUpdateErrorMessage}");
+                    } else if (diagnosticsStatus.windowsUpdateCount > 0) {
+                        TimeSpan timeSinceCheck = core.dateTimeNowMockable - diagnosticsStatus.lastCheckDate;
+                        if (timeSinceCheck.TotalHours > 48) {
+                            return $"ERROR, {diagnosticsStatus.windowsUpdateCount} Windows update(s) pending (last checked {timeSinceCheck.TotalHours:F0} hours ago).";
+                        }
+                        result.AppendLine($"warning, {diagnosticsStatus.windowsUpdateCount} Windows update(s) pending (last checked: {diagnosticsStatus.lastCheckDate:yyyy-MM-dd HH:mm})");
+                    } else {
+                        result.AppendLine($"ok, no Windows updates pending (last checked: {diagnosticsStatus.lastCheckDate:yyyy-MM-dd HH:mm})");
+                    }
+
+                } catch (Exception exDiagnosticsStatus) {
+                    return $"ERROR, could not parse server diagnostics status: {exDiagnosticsStatus.Message}";
+                }
+                //
                 return "ok, all server diagnostics passed" + Environment.NewLine + result.ToString();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

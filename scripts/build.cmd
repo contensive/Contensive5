@@ -346,28 +346,6 @@ echo failure building cli installer
 xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumber%\"
 
 cd ..\scripts
- 
- 
-rem ==============================================================
-rem
-rem update nuget for all test projects
-rem
-
-cd ..\source\Models
-cd ..\ModelTests
-dotnet add ProcessorTests.csproj package Contensive.Processor --version 1.2.3
-
-nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
-nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.DbModels
-nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
-cd ..\..\scripts
-
-cd ..\source\Processor
-cd ..\ProcessorTests
-nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
-nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.DbModels
-nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
-cd ..\..\scripts
 
 rem
 

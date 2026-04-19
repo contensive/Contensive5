@@ -1,14 +1,16 @@
 ﻿
-using Contensive.Models.Db;
+using Contensive.BaseClasses;
 using Contensive.Exceptions;
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using Microsoft.Web.Administration;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
-using System.Collections.Concurrent;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -1015,11 +1017,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="appName"></param>
         /// <param name="DomainName"></param>
-        /// <param name="rootPublicFilesPath"></param>
-        public void verifySite(string appName, string DomainName, string rootPublicFilesPath) {
+        /// <param name="wwwRootPath"></param>
+        public void verifySite(string appName, string DomainName, string wwwRootPath) {
             try {
                 verifyAppPool(appName);
-                verifyWebsite(appName, DomainName, rootPublicFilesPath, appName);
+                verifyWebsite(appName, DomainName, wwwRootPath, appName);
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifySite");
                 throw;
@@ -1084,9 +1086,9 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="appName"></param>
         /// <param name="domainName"></param>
-        /// <param name="phyPath"></param>
+        /// <param name="wwwRootPath"></param>
         /// <param name="appPool"></param>
-        public void verifyWebsite(string appName, string domainName, string phyPath, string appPool) {
+        public void verifyWebsite(string appName, string domainName, string wwwRootPath, string appPool) {
             try {
                 using ServerManager iisManager = new ServerManager();
                 //
@@ -1099,7 +1101,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 if (!found) {
-                    iisManager.Sites.Add(appName, "http", "*:80:" + appName, phyPath);
+                    iisManager.Sites.Add(appName, "http", "*:80:" + appName, wwwRootPath);
                 }
                 Site site = iisManager.Sites[appName];
                 //
@@ -1159,16 +1161,60 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// return true if the binding exists
+        /// </summary>
+        /// <param name="site"></param>
+        /// <param name="domainName"></param>
+        /// <param name="returnUserMessage">If the binding does not exist, this will contain a user-friendly message.</param>
+        public static bool isValidBinding(CPBaseClass cp, string appName, string domainName, ref string returnUserMessage) {
+            try {
+                using ServerManager iisManager = new ServerManager();
+                //
+                // -- verify the site exists
+                bool found = false;
+                foreach (Site siteWithinLoop in iisManager.Sites) {
+                    if (siteWithinLoop.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    returnUserMessage = $"The IIS site [{appName}] was not found. Please create an IIS site with this name, and a binding for the domain [{domainName}].";
+                    return false;
+                }
+                Site site = iisManager.Sites[appName];
+                string bindingInformation = $"*:80:{domainName}";
+                string bindingProtocol = "http";
+                foreach (Binding bindingWithinLoop in site.Bindings) {
+                    if ((bindingWithinLoop.BindingInformation == bindingInformation) && (bindingWithinLoop.Protocol == bindingProtocol)) {
+                        return true;
+                    }
+                }
+                returnUserMessage = $"No binding was found for the domain [{domainName}].";
+                return false;
+            } catch (UnauthorizedAccessException) {
+                //
+                // -- process is not elevated, cannot verify IIS bindings, skip the check
+                logger.Warn($"isValidBinding skipped, process does not have permission to read IIS configuration");
+                return true;
+            } catch (Exception ex) {
+                logger.Error($"isValidBinding encountered an unexpected error", ex, "isBinding");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// verify a binding exists for the 
         /// </summary>
         /// <param name="appName"></param>
         /// <param name="domainName"></param>
         public void verifyWebsiteBinding(string appName, string domainName) {
             try {
-                using ServerManager iisManager = new ServerManager();
                 //
                 // -- verify the site exists
                 bool found = false;
+                using ServerManager iisManager = new();
                 foreach (Site siteWithinLoop in iisManager.Sites) {
                     if (siteWithinLoop.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
                         found = true;

@@ -126,12 +126,14 @@ function Invoke-ZipFolder {
 function Invoke-MSBuildSolution {
 <#
 .SYNOPSIS
-    Runs NuGet restore then MSBuild /t:Rebuild /p:Configuration=Release.
+    Runs NuGet restore then MSBuild /t:Rebuild /p:Configuration=<Config>.
     Intended for legacy .NET Framework solutions using packages.config.
 .PARAMETER SolutionPath
     Absolute path to the .sln file.
 .PARAMETER MSBuild
     Path to msbuild.exe (from Find-MSBuild).
+.PARAMETER Configuration
+    Build configuration (Debug or Release). Defaults to Release.
 .PARAMETER PackagesDirectory
     NuGet packages restore directory. Optional.
 .PARAMETER Version
@@ -140,6 +142,7 @@ function Invoke-MSBuildSolution {
     param(
         [Parameter(Mandatory)][string]$SolutionPath,
         [Parameter(Mandatory)][string]$MSBuild,
+        [string]$Configuration = 'Release',
         [string]$PackagesDirectory = '',
         [string]$Version = ''
     )
@@ -151,8 +154,8 @@ function Invoke-MSBuildSolution {
     & nuget @nugetArgs
     if ($LASTEXITCODE -ne 0) { throw "NuGet restore failed for: $SolutionPath" }
 
-    Write-Host "Building solution..."
-    $msbuildArgs = @($SolutionPath, '/p:Configuration=Release', '/p:Platform=Any CPU', '/t:Rebuild', '/verbosity:minimal')
+    Write-Host "Building solution ($Configuration)..."
+    $msbuildArgs = @($SolutionPath, "/p:Configuration=$Configuration", '/p:Platform=Any CPU', '/t:Rebuild', '/verbosity:minimal')
     if ($Version) { $msbuildArgs += "/p:Version=$Version" }
     & $MSBuild @msbuildArgs
     if ($LASTEXITCODE -ne 0) { throw "MSBuild failed for: $SolutionPath" }
@@ -184,8 +187,11 @@ function Invoke-ContensiveBuild {
     Absolute path to the .sln file to build.
 
 .PARAMETER BinPath
-    Absolute path to the Release bin folder produced by the build
-    (e.g. '...\server\FMA\bin\Release').
+    Absolute path to the bin folder produced by the build
+    (e.g. '...\server\FMA\bin\Release' or '...\server\FMA\bin\Debug').
+
+.PARAMETER Configuration
+    Build configuration (Debug or Release). Defaults to Release.
 
 .PARAMETER DeploymentRoot
     Root folder under which a new versioned sub-folder is created for
@@ -216,6 +222,7 @@ function Invoke-ContensiveBuild {
         [Parameter(Mandatory)][string]   $SolutionPath,
         [Parameter(Mandatory)][string]   $BinPath,
         [Parameter(Mandatory)][string]   $DeploymentRoot,
+        [string]   $Configuration   = 'Release',
         [string[]] $CleanFolders    = @(),
         [string]   $UiPath          = '',
         [string[]] $UiAssetFolders  = @('wwwFiles', 'cdnFiles', 'privateFiles', 'layoutFiles', 'helpFiles'),
@@ -288,6 +295,7 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
                            -MSBuild           $msbuild `
+                           -Configuration     $Configuration `
                            -PackagesDirectory $PackagesDirectory `
                            -Version           $version
 

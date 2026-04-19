@@ -23,6 +23,16 @@ namespace Contensive.BaseClasses {
         /// <param name="additionalUserID"></param>
         /// <returns></returns>
         public abstract bool SendSystem(string systemTextMessageGuid, string additionalCopy, int additionalUserID);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Send an SMS text message to a user by their user id. Returns false if the user has no cell phone on file.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="smsMessage"></param>
+        /// <param name="userError"></param>
+        /// <returns></returns>
+        public abstract bool SendUser(int userId, string smsMessage, ref string userError);
     }
 }
 

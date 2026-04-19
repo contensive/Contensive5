@@ -487,7 +487,7 @@ namespace Contensive.Processor.Models.Domain {
                                     + " order by"
                                     + " f.ContentID,f.EditTab,f.EditSortPriority"
                                     + "";
-                            using (var dtFields = core.db.executeQuery(sql)) {
+                            try { using (var dtFields = core.db.executeQuery(sql)) {
                                 if (dtFields.Rows.Count == 0) {
                                     //
                                 } else {
@@ -605,6 +605,11 @@ namespace Contensive.Processor.Models.Domain {
                                     }
                                     result.selectCommaList = string.Join(",", result.selectList);
                                 }
+                            }
+                            } catch (Exception exFields) {
+                                //
+                                // -- field loading is non-critical during upgrade; log and continue with metadata without fields
+                                logger.Error(exFields, $"{core.logCommonMessage},ContentMetadataModel.create, non-critical error loading fields for content [{content.name}], id [{content.id}], continuing without fields");
                             }
                             //
                             // ----- Create the LegacyContentControlCriteria. For compatibility, if support=false, return (1=1)

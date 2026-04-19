@@ -686,13 +686,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.File:
                         case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                         case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
-                        case CPContentBaseClass.FieldTypeIdEnum.LongText:
                         case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
                         case CPContentBaseClass.FieldTypeIdEnum.Redirect:
                         case CPContentBaseClass.FieldTypeIdEnum.FileText:
                         case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                        case CPContentBaseClass.FieldTypeIdEnum.HTML:
-                        case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
                             IncludedInColumns = false;

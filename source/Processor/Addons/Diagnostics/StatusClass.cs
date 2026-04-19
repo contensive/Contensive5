@@ -1,8 +1,10 @@
 
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 //
@@ -35,10 +37,6 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 }
                 foreach (var addon in DbBaseModel.createList<AddonModel>(core.cpParent, "(diagnostic>0)")) {
                     string testResult = core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
-                    if (string.IsNullOrWhiteSpace(testResult)) {
-                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned an empty result.{pauseHint}";
-                        return BuildResponse(cp, core, "error", errorMsg, errorMsg);
-                    }
                     if (testResult.Length < 2) {
                         string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result.{pauseHint}";
                         return BuildResponse(cp, core, "error", errorMsg, errorMsg);
@@ -47,13 +45,84 @@ namespace Contensive.Processor.Addons.Diagnostics {
                         string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned [{testResult}]{pauseHint}";
                         return BuildResponse(cp, core, "error", errorMsg, errorMsg);
                     }
-                    resultList.AppendLine(testResult);
+                    resultList.AppendLine($"{testResult}, {addon.name}");
+                }
+                //
+                // -- include the server diagnostic summary,
+                // which is collected by the internal ServerDiagnosticsController and stored in the site property "ServerDiagnosticsStatus".
+                // This will include any failed checks, such as drive space, log file size, domain bindings, alarms, and windows update status.
+                //
+                string diagnosticDetail = "";
+                if (!GetServerDiagnosticsSummary(cp, ref diagnosticDetail)) {
+                    string errorMsg = $"ERROR, {diagnosticDetail}.{pauseHint}";
+                    return BuildResponse(cp, core, "error", errorMsg, errorMsg);
                 }
                 string successMessage = $"ok, all tests passed.{Environment.NewLine}{resultList}";
                 return BuildResponse(cp, core, "ok", successMessage, successMessage);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 return "ERROR, unexpected exception during diagnostics";
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Read the ServerDiagnosticsStatus site property and return a summary of all failed checks.
+        /// Returns empty string if there are no fails
+        /// </summary>
+        private static bool GetServerDiagnosticsSummary(Contensive.BaseClasses.CPBaseClass cp, ref string diagnosticDetail) {
+            try {
+                string json = cp.Site.GetText("ServerDiagnosticsStatus");
+                if (string.IsNullOrEmpty(json)) {
+                    diagnosticDetail = "ERROR: Server diagnostic status is unavailable. Verify the server task scheduler is running [cc.exe --serverDiagnostics] as administrator every hour."; 
+                    return false;
+                }
+                var status = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(json);
+                if (status == null) { 
+                    diagnosticDetail = $"ERROR: Server diagnostic status is not valid {status}";
+                    return false;
+                }
+                if (status.driveSpaceValid) {
+                    diagnosticDetail += Environment.NewLine + $"ok, drive space check passed.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.driveSpaceErrorMessage;
+                    return false;
+                }
+                if (string.IsNullOrEmpty(status.driveSpaceErrorMessage)) {
+                    diagnosticDetail += Environment.NewLine + $"ok, drive space check passed.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.driveSpaceErrorMessage;
+                    return false;
+                }
+                if (status.logFilesValid ) {
+                    diagnosticDetail += Environment.NewLine + $"ok, log file check passed.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.logFilesErrorMessage;
+                    return false;
+                }
+                if (status.alarmsValid  ) {
+                    diagnosticDetail += Environment.NewLine + $"ok, alarms check passed.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.alarmsErrorMessage;
+                    return false;
+                }
+                if (status.domainBindingsValid ) {
+                    diagnosticDetail += Environment.NewLine + $"ok, bindings check passed.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.domainBindingsErrorMessage;
+                    return false;
+                }
+                if (status.windowsUpdateCheckSuccessful ) {
+                    diagnosticDetail += Environment.NewLine + $"ok, windows update check passes.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.windowsUpdateErrorMessage;
+                    return false;
+                }
+                return true; 
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                diagnosticDetail += Environment.NewLine + $"ERROR: Exception while reading server diagnostics status: {ex.Message}";
+                return false;
             }
         }
         //
