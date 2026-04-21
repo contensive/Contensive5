@@ -29,7 +29,15 @@ GET https://{domain}/?method=status&format=json
     "hitCount5Min": 87,
     "uptimeMinutes": 4320
   },
-  "diagnostics": "ok, all tests passed.\nOK, Server Diagnostic ..."
+  "diagnostics": "ok, all tests passed.\nOK, Server Diagnostic ...",
+  "windowsUpdates": {
+    "updatesAvailable": true,
+    "updateCount": 3,
+    "updateTitles": ["2026-04 Cumulative Update for Windows Server", "..."],
+    "lastChecked": "2026-04-19T10:30:00",
+    "checkSuccessful": true,
+    "errorMessage": ""
+  }
 }
 ```
 
@@ -45,6 +53,13 @@ GET https://{domain}/?method=status&format=json
 | `metrics.hitCount5Min` | long | Web requests in the last 5 minutes |
 | `metrics.uptimeMinutes` | int | Minutes since the web worker process started |
 | `diagnostics` | string | Full diagnostic output text (all addon results) |
+| `windowsUpdates` | object\|null | Windows update status (null if server diagnostics unavailable) |
+| `windowsUpdates.updatesAvailable` | bool | `true` when updates are pending |
+| `windowsUpdates.updateCount` | int | Number of pending updates |
+| `windowsUpdates.updateTitles` | string[] | Titles of pending updates (up to 20) |
+| `windowsUpdates.lastChecked` | datetime | When the server last checked for updates |
+| `windowsUpdates.checkSuccessful` | bool | Whether the update check itself succeeded |
+| `windowsUpdates.errorMessage` | string | Error message if check failed, empty string otherwise |
 
 ### Edge Cases
 
@@ -143,6 +158,7 @@ async function pollStatus() {
 | `avgResponseTime5MinMs > 1000` | Critical response time | Pulse gauge border red |
 | `avgResponseTime5MinMs > avgResponseTimeMs * 1.5` | Above baseline | Yellow warning: "Response time above baseline" |
 | `hitCount5Min === 0 && uptimeMinutes > 5` | No traffic | Warning: "No traffic in last 5 minutes" |
+| `windowsUpdates?.updatesAvailable` | Windows updates pending | Yellow warning box at bottom: "{updateCount} Windows update(s) available" |
 
 ### Alert Priority
 
@@ -151,6 +167,7 @@ When multiple alerts are active, display in priority order (highest first):
 2. Critical response time (red)
 3. Above baseline (yellow)
 4. No traffic (yellow)
+5. Windows updates pending (yellow)
 
 ### Optional: Browser Notifications
 

@@ -27,15 +27,19 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// <param name="cp"></param>
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
+            int hint = 0;
             try {
                 var resultList = new StringBuilder();
                 var core = ((CPClass)(cp)).core;
                 string pauseHint = $" To pause alarm {((cp.User.IsAdmin) ? $"set site property 'Diagnostics Pause Until Date' or [/status?pauseUntil={core.dateTimeNowMockable.AddHours(1)}]." : "login as administrator.")}";
+                hint = 10;
                 if (cp.Site.GetDate("Diagnostics pause until date") > core.dateTimeNowMockable) {
                     string pausedMessage = $"ok, diagnostics paused until {cp.Site.GetDate("Diagnostics pause until date")}.{Environment.NewLine}{resultList}";
                     return BuildResponse(cp, core, "ok", pausedMessage, pausedMessage);
                 }
+                hint = 20;
                 foreach (var addon in DbBaseModel.createList<AddonModel>(core.cpParent, "(diagnostic>0)")) {
+                    hint = 30;
                     string testResult = core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
                     if (testResult.Length < 2) {
                         string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result.{pauseHint}";
@@ -47,6 +51,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     }
                     resultList.AppendLine($"{testResult}, {addon.name}");
                 }
+                hint = 50;
                 //
                 // -- include the server diagnostic summary,
                 // which is collected by the internal ServerDiagnosticsController and stored in the site property "ServerDiagnosticsStatus".
@@ -57,11 +62,12 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     string errorMsg = $"ERROR, {diagnosticDetail}.{pauseHint}";
                     return BuildResponse(cp, core, "error", errorMsg, errorMsg);
                 }
+                hint = 60;
                 string successMessage = $"ok, all tests passed.{Environment.NewLine}{resultList}";
                 return BuildResponse(cp, core, "ok", successMessage, successMessage);
             } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
-                return "ERROR, unexpected exception during diagnostics";
+                cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
+                return $"ERROR, unexpected exception during diagnostics, hint [{hint}], [{ex.Message}]";
             }
         }
         //
@@ -71,14 +77,15 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// Returns empty string if there are no fails
         /// </summary>
         private static bool GetServerDiagnosticsSummary(Contensive.BaseClasses.CPBaseClass cp, ref string diagnosticDetail) {
+            int hint = 0;
             try {
                 string json = cp.Site.GetText("ServerDiagnosticsStatus");
                 if (string.IsNullOrEmpty(json)) {
-                    diagnosticDetail = "ERROR: Server diagnostic status is unavailable. Verify the server task scheduler is running [cc.exe --serverDiagnostics] as administrator every hour."; 
+                    diagnosticDetail = "ERROR: Server diagnostic status is unavailable. Verify the server task scheduler is running [cc.exe --serverDiagnostics] as administrator every hour.";
                     return false;
                 }
                 var status = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(json);
-                if (status == null) { 
+                if (status == null) {
                     diagnosticDetail = $"ERROR: Server diagnostic status is not valid {status}";
                     return false;
                 }
@@ -94,34 +101,35 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     diagnosticDetail += Environment.NewLine + status.driveSpaceErrorMessage;
                     return false;
                 }
-                if (status.logFilesValid ) {
+                if (status.logFilesValid) {
                     diagnosticDetail += Environment.NewLine + $"ok, log file check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.logFilesErrorMessage;
                     return false;
                 }
-                if (status.alarmsValid  ) {
+                if (status.alarmsValid) {
                     diagnosticDetail += Environment.NewLine + $"ok, alarms check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.alarmsErrorMessage;
                     return false;
                 }
-                if (status.domainBindingsValid ) {
+                if (status.domainBindingsValid) {
                     diagnosticDetail += Environment.NewLine + $"ok, bindings check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.domainBindingsErrorMessage;
                     return false;
                 }
-                if (status.windowsUpdateCheckSuccessful ) {
-                    diagnosticDetail += Environment.NewLine + $"ok, windows update check passes.";
+                if (!status.windowsUpdateCheckSuccessful) {
+                    diagnosticDetail += Environment.NewLine + $"warning, Windows update check failed: {status.windowsUpdateErrorMessage}";
+                } else if (status.windowsUpdateCount > 0) {
+                    diagnosticDetail += Environment.NewLine + $"warning, {status.windowsUpdateCount} Windows update(s) pending (last checked: {status.lastCheckDate:yyyy-MM-dd HH:mm})";
                 } else {
-                    diagnosticDetail += Environment.NewLine + status.windowsUpdateErrorMessage;
-                    return false;
+                    diagnosticDetail += Environment.NewLine + $"ok, no Windows updates pending (last checked: {status.lastCheckDate:yyyy-MM-dd HH:mm})";
                 }
-                return true; 
+                return true;
             } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
-                diagnosticDetail += Environment.NewLine + $"ERROR: Exception while reading server diagnostics status: {ex.Message}";
+                cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
+                diagnosticDetail += Environment.NewLine + $"ERROR: Exception while reading server diagnostics status, hint [{hint}], [{ex.Message}]";
                 return false;
             }
         }
@@ -140,6 +148,27 @@ namespace Contensive.Processor.Addons.Diagnostics {
             // -- return JSON response with performance metrics
             cp.Response.SetType("application/json");
             var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
+            //
+            // -- include windows update status in JSON response
+            object windowsUpdates = null;
+            try {
+                string serverDiagJson = cp.Site.GetText("ServerDiagnosticsStatus");
+                if (!string.IsNullOrEmpty(serverDiagJson)) {
+                    var serverDiag = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(serverDiagJson);
+                    if (serverDiag != null) {
+                        windowsUpdates = new {
+                            updatesAvailable = serverDiag.windowsUpdateCount > 0,
+                            updateCount = serverDiag.windowsUpdateCount,
+                            updateTitles = serverDiag.windowsUpdateTitles,
+                            lastChecked = serverDiag.lastCheckDate,
+                            checkSuccessful = serverDiag.windowsUpdateCheckSuccessful,
+                            errorMessage = serverDiag.windowsUpdateErrorMessage ?? ""
+                        };
+                    }
+                }
+            } catch (Exception) {
+                // -- if we can't read the server diagnostics, leave windowsUpdates null
+            }
             var response = new {
                 status,
                 message,
@@ -150,7 +179,8 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     hitCount5Min = metrics.HitCount5Min,
                     uptimeMinutes = metrics.UptimeMinutes
                 },
-                diagnostics
+                diagnostics,
+                windowsUpdates
             };
             return JsonConvert.SerializeObject(response);
         }

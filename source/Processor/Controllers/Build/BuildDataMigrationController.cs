@@ -563,6 +563,11 @@ namespace Contensive.Processor.Controllers.Build {
                         query = "ALTER TABLE ccSetup ALTER COLUMN FieldValue nvarchar(max) NULL;";
                         core.db.executeNonQuery(query);
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.4.19.1")) {
+                        //
+                        // -- delete deprecated Server Diagnostic addon, replaced by GetServerDiagnosticsSummary in StatusClass
+                        core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{58239C18-1B40-4401-9E6F-25E057327393}'");
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

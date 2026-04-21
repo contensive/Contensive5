@@ -1186,7 +1186,7 @@ namespace Contensive.Processor.Controllers {
                 string bindingInformation = $"*:80:{domainName}";
                 string bindingProtocol = "http";
                 foreach (Binding bindingWithinLoop in site.Bindings) {
-                    if ((bindingWithinLoop.BindingInformation == bindingInformation) && (bindingWithinLoop.Protocol == bindingProtocol)) {
+                    if (string.Equals(bindingWithinLoop.BindingInformation, bindingInformation, StringComparison.OrdinalIgnoreCase) && string.Equals(bindingWithinLoop.Protocol, bindingProtocol, StringComparison.OrdinalIgnoreCase)) {
                         return true;
                     }
                 }

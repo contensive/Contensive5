@@ -153,8 +153,8 @@ namespace Contensive.Processor.Addons.Diagnostics {
                         result.AppendLine($"warning, Windows update check failed: {diagnosticsStatus.windowsUpdateErrorMessage}");
                     } else if (diagnosticsStatus.windowsUpdateCount > 0) {
                         TimeSpan timeSinceCheck = core.dateTimeNowMockable - diagnosticsStatus.lastCheckDate;
-                        if (timeSinceCheck.TotalHours > 48) {
-                            return $"ERROR, {diagnosticsStatus.windowsUpdateCount} Windows update(s) pending (last checked {timeSinceCheck.TotalHours:F0} hours ago).";
+                        if (timeSinceCheck.TotalDays > 7) {
+                            return $"ERROR, {diagnosticsStatus.windowsUpdateCount} Windows update(s) pending for over 1 week (last checked {timeSinceCheck.TotalDays:F0} days ago).";
                         }
                         result.AppendLine($"warning, {diagnosticsStatus.windowsUpdateCount} Windows update(s) pending (last checked: {diagnosticsStatus.lastCheckDate:yyyy-MM-dd HH:mm})");
                     } else {
@@ -168,7 +168,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 return "ok, all server diagnostics passed" + Environment.NewLine + result.ToString();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return "ERROR, unexpected exception during diagnostics";
+                return $"ERROR, unexpected exception during diagnostics [{ex.Message}]";
             }
         }
     }

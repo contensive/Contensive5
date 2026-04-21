@@ -46,7 +46,7 @@ namespace Contensive.Processor {
                             cp.TempFiles.DeleteFile(htmlSourceTempPathFilename);
                             //
                             // -- copy non-html files to wwwroot
-                            copyNonHtmlFilesToWWW(cp, cp.TempFiles.GetPath(htmlSourceTempPathFilename), "");
+                            copyNonHtmlFilesToWWW(cp, getEffectiveTempPath(cp, cp.TempFiles.GetPath(htmlSourceTempPathFilename)), "");
                         } catch (Exception ex) {
                             cp.Site.ErrorReport(ex);
                             userMessageList.Add($"Error processing import file {htmlSourceTempPathFilename} ({ex.Message})");
@@ -55,7 +55,7 @@ namespace Contensive.Processor {
                     }
                     //
                     // -- import all html files in the root folder
-                    string tempPath = cp.TempFiles.GetPath(htmlSourceTempPathFilename);
+                    string tempPath = getEffectiveTempPath(cp, cp.TempFiles.GetPath(htmlSourceTempPathFilename));
                     bool htmlFileFound = false;
                     foreach (var file in cp.TempFiles.FileList(tempPath)) {
                         if (file.Extension.ToLowerInvariant().Equals(".html")) {
@@ -396,6 +396,25 @@ namespace Contensive.Processor {
                     cp.Site.ErrorReport(ex);
                     throw;
                 }
+            }
+            //
+            //====================================================================================================
+            /// <summary>
+            /// If the zip extracted with a single top-level folder that is one of the known
+            /// repo folder names (layoutFiles, cdnFiles, wwwFiles, privateFiles), return the
+            /// path inside that folder so the extra nesting layer is skipped.
+            /// This handles the common mistake of zipping the folder itself instead of its contents.
+            /// </summary>
+            private static string getEffectiveTempPath(CPBaseClass cp, string tempPath) {
+                var folders = cp.TempFiles.FolderList(tempPath);
+                var files = cp.TempFiles.FileList(tempPath);
+                if (folders.Count == 1 && files.Count == 0) {
+                    string folderName = folders[0].Name.ToLowerInvariant();
+                    if (folderName == "layoutfiles" || folderName == "cdnfiles" || folderName == "wwwfiles" || folderName == "privatefiles") {
+                        return tempPath + folders[0].Name + "\\";
+                    }
+                }
+                return tempPath;
             }
         }
     }
