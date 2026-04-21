@@ -32,6 +32,10 @@ namespace Contensive.Processor.Models.Domain {
         public bool alarmsValid { get; set; }
         public string alarmsErrorMessage { get; set; }
         //
+        // -- TLS fields
+        public bool tlsValid { get; set; }
+        public string tlsErrorMessage { get; set; }
+        //
         // -- Overall status
         public bool allChecksSuccessful { get; set; }
     }

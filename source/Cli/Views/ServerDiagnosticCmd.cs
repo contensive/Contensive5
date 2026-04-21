@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
@@ -73,6 +74,8 @@ namespace Contensive.CLI {
                                 logFilesErrorMessage = "",
                                 alarmsValid = true,
                                 alarmsErrorMessage = "",
+                                tlsValid = true,
+                                tlsErrorMessage = "",
                                 allChecksSuccessful = false
                             };
                             //
@@ -89,12 +92,16 @@ namespace Contensive.CLI {
                             status.domainBindingsValid = testDomainBindings(cp, out string domainBindingError);
                             status.domainBindingsErrorMessage = domainBindingError;
                             //
+                            // -- check TLS configuration
+                            checkTls(status);
+                            //
                             // -- set overall status
                             status.allChecksSuccessful = status.windowsUpdateCheckSuccessful
                                 && status.domainBindingsValid
                                 && status.driveSpaceValid
                                 && status.logFilesValid
-                                && status.alarmsValid;
+                                && status.alarmsValid
+                                && status.tlsValid;
                             //
                             // -- save to site property
                             string jsonStatus = JsonConvert.SerializeObject(status);
@@ -120,6 +127,9 @@ namespace Contensive.CLI {
                                 }
                                 if (!status.domainBindingsValid) {
                                     Console.WriteLine($"    - Domain bindings: {status.domainBindingsErrorMessage}");
+                                }
+                                if (!status.tlsValid) {
+                                    Console.WriteLine($"    - TLS: {status.tlsErrorMessage}");
                                 }
                                 errorCount++;
                             }
@@ -302,6 +312,91 @@ namespace Contensive.CLI {
                 }
             }
             return true;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Check TLS configuration in the Windows registry.
+        /// Verify TLS 1.2 is enabled and TLS 1.0 and 1.1 are disabled.
+        /// </summary>
+        private static void checkTls(ServerDiagnosticsStatusModel status) {
+            try {
+                string basePath = @"SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols";
+                var errors = new List<string>();
+                //
+                // -- verify TLS 1.2 is not explicitly disabled
+                using (RegistryKey tls12ServerKey = Registry.LocalMachine.OpenSubKey($@"{basePath}\TLS 1.2\Server")) {
+                    if (tls12ServerKey != null) {
+                        object enabled = tls12ServerKey.GetValue("Enabled");
+                        if (enabled != null && Convert.ToInt32(enabled) == 0) {
+                            errors.Add("TLS 1.2 Server is explicitly disabled");
+                        }
+                        object disabledByDefault = tls12ServerKey.GetValue("DisabledByDefault");
+                        if (disabledByDefault != null && Convert.ToInt32(disabledByDefault) == 1) {
+                            errors.Add("TLS 1.2 Server is disabled by default");
+                        }
+                    }
+                }
+                using (RegistryKey tls12ClientKey = Registry.LocalMachine.OpenSubKey($@"{basePath}\TLS 1.2\Client")) {
+                    if (tls12ClientKey != null) {
+                        object enabled = tls12ClientKey.GetValue("Enabled");
+                        if (enabled != null && Convert.ToInt32(enabled) == 0) {
+                            errors.Add("TLS 1.2 Client is explicitly disabled");
+                        }
+                        object disabledByDefault = tls12ClientKey.GetValue("DisabledByDefault");
+                        if (disabledByDefault != null && Convert.ToInt32(disabledByDefault) == 1) {
+                            errors.Add("TLS 1.2 Client is disabled by default");
+                        }
+                    }
+                }
+                //
+                // -- verify TLS 1.0 is disabled
+                checkLegacyTlsDisabled(basePath, "TLS 1.0", errors);
+                //
+                // -- verify TLS 1.1 is disabled
+                checkLegacyTlsDisabled(basePath, "TLS 1.1", errors);
+                //
+                if (errors.Count > 0) {
+                    status.tlsValid = false;
+                    status.tlsErrorMessage = string.Join("; ", errors);
+                }
+            } catch (Exception ex) {
+                status.tlsValid = false;
+                status.tlsErrorMessage = $"Failed to check TLS configuration: {ex.Message}";
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Verify a legacy TLS version (1.0 or 1.1) is disabled in the registry.
+        /// If the registry key does not exist, the protocol may still be enabled by the OS default.
+        /// </summary>
+        private static void checkLegacyTlsDisabled(string basePath, string protocolVersion, List<string> errors) {
+            bool serverDisabled = false;
+            using (RegistryKey serverKey = Registry.LocalMachine.OpenSubKey($@"{basePath}\{protocolVersion}\Server")) {
+                if (serverKey != null) {
+                    object enabled = serverKey.GetValue("Enabled");
+                    if (enabled != null && Convert.ToInt32(enabled) == 0) {
+                        serverDisabled = true;
+                    }
+                }
+            }
+            if (!serverDisabled) {
+                errors.Add($"{protocolVersion} Server is not explicitly disabled");
+            }
+            //
+            bool clientDisabled = false;
+            using (RegistryKey clientKey = Registry.LocalMachine.OpenSubKey($@"{basePath}\{protocolVersion}\Client")) {
+                if (clientKey != null) {
+                    object enabled = clientKey.GetValue("Enabled");
+                    if (enabled != null && Convert.ToInt32(enabled) == 0) {
+                        clientDisabled = true;
+                    }
+                }
+            }
+            if (!clientDisabled) {
+                errors.Add($"{protocolVersion} Client is not explicitly disabled");
+            }
         }
         //
         // ====================================================================================================

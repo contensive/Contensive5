@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Xml;
@@ -52,9 +53,11 @@ namespace Contensive.Processor.Controllers {
                 XmlDocument Doc = new XmlDocument();
                 string URL = "https://support.contensive.com/GetCollection?iv=" + CoreController.codeVersion() + "&guid=" + collectionGuid;
                 string errorPrefix = "DownloadCollectionFiles, Error reading the collection library status file from the server for Collection [" + collectionGuid + "], download URL [" + URL + "]. ";
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 int downloadRetry = 0;
                 int downloadDelay = 2000;
                 const int downloadRetryMax = 3;
+                Exception lastDownloadException = null;
                 do {
                     try {
                         result = true;
@@ -72,26 +75,34 @@ namespace Contensive.Processor.Controllers {
                         break;
                     } catch (Exception ex) {
                         //
-                        // this error could be data related, and may not be critical. log issue and continue
+                        // -- download or parse failed, retry with increasing delay
                         downloadDelay += 2000;
-                        logger.Info($"{core.logCommonMessage},{errorPrefix},There was a parse error for collection [" + collectionGuid + "] reading the response [" + ex + "]");
-                        result = true;
+                        logger.Error(ex, $"{core.logCommonMessage},{errorPrefix},Download attempt [{downloadRetry + 1}] of [{downloadRetryMax}] failed for collection [{collectionGuid}], URL [{URL}], exception [{ex.Message}]");
+                        result = false;
+                        lastDownloadException = ex;
                     }
                     downloadRetry += 1;
                 } while (downloadRetry < downloadRetryMax);
                 if (return_ErrorMessage.errors.Count == 0) {
                     //
                     // continue if no errors
-                    if (Doc.DocumentElement.Name.ToLowerInvariant() != GenericController.toLCase(DownloadFileRootNode)) {
+                    if (Doc.DocumentElement == null) {
+                        //
+                        // -- document never loaded successfully after all retries
+                        string exDetail = lastDownloadException != null ? lastDownloadException.ToString() : "no exception details available";
+                        logger.Error($"{core.logCommonMessage},{errorPrefix},The collection library status file could not be downloaded after [{downloadRetryMax}] retries, URL [{URL}], last exception [{exDetail}]");
+                        return_ErrorMessage.errors.Add($"The collection could not be downloaded from the collection library. The request to [{URL}] failed after [{downloadRetryMax}] attempts. Verify your internet connection and that support.contensive.com is reachable.");
+                        result = false;
+                    } else if (Doc.DocumentElement.Name.ToLowerInvariant() != GenericController.toLCase(DownloadFileRootNode)) {
                         // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                        logger.Info($"{core.logCommonMessage},{errorPrefix},The response has a basename [" + Doc.DocumentElement.Name + "] but [" + DownloadFileRootNode + "] was expected.");
+                        logger.Warn($"{core.logCommonMessage},{errorPrefix},The response has a basename [{Doc.DocumentElement.Name}] but [{DownloadFileRootNode}] was expected.");
                         result = true;
                     } else {
                         //
                         // Parse the Download File and download each file into the working folder
                         if (Doc.DocumentElement.ChildNodes.Count == 0) {
                             // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                            logger.Info($"{core.logCommonMessage},{errorPrefix},The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
+                            logger.Warn($"{core.logCommonMessage},{errorPrefix},The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
                             result = true;
                         } else {
                             //
@@ -141,7 +152,7 @@ namespace Contensive.Processor.Controllers {
                                                         if ((Pos <= 0) && (Pos < CollectionFileLink.Length)) {
                                                             //
                                                             // Skip this file because the collecion file link has no slash (no file)
-                                                            logger.Info($"{core.logCommonMessage},{errorPrefix},Collection [" + Collectionname + "] was not installed because the Collection File Link does not point to a valid file [" + CollectionFileLink + "]");
+                                                            logger.Warn($"{core.logCommonMessage},{errorPrefix},Collection [{Collectionname}] was not installed because the Collection File Link does not point to a valid file [{CollectionFileLink}]");
                                                         } else {
                                                             string CollectionFilePath = tempFilesDownloadPath + CollectionFileLink.Substring(Pos);
                                                             core.tempFiles.saveHttpRequestToFile(CollectionFileLink, CollectionFilePath);
@@ -166,7 +177,7 @@ namespace Contensive.Processor.Controllers {
                                                     }
                                                     if (string.IsNullOrEmpty(ResourceLink)) {
                                                         UserError = "There was an error processing a collection in the download file [" + Collectionname + "]. An ActiveXDll node with filename [" + ResourceFilename + "] contained no 'Link' attribute.";
-                                                        logger.Info($"{core.logCommonMessage},{errorPrefix},{UserError}");
+                                                        logger.Warn($"{core.logCommonMessage},{errorPrefix},{UserError}");
                                                     } else {
                                                         if (string.IsNullOrEmpty(ResourceFilename)) {
                                                             //
@@ -178,7 +189,7 @@ namespace Contensive.Processor.Controllers {
                                                         }
                                                         if (string.IsNullOrEmpty(ResourceFilename)) {
                                                             UserError = "There was an error processing a collection in the download file [" + Collectionname + "]. The ActiveX filename attribute was empty, and the filename could not be read from the link [" + ResourceLink + "].";
-                                                            logger.Info($"{core.logCommonMessage},{errorPrefix},{UserError}");
+                                                            logger.Warn($"{core.logCommonMessage},{errorPrefix},{UserError}");
                                                         } else {
                                                             core.tempFiles.saveHttpRequestToFile(ResourceLink, tempFilesDownloadPath + ResourceFilename);
                                                         }
@@ -190,7 +201,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                             if (CollectionFileCnt == 0) {
-                                logger.Info($"{core.logCommonMessage},{errorPrefix},The collection was requested and downloaded, but was not installed because the download file did not have a collection root node.");
+                                logger.Warn($"{core.logCommonMessage},{errorPrefix},The collection was requested and downloaded, but was not installed because the download file did not have a collection root node.");
                             }
                         }
                     }
@@ -239,7 +250,12 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- download the collection file into the download path from the collectionGuid provided
                     DateTime CollectionLastModifiedDate = default;
-                    if (CollectionLibraryController.downloadCollectionFromLibrary(core, tempFilesDownloadPath, collectionGuid, ref CollectionLastModifiedDate, ref return_ErrorMessage)) {
+                    if (!CollectionLibraryController.downloadCollectionFromLibrary(core, tempFilesDownloadPath, collectionGuid, ref CollectionLastModifiedDate, ref return_ErrorMessage)) {
+                        //
+                        // -- download failed, set UpgradeOK false so the caller knows
+                        UpgradeOK = false;
+                        logger.Warn($"{core.logCommonMessage}, downloadCollectionFromLibrary returned false for collection [{collectionGuid}], error [{return_ErrorMessage}]");
+                    } else {
                         //
                         // -- build the collection folders for all collection files in the download path and created a list of collection Guids that need to be installed
                         var collectionsDownloaded = new List<string>();

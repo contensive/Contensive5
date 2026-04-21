@@ -64,6 +64,13 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 }
                 result.AppendLine("ok, email process running.");
                 //
+                // -- verify SMS provider is configured (1=Twilio, 2=AWS)
+                int smsProviderId = cp.Site.GetInteger("SMS Provider Id", 0);
+                if (smsProviderId == 0) {
+                    return "ERROR, SMS provider is not configured. Set 'SMS Provider Id' in site settings (1=Twilio, 2=AWS).";
+                }
+                result.AppendLine("ok, SMS provider configured.");
+                //
                 // -- verify the default username=root, password=contensive is not present
                 var rootUserList = PersonModel.createList<PersonModel>(cp, "((username='root')and(password='contensive')and(active>0))");
                 if (rootUserList.Count > 0) {
@@ -147,6 +154,12 @@ namespace Contensive.Processor.Addons.Diagnostics {
                         return $"ERROR, {diagnosticsStatus.domainBindingsErrorMessage}";
                     }
                     result.AppendLine("ok, all domain bindings valid");
+                    //
+                    // -- check TLS configuration
+                    if (!diagnosticsStatus.tlsValid) {
+                        return $"ERROR, {diagnosticsStatus.tlsErrorMessage}";
+                    }
+                    result.AppendLine("ok, TLS configuration check passed");
                     //
                     // -- check Windows updates
                     if (!diagnosticsStatus.windowsUpdateCheckSuccessful) {
