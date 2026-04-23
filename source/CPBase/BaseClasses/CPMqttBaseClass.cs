@@ -24,16 +24,16 @@ namespace Contensive.BaseClasses {
         /// Supports MQTT wildcards: + (single-level) and # (multi-level).
         /// </summary>
         /// <param name="topicFilter">The MQTT topic filter pattern (e.g. "evt/thermostat-001/#")</param>
-        /// <param name="addonGuid">The GUID of the addon to execute when a matching message arrives</param>
-        public abstract void Subscribe(string topicFilter, string addonGuid);
+        /// <param name="addonId">The id of the addon to execute when a matching message arrives</param>
+        public abstract void Subscribe(string topicFilter, int addonId);
         //
         //====================================================================================================
         /// <summary>
         /// Unsubscribe an addon from an MQTT topic filter.
         /// </summary>
         /// <param name="topicFilter">The MQTT topic filter to unsubscribe from</param>
-        /// <param name="addonGuid">The GUID of the addon to unsubscribe</param>
-        public abstract void Unsubscribe(string topicFilter, string addonGuid);
+        /// <param name="addonId">The id of the addon to unsubscribe</param>
+        public abstract void Unsubscribe(string topicFilter, int addonId);
         //
         //====================================================================================================
         /// <summary>

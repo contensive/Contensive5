@@ -125,7 +125,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- load all active subscriptions from the database
                 var currentFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                string sql = "SELECT topicFilter, addonGuid FROM ccMqttSubscriptions WHERE active=1";
+                string sql = "SELECT topicFilter, addonId FROM ccMqttSubscriptions WHERE active=1";
                 using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
                     foreach (DataRow row in dt.Rows) {
                         string topicFilter = Convert.ToString(row["topicFilter"]);
@@ -221,19 +221,19 @@ namespace Contensive.Processor.Controllers {
                 using CPClass cpApp = new(appName);
                 //
                 // -- find all subscriptions whose topicFilter matches the incoming topic
-                string sql = "SELECT topicFilter, addonGuid FROM ccMqttSubscriptions WHERE active=1";
+                string sql = "SELECT topicFilter, addonId FROM ccMqttSubscriptions WHERE active=1";
                 using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
                     foreach (DataRow row in dt.Rows) {
                         string topicFilter = Convert.ToString(row["topicFilter"]);
-                        string addonGuid = Convert.ToString(row["addonGuid"]);
-                        if (string.IsNullOrEmpty(topicFilter) || string.IsNullOrEmpty(addonGuid)) { continue; }
+                        int addonId = GenericController.getInteger(row["addonId"]);
+                        if (string.IsNullOrEmpty(topicFilter) || addonId == 0) { continue; }
                         //
                         if (!topicMatchesFilter(topic, topicFilter)) { continue; }
                         //
-                        // -- look up the addon by guid
-                        var addon = DbBaseModel.create<AddonModel>(cpApp, addonGuid);
+                        // -- look up the addon by id
+                        var addon = DbBaseModel.create<AddonModel>(cpApp, addonId);
                         if (addon == null) {
-                            logger.Warn($"MQTTSubscriptionService, addon not found for guid [{addonGuid}], topicFilter [{topicFilter}]");
+                            logger.Warn($"MQTTSubscriptionService, addon not found for id [{addonId}], topicFilter [{topicFilter}]");
                             continue;
                         }
                         //

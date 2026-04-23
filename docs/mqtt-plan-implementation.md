@@ -20,12 +20,12 @@ public abstract class CPMQTTBaseClass {
     public abstract bool Publish(string topic, string messageJson);
 
     // -- Subscribe an addon to receive messages on a topic pattern
-    //    addonGuid: the addon to execute when a message arrives
+    //    addonId: the id of the addon to execute when a message arrives
     //    topicFilter: MQTT topic filter (supports +/# wildcards)
-    public abstract void Subscribe(string topicFilter, string addonGuid);
+    public abstract void Subscribe(string topicFilter, int addonId);
 
     // -- Unsubscribe an addon from a topic pattern
-    public abstract void Unsubscribe(string topicFilter, string addonGuid);
+    public abstract void Unsubscribe(string topicFilter, int addonId);
 
     // -- Legacy overload (deprecated)
     [Obsolete] public abstract bool Publish(string message, string topic, string clientId);
@@ -47,7 +47,7 @@ public override object Execute(CPBaseClass cp) {
 ```csharp
 // Subscribe is called once at startup (e.g. in an OnInstall event catcher addon)
 public override object Execute(CPBaseClass cp) {
-    cp.MQTT.Subscribe("evt/thermostat-001/#", "{my-handler-addon-guid}");
+    cp.MQTT.Subscribe("evt/thermostat-001/#", myHandlerAddonId);
     return "";
 }
 ```
@@ -97,7 +97,7 @@ ESP32 Device  <-->  AWS IoT Core  <-->  Contensive TaskService
 - CDef `MQTT Subscriptions` with table `ccMqttSubscriptions`:
   - `Name` (text, inherited from base content definition)
   - `topicFilter` (text, required) — the MQTT topic filter pattern
-  - `addonGuid` (text, required) — GUID of the addon to call when a message matches
+  - `addonId` (lookup into Add-ons, required) — the addon to call when a message matches
   - `active` (boolean, managed by Subscribe/Unsubscribe)
 - Guid: `{A1F3B4C5-D6E7-48F9-A0B1-C2D3E4F5A6B7}`
 
@@ -106,8 +106,8 @@ ESP32 Device  <-->  AWS IoT Core  <-->  Contensive TaskService
 - **File:** `source/CPBase/BaseClasses/CPMqttBaseClass.cs`
 - New methods:
   - `Publish(string topic, string messageJson)` — simplified, clientId managed internally
-  - `Subscribe(string topicFilter, string addonGuid)` — register an addon to receive messages
-  - `Unsubscribe(string topicFilter, string addonGuid)` — deactivate a subscription
+  - `Subscribe(string topicFilter, int addonId)` — register an addon to receive messages
+  - `Unsubscribe(string topicFilter, int addonId)` — deactivate a subscription
 - Legacy `Publish(message, topic, clientId)` marked `[Obsolete]`
 
 ### 4. MQTTController (publish implementation)
@@ -131,7 +131,7 @@ ESP32 Device  <-->  AWS IoT Core  <-->  Contensive TaskService
   - Subscribes to new topic filters, unsubscribes from removed ones
 - On message received:
   - Matches incoming topic against all active subscription filters using MQTT wildcard rules (`+` and `#`)
-  - For each matching subscription, looks up the addon by GUID
+  - For each matching subscription, looks up the addon by id
   - Queues the addon as a task via `TaskSchedulerController.addTaskToQueue()` with `mqtt-topic` and `mqtt-message` as args
 - `topicMatchesFilter()` — internal static method implementing MQTT topic matching with `+` (single-level) and `#` (multi-level) wildcards
 
@@ -139,8 +139,8 @@ ESP32 Device  <-->  AWS IoT Core  <-->  Contensive TaskService
 
 - **File:** `source/Processor/Views/CPMQTTClass.cs`
 - `Publish(topic, messageJson)` → delegates to `MQTTController.publish()`
-- `Subscribe(topicFilter, addonGuid)` → checks for existing record in `ccMqttSubscriptions`, reactivates or inserts
-- `Unsubscribe(topicFilter, addonGuid)` → sets `active=0` on matching record
+- `Subscribe(topicFilter, addonId)` → checks for existing record in `ccMqttSubscriptions`, reactivates or inserts
+- `Unsubscribe(topicFilter, addonId)` → sets `active=0` on matching record
 
 ### 7. TaskService integration
 
@@ -174,7 +174,7 @@ ESP32 Device  <-->  AWS IoT Core  <-->  Contensive TaskService
 | File | Action |
 |---|---|
 | `source/Processor/Processor.csproj` | Added MQTTnet 4.3.7.1207 NuGet reference |
-| `source/Processor/aoBase51.xml` | Added `ccMqttSubscriptions` CDef with topicFilter and addonGuid fields |
+| `source/Processor/aoBase51.xml` | Added `ccMqttSubscriptions` CDef with topicFilter and addonId (lookup) fields |
 | `source/CPBase/BaseClasses/CPMqttBaseClass.cs` | Expanded abstract API: Publish, Subscribe, Unsubscribe |
 | `source/Processor/Controllers/MQTTController.cs` | Rewrote with MQTTnet, X.509 TLS, builder pattern |
 | `source/Processor/Controllers/MQTTSubscriptionService.cs` | **New** — long-lived MQTT subscriber with topic matching and task dispatch |

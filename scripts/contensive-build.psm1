@@ -35,12 +35,12 @@ $ErrorActionPreference = 'Stop'
 function Get-ContensiveVersion {
 <#
 .SYNOPSIS
-    Returns a date-based version string (YY.M.D.R) that does not collide
-    with any existing folder under DeploymentRoot.
+    Returns a date-based version string (YY.M.D.S) where S is the number
+    of seconds elapsed since midnight divided by 2 (max 43200, fits UInt16).
 .PARAMETER DeploymentRoot
     Root folder under which versioned deployment sub-folders are created.
 .OUTPUTS
-    Version string, e.g. "26.4.4.1"
+    Version string, e.g. "26.4.23.30150"
 #>
     param(
         [Parameter(Mandatory)][string]$DeploymentRoot
@@ -49,13 +49,8 @@ function Get-ContensiveVersion {
     $yy    = $now.ToString('yy')
     $month = $now.Month.ToString()
     $day   = $now.Day.ToString()
-    $rev   = 1
-    while ($true) {
-        $version = "$yy.$month.$day.$rev"
-        if (-not (Test-Path (Join-Path $DeploymentRoot $version))) { break }
-        $rev++
-    }
-    return $version
+    $rev   = [int][math]::Floor(($now.Hour * 3600 + $now.Minute * 60 + $now.Second) / 2)
+    return "$yy.$month.$day.$rev"
 }
 
 function Find-MSBuild {

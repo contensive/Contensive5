@@ -28,7 +28,7 @@ IoT Device (ESP32)  <-->  AWS IoT Core  <-->  Contensive TaskService
 - **CPMQTTBaseClass** — abstract API exposed as `cp.MQTT` to addon developers
 - **MQTTController** — handles MQTT publishing using MQTTnet with X.509 TLS
 - **MQTTSubscriptionService** — long-lived subscriber in TaskService, dispatches incoming messages to handler addons
-- **ccMqttSubscriptions** — database table that maps topic filters to handler addon GUIDs
+- **ccMqttSubscriptions** — database table that maps topic filters to handler addons
 
 ---
 
@@ -125,21 +125,26 @@ public class SetTemperatureAddon : AddonBaseClass {
 
 ### Subscribing to Device Messages
 
-Use `cp.MQTT.Subscribe(topicFilter, addonGuid)` to register a handler addon. This is typically done once, for example in an OnInstall event catcher addon or a setup addon:
+Use `cp.MQTT.Subscribe(topicFilter, addonId)` to register a handler addon. This is typically done once, for example in an OnInstall event catcher addon or a setup addon:
 
 ```csharp
 public class RegisterMqttSubscriptions : AddonBaseClass {
     public override object Execute(CPBaseClass cp) {
         try {
             //
+            // -- look up handler addons by guid to get their ids
+            int thermostatHandlerId = cp.Addon.GetIdByGuid("{YOUR-HANDLER-ADDON-GUID}");
+            int alertHandlerId = cp.Addon.GetIdByGuid("{YOUR-ALERT-ADDON-GUID}");
+            int statusHandlerId = cp.Addon.GetIdByGuid("{YOUR-STATUS-ADDON-GUID}");
+            //
             // -- subscribe to all events from all thermostats
-            cp.MQTT.Subscribe("evt/thermostat/#", "{YOUR-HANDLER-ADDON-GUID}");
+            cp.MQTT.Subscribe("evt/thermostat/#", thermostatHandlerId);
             //
             // -- subscribe to alerts from a specific device
-            cp.MQTT.Subscribe("evt/pump-001/alert", "{YOUR-ALERT-ADDON-GUID}");
+            cp.MQTT.Subscribe("evt/pump-001/alert", alertHandlerId);
             //
             // -- subscribe to status from any device type using single-level wildcard
-            cp.MQTT.Subscribe("evt/+/status", "{YOUR-STATUS-ADDON-GUID}");
+            cp.MQTT.Subscribe("evt/+/status", statusHandlerId);
             //
             return "";
         } catch (Exception ex) {
@@ -202,7 +207,7 @@ public class DeviceReading {
 To stop receiving messages for a topic filter:
 
 ```csharp
-cp.MQTT.Unsubscribe("evt/thermostat/#", "{YOUR-HANDLER-ADDON-GUID}");
+cp.MQTT.Unsubscribe("evt/thermostat/#", thermostatHandlerId);
 ```
 
 This deactivates the subscription record in `ccMqttSubscriptions`. The MQTTSubscriptionService will unsubscribe from the MQTT broker on its next 30-second tick.
