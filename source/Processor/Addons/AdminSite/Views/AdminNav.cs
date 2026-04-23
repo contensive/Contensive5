@@ -63,10 +63,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                     foreach (DataRow dr in dt.Rows) {
                         // -- add blank if icon is blank, or the http-prefixed icon url if present
                         string icon = GenericController.getText(dr["icon"]);
+                        string portalGuid = GenericController.getText(dr["ccguid"]);
+                        //
+                        // -- check for a saved query string from a previous portal feature visit (within this visit only)
+                        string savedQs = cp.Visit.GetText($"portalLastQs_{portalGuid}", "");
+                        string portalUrl = string.IsNullOrEmpty(savedQs)
+                            ? $"{baseUrl}&setPortalGuid={portalGuid}"
+                            : $"{cp.Site.GetText("adminurl")}?{savedQs}";
                         portals.Add(new AdminNavViewModel_Portal() {
                             name = GenericController.getText(dr["name"]),
-                            url = $"{baseUrl}&setPortalGuid={GenericController.getText(dr["ccguid"])}",
-                            active = currentPortalGuid.Equals(GenericController.getText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.getInteger(dr["id"])),
+                            url = portalUrl,
+                            active = currentPortalGuid.Equals(portalGuid, StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.getInteger(dr["id"])),
                             icon = string.IsNullOrEmpty(icon) ? "" : cp.Http.CdnFilePathPrefix + icon
                         });
                     }

@@ -27,10 +27,11 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 - [Dashboard Widget Pattern](dashboard-widget-pattern.md) — addons that render dashboard widgets
 - [Remote Method Pattern](remote-method-pattern.md) — addons called via AJAX/API endpoints
 - [Process Addon Pattern](process-addon-pattern.md) — background process addons
-- [Diagnostic Addon Pattern](diagnostic-addon-patter.md) — diagnostic/health-check addons
+- [Diagnostic Addon Pattern](diagnostic-addon-pattern.md) — diagnostic/health-check addons
 - [Portal Pattern](portal-pattern.md) — building portal-style admin interfaces
 - [Control Panel Pattern](control-panel-pattern.md) — control panel addons
 - [Addon Event Pattern](addon-event-pattern.md) — publish/subscribe events between addons
+- [MQTT Pattern](mqtt-pattern.md) — publishing commands to IoT devices and receiving device messages via AWS IoT Core
 
 ## UI & Layout Patterns
 

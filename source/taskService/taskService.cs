@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.ServiceProcess;
 using Contensive.Processor.Controllers;
@@ -11,6 +11,7 @@ namespace Contensive.Services {
         }
         private TaskSchedulerController taskScheduler = null;
         private TaskRunnerController taskRunner = null;
+        private MQTTSubscriptionService mqttSubscription = null;
         //
         protected override void OnStart(string[] args) {
             using (CPClass cp = new CPClass()) {
@@ -31,6 +32,13 @@ namespace Contensive.Services {
                         cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart, call taskRunner.startTimerEvents");
                         taskRunner = new TaskRunnerController();
                         taskRunner.startTimerEvents();
+                    }
+                    if (true) {
+                        //
+                        // -- start MQTT subscription service
+                        cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart, call mqttSubscription.startTimerEvents");
+                        mqttSubscription = new MQTTSubscriptionService();
+                        mqttSubscription.startTimerEvents();
                     }
                     cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart exit");
                 } catch (Exception ex) {
@@ -60,6 +68,14 @@ namespace Contensive.Services {
                         cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop, call taskRunner.stopTimerEvents");
                         taskRunner.stopTimerEvents();
                         taskRunner.Dispose();
+                    }
+                    if (mqttSubscription != null) {
+                        //
+                        // stop MQTT subscription service
+                        //
+                        cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop, call mqttSubscription.stopTimerEvents");
+                        mqttSubscription.stopTimerEvents();
+                        mqttSubscription.Dispose();
                     }
                     cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop exit");
                 } catch (Exception ex) {

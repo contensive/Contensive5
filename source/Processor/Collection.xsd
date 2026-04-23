@@ -456,15 +456,7 @@
 					<xs:complexType>
 						<xs:simpleContent>
 							<xs:extension base="xs:string">
-								<xs:attribute name="name" use="required">
-									<xs:simpleType>
-										<xs:restriction base="xs:NMTOKEN">
-											<xs:enumeration value="orderByClause" />
-											<xs:enumeration value="caption" />
-											<xs:enumeration value="iconHtml" />
-										</xs:restriction>
-									</xs:simpleType>
-								</xs:attribute>
+								<xs:attribute name="name" type="xs:string" use="required"/>
 							</xs:extension>
 						</xs:simpleContent>
 					</xs:complexType>

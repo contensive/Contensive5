@@ -129,6 +129,9 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                 //
                 if (portalData.featureList.ContainsKey(dstFeatureGuid)) {
                     //
+                    // -- save the current query string as a visit property so clicking the portal icon in the left nav returns to this feature
+                    CP.Visit.SetProperty($"portalLastQs_{portalData.guid}", CP.Doc.RefreshQueryString);
+                    //
                     // add feature guid to frameRqs so if the feature uses ajax, the featureGuid will be part of it
                     // add feature guid to rqs so if an addon is used that does not support frameRqs it will work
                     //
@@ -228,6 +231,9 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     }
                 }
                 if (string.IsNullOrEmpty(body)) {
+                    //
+                    // -- no feature selected, clear the saved portal feature so clicking the portal icon returns to overview
+                    CP.Visit.ClearProperty($"portalLastQs_{portalData.guid}");
                     //
                     // if the feature returns blank, run the default feature
                     //
