@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 //
 namespace Contensive.Processor.Addons.Diagnostics {
     /// <summary>
@@ -32,23 +33,22 @@ namespace Contensive.Processor.Addons.Diagnostics {
             try {
                 var resultList = new StringBuilder();
                 var core = ((CPClass)(cp)).core;
-                string pauseHint = $" To pause alarm {((cp.User.IsAdmin) ? $"set site property 'Diagnostics Pause Until Date' or [/status?pauseUntil={core.dateTimeNowMockable.AddHours(1)}]." : "login as administrator.")}";
                 hint = 10;
                 if (cp.Site.GetDate("Diagnostics pause until date") > core.dateTimeNowMockable) {
                     string pausedMessage = $"ok, diagnostics paused until {cp.Site.GetDate("Diagnostics pause until date")}.{Environment.NewLine}{resultList}";
-                    return BuildResponse(cp, core, "ok", pausedMessage, pausedMessage);
+                    return BuildResponse(cp, core, "ok", pausedMessage);
                 }
                 hint = 20;
                 foreach (var addon in DbBaseModel.createList<AddonModel>(core.cpParent, "(diagnostic>0)")) {
                     hint = 30;
                     string testResult = core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
                     if (testResult.Length < 2) {
-                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result.{pauseHint}";
-                        return BuildResponse(cp, core, "error", errorMsg, errorMsg);
+                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result.";
+                        return BuildResponse(cp, core, "error", errorMsg);
                     }
                     if (testResult.left(2).ToLower(CultureInfo.InvariantCulture) != "ok") {
-                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned [{testResult}]{pauseHint}";
-                        return BuildResponse(cp, core, "error", errorMsg, errorMsg);
+                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned [{testResult}]";
+                        return BuildResponse(cp, core, "error", errorMsg);
                     }
                     resultList.AppendLine($"{testResult}, {addon.name}");
                 }
@@ -60,12 +60,12 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 //
                 string diagnosticDetail = "";
                 if (!GetServerDiagnosticsSummary(cp, ref diagnosticDetail)) {
-                    string errorMsg = $"ERROR, {diagnosticDetail}.{pauseHint}";
-                    return BuildResponse(cp, core, "error", errorMsg, errorMsg);
+                    string errorMsg = $"ERROR, {diagnosticDetail}.";
+                    return BuildResponse(cp, core, "error", errorMsg);
                 }
                 hint = 60;
-                string successMessage = $"ok, all tests passed.{Environment.NewLine}{resultList}";
-                return BuildResponse(cp, core, "ok", successMessage, successMessage);
+                string successMessage = $"ok, all tests passed.{Environment.NewLine}{resultList}{diagnosticDetail}";
+                return BuildResponse(cp, core, "ok", successMessage);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
                 return $"ERROR, unexpected exception during diagnostics, hint [{hint}], [{ex.Message}]";
@@ -130,7 +130,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 if (status.tlsValid) {
                     diagnosticDetail += Environment.NewLine + $"ok, TLS check passed.";
                 } else {
-                    diagnosticDetail += Environment.NewLine + status.tlsErrorMessage;
+                    diagnosticDetail += Environment.NewLine + (string.IsNullOrEmpty(status.tlsErrorMessage) ? "ERROR, TLS check failed." : status.tlsErrorMessage);
                     return false;
                 }
                 
@@ -146,12 +146,16 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// <summary>
         /// Return plain text or JSON depending on the format query parameter
         /// </summary>
-        private static string BuildResponse(Contensive.BaseClasses.CPBaseClass cp, CoreController core, string status, string message, string diagnostics) {
+        private static string BuildResponse(Contensive.BaseClasses.CPBaseClass cp, CoreController core, string status, string message) {
             string version = CoreController.codeVersion();
             string format = cp.Doc.GetText("format");
             if (!format.Equals("json", StringComparison.OrdinalIgnoreCase)) {
                 cp.Response.SetType("text/plain");
-                return $"{message}{Environment.NewLine}Contensive v{version}";
+                string textResult = $"{message}{Environment.NewLine}contensive v{version}";
+                textResult = textResult.ToLower(CultureInfo.InvariantCulture);
+                textResult = textResult.Replace("error", "ERROR");
+                textResult = Regex.Replace(textResult, @"(\r?\n){2,}", Environment.NewLine);
+                return textResult;
             }
             //
             // -- return JSON response with performance metrics
@@ -181,7 +185,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
             var response = new StatusResponseModel {
                 version = version,
                 status = status,
-                message = message,
+                message = Regex.Replace(message, @"(\r?\n){2,}", Environment.NewLine).Trim(),
                 metrics = new StatusResponseModel.StatusMetricsModel {
                     avgResponseTimeMs = metrics.AvgResponseTimeMs,
                     avgResponseTime5MinMs = metrics.AvgResponseTime5MinMs,
@@ -189,7 +193,6 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     hitCount5Min = metrics.HitCount5Min,
                     uptimeMinutes = metrics.UptimeMinutes
                 },
-                diagnostics = diagnostics,
                 windowsUpdates = windowsUpdates
             };
             return JsonConvert.SerializeObject(response);

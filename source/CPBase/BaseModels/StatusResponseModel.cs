@@ -25,10 +25,6 @@ namespace Contensive.BaseModels {
         /// </summary>
         public StatusMetricsModel metrics { get; set; }
         /// <summary>
-        /// Diagnostic detail text
-        /// </summary>
-        public string diagnostics { get; set; }
-        /// <summary>
         /// Windows update status, or null if unavailable
         /// </summary>
         public StatusWindowsUpdatesModel windowsUpdates { get; set; }
