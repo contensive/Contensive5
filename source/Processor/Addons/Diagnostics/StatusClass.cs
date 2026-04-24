@@ -1,4 +1,5 @@
 
+using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
@@ -146,10 +147,11 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// Return plain text or JSON depending on the format query parameter
         /// </summary>
         private static string BuildResponse(Contensive.BaseClasses.CPBaseClass cp, CoreController core, string status, string message, string diagnostics) {
+            string version = CoreController.codeVersion();
             string format = cp.Doc.GetText("format");
             if (!format.Equals("json", StringComparison.OrdinalIgnoreCase)) {
                 cp.Response.SetType("text/plain");
-                return message;
+                return $"{message}{Environment.NewLine}Contensive v{version}";
             }
             //
             // -- return JSON response with performance metrics
@@ -157,13 +159,13 @@ namespace Contensive.Processor.Addons.Diagnostics {
             var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
             //
             // -- include windows update status in JSON response
-            object windowsUpdates = null;
+            StatusResponseModel.StatusWindowsUpdatesModel windowsUpdates = null;
             try {
                 string serverDiagJson = cp.Site.GetText("ServerDiagnosticsStatus");
                 if (!string.IsNullOrEmpty(serverDiagJson)) {
                     var serverDiag = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(serverDiagJson);
                     if (serverDiag != null) {
-                        windowsUpdates = new {
+                        windowsUpdates = new StatusResponseModel.StatusWindowsUpdatesModel {
                             updatesAvailable = serverDiag.windowsUpdateCount > 0,
                             updateCount = serverDiag.windowsUpdateCount,
                             updateTitles = serverDiag.windowsUpdateTitles,
@@ -176,18 +178,19 @@ namespace Contensive.Processor.Addons.Diagnostics {
             } catch (Exception) {
                 // -- if we can't read the server diagnostics, leave windowsUpdates null
             }
-            var response = new {
-                status,
-                message,
-                metrics = new {
+            var response = new StatusResponseModel {
+                version = version,
+                status = status,
+                message = message,
+                metrics = new StatusResponseModel.StatusMetricsModel {
                     avgResponseTimeMs = metrics.AvgResponseTimeMs,
                     avgResponseTime5MinMs = metrics.AvgResponseTime5MinMs,
                     hitCount = metrics.HitCount,
                     hitCount5Min = metrics.HitCount5Min,
                     uptimeMinutes = metrics.UptimeMinutes
                 },
-                diagnostics,
-                windowsUpdates
+                diagnostics = diagnostics,
+                windowsUpdates = windowsUpdates
             };
             return JsonConvert.SerializeObject(response);
         }
