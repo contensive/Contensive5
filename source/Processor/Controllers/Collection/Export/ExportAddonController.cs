@@ -22,7 +22,7 @@ namespace Contensive.Processor.Controllers {
             string result = "";
             try {
                 using (CPCSBaseClass CS = cp.CSNew()) {
-                    if (CS.OpenRecord("Add-ons", addonid)) {
+                    if (CS.OpenRecord("Add-ons", addonid, "", false)) {
                         string addonName = CS.GetText("name");
                         bool processRunOnce = CS.GetBoolean("ProcessRunOnce");
                         if (((VisualBasicConvert.Strings_LCase(addonName) == "oninstall") || (VisualBasicConvert.Strings_LCase(addonName) == "_oninstall")))
@@ -52,11 +52,11 @@ namespace Contensive.Processor.Controllers {
                         // 
                         // -- addon dependencies
                         using (CPCSBaseClass CS2 = cp.CSNew()) {
-                            CS2.Open("Add-on Include Rules", "addonid=" + addonid);
+                            CS2.Open("Add-on Include Rules", $"addonid={addonid}", "", false);
                             while (CS2.OK()) {
                                 int IncludedAddonID = CS2.GetInteger("IncludedAddonID");
                                 using (CPCSBaseClass CS3 = cp.CSNew()) {
-                                    CS3.Open("Add-ons", "ID=" + IncludedAddonID);
+                                    CS3.Open("Add-ons", $"ID={IncludedAddonID}", "", false);
                                     if (CS3.OK()) {
                                         string Guid = CS3.GetText("ccGuid");
                                         if (Guid == "") {
@@ -150,11 +150,11 @@ namespace Contensive.Processor.Controllers {
                             NodeInnerText = System.Environment.NewLine + "\t" + "\t" + "<Code>" + ExportController.encodeCData(NodeInnerText) + "</Code>";
                         }
                         using (CPCSBaseClass CS2 = cp.CSNew()) {
-                            CS2.Open("Add-on Scripting Module Rules", "addonid=" + addonid);
+                            CS2.Open("Add-on Scripting Module Rules", $"addonid={addonid}", "", false);
                             while (CS2.OK()) {
                                 int ScriptingModuleID = CS2.GetInteger("ScriptingModuleID");
                                 using (CPCSBaseClass CS3 = cp.CSNew()) {
-                                    CS3.Open("Scripting Modules", "ID=" + ScriptingModuleID);
+                                    CS3.Open("Scripting Modules", $"ID={ScriptingModuleID}", "", false);
                                     if (CS3.OK()) {
                                         string Guid = CS3.GetText("ccGuid");
                                         if (Guid == "") {
@@ -179,11 +179,11 @@ namespace Contensive.Processor.Controllers {
                         // Shared Styles
                         // 
                         using (CPCSBaseClass CS2 = cp.CSNew()) {
-                            CS2.Open("Shared Styles Add-on Rules", "addonid=" + addonid);
+                            CS2.Open("Shared Styles Add-on Rules", $"addonid={addonid}", "", false);
                             while (CS2.OK()) {
                                 int styleId = CS2.GetInteger("styleId");
                                 using (CPCSBaseClass CS3 = cp.CSNew()) {
-                                    CS3.Open("shared styles", "ID=" + styleId);
+                                    CS3.Open("shared styles", $"ID={styleId}", "", false);
                                     if (CS3.OK()) {
                                         string Guid = CS3.GetText("ccGuid");
                                         if (Guid == "") {
@@ -204,11 +204,11 @@ namespace Contensive.Processor.Controllers {
                         // 
                         NodeInnerText = "";
                         using (CPCSBaseClass CS2 = cp.CSNew()) {
-                            CS2.Open("Add-on Content Trigger Rules", "addonid=" + addonid);
+                            CS2.Open("Add-on Content Trigger Rules", $"addonid={addonid}", "", false);
                             while (CS2.OK()) {
                                 int TriggerContentID = CS2.GetInteger("ContentID");
                                 using (CPCSBaseClass CS3 = cp.CSNew()) {
-                                    CS3.Open("content", "ID=" + TriggerContentID);
+                                    CS3.Open("content", $"ID={TriggerContentID}", "", false);
                                     if (CS3.OK()) {
                                         string Guid = CS3.GetText("ccGuid");
                                         if (Guid == "") {
@@ -232,7 +232,7 @@ namespace Contensive.Processor.Controllers {
                         if (cp.Content.IsField("Add-on Content Field Type Rules", "id")) {
                             NodeInnerText = "";
                             using (CPCSBaseClass CS2 = cp.CSNew()) {
-                                CS2.Open("Add-on Content Field Type Rules", "addonid=" + addonid);
+                                CS2.Open("Add-on Content Field Type Rules", $"addonid={addonid}", "", false);
                                 while (CS2.OK()) {
                                     int fieldTypeID = CS2.GetInteger("contentFieldTypeID");
                                     string fieldType = cp.Content.GetRecordName("Content Field Types", fieldTypeID);

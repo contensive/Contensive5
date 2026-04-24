@@ -28,6 +28,25 @@ namespace Contensive.Processor.Controllers {
             // -- add widgets from the userConfig
             List<DashboardWidgetUserConfigModel> removeWidgets = [];
             foreach (DashboardWidgetUserConfigModel userConfigWidget in userConfig.widgets) {
+                //
+                // -- skip widgets with no addonGuid (they will be removed below)
+                if (string.IsNullOrEmpty(userConfigWidget.addonGuid)) {
+                    removeWidgets.Add(userConfigWidget);
+                    continue;
+                }
+                //
+                // -- verify the addon exists in the database
+                if (!addonExists(cp, userConfigWidget.addonGuid)) {
+                    removeWidgets.Add(userConfigWidget);
+                    continue;
+                }
+                //
+                // -- for portal dashboards, verify the portal feature linking this addon still exists
+                if (!string.IsNullOrEmpty(view.portalGuid) && !portalFeatureExists(cp, view.portalGuid, userConfigWidget.addonGuid)) {
+                    removeWidgets.Add(userConfigWidget);
+                    continue;
+                }
+                //
                 DashboardWidgetViewModel widget = buildDashboardWidgetView(cp, userConfigWidget);
                 if (!string.IsNullOrEmpty(widget.htmlContent)) {
                     //
@@ -155,6 +174,31 @@ namespace Contensive.Processor.Controllers {
                 cp.Site.ErrorReport(ex0, $"Error in buildDashboardWidgetView");
                 return result;
             }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Return true if an addon with the given guid exists in the database.
+        /// </summary>
+        private static bool addonExists(CPBaseClass cp, string addonGuid) {
+            using var dt = cp.Db.ExecuteQuery($"select top 1 id from ccAggregateFunctions where ccguid={cp.Db.EncodeSQLText(addonGuid)}");
+            return dt?.Rows.Count > 0;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Return true if a portal feature exists linking the portal to an addon with the given guid.
+        /// </summary>
+        private static bool portalFeatureExists(CPBaseClass cp, string portalGuid, string addonGuid) {
+            string sql = $@"
+                select top 1 f.id
+                from ccPortalFeatures f
+                inner join ccPortals p on p.id = f.portalid
+                inner join ccAggregateFunctions a on a.id = f.addonid
+                where p.ccguid = {cp.Db.EncodeSQLText(portalGuid)}
+                and a.ccguid = {cp.Db.EncodeSQLText(addonGuid)}";
+            using var dt = cp.Db.ExecuteQuery(sql);
+            return dt?.Rows.Count > 0;
         }
     }
 }

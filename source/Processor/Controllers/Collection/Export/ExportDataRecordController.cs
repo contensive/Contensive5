@@ -70,7 +70,7 @@ namespace Contensive.Processor.Controllers {
                                 Criteria = "name=" + cp.Db.EncodeSQLText(dataExport.recordName);
                             }
                             using (CPCSBaseClass csDataExportRecords = cp.CSNew()) {
-                                if (!csDataExportRecords.Open(dataExport.contentName, Criteria, "id")) {
+                                if (!csDataExportRecords.Open(dataExport.contentName, Criteria, "id", false)) {
                                     //
                                     // -- data records being exported.Comment and go to next DataExport (set of records, line in the collection file)
                                     RecordNodes.Append(""
@@ -118,11 +118,11 @@ namespace Contensive.Processor.Controllers {
                                                             && (!string.IsNullOrEmpty(contentField.manyToManyRuleSecondaryField))
                                                             && (!string.IsNullOrEmpty(secondaryContentName))) {
                                                             using (CPCSBaseClass csRule = cp.CSNew()) {
-                                                                csRule.Open(ruleContent, contentField.manyToManyRulePrimaryField + "=" + csDataExportRecords.GetInteger("id"));
+                                                                csRule.Open(ruleContent, $"{contentField.manyToManyRulePrimaryField}={csDataExportRecords.GetInteger("id")}", "", false);
                                                                 while (csRule.OK()) {
                                                                     int secondaryContentRecordId = csRule.GetInteger(contentField.manyToManyRuleSecondaryField);
                                                                     using (CPCSBaseClass CS3 = cp.CSNew()) {
-                                                                        CS3.Open(secondaryContentName, "ID=" + secondaryContentRecordId);
+                                                                        CS3.Open(secondaryContentName, $"ID={secondaryContentRecordId}", "", false);
                                                                         if (CS3.OK()) {
                                                                             string Guid = CS3.GetText("ccGuid");
                                                                             if (Guid == "") {
@@ -226,7 +226,7 @@ namespace Contensive.Processor.Controllers {
                                                                 string contentFieldLookupContentName = cp.Content.GetName(contentField.lookupContentId);
                                                                 if (!string.IsNullOrEmpty(contentFieldLookupContentName)) {
                                                                     using (CPCSBaseClass CSlookup = cp.CSNew()) {
-                                                                        CSlookup.OpenRecord(contentFieldLookupContentName, lookupRecordId);
+                                                                        CSlookup.OpenRecord(contentFieldLookupContentName, lookupRecordId, "", false);
                                                                         if (CSlookup.OK()) {
                                                                             outputValue = CSlookup.GetText("ccguid");
                                                                             if (string.IsNullOrEmpty(outputValue)) {

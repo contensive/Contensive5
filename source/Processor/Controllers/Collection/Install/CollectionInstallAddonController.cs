@@ -126,7 +126,7 @@ namespace Contensive.Processor.Controllers {
                                                                     if (fieldTypeId > 0) {
                                                                         using (var CS2 = new CsModel(core)) {
                                                                             Criteria = "(addonid=" + addonId + ")and(contentfieldTypeID=" + fieldTypeId + ")";
-                                                                            CS2.open("Add-on Content Field Type Rules", Criteria);
+                                                                            CS2.open("Add-on Content Field Type Rules", Criteria, "", false);
                                                                             if (!CS2.ok()) {
                                                                                 CS2.insert("Add-on Content Field Type Rules");
                                                                             }
@@ -163,10 +163,10 @@ namespace Contensive.Processor.Controllers {
                                                                     }
                                                                     using (var CS2 = new CsModel(core)) {
                                                                         Criteria = "(ccguid=" + DbController.encodeSQLText(ContentNameorGuid) + ")";
-                                                                        CS2.open("Content", Criteria);
+                                                                        CS2.open("Content", Criteria, "", false);
                                                                         if (!CS2.ok()) {
                                                                             Criteria = "(ccguid is null)and(name=" + DbController.encodeSQLText(ContentNameorGuid) + ")";
-                                                                            CS2.open("content", Criteria);
+                                                                            CS2.open("content", Criteria, "", false);
                                                                         }
                                                                         if (CS2.ok()) {
                                                                             TriggerContentId = CS2.getInteger("ID");
@@ -175,7 +175,7 @@ namespace Contensive.Processor.Controllers {
                                                                     if (TriggerContentId != 0) {
                                                                         using (var CS2 = new CsModel(core)) {
                                                                             Criteria = "(addonid=" + addonId + ")and(contentid=" + TriggerContentId + ")";
-                                                                            CS2.open("Add-on Content Trigger Rules", Criteria);
+                                                                            CS2.open("Add-on Content Trigger Rules", Criteria, "", false);
                                                                             if (!CS2.ok()) {
                                                                                 CS2.insert("Add-on Content Trigger Rules");
                                                                                 if (CS2.ok()) {

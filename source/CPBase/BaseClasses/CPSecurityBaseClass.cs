@@ -3,7 +3,9 @@ namespace Contensive.BaseClasses {
     public abstract class CPSecurityBaseClass {
         //
         //==========================================================================================
-        //
+        /// <summary>
+        /// Generate and return a random password string.
+        /// </summary>
         public abstract string GetRandomPassword();
         //
         //==========================================================================================

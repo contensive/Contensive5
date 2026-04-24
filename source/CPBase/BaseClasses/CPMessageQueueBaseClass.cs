@@ -34,11 +34,15 @@ namespace Contensive.BaseClasses {
         public abstract void SendMessage(string queueUrl, string message);
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Return a list of messages from the specified queue.
+        /// </summary>
         public abstract List<QueueMessageDetail> GetMessageList(string queueURL);
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Delete a message from the queue by its handle.
+        /// </summary>
         public abstract void DeleteMessage(string messsageHandle);
     }
 }

@@ -31,7 +31,7 @@ namespace Contensive.Processor.Controllers {
                     return string.Empty;
                 }
                 using CPCSBaseClass cs = cp.CSNew();
-                cs.OpenRecord("Add-on Collections", collection.id);
+                cs.OpenRecord("Add-on Collections", collection.id, "", false);
                 if (!cs.OK()) {
                     // 
                     // -- exit with error
@@ -275,10 +275,10 @@ namespace Contensive.Processor.Controllers {
                 {
                     string Node = "";
                     using (CPCSBaseClass CS3 = cp.CSNew()) {
-                        if (CS3.Open("Add-on Collection Parent Rules", "parentid=" + collection.id)) {
+                        if (CS3.Open("Add-on Collection Parent Rules", $"parentid={collection.id}", "", false)) {
                             do {
                                 using (CPCSBaseClass CS2 = cp.CSNew()) {
-                                    if (CS2.OpenRecord("Add-on Collections", CS3.GetInteger("childid"))) {
+                                    if (CS2.OpenRecord("Add-on Collections", CS3.GetInteger("childid"), "", false)) {
                                         string Guid = CS2.GetText("ccGuid");
                                         if (Guid == "") {
                                             Guid = cp.Utils.CreateGuid();

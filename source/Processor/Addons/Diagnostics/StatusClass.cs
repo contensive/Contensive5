@@ -126,6 +126,13 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 } else {
                     diagnosticDetail += Environment.NewLine + $"ok, no Windows updates pending (last checked: {status.lastCheckDate:yyyy-MM-dd HH:mm})";
                 }
+                if (status.tlsValid) {
+                    diagnosticDetail += Environment.NewLine + $"ok, TLS check passed.";
+                } else {
+                    diagnosticDetail += Environment.NewLine + status.tlsErrorMessage;
+                    return false;
+                }
+                
                 return true;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");

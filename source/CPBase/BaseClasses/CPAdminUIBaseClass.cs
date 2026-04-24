@@ -11,31 +11,45 @@ namespace Contensive.BaseClasses {
     public abstract class CPAdminUIBaseClass {
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Return the html for an admin portal identified by its guid.
+        /// </summary>
         public abstract string GetPortalHtml( string portalGuid );
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Create a new layout builder for constructing admin UI pages.
+        /// </summary>
         public abstract LayoutBuilder.LayoutBuilderBaseClass CreateLayoutBuilder();
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Create a two-column layout builder with the narrow column on the left.
+        /// </summary>
         public abstract LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass CreateLayoutBuilderTwoColumnLeft();
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Create a two-column layout builder with the narrow column on the right.
+        /// </summary>
         public abstract LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass CreateLayoutBuilderTwoColumnRight();
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Create a list layout builder for displaying tabular data with filters.
+        /// </summary>
         public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList();
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Create a name-value layout builder for displaying label and value pairs.
+        /// </summary>
         public abstract LayoutBuilder.LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue();
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Create a tabbed body layout builder for organizing content into tabs.
+        /// </summary>
         public abstract LayoutBuilder.LayoutBuilderTabbedBodyBaseClass CreateLayoutBuilderTabbedBody();
         //
         //====================================================================================================

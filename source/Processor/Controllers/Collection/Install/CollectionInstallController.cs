@@ -568,11 +568,11 @@ namespace Contensive.Processor.Controllers {
                                                                     if (metaData.fields["name"].uniqueName) {
                                                                         //
                                                                         // -- content's name field requires unique. Insert and update based on name and update guid
-                                                                        csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
+                                                                        csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName), "", false);
                                                                     } else {
                                                                         //
                                                                         // -- insert and update based on guid, and update name
-                                                                        csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
+                                                                        csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid), "", false);
                                                                     }
                                                                     if (!csData.ok()) { csData.insert(ContentName); }
                                                                     csData.set("name", string.IsNullOrEmpty(ContentRecordName) ? $"{ContentName} {csData.getInteger("id")}" : ContentRecordName);
@@ -616,7 +616,7 @@ namespace Contensive.Processor.Controllers {
                                                     }
                                                     if (!string.IsNullOrEmpty(ChildCollectionGuid)) {
                                                         using (var csData = new CsModel(core)) {
-                                                            csData.open("Add-on Collections", "ccguid=" + DbController.encodeSQLText(ChildCollectionGuid));
+                                                            csData.open("Add-on Collections", "ccguid=" + DbController.encodeSQLText(ChildCollectionGuid), "", false);
                                                             int ChildCollectionId = 0;
                                                             if (csData.ok()) {
                                                                 ChildCollectionId = csData.getInteger("id");
@@ -860,9 +860,9 @@ namespace Contensive.Processor.Controllers {
                             int recordId = 0;
                             using (var csData = new CsModel(core)) {
                                 if (!string.IsNullOrEmpty(contentRecordGuid)) {
-                                    csData.open(contentName, "ccguid=" + DbController.encodeSQLText(contentRecordGuid));
+                                    csData.open(contentName, "ccguid=" + DbController.encodeSQLText(contentRecordGuid), "", false);
                                 } else {
-                                    csData.open(contentName, "name=" + DbController.encodeSQLText(contentRecordName));
+                                    csData.open(contentName, "name=" + DbController.encodeSQLText(contentRecordName), "", false);
                                 }
                                 if (csData.ok()) {
                                     //
@@ -947,13 +947,13 @@ namespace Contensive.Processor.Controllers {
                                                         // -- find secondary content (record in secondary content with matching guid
                                                         using (var cs = core.cpParent.CSNew()) {
                                                             string secondaryContentName = core.cpParent.Content.GetName(fieldMetadata.manyToManyContentId);
-                                                            if (cs.Open(secondaryContentName, "ccGuid=" + core.cpParent.Db.EncodeSQLText(fieldValue))) {
+                                                            if (cs.Open(secondaryContentName, "ccGuid=" + core.cpParent.Db.EncodeSQLText(fieldValue), "", false)) {
                                                                 //
                                                                 // -- find rule record
                                                                 using (var csRule = core.cpParent.CSNew()) {
                                                                     string ruleContent = core.cpParent.Content.GetName(fieldMetadata.manyToManyRuleContentId);
                                                                     int secondaryRecordId = cs.GetInteger("id");
-                                                                    if (!csRule.Open(ruleContent, "(" + fieldMetadata.manyToManyRulePrimaryField + "=" + recordId + ")and(" + fieldMetadata.manyToManyRuleSecondaryField + "=" + secondaryRecordId + ")")) {
+                                                                    if (!csRule.Open(ruleContent, $"({fieldMetadata.manyToManyRulePrimaryField}={recordId})and({fieldMetadata.manyToManyRuleSecondaryField}={secondaryRecordId})", "", false)) {
                                                                         //
                                                                         // -- rule record is missing, check the box
                                                                         csRule.Close();
@@ -1162,7 +1162,7 @@ namespace Contensive.Processor.Controllers {
                                         }
                                         if (!string.IsNullOrEmpty(Criteria)) {
                                             using (var CS2 = new CsModel(core)) {
-                                                CS2.open(AddonModel.tableMetadata.contentName, Criteria);
+                                                CS2.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                                                 if (CS2.ok()) {
                                                     IncludeAddonId = CS2.getInteger("ID");
                                                 }

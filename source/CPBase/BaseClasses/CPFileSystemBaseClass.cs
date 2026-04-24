@@ -16,35 +16,35 @@ namespace Contensive.BaseClasses {
         /// </summary>
         public class FileDetail {
             /// <summary>
-            /// file name
+            /// File name including extension.
             /// </summary>
             public string Name { get; set; }
             /// <summary>
-            /// 
+            /// File system attributes.
             /// </summary>
             public int Attributes { get; set; }
             /// <summary>
-            /// 
+            /// Date the file was created.
             /// </summary>
             public DateTime? DateCreated { get; set; }
             /// <summary>
-            /// 
+            /// Date the file was last accessed.
             /// </summary>
             public DateTime? DateLastAccessed { get; set; }
             /// <summary>
-            /// 
+            /// Date the file was last modified.
             /// </summary>
             public DateTime? DateLastModified { get; set; }
             /// <summary>
-            /// 
+            /// File size in bytes.
             /// </summary>
             public long Size { get; set; }
             /// <summary>
-            /// 
+            /// File type description.
             /// </summary>
             public string Type { get; set; }
             /// <summary>
-            /// 
+            /// File extension derived from the file name.
             /// </summary>
             public string Extension {
                 get {
@@ -67,11 +67,29 @@ namespace Contensive.BaseClasses {
         /// argument details for file and folder methods
         /// </summary>
         public class FolderDetail {
+            /// <summary>
+            /// Folder name.
+            /// </summary>
             public string Name { get; set; }
+            /// <summary>
+            /// File system attributes.
+            /// </summary>
             public int Attributes { get; set; }
+            /// <summary>
+            /// Date the folder was created.
+            /// </summary>
             public DateTime? DateCreated { get; set; }
+            /// <summary>
+            /// Date the folder was last accessed.
+            /// </summary>
             public DateTime? DateLastAccessed { get; set; }
+            /// <summary>
+            /// Date the folder was last modified.
+            /// </summary>
             public DateTime? DateLastModified { get; set; }
+            /// <summary>
+            /// Folder type description.
+            /// </summary>
             public string Type { get; set; }
         }
         //
