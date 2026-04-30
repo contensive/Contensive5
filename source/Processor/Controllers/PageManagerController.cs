@@ -453,6 +453,7 @@ namespace Contensive.Processor.Controllers {
                     core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
                 }
                 core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
+                core.html.addStructuredData(page.structuredData, "page content structured data");
                 core.html.addHeadTag(page.otherHeadTags, "page content");
                 core.html.addMetaKeywordList(page.metaKeywordList, "page content");
                 core.doc.noFollow |= page.allowMetaContentNoFollow;
@@ -489,6 +490,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- get template
                 {
+                    core.html.addStructuredData(core.doc.pageController.template.StructuredData, "template structured data");
                     core.html.addHeadTag(core.doc.pageController.template.OtherHeadTags, "template head tags");
                     //
                     string templateHtml = core.doc.pageController.template.bodyHTML;

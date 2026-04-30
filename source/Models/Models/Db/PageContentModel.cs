@@ -71,6 +71,7 @@ namespace Contensive.Models.Db {
         public string metaKeywordList { get; set; }
         public string otherHeadTags { get; set; }
         public string pageTitle { get; set; }
+        public string structuredData { get; set; }
         public int parentId { get; set; }
         public string parentListName { get; set; }
         public DateTime? pubDate { get; set; }

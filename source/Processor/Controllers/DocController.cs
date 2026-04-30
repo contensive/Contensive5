@@ -91,6 +91,12 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// head structured data list, rendered before other head tags
+        /// </summary>
+        public List<HtmlMetaClass> htmlMetaContent_StructuredData { get; set; } = [];
+        //
+        //====================================================================================================
+        /// <summary>
         /// head meta tag list (convert to list object)
         /// </summary>
         public List<HtmlMetaClass> htmlMetaContent_OtherTags { get; set; } = [];

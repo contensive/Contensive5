@@ -403,10 +403,9 @@ Declare files to be deployed during installation. No path is needed for type="la
 ```xml
 <Resource Name="filename.zip" Type="www" Path="targetFolder" />
 <Resource Name="filename.zip" Type="files" Path="targetFolder" />
-<Resource Name="HelpFiles.zip" Type="helpfiles" Path="" />
-<Resource Name="myLayout.html" Type="layout" Path="layouts/myCollection" />
-<Resource Name="style.css" Type="layout" Path="layouts/myCollection" />
-<Resource Name="layoutBundle.zip" Type="layoutFiles" />
+<Resource Name="filename.zip" Type="privateFiles" Path="targetFolder" />
+<Resource Name="HelpFiles.zip" Type="helpfiles" />
+<Resource Name="layoutFiles.zip" Type="layoutFiles" />
 ```
 
 | Attribute | Description |

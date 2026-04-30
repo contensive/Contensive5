@@ -25,5 +25,6 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int mustacheDataSetAddonId { get; set; }
         public string OtherHeadTags { get; set; }
+        public string StructuredData { get; set; }
     }
 }

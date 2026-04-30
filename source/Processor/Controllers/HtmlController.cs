@@ -3017,6 +3017,14 @@ namespace Contensive.Processor.Controllers {
                     headList.AddRange(headScriptList);
                 }
                 //
+                // -- structured data - before other head tags
+                foreach (var asset in core.doc.htmlMetaContent_StructuredData.FindAll((a) => (!string.IsNullOrEmpty(a.content)))) {
+                    if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
+                        headList.Add(getAddedByComment(asset.addedByMessage, "Structured Data"));
+                    }
+                    headList.Add(asset.content);
+                }
+                //
                 // -- other head tags - always last
                 foreach (var asset in core.doc.htmlMetaContent_OtherTags.FindAll((a) => (!string.IsNullOrEmpty(a.content)))) {
                     if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
@@ -3291,6 +3299,29 @@ namespace Contensive.Processor.Controllers {
         }
         //
         public void addHeadTag(string headTag) => addHeadTag(headTag, "");
+        //
+        //=========================================================================================================
+        /// <summary>
+        /// Add structured data to the head. If the content does not start with a script tag, wrap it in one with type="application/ld+json".
+        /// </summary>
+        public void addStructuredData(string structuredData, string addedByMessage) {
+            try {
+                if (string.IsNullOrWhiteSpace(structuredData)) { return; }
+                string trimmed = structuredData.Trim();
+                if (!trimmed.StartsWith("<script", StringComparison.OrdinalIgnoreCase)) {
+                    trimmed = $"<script type=\"application/ld+json\">{trimmed}";
+                }
+                if (!trimmed.EndsWith("</script>", StringComparison.OrdinalIgnoreCase)) {
+                    trimmed = $"{trimmed}</script>";
+                }
+                core.doc.htmlMetaContent_StructuredData.Add(new HtmlMetaClass {
+                    addedByMessage = addedByMessage,
+                    content = trimmed
+                });
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+            }
+        }
         //
         //============================================================================
         //
