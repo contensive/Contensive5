@@ -53,8 +53,8 @@ When a token expires, the tool using it will receive an authentication error. To
 One common use for a bearer token is deploying a collection file to the site from a build process. After copying your token, the command looks like this:
 
 ```
-curl -X POST https://yoursite.com/installCollection \
-  -H "Authorization: Bearer <your token here>" \
+curl -X POST https://yoursite.com/installCollection ^
+  -H "Authorization: Bearer <your token here>" ^
   -F "collectionFile=@myCollection.zip"
 ```
 

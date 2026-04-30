@@ -41,7 +41,7 @@ Git/
       cdnFiles/           <-- accessible via a CDN URL the code generates
       privateFiles/       <-- accessible only by server-side code
       layoutFiles/        <-- HTML layout files (optional)
-      helpFiles/          <-- markdown help/documentation files (optional)
+    helpFiles/            <-- markdown help/documentation files (optional)
 ```
 
 - All folders that install on servers must be lowercase.
@@ -69,7 +69,8 @@ Runs all build steps in order. Addon repos call this with their configuration.
 | `CollectionDlls` | Yes | String array of DLL (and `.dll.config`) file names to include in the collection |
 | `CleanFolders` | No | String array of folders to delete before building (typically `bin\` and `obj\` for each project). Defaults to empty. |
 | `UiPath` | No | Root folder containing UI asset sub-folders. If omitted, UI packaging is skipped. |
-| `UiAssetFolders` | No | Sub-folder names under `UiPath` to zip into the collection. Defaults to `@('wwwFiles','cdnFiles','privateFiles','layoutFiles','helpFiles')`. |
+| `UiAssetFolders` | No | Sub-folder names under `UiPath` to zip into the collection. Defaults to `@('wwwFiles','cdnFiles','privateFiles','layoutFiles')`. |
+| `HelpFilesPath` | No | Path to the `helpFiles/` folder at the repo root. If omitted, help file packaging is skipped. |
 | `PackagesDirectory` | No | NuGet packages restore target directory. |
 | `Zip7Path` | No | Path to `7z.exe`. Defaults to `'C:\Program Files\7-Zip\7z.exe'`. |
 

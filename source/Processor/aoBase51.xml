@@ -4314,7 +4314,14 @@
       <field Name="parentfeatureid"></field>
       <field Name="datacontentid"></field>
     </Record>
-    
+
+    <Record Content="Portal Features" Guid="{7E3A1B4C-9D2F-4A85-B6C8-E1F0D5A39274}" Name="Pages To Review">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid">{BF25F9DE-02B3-4DDE-91AC-42AB66BF8049}</field>
+      <field Name="parentfeatureid"></field>
+      <field Name="datacontentid"></field>
+    </Record>
+
 <!--
     tmp block install until it is ready 
 	<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Comm">
@@ -4322,16 +4329,6 @@
 		<field Name="icon">BaseAssets/dashboardIcons/communications.svg</field>
 	</Record>
     -->
-
-
-		<Record Content="portal features" Guid="{4C8AF610-AB0B-4091-9997-CE90A9874E7F}" Name="Dash Widget Pages To Review">
-			<field Name="active">false</field>
-			<field Name="addonId">{BF25F9DE-02B3-4DDE-91AC-42AB66BF8049}</field>
-			<field Name="dataContentId"></field>
-			<field Name="Heading"><![CDATA[]]></field>
-			<field Name="parentFeatureId"></field>
-			<field Name="portalId">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-		</Record>
 
     <Record Content="Portal Features" Guid="{fef4be31-16af-48a7-89ae-2b8c45b9788a}" Name="Email">
       <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>

@@ -144,9 +144,10 @@ namespace Contensive.Processor.Controllers {
                         // -- ignore the resource path for helpfiles, always install to helpfiles\
                         string helpFilesDstPath = "helpfiles\\";
                         //
-                        // -- prefix filename with collection name, except for the help pages collection
+                        // -- prefix filename with collection name (Base5 uses "Contensive" prefix)
                         string originalFilename = filename;
-                        filename = $"{collectionName}.{filename}";
+                        string helpPrefix = getHelpFilePrefix(collectionName);
+                        filename = $"{helpPrefix}.{filename}";
                         //
                         logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, copying file to privateFiles helpFiles, src [{collectionVersionFolder}{SrcPath}], dst [{helpFilesDstPath}].");
                         core.privateFiles.copyFile(collectionVersionFolder + SrcPath + originalFilename, helpFilesDstPath + filename);
@@ -154,7 +155,7 @@ namespace Contensive.Processor.Controllers {
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], pass 1, unzipping helpFiles file [{helpFilesDstPath}{filename}].");
                             resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "helpfiles", folderPath = helpFilesDstPath });
                             trackedFolders.Add($"helpfiles::{helpFilesDstPath}");
-                            unzipHelpFilesToTempThenCopy(core, helpFilesDstPath, helpFilesDstPath + filename, collectionName, resourceManifest);
+                            unzipHelpFilesToTempThenCopy(core, helpFilesDstPath, helpFilesDstPath + filename, helpPrefix, resourceManifest);
                             core.privateFiles.deleteFile(helpFilesDstPath + filename);
                         } else {
                             resourceManifest.resources.Add(new ResourceManifestModel.ResourceManifestEntry { type = "helpfiles", destinationPath = helpFilesDstPath + filename });
@@ -291,10 +292,10 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Unzip a help file zip into a temp folder, prefix extracted files with collection name,
+        /// Unzip a help file zip into a temp folder, prefix extracted files with the help prefix,
         /// then copy each file to the destination. New files are added to the manifest.
         /// </summary>
-        internal static void unzipHelpFilesToTempThenCopy(CoreController core, string dstPath, string zipPathFilename, string collectionName, ResourceManifestModel resourceManifest ) {
+        internal static void unzipHelpFilesToTempThenCopy(CoreController core, string dstPath, string zipPathFilename, string helpPrefix, ResourceManifestModel resourceManifest ) {
             string tempPath = $"installHelpZip{GenericController.getRandomInteger()}\\";
             try {
                 core.tempFiles.createPath(tempPath);
@@ -305,8 +306,8 @@ namespace Contensive.Processor.Controllers {
                 core.tempFiles.unzipFile(tempPath + zipFilename);
                 core.tempFiles.deleteFile(tempPath + zipFilename);
                 //
-                // -- prefix all extracted files in temp with collection name
-                prefixTempHelpFiles(core, tempPath, collectionName);
+                // -- prefix all extracted files in temp with the help prefix
+                prefixTempHelpFiles(core, tempPath, helpPrefix);
                 //
                 // -- copy from temp to destination, tracking new files in manifest
                 ResourceManifestModel.copyTempToDestRecursively(core, core.privateFiles, tempPath, dstPath, "helpfiles", resourceManifest, alwaysAddToManifest: true);
@@ -317,11 +318,11 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// Recursively prefix all files in a temp helpFiles folder with the collection name.
+        /// Recursively prefix all files in a temp helpFiles folder with the help prefix.
         /// Since all files in temp are newly extracted, no existing-files check is needed.
         /// </summary>
-        internal static void prefixTempHelpFiles(CoreController core, string folderPath, string collectionName) {
-            string prefix = $"{collectionName}.";
+        internal static void prefixTempHelpFiles(CoreController core, string folderPath, string helpPrefix) {
+            string prefix = $"{helpPrefix}.";
             foreach (var extractedFile in core.tempFiles.getFileList(folderPath)) {
                 if (extractedFile.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) { continue; }
                 string prefixedName = $"{prefix}{extractedFile.Name}";
@@ -329,8 +330,20 @@ namespace Contensive.Processor.Controllers {
                 core.tempFiles.deleteFile(folderPath + extractedFile.Name);
             }
             foreach (var subFolder in core.tempFiles.getFolderList(folderPath)) {
-                prefixTempHelpFiles(core, $"{folderPath}{subFolder.Name}\\", collectionName);
+                prefixTempHelpFiles(core, $"{folderPath}{subFolder.Name}\\", helpPrefix);
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return the prefix used for helpfile names. The Base5 collection uses "Contensive"
+        /// instead of the collection name so help files are branded consistently.
+        /// </summary>
+        private static string getHelpFilePrefix(string collectionName) {
+            if (collectionName.Equals("Base5", StringComparison.OrdinalIgnoreCase)) {
+                return "Contensive";
+            }
+            return collectionName;
         }
         //
         //====================================================================================================

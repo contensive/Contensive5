@@ -568,6 +568,17 @@ namespace Contensive.Processor.Controllers.Build {
                         // -- delete deprecated Server Diagnostic addon, replaced by GetServerDiagnosticsSummary in StatusClass
                         core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{58239C18-1B40-4401-9E6F-25E057327393}'");
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.4.30.1")) {
+                        //
+                        // -- rename helpfiles prefixed with "Base5." to "Contensive."
+                        string helpFilesPath = "helpfiles\\";
+                        foreach (var file in core.privateFiles.getFileList(helpFilesPath)) {
+                            if (file.Name.StartsWith("Base5.", StringComparison.OrdinalIgnoreCase)) {
+                                string newFilename = $"Contensive.{file.Name.Substring("Base5.".Length)}";
+                                core.privateFiles.renameFile($"{helpFilesPath}{file.Name}", newFilename);
+                            }
+                        }
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

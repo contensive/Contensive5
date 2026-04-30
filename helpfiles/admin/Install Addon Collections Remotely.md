@@ -29,13 +29,15 @@ Replace `yoursite.com` with your site's address.
 
 ## How to Use curl
 
-Open a terminal or command prompt and run:
+Open a Windows command prompt and run:
 
 ```
-curl -X POST https://yoursite.com/installCollection \
-  -H "Authorization: Bearer <your token here>" \
+curl -X POST https://yoursite.com/installCollection ^
+  -H "Authorization: Bearer <your token here>" ^
   -F "collectionFile=@myCollection.zip"
 ```
+
+The `^` at the end of each line is the Windows command prompt line-continuation character. You can also put the entire command on a single line without the `^` characters.
 
 - Replace `https://yoursite.com` with your site's address.
 - Replace `<your token here>` with the bearer token you copied from the admin site.
