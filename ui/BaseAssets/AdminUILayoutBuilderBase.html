@@ -809,6 +809,7 @@
 					<!--
 					{{#csvDownloadFilename}}<p class="afwDescription" id="afwDescription my-2"><a href="{{csvDownloadFilename}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
 					-->
+					{{#hasBeforeContent}}
 					<div class="afwBeforeHtml my-2">
 						<div class="d-flex justify-content-start align-items-center">
 							{{#includeFilter}}
@@ -897,8 +898,9 @@
 							<button type="submit" name="{{activeFilterName}}" value="{{activeFilterValue}}" class="px-2 filter-btn ms-2">{{activeFilterCaption}}</button>
 							{{/activeFilters}}
 							{{{htmlBeforeBody}}}
-						</div>							
+						</div>
 					</div>
+					{{/hasBeforeContent}}
 					{{#htmlLeftOfBody}}
 						<div class="afwLeftSideHtml border-end my-2 pe-1">{{{htmlLeftOfBody}}}</div>
 						<div class="afwRightSideHtml my-2 ps-1">{{{body}}}</div>

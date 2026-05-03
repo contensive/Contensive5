@@ -335,6 +335,7 @@ function Invoke-ContensiveBuild {
     Copy-Item (Join-Path $BinPath '*.dll') -Destination $collectionFolder -Force
     Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
     Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $BinPath '*.dep') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
 
     Push-Location $collectionFolder
     try {

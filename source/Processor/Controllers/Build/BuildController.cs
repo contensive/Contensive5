@@ -141,7 +141,7 @@ namespace Contensive.Processor.Controllers.Build {
                     }
                     //
                     // -- data updates
-                    logger.Info($"{core.logCommonMessage},{logPrefix}, run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, run database migrations, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
                     BuildDataMigrationController.migrateData(core, DataBuildVersion, logPrefix);
                     //
                     //  verify data

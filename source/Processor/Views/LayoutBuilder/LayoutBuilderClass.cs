@@ -198,6 +198,13 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string htmlBeforeBody { get; set; } = "";
         //
         // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// true if the before-body section has any content (filters, htmlBeforeBody, or active filters).
+        /// Used by the template to conditionally render the afwBeforeHtml wrapper.
+        /// </summary>
+        public bool hasBeforeContent { get { return includeFilter || !string.IsNullOrEmpty(htmlBeforeBody) || (activeFilters != null && activeFilters.Count > 0); } }
+        //
+        // ----------------------------------------------------------------------------------------------------
         //
         /// <summary>
         /// An html block added below the Body. Typically used for filters.

@@ -267,7 +267,34 @@ function contensiveCreateBearerToken(userId) {
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.success) {
-                prompt('Copy your bearer token (expires ' + data.expires + '). Use as: Authorization: Bearer <token>', data.token);
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+                var box = document.createElement('div');
+                box.style.cssText = 'background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:sans-serif;';
+                box.innerHTML = '<h3 style=""margin:0 0 8px"">Bearer Token Created</h3>'
+                    + '<p style=""margin:0 0 12px;color:#666"">Expires ' + data.expires + '. Use as: Authorization: Bearer &lt;token&gt;</p>'
+                    + '<div style=""display:flex;gap:8px;align-items:center;"">'
+                    + '<input id=""ccBearerTokenValue"" type=""text"" readonly value=""' + data.token + '"" style=""flex:1;padding:8px;font-family:monospace;font-size:13px;border:1px solid #ccc;border-radius:4px;"">'
+                    + '<button id=""ccBearerTokenCopy"" style=""padding:8px 16px;background:#0d6efd;color:#fff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;"">Copy</button>'
+                    + '</div>'
+                    + '<div style=""text-align:right;margin-top:16px;"">'
+                    + '<button id=""ccBearerTokenClose"" style=""padding:6px 20px;background:#6c757d;color:#fff;border:none;border-radius:4px;cursor:pointer;"">Close</button>'
+                    + '</div>';
+                overlay.appendChild(box);
+                document.body.appendChild(overlay);
+                var tokenInput = document.getElementById('ccBearerTokenValue');
+                var copyBtn = document.getElementById('ccBearerTokenCopy');
+                var closeBtn = document.getElementById('ccBearerTokenClose');
+                copyBtn.addEventListener('click', function() {
+                    tokenInput.select();
+                    navigator.clipboard.writeText(tokenInput.value).then(function() {
+                        copyBtn.textContent = 'Copied!';
+                        copyBtn.style.background = '#198754';
+                        setTimeout(function() { copyBtn.textContent = 'Copy'; copyBtn.style.background = '#0d6efd'; }, 2000);
+                    });
+                });
+                closeBtn.addEventListener('click', function() { document.body.removeChild(overlay); });
+                overlay.addEventListener('click', function(e) { if (e.target === overlay) { document.body.removeChild(overlay); } });
             } else {
                 alert('Error creating bearer token: ' + data.message);
             }
