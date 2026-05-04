@@ -299,6 +299,11 @@ namespace Contensive.Processor.Controllers {
                             //
                         }
                         //
+                        // -- if recaptcha-v3 detected a bot, flag as bot (only sets true, never clears)
+                        if (core.siteProperties.getBoolean("recaptchav3 is bot", false)) {
+                            visit.bot = true;
+                        }
+                        //
                         // -- new visit, update the persistant visitor cookie
                         setVisitorCookie(core, this);
                         //
