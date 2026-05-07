@@ -2994,6 +2994,27 @@
 		</Field>
 	</CDef>
 
+	<CDef Name="OAuth Authorization Codes" NavTypeId="System" AddonCategoryId="" Active="true" AdminOnly="1" AllowAdd="0" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="Default" AuthoringTableName="ccOAuthCodes" ContentDataSourceName="Default" ContentTableName="ccOAuthCodes" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="Name" EditorGroupName="" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}">
+		<Field Name="Name" Active="true" AdminOnly="false" Authorable="false" Caption="Name" DeveloperOnly="false" EditSortPriority="110" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="20" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="code" Active="true" AdminOnly="false" Authorable="false" Caption="Code" DeveloperOnly="false" EditSortPriority="1000" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="40" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="true" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="userId" Active="true" AdminOnly="false" Authorable="false" Caption="User ID" DeveloperOnly="false" EditSortPriority="1010" FieldType="Integer" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="10" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="codeChallenge" Active="true" AdminOnly="false" Authorable="false" Caption="Code Challenge" DeveloperOnly="false" EditSortPriority="1020" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="60" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="codeChallengeMethod" Active="true" AdminOnly="false" Authorable="false" Caption="Code Challenge Method" DeveloperOnly="false" EditSortPriority="1030" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="10" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="S256" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="redirectUri" Active="true" AdminOnly="false" Authorable="false" Caption="Redirect URI" DeveloperOnly="false" EditSortPriority="1040" FieldType="LongText" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="clientId" Active="true" AdminOnly="false" Authorable="false" Caption="Client ID" DeveloperOnly="false" EditSortPriority="1050" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="20" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="expiresAt" Active="true" AdminOnly="false" Authorable="false" Caption="Expires At" DeveloperOnly="false" EditSortPriority="1060" FieldType="Date" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="20" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+	</CDef>
+
+	<CDef Name="OAuth Clients" NavTypeId="System" AddonCategoryId="" Active="true" AdminOnly="1" AllowAdd="0" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="Default" AuthoringTableName="ccOAuthClients" ContentDataSourceName="Default" ContentTableName="ccOAuthClients" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="Name" EditorGroupName="" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" Guid="{B2C3D4E5-F6A7-4890-BCDE-F12345678901}">
+		<Field Name="Name" Active="true" AdminOnly="false" Authorable="false" Caption="Name" DeveloperOnly="false" EditSortPriority="110" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="20" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="clientId" Active="true" AdminOnly="false" Authorable="false" Caption="Client ID" DeveloperOnly="false" EditSortPriority="1000" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="40" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="true" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="clientName" Active="true" AdminOnly="false" Authorable="false" Caption="Client Name" DeveloperOnly="false" EditSortPriority="1010" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="30" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="redirectUris" Active="true" AdminOnly="false" Authorable="false" Caption="Redirect URIs" DeveloperOnly="false" EditSortPriority="1020" FieldType="LongText" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="grantTypes" Active="true" AdminOnly="false" Authorable="false" Caption="Grant Types" DeveloperOnly="false" EditSortPriority="1030" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="20" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="authorization_code" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="responseTypes" Active="true" AdminOnly="false" Authorable="false" Caption="Response Types" DeveloperOnly="false" EditSortPriority="1040" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="20" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="code" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+		<Field Name="tokenEndpointAuthMethod" Active="true" AdminOnly="false" Authorable="false" Caption="Token Endpoint Auth Method" DeveloperOnly="false" EditSortPriority="1050" FieldType="Text" HtmlContent="false" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="15" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="none" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" ></Field>
+	</CDef>
+
 	<CDef Name="Admin Framework Report Columns" Active="true" AdminOnly="false" AllowAdd="true" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="true" AllowMetaContent="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="Default" AuthoringTableName="adminFrameworkReportColumns" ContentDataSourceName="Default" ContentTableName="adminFrameworkReportColumns" DefaultSortMethod="By Name" DeveloperOnly="false" DropDownFieldList="Name" EditorGroupName="" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" isbasecontent="0" Guid="{9BE04402-D81B-4648-8EF4-6A53CDF6595B}" >
 		<Field Name="Name" Active="true" AdminOnly="false" Authorable="true" Caption="Name" DeveloperOnly="false" EditSortPriority="110" FieldType="Text" HTMLContent="false" IndexColumn="10" IndexSortDirection="" IndexSortOrder="99" IndexWidth="21" RedirectId="0" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditTab="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="true" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
 			<HelpDefault><![CDATA[The name of the field. This name does NOT appear on the report.]]></HelpDefault>
@@ -3287,7 +3308,107 @@
 		<RemoteMethod>true</RemoteMethod>
 		<DotNetClass>Contensive.Processor.Addons.Collection.InstallCollectionRemoteMethod</DotNetClass>
 	</Addon>
-	
+
+	<Addon Name="content-api-page-list" Guid="{B1A2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageListRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-get" Guid="{C2B3D4E5-F6A7-4B8C-9D0E-1F2A3B4C5D6E}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageGetRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-create" Guid="{D3C4E5F6-A7B8-4C9D-0E1F-2A3B4C5D6E7F}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageCreateRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-update" Guid="{E4D5F6A7-B8C9-4D0E-1F2A-3B4C5D6E7F80}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageUpdateRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-widget-types" Guid="{F5E6A7B8-C9D0-4E1F-2A3B-4C5D6E7F8091}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.WidgetTypesRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-addonlist" Guid="{A6F7B8C9-D0E1-4F2A-3B4C-5D6E7F809102}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAddonListGetRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-addonlist-add" Guid="{B7A8C9D0-E1F2-4A3B-4C5D-6E7F80910213}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAddonListAddRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-addonlist-remove" Guid="{C8B9D0E1-F2A3-4B4C-5D6E-7F8091021324}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAddonListRemoveRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-addonlist-reorder" Guid="{D9C0E1F2-A3B4-4C5D-6E7F-809102132435}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAddonListReorderRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-addonlist-add-column-block" Guid="{E0D1F2A3-B4C5-4D6E-7F80-910213243546}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAddonListAddColumnBlockRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-page-addonlist-add-to-column" Guid="{F1E2A3B4-C5D6-4E7F-8091-021324354657}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAddonListAddToColumnRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-widget-instance-get" Guid="{A2F3B4C5-D6E7-4F80-9102-132435465768}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.WidgetInstanceGetRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-widget-instance-update" Guid="{B3A4C5D6-E7F8-4091-0213-243546576879}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.WidgetInstanceUpdateRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-image-upload" Guid="{C4B5D6E7-F809-4102-1324-35465768798A}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.ImageUploadRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-image-list" Guid="{D5C6E7F8-0910-4213-2435-4657687989AB}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.ImageListRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="content-api-image-alt-text" Guid="{E6D7F809-1021-4324-3546-57687989ABBC}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.ImageAltTextRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name=".well-known/oauth-authorization-server" Guid="{F7A8B9C0-D1E2-4F3A-5B6C-7D8E9F012345}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.OAuth.OAuthMetadataRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="oauth/authorize" Guid="{08B9C0D1-E2F3-4A5B-6C7D-8E9F01234567}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.OAuth.OAuthAuthorizeRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="oauth/token" Guid="{19C0D1E2-F3A4-4B5C-6D7E-8F9012345678}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.OAuth.OAuthTokenRemoteMethod</DotNetClass>
+	</Addon>
+
+	<Addon Name="oauth/register" Guid="{2AC1D2E3-F4A5-4B6C-7D8E-9F0123456789}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.OAuth.OAuthRegisterRemoteMethod</DotNetClass>
+	</Addon>
+
 	<Addon Name="Portal" Guid="{A1BCA00C-2657-42A1-8F98-BED1E5A42025}" Type="Add-on">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.PortalFramework.Addons.PortalAddon]]></DotNetClass>
 		<ArgumentList><![CDATA[Portal=[listid(portals)]]]></ArgumentList>
@@ -3883,6 +4004,9 @@
   <SQLIndex IndexName="ccVisitSummaryDateTimeDuration" DataSourceName="Default" TableName="ccVisitSummary" FieldNameList="DateNumber,TimeNumber,TimeDuration" />
   <SQLIndex IndexName="ccPropertiesTypeidKeyIdActive" DataSourceName="Default" TableName="ccProperties" FieldNameList="typeid,keyid,active" />
   <SQLIndex IndexName="ccFieldHelpFieldIdAcive" DataSourceName="Default" TableName="ccFieldHelp" FieldNameList="FieldID,active" />
+  <SQLIndex IndexName="ccOAuthCodesCode" DataSourceName="Default" TableName="ccOAuthCodes" FieldNameList="code" />
+  <SQLIndex IndexName="ccOAuthCodesExpiresAt" DataSourceName="Default" TableName="ccOAuthCodes" FieldNameList="expiresAt" />
+  <SQLIndex IndexName="ccOAuthClientsClientId" DataSourceName="Default" TableName="ccOAuthClients" FieldNameList="clientId" />
 
   <!-- Manage Add-ons -->
   <NavigatorEntry Name="Manage Add-ons" NameSpace="" NavIconTitle="" NavIconType="Addon" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{DBA354AB-5D3E-4882-8718-CF23CAAB7927}" />
@@ -4028,7 +4152,7 @@
       <field Name="iconhtml"><![CDATA[<i class="fas fa-cog"></i>]]></field>
     </Record>
 
-	<Record Content="Portals" Guid="{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}" Name="Content Management">
+	<Record Content="Portals" Guid="{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}" Name="Content">
 		<field Name="defaultfeatureid"></field>
 		<field Name="icon">BaseAssets/dashboardIcons/content.svg</field>
 	</Record>
@@ -4330,7 +4454,7 @@
 
 <!--
     tmp block install until it is ready 
-	<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Comm">
+	<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Share">
 		<field Name="defaultfeatureid"></field>
 		<field Name="icon">BaseAssets/dashboardIcons/communications.svg</field>
 	</Record>

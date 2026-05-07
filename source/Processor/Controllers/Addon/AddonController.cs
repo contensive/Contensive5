@@ -1551,6 +1551,23 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addonFound">If found, the search for the assembly can be abandoned</param>
         /// <returns></returns>
         private string execute_dotNetClass_assembly(AddonModel addon, string assemblyPrivateAbsPathFilename, ref bool addonFound) {
+            //
+            // -- register an AssemblyResolve handler so the CLR can find dependency DLLs
+            // -- that live in the same directory as the addon assembly (e.g. transitive NuGet dependencies)
+            string addonDirectory = Path.GetDirectoryName(assemblyPrivateAbsPathFilename);
+            ResolveEventHandler assemblyResolveHandler = (sender, args) => {
+                try {
+                    var assemblyName = new AssemblyName(args.Name);
+                    string candidatePath = Path.Combine(addonDirectory, assemblyName.Name + ".dll");
+                    if (File.Exists(candidatePath)) {
+                        return Assembly.LoadFrom(candidatePath);
+                    }
+                } catch (Exception ex) {
+                    logger.Trace($"{core.logCommonMessage},AssemblyResolve handler, failed to resolve [{args.Name}], exception [{ex.Message}]");
+                }
+                return null;
+            };
+            AppDomain.CurrentDomain.AssemblyResolve += assemblyResolveHandler;
             try {
                 //
                 logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, enter, [" + assemblyPrivateAbsPathFilename + "]");
@@ -1721,6 +1738,10 @@ namespace Contensive.Processor.Controllers {
                 // -- this exception should interrupt the caller
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
+            } finally {
+                //
+                // -- always remove the handler so it does not leak across unrelated assembly loads
+                AppDomain.CurrentDomain.AssemblyResolve -= assemblyResolveHandler;
             }
         }
         //
