@@ -118,6 +118,46 @@ function Invoke-ZipFolder {
     }
 }
 
+function Invoke-DotnetBuildSolution {
+<#
+.SYNOPSIS
+    Runs dotnet clean then dotnet build for SDK-style (.NET Standard / .NET Core / .NET 5+) projects.
+.PARAMETER SolutionPath
+    Absolute path to the .sln file to build.
+.PARAMETER Configuration
+    Build configuration (Debug or Release). Defaults to Release.
+.PARAMETER Version
+    Version string to pass as /property:Version. Optional.
+.PARAMETER ProjectPath
+    Optional path to a specific .csproj to build instead of the full solution.
+    When provided, dotnet build targets this project with --no-dependencies.
+#>
+    param(
+        [Parameter(Mandatory)][string]$SolutionPath,
+        [string]$Configuration = 'Release',
+        [string]$Version = '',
+        [string]$ProjectPath = ''
+    )
+    if (-not (Test-Path $SolutionPath)) { throw "Solution not found: $SolutionPath" }
+
+    Write-Host "Cleaning solution..."
+    & dotnet clean $SolutionPath
+    if ($LASTEXITCODE -ne 0) { throw "dotnet clean failed for: $SolutionPath" }
+
+    $buildTarget = if ($ProjectPath) { $ProjectPath } else { $SolutionPath }
+    $buildArgs = @($buildTarget, "--configuration", $Configuration)
+    if ($ProjectPath) { $buildArgs += '--no-dependencies' }
+    if ($Version) {
+        $buildArgs += "/property:Version=$Version"
+        $buildArgs += "/property:AssemblyVersion=$Version"
+        $buildArgs += "/property:FileVersion=$Version"
+    }
+
+    Write-Host "Building solution ($Configuration) via dotnet CLI..."
+    & dotnet build @buildArgs
+    if ($LASTEXITCODE -ne 0) { throw "dotnet build failed for: $buildTarget" }
+}
+
 function Invoke-MSBuildSolution {
 <#
 .SYNOPSIS
@@ -202,11 +242,16 @@ function Invoke-ContensiveBuild {
 
 .PARAMETER UiAssetFolders
     Sub-folder names under UiPath to zip into the collection.
-    Defaults to the standard five: wwwFiles, cdnFiles, privateFiles,
-    layoutFiles, helpFiles.
+    Defaults to: wwwFiles, cdnFiles, privateFiles, layoutFiles.
+
+.PARAMETER DotnetProjectPath
+    Path to a .csproj to build via dotnet CLI instead of MSBuild.
+    When provided, the build uses 'dotnet clean' and 'dotnet build'
+    with --no-dependencies. Required for .NET Standard / .NET Core /
+    .NET 5+ projects.
 
 .PARAMETER PackagesDirectory
-    NuGet packages restore target directory. Optional.
+    NuGet packages restore target directory. Optional (MSBuild only).
 
 .PARAMETER Zip7Path
     Path to 7z.exe. Defaults to 'C:\Program Files\7-Zip\7z.exe'.
@@ -220,7 +265,8 @@ function Invoke-ContensiveBuild {
         [string]   $Configuration   = 'Release',
         [string[]] $CleanFolders    = @(),
         [string]   $UiPath          = '',
-        [string[]] $UiAssetFolders  = @('wwwFiles', 'cdnFiles', 'privateFiles', 'layoutFiles', 'helpFiles'),
+        [string[]] $UiAssetFolders  = @('wwwFiles', 'cdnFiles', 'privateFiles', 'layoutFiles'),
+        [string]   $DotnetProjectPath = '',
         [string]   $PackagesDirectory = '',
         [string]   $Zip7Path        = 'C:\Program Files\7-Zip\7z.exe',
         [string[]] $NuGetProjects   = @()
@@ -231,7 +277,10 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot
     $deploymentFolder = New-DeploymentFolder  -DeploymentRoot $DeploymentRoot -Version $version
-    $msbuild          = Find-MSBuild
+    $useDotnet        = [bool]$DotnetProjectPath
+    if (-not $useDotnet) {
+        $msbuild = Find-MSBuild
+    }
 
     Write-Host ""
     Write-Host "========================================"
@@ -286,13 +335,33 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
+    # Step 3.5 — Package help files
+    # -----------------------------------------------------------------------
+    if ($UiPath) {
+        $helpFilesPath = Join-Path (Split-Path $UiPath -Parent) 'helpfiles'
+        if (Test-Path $helpFilesPath) {
+            Write-Host "Packaging help files..."
+            Invoke-ZipFolder -SourceFolder $helpFilesPath `
+                             -DestZip      (Join-Path $collectionFolder 'HelpFiles.zip') `
+                             -Zip7Path     $Zip7Path
+        }
+    }
+
+    # -----------------------------------------------------------------------
     # Step 4 — Build the solution
     # -----------------------------------------------------------------------
-    Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
-                           -MSBuild           $msbuild `
-                           -Configuration     $Configuration `
-                           -PackagesDirectory $PackagesDirectory `
-                           -Version           $version
+    if ($useDotnet) {
+        Invoke-DotnetBuildSolution -SolutionPath  $SolutionPath `
+                                   -Configuration $Configuration `
+                                   -Version       $version `
+                                   -ProjectPath   $DotnetProjectPath
+    } else {
+        Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
+                               -MSBuild           $msbuild `
+                               -Configuration     $Configuration `
+                               -PackagesDirectory $PackagesDirectory `
+                               -Version           $version
+    }
 
     # -----------------------------------------------------------------------
     # Step 4.5 — Build NuGet packages (if specified)
@@ -336,6 +405,7 @@ function Invoke-ContensiveBuild {
     Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
     Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
     Copy-Item (Join-Path $BinPath '*.dep') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $BinPath '*.deps.json') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
 
     Push-Location $collectionFolder
     try {
@@ -370,4 +440,4 @@ function Invoke-ContensiveBuild {
 Export-ModuleMember -Function Invoke-ContensiveBuild, `
                                Get-ContensiveVersion, Find-MSBuild, `
                                New-DeploymentFolder,  Invoke-ZipFolder, `
-                               Invoke-MSBuildSolution
+                               Invoke-MSBuildSolution, Invoke-DotnetBuildSolution

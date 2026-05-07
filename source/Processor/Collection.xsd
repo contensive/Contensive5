@@ -391,16 +391,16 @@
 					<xs:element name="HelpLink" minOccurs="1" maxOccurs="unbounded" type="xs:string" />
 				</xs:choice>
 			</xs:sequence>
-			<xs:attribute name="name" type="xs:string" use="required" />
-			<xs:attribute name="guid" use="required">
+			<xs:attribute name="Name" type="xs:string" use="required" />
+			<xs:attribute name="Guid" use="required">
 				<xs:simpleType>
 					<xs:restriction base ="GUID"/>
 			   </xs:simpleType>
 			</xs:attribute>
-			<xs:attribute name="system" type="xs:boolean" />
-			<xs:attribute name="updateable" type="xs:boolean" />
-			<xs:attribute name="blockNavigatorNode" type="xs:boolean" />
-			<xs:attribute name="onInstallAddonGuid">
+			<xs:attribute name="System" type="xs:boolean" />
+			<xs:attribute name="Updateable" type="xs:boolean" />
+			<xs:attribute name="BlockNavigatorNode" type="xs:boolean" />
+			<xs:attribute name="OnInstallAddonGuid">
 				<xs:simpleType>
 					<xs:union>
 						<xs:simpleType>
