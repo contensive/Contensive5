@@ -18,6 +18,12 @@ The collection XML file is how Contensive creates and updates database schema wh
 See [Addon Collection Pattern](patterns/addon-collection-pattern.md) for CDef and Field XML syntax.
 See [Database Models Pattern](patterns/database-models-pattern.md) for C# model conventions.
 
+## Testing
+
+- [Contensive Testing Pattern](patterns/testing-pattern.md)
+- E2E tests: `tests/e2e/` (Playwright, TypeScript)
+- Integration tests: `source/ProcessorTests/` and `source/ModelsTests/` (MSTest, C#)
+
 ## Code Style
 
 - Always prefer string interpolation over string concatenation

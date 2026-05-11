@@ -11,7 +11,7 @@ namespace Contensive.Processor.Addons.ContentApi {
     public class PageAddonListReorderRemoteMethod : AddonBaseClass {
         //
         private class ReorderRequest {
-            public int pageId { get; set; }
+            public string url { get; set; }
             public List<string> instanceGuids { get; set; }
         }
         //
@@ -26,32 +26,28 @@ namespace Contensive.Processor.Addons.ContentApi {
                     return ContentApiHelper.errorResponse(cp, "Request body is required.");
                 }
                 var request = cp.JSON.Deserialize<ReorderRequest>(requestBody);
-                if (request == null || request.pageId <= 0 || request.instanceGuids == null || request.instanceGuids.Count == 0) {
-                    return ContentApiHelper.errorResponse(cp, "pageId and instanceGuids are required.");
+                if (request == null || string.IsNullOrEmpty(request.url) || request.instanceGuids == null || request.instanceGuids.Count == 0) {
+                    return ContentApiHelper.errorResponse(cp, "url and instanceGuids are required.");
                 }
                 //
-                var page = DbBaseModel.create<PageContentModel>(cp, request.pageId);
-                if (page == null) {
-                    return ContentApiHelper.errorResponse(cp, "Page not found.");
+                var context = UrlResolverHelper.resolve(cp, request.url);
+                if (context == null) {
+                    return ContentApiHelper.errorResponse(cp, $"No page found for url '{request.url}'.");
                 }
+                var page = context.page;
                 //
                 var addonList = string.IsNullOrEmpty(page.addonList)
                     ? new List<AddonListItemModel>()
                     : cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
                 //
-                // -- reorder based on provided guid sequence
+                // -- reorder to match provided guid sequence; append any unlisted items at the end
                 var reordered = new List<AddonListItemModel>();
                 foreach (string guid in request.instanceGuids) {
                     var item = addonList.FirstOrDefault(a => string.Equals(a.instanceGuid, guid, StringComparison.OrdinalIgnoreCase));
-                    if (item != null) {
-                        reordered.Add(item);
-                    }
+                    if (item != null) { reordered.Add(item); }
                 }
-                // -- append any items not in the provided list (safety)
                 foreach (var item in addonList) {
-                    if (!reordered.Contains(item)) {
-                        reordered.Add(item);
-                    }
+                    if (!reordered.Contains(item)) { reordered.Add(item); }
                 }
                 //
                 AddonListItemModel.normalizeAddonList(cp, reordered);

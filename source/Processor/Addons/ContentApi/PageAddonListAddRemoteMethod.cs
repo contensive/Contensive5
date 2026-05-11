@@ -10,7 +10,7 @@ namespace Contensive.Processor.Addons.ContentApi {
     public class PageAddonListAddRemoteMethod : AddonBaseClass {
         //
         private class AddRequest {
-            public int pageId { get; set; }
+            public string url { get; set; }
             public string designBlockTypeGuid { get; set; }
             public int position { get; set; }
         }
@@ -26,14 +26,15 @@ namespace Contensive.Processor.Addons.ContentApi {
                     return ContentApiHelper.errorResponse(cp, "Request body is required.");
                 }
                 var request = cp.JSON.Deserialize<AddRequest>(requestBody);
-                if (request == null || request.pageId <= 0 || string.IsNullOrEmpty(request.designBlockTypeGuid)) {
-                    return ContentApiHelper.errorResponse(cp, "pageId and designBlockTypeGuid are required.");
+                if (request == null || string.IsNullOrEmpty(request.url) || string.IsNullOrEmpty(request.designBlockTypeGuid)) {
+                    return ContentApiHelper.errorResponse(cp, "url and designBlockTypeGuid are required.");
                 }
                 //
-                var page = DbBaseModel.create<PageContentModel>(cp, request.pageId);
-                if (page == null) {
-                    return ContentApiHelper.errorResponse(cp, "Page not found.");
+                var context = UrlResolverHelper.resolve(cp, request.url);
+                if (context == null) {
+                    return ContentApiHelper.errorResponse(cp, $"No page found for url '{request.url}'.");
                 }
+                var page = context.page;
                 //
                 var addonList = string.IsNullOrEmpty(page.addonList)
                     ? new List<AddonListItemModel>()

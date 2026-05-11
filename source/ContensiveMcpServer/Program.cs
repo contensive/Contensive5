@@ -46,7 +46,7 @@ builder.Services.AddMcpServer()
     .WithTools<PageTools>()
     .WithTools<WidgetTools>()
     .WithTools<WidgetInstanceTools>()
-    .WithTools<ImageTools>();
+    .WithTools<ResourceTools>();
 //
 var app = builder.Build();
 var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("McpServer");

@@ -20,6 +20,22 @@ The MCP server calls the Contensive website using its **public domain name** (e.
 
 Each user connects from their local machine using Claude Desktop or Claude Code. Each user authenticates with their own Contensive bearer token, which the MCP server forwards when calling the Contensive remote method endpoints.
 
+### URL-Centric Paradigm
+
+All tools use a **URL as the primary identifier** for every operation. Content managers think in URLs, not internal page IDs. The MCP server resolves each URL to its underlying `(pageId, queryStringSuffix)` context via the link alias table, invisibly.
+
+This means:
+- A URL like `/about` maps to a specific Page Content record.
+- A URL like `/blog/my-first-post` maps to the same Page Content record (the blog page) but with a `queryStringSuffix` that selects a specific blog post's content.
+- You never need to know a `pageId` — just supply the URL you see in the browser.
+
+### Two Template Layers
+
+Pages have two layers of wrapping template:
+
+- **Sub-template** — the Page Content record (`ccpagecontent`). Controls the widget list (`addonList`), parent/child page hierarchy, and nav headline for this page.
+- **Main template** — the Page Template record (`cctemplates`). Site-wide shell: navigation, header, footer.
+
 ### Multi-Site / Multi-Server Support
 
 Contensive can run multiple websites on the same server or spread across multiple servers. The MCP server supports this:
@@ -188,53 +204,68 @@ Add the MCP server to Claude Code settings on the user's local machine:
 
 ## Available MCP Tools
 
+All tools identify pages by **URL**, not by internal page ID.
+
 ### Page Management
 
 | Tool | Description |
 |------|-------------|
-| `page_list` | List pages on the website. Optionally filter by parent page ID. |
-| `page_get` | Get a single page by ID, including content, metadata, and widget list. |
-| `page_create` | Create a new page with headline, parent, and template. |
-| `page_update` | Update a page's headline, body HTML, meta description, title, or link alias. |
+| `page_list` | List all pages as a URL-based hierarchy. Returns current canonical URLs with nav headlines and nested children. |
+| `page_get` | Get the full content of a page by URL — metadata, template, and all widgets with their current field values. Always call this before editing. |
+| `page_create` | Create a new child page under a parent URL. Returns the new page ID and generated URL. |
+| `page_update` | Update page metadata (headline, nav headline, meta description, meta keywords, structured data, page title, template). Omit fields to leave them unchanged. |
+| `page_alias_add` | Add a new URL alias to a page. If `makeCanonical` is true (default), the new alias becomes the primary URL. If false, the new alias is added as a redirect and the existing canonical URL is preserved. |
 
-### Widget Management
+### Widget Placement
 
 | Tool | Description |
 |------|-------------|
 | `widget_types` | List available widget types (design blocks) with their GUIDs. |
-| `page_widget_list` | Get the ordered list of widgets on a page. |
-| `page_widget_add` | Add a widget to a page at a specified position. |
-| `page_widget_remove` | Remove a widget from a page by instance GUID. |
-| `page_widget_reorder` | Reorder widgets by providing instance GUIDs in desired order. |
-| `page_widget_add_column_block` | Add a structural column block (widths must total 12). |
-| `page_widget_add_to_column` | Add a widget into a specific column of an existing column block. |
+| `page_widget_add` | Add a widget to a page at a given position. Returns the new instanceGuid. |
+| `page_widget_remove` | Remove a widget from a page by instanceGuid. |
+| `page_widget_reorder` | Reorder widgets by providing instanceGuids in the desired order. |
 
-### Widget Instance Content
+### Widget Content Editing
 
 | Tool | Description |
 |------|-------------|
-| `widget_instance_get` | Read the content fields of a widget instance. |
-| `widget_instance_update` | Update content fields of a widget instance with a JSON field map. |
+| `widget_instance_update` | Update the content fields of a widget. Supply the page URL, the widget's instanceGuid (from `page_get`), and a JSON map of field names to new values. |
 
-### Image Library
+### Resource Library
 
 | Tool | Description |
 |------|-------------|
-| `image_upload` | Upload an image from base64-encoded content. |
-| `image_list` | List images in the library, optionally filtered by folder. |
-| `image_alt_text_update` | Update the alt text of a library image. |
+| `resource_list` | List resources in the library. Optional `fileType` filter: `image`, `download`, `video`, or omit for all. Returns type flags (`isImage`, `isDownload`, `isVideo`) for each entry. |
+| `resource_upload` | Upload any file from base64-encoded content. File type is detected automatically from the extension. |
+| `resource_update` | Update a resource's name, alt text (for images), description, or folder. Omit fields to leave them unchanged. |
 
-## Example Workflow
+## Typical Workflow
 
-Once configured, a user can give Claude natural language instructions like:
+Once configured, a user gives Claude natural language instructions:
 
-1. "List all the pages on the site"
-2. "Show me what widgets are on page 42"
-3. "Add a Hero Block widget to the top of the About Us page"
-4. "Update the headline on page 15 to 'Welcome to Our Company'"
-5. "Upload this image and set it as the hero image on the home page"
+```
+1. page_list                              → find the page URL
+2. page_get(url)                          → see current page content and widget instanceGuids
+3. widget_instance_update(url, guid, {…}) → edit a widget's content
+```
 
-Claude uses the MCP tools to carry out these operations on the live Contensive website. Each user's changes are authenticated with their own bearer token, so the Contensive audit trail tracks who made each change.
+Or to add a new widget:
+
+```
+1. widget_types                           → find the designBlockTypeGuid for the widget type
+2. page_widget_add(url, typeGuid)         → add widget, returns instanceGuid
+3. widget_instance_update(url, guid, {…}) → populate the widget's content
+```
+
+**Example — "Add a 3rd bullet to the homepage text":**
+
+```
+1. page_get("/")
+   → widgets: [{instanceGuid: "abc-123", designBlockTypeName: "Text Block",
+                fields: {body: "<ul><li>Simple</li><li>Powerful</li></ul>"}}]
+2. widget_instance_update("/", "abc-123",
+   {body: "<ul><li>Simple</li><li>Powerful</li><li>Using AI should be simple and easy.</li></ul>"})
+```
 
 ## Contensive Remote Method Endpoints
 
@@ -242,22 +273,18 @@ The MCP server calls these remote method endpoints on the Contensive website. Th
 
 | Endpoint | HTTP | Description |
 |----------|------|-------------|
-| `/content-api-page-list` | GET | List pages |
-| `/content-api-page-get` | GET | Get single page |
-| `/content-api-page-create` | POST | Create page |
-| `/content-api-page-update` | POST | Update page |
+| `/content-api-page-list` | GET | List pages as URL tree (current link aliases) |
+| `/content-api-page-get` | GET | Get page by URL — full unified snapshot |
+| `/content-api-page-create` | POST | Create page under a parent URL |
+| `/content-api-page-update` | POST | Update page metadata by URL |
 | `/content-api-widget-types` | GET | List widget types |
-| `/content-api-page-addonlist` | GET | Get page widget list |
-| `/content-api-page-addonlist-add` | POST | Add widget to page |
-| `/content-api-page-addonlist-remove` | POST | Remove widget |
-| `/content-api-page-addonlist-reorder` | POST | Reorder widgets |
-| `/content-api-page-addonlist-add-column-block` | POST | Add column block |
-| `/content-api-page-addonlist-add-to-column` | POST | Add widget to column |
-| `/content-api-widget-instance-get` | GET | Get widget instance content |
-| `/content-api-widget-instance-update` | POST | Update widget instance content |
-| `/content-api-image-upload` | POST | Upload image |
-| `/content-api-image-list` | GET | List library images |
-| `/content-api-image-alt-text` | POST | Update image alt text |
+| `/content-api-page-addonlist-add` | POST | Add widget to page by URL |
+| `/content-api-page-addonlist-remove` | POST | Remove widget by URL + instanceGuid |
+| `/content-api-page-addonlist-reorder` | POST | Reorder widgets by URL |
+| `/content-api-widget-instance-update` | POST | Update widget content by URL + instanceGuid |
+| `/content-api-resource-list` | GET | List library resources (images, downloads, video, etc.) |
+| `/content-api-resource-upload` | POST | Upload a resource file |
+| `/content-api-resource-update` | POST | Update resource name, alt text, description, or folder |
 
 ## Security
 
@@ -278,15 +305,34 @@ source/ContensiveMcpServer/
   ContensiveClientFactory.cs       Per-request client factory (injects user's bearer token)
   appsettings.json                 Server configuration (base URL and listen port)
   Tools/
-    PageTools.cs                   Page management MCP tools
-    WidgetTools.cs                 Widget placement MCP tools
-    WidgetInstanceTools.cs         Widget instance content MCP tools
+    PageTools.cs                   Page management MCP tools (page_list, page_get, page_create, page_update)
+    WidgetTools.cs                 Widget placement MCP tools (widget_types, page_widget_add/remove/reorder)
+    WidgetInstanceTools.cs         Widget content editing (widget_instance_update)
     ImageTools.cs                  Image library MCP tools
+
+source/Processor/Addons/ContentApi/
+  UrlResolverHelper.cs             Shared URL → (pageId, queryStringSuffix) resolution
+  ContentApiAuth.cs                Admin bearer token authentication
+  ContentApiHelper.cs              JSON response helpers
+  ContentApiResponse.cs            Response envelope model
+  PageListRemoteMethod.cs          Returns current link alias tree
+  PageGetRemoteMethod.cs           Returns unified page snapshot by URL
+  PageCreateRemoteMethod.cs        Creates page under parent URL
+  PageUpdateRemoteMethod.cs        Updates page metadata by URL
+  PageAddonListAddRemoteMethod.cs  Adds widget to page by URL
+  PageAddonListRemoveRemoteMethod.cs   Removes widget by URL + instanceGuid
+  PageAddonListReorderRemoteMethod.cs  Reorders widgets by URL
+  WidgetInstanceUpdateRemoteMethod.cs  Updates widget content by URL + instanceGuid
+  WidgetTypesRemoteMethod.cs       Lists available widget types
+  WidgetInstanceGetRemoteMethod.cs (legacy — superseded by page_get unified snapshot)
+  PageAddonListGetRemoteMethod.cs  (legacy — superseded by page_get unified snapshot)
 ```
 
 ## Troubleshooting
 
 **"Admin access required" errors:** The user's bearer token is either missing, expired, or belongs to a non-admin user. Generate a new token for that user's admin account.
+
+**"No page found for url" errors:** The URL does not match any record in the link alias table. Use `page_list` to see available URLs, or verify the URL in the browser matches what you are passing.
 
 **Connection refused from Claude:** Verify the MCP server is running on the remote server and the URL in the Claude config is correct. Check that the firewall allows the connection.
 

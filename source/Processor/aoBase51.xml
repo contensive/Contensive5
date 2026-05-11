@@ -3127,8 +3127,80 @@
 	</CDef>
 
 	<!--
+        Test Data - content definition used for E2E testing
+    -->
+	<CDef Name="Test Data" NavTypeId="System" AddonCategoryId="" ActiveOnly="1" AdminOnly="0" AliasID="id" AliasName="name" AllowAdd="1" AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccTestData" ContentDataSourceName="DEFAULT" ContentTableName="ccTestData" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" Guid="{B3A8A45E-2E4A-4C47-A5E1-D6E8C4A7F9B2}">
+		<Field Name="Name" Active="true" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HtmlContent="0" IndexColumn="0" IndexWidth="30" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" Required="1" TextBuffered="0" UniqueName="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test name field]]></HelpDefault>
+		</Field>
+		<Field Name="TestInteger" Active="true" AdminOnly="0" Authorable="1" Caption="Test Integer" DeveloperOnly="0" EditSortPriority="1010" FieldType="Integer" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Integer type]]></HelpDefault>
+		</Field>
+		<Field Name="TestText" Active="true" AdminOnly="0" Authorable="1" Caption="Test Text" DeveloperOnly="0" EditSortPriority="1020" FieldType="Text" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Text type]]></HelpDefault>
+		</Field>
+		<Field Name="TestLongText" Active="true" AdminOnly="0" Authorable="1" Caption="Test LongText" DeveloperOnly="0" EditSortPriority="1030" FieldType="LongText" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for LongText type]]></HelpDefault>
+		</Field>
+		<Field Name="TestBoolean" Active="true" AdminOnly="0" Authorable="1" Caption="Test Boolean" DeveloperOnly="0" EditSortPriority="1040" FieldType="Boolean" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Boolean type]]></HelpDefault>
+		</Field>
+		<Field Name="TestDate" Active="true" AdminOnly="0" Authorable="1" Caption="Test Date" DeveloperOnly="0" EditSortPriority="1050" FieldType="Date" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Date type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFile" Active="true" AdminOnly="0" Authorable="1" Caption="Test File" DeveloperOnly="0" EditSortPriority="1060" FieldType="File" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for File type]]></HelpDefault>
+		</Field>
+		<Field Name="TestLookup" Active="true" AdminOnly="0" Authorable="1" Caption="Test Lookup" DeveloperOnly="0" EditSortPriority="1070" FieldType="Lookup" IndexColumn="99" IndexWidth="0" Required="0" LookupContent="People" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Lookup type]]></HelpDefault>
+		</Field>
+		<Field Name="TestCurrency" Active="true" AdminOnly="0" Authorable="1" Caption="Test Currency" DeveloperOnly="0" EditSortPriority="1090" FieldType="Currency" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Currency type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileText" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileText" DeveloperOnly="0" EditSortPriority="1100" FieldType="FileText" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileText type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileImage" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileImage" DeveloperOnly="0" EditSortPriority="1110" FieldType="FileImage" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileImage type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFloat" Active="true" AdminOnly="0" Authorable="1" Caption="Test Float" DeveloperOnly="0" EditSortPriority="1120" FieldType="Float" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Float type]]></HelpDefault>
+		</Field>
+		<Field Name="TestMemberSelect" Active="true" AdminOnly="0" Authorable="1" Caption="Test MemberSelect" DeveloperOnly="0" EditSortPriority="1150" FieldType="MemberSelect" IndexColumn="99" IndexWidth="0" Required="0" LookupContent="People" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for MemberSelect type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileCSS" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileCSS" DeveloperOnly="0" EditSortPriority="1160" FieldType="FileCSS" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileCSS type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileXML" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileXML" DeveloperOnly="0" EditSortPriority="1170" FieldType="FileXML" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileXML type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileJavascript" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileJavascript" DeveloperOnly="0" EditSortPriority="1180" FieldType="FileJavascript" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileJavascript type]]></HelpDefault>
+		</Field>
+		<Field Name="TestLink" Active="true" AdminOnly="0" Authorable="1" Caption="Test Link" DeveloperOnly="0" EditSortPriority="1190" FieldType="Link" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for Link type]]></HelpDefault>
+		</Field>
+		<Field Name="TestResourceLink" Active="true" AdminOnly="0" Authorable="1" Caption="Test ResourceLink" DeveloperOnly="0" EditSortPriority="1200" FieldType="ResourceLink" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for ResourceLink type]]></HelpDefault>
+		</Field>
+		<Field Name="TestHTML" Active="true" AdminOnly="0" Authorable="1" Caption="Test HTML" DeveloperOnly="0" EditSortPriority="1210" FieldType="HTML" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for HTML type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileHTML" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileHTML" DeveloperOnly="0" EditSortPriority="1220" FieldType="FileHTML" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileHTML type]]></HelpDefault>
+		</Field>
+		<Field Name="TestHTMLCode" Active="true" AdminOnly="0" Authorable="1" Caption="Test HTMLCode" DeveloperOnly="0" EditSortPriority="1230" FieldType="HTMLCode" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for HTMLCode type]]></HelpDefault>
+		</Field>
+		<Field Name="TestFileHTMLCode" Active="true" AdminOnly="0" Authorable="1" Caption="Test FileHTMLCode" DeveloperOnly="0" EditSortPriority="1240" FieldType="FileHTMLCode" IndexColumn="99" IndexWidth="0" Required="0" DefaultValue="">
+			<HelpDefault><![CDATA[Test field for FileHTMLCode type]]></HelpDefault>
+		</Field>
+	</CDef>
+
+	<!--
         reports
-    --> 
+    -->
 
 	<!--
         tools
@@ -3329,6 +3401,11 @@
 		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageUpdateRemoteMethod</DotNetClass>
 	</Addon>
 
+	<Addon Name="content-api-page-alias-add" Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}" Type="Add-on">
+		<RemoteMethod>true</RemoteMethod>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.PageAliasAddRemoteMethod</DotNetClass>
+	</Addon>
+
 	<Addon Name="content-api-widget-types" Guid="{F5E6A7B8-C9D0-4E1F-2A3B-4C5D6E7F8091}" Type="Add-on">
 		<RemoteMethod>true</RemoteMethod>
 		<DotNetClass>Contensive.Processor.Addons.ContentApi.WidgetTypesRemoteMethod</DotNetClass>
@@ -3374,19 +3451,19 @@
 		<DotNetClass>Contensive.Processor.Addons.ContentApi.WidgetInstanceUpdateRemoteMethod</DotNetClass>
 	</Addon>
 
-	<Addon Name="content-api-image-upload" Guid="{C4B5D6E7-F809-4102-1324-35465768798A}" Type="Add-on">
+	<Addon Name="content-api-resource-list" Guid="{D5C6E7F8-0910-4213-2435-4657687989AB}" Type="Add-on">
 		<RemoteMethod>true</RemoteMethod>
-		<DotNetClass>Contensive.Processor.Addons.ContentApi.ImageUploadRemoteMethod</DotNetClass>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.ResourceListRemoteMethod</DotNetClass>
 	</Addon>
 
-	<Addon Name="content-api-image-list" Guid="{D5C6E7F8-0910-4213-2435-4657687989AB}" Type="Add-on">
+	<Addon Name="content-api-resource-upload" Guid="{C4B5D6E7-F809-4102-1324-35465768798A}" Type="Add-on">
 		<RemoteMethod>true</RemoteMethod>
-		<DotNetClass>Contensive.Processor.Addons.ContentApi.ImageListRemoteMethod</DotNetClass>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.ResourceUploadRemoteMethod</DotNetClass>
 	</Addon>
 
-	<Addon Name="content-api-image-alt-text" Guid="{E6D7F809-1021-4324-3546-57687989ABBC}" Type="Add-on">
+	<Addon Name="content-api-resource-update" Guid="{E6D7F809-1021-4324-3546-57687989ABBC}" Type="Add-on">
 		<RemoteMethod>true</RemoteMethod>
-		<DotNetClass>Contensive.Processor.Addons.ContentApi.ImageAltTextRemoteMethod</DotNetClass>
+		<DotNetClass>Contensive.Processor.Addons.ContentApi.ResourceUpdateRemoteMethod</DotNetClass>
 	</Addon>
 
 	<Addon Name=".well-known/oauth-authorization-server" Guid="{F7A8B9C0-D1E2-4F3A-5B6C-7D8E9F012345}" Type="Add-on">

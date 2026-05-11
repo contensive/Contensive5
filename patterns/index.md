@@ -53,6 +53,10 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 
 - [Build Script Pattern](build-script-pattern.md) — automating compile, package, and deploy of addon collections
 
+## Testing
+
+- [Testing Pattern](testing-pattern.md) — xUnit integration tests, Playwright E2E tests, test organization, AI agent workflows, and implementation guidance
+
 ## Code Review
 
 The `/review-collection` slash command reviews an addon repo against all Contensive patterns and security practices.
