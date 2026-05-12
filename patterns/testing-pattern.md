@@ -433,6 +433,72 @@ Playwright provides several tools for diagnosing test failures:
 
 ---
 
+## Contensive Platform-Specific Knowledge
+
+These are practical details learned from building real tests against the Contensive platform. AI agents must understand these before writing tests.
+
+### Admin Site Selectors
+
+The admin site HTML is rendered server-side by C# view classes in `source/Processor/Addons/AdminSite/Views/`. Do not guess selectors -- read the C# source to find the actual element structure.
+
+**Key facts:**
+- **Buttons are `<input type="submit">`, not `<button>`.** Save, OK, Cancel, Delete, Refresh, and Add are all rendered by `HtmlController.inputSubmit()`. Use `page.locator("input[value='Save']")`, not `page.getByRole("button")`.
+- **Forms use `name` attributes, not `id`.** `HtmlController.form()` sets `name="adminForm"` but not `id="adminForm"`. Do not use `form#adminForm` as a selector.
+- **The login form container is `.ccLoginFormCon`.** Login errors render inside `.ccLoginFormCon .alert-danger[role='alert']`.
+- **Admin URLs use query parameters:** `af=1` (list view), `af=4` (edit view), `cguid` (content GUID), `cid` (content ID), `method=logout` (logout).
+- **Grid data rows** can be found with `tr:has(a[href*='af=4'])` -- rows that contain an edit link.
+- **The admin nav sidebar** uses standard `<a>` links. Use `page.getByRole("link", { name: "Dashboard" })` for nav elements.
+
+### Content API Endpoints
+
+The Contensive Content API provides JSON endpoints for managing pages, link aliases, and resources. These are useful for test data setup.
+
+**URL format:** Endpoints are path segments, not query strings.
+```
+GET  {baseURL}/content-api-page-list
+GET  {baseURL}/content-api-page-get?url=/about
+POST {baseURL}/content-api-page-create      (JSON body)
+POST {baseURL}/content-api-page-update      (JSON body)
+POST {baseURL}/content-api-page-alias-add   (JSON body)
+POST {baseURL}/content-api-resource-upload   (JSON body)
+GET  {baseURL}/content-api-resource-list
+```
+
+**Authentication:** All Content API endpoints require admin session cookies (`cp.User.IsAdmin`). Use Playwright's `storageState` to pass the authenticated session to `APIRequestContext`.
+
+**Response format:**
+```json
+{
+  "success": true,
+  "message": "OK",
+  "data": { ... }
+}
+```
+
+The Contensive5 repo contains a reference implementation of a Content API helper class at `tests/e2e/helpers/content-api.ts` that wraps these endpoints for Playwright.
+
+### Session and Authentication Gotchas
+
+- **Failed login triggers a 3-second server delay** (`Thread.Sleep`). Tests that submit bad credentials need `timeout: 10000` on subsequent assertions.
+- **Logout invalidates the server-side session.** The `?method=logout` URL destroys the session on the server. If a test logs out using the shared `.auth/user.json` session, ALL subsequent authenticated tests fail. Logout tests must do their own login/logout cycle in an unauthenticated project (`.spec.ts`, not `.authenticated.spec.ts`).
+- **The `.auth/user.json` file stores session cookies.** It's created by the `setup` project and reused by all authenticated projects. If the server restarts between test runs, the session may be invalid -- the setup fixture re-authenticates automatically.
+- **Empty form fields:** HTML `required` attributes on login inputs prevent browser-level submission. Testing server-side empty-field validation would require `page.evaluate()` to remove `required`, which tests an artificial scenario -- skip these tests.
+
+### Contensive URL Normalization
+
+Link aliases follow these rules (see `UrlResolverHelper.cs`):
+- Always start with a leading `/`
+- No trailing `/` (except root `/`)
+- Case-sensitive matching
+- The most recently created alias record (highest ID) is canonical
+- Root URL `/` resolves via the domain record's `rootPageId`
+
+### Responsive Navbar Elements
+
+The admin navbar uses Bootstrap's collapse pattern. Elements inside the collapsed navbar (like the Logout button) may not be visible in headless mode or accessible in the accessibility tree. Prefer URL navigation (`page.goto("/admin?method=logout")`) over clicking collapsed UI elements.
+
+---
+
 ## AI Agent Workflow
 
 A primary design goal of this testing pattern is AI agent compatibility. Claude Code (or similar tools) should be able to:
@@ -446,23 +512,56 @@ A primary design goal of this testing pattern is AI agent compatibility. Claude 
 
 When Claude Code is asked to generate E2E tests for an addon feature:
 
-1. **Read the addon source** — understand the C# execute method, the view model, and the Mustache template
-2. **Identify testable user actions** — form submissions, navigation, data display, error states
-3. **Check for an existing POM** — update it if the page already has one, create a new one if not
-4. **Write the test** — use the POM, follow the test structure conventions above
-5. **Run the test** — execute via shell, verify it passes
-6. **Report results** — summarize what was tested and any issues found
+1. **Read this pattern first** — understand the project structure, authentication, POM conventions, and Contensive-specific selector rules
+2. **Read the addon's C# source** — the `Execute()` method, the view model, and the Mustache layout template. Selectors come from here, not from guessing
+3. **Read existing tests and POMs** in the addon's `tests/e2e/` folder — follow the established patterns
+4. **Identify testable user actions** — form submissions, navigation, data display, error states
+5. **Check for an existing POM** — update it if the page already has one, create a new one if not
+6. **Write the test** — use the POM, follow the test structure conventions above
+7. **Run the test** — execute `npx playwright test` via shell, verify it passes
+8. **Diagnose failures from page snapshots** — when a test fails, Playwright captures the page state. Compare the actual HTML against the C# source to fix selectors
+9. **Report results** — summarize what was tested and any issues found
+
+### Reference Implementation
+
+The Contensive5 core repo contains a fully working E2E test suite that serves as the reference implementation for all addon projects:
+
+```
+Contensive5/tests/e2e/
+  fixtures/auth.setup.ts              # Authentication setup
+  fixtures/test-pages.setup.ts        # Content API test data creation
+  helpers/content-api.ts              # Content API client
+  helpers/load-test-pages.ts          # Test data loader
+  helpers/test-data.ts                # Test data factories
+  pages/login.page.ts                 # Login POM
+  pages/admin-nav.page.ts             # Admin navigation POM
+  pages/list-view.page.ts             # Admin list view POM
+  pages/edit-view.page.ts             # Admin edit view POM
+  pages/public-page.page.ts           # Public page POM
+  tests/smoke/                        # Health checks
+  tests/auth/                         # Authentication workflows
+  tests/admin/                        # Admin site features
+  tests/public/                       # Public site page rendering
+  README.md                           # Full documentation
+```
+
+When starting E2E tests for a new addon, read the reference implementation's README and source files to understand the patterns before writing new tests.
 
 ### CLAUDE.md Reference
 
-Each addon repo's `CLAUDE.md` should reference this pattern so Claude Code can follow it:
+Each addon repo's `CLAUDE.md` should include a testing section that points to this pattern and describes the addon-specific test setup:
 
 ```markdown
 ## Testing
 
-- [Contensive Testing Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/testing-pattern.md)
+Follow the [Contensive Testing Pattern](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/testing-pattern.md) for all testing conventions.
+
+For the reference E2E implementation, see [Contensive5 E2E README](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/tests/e2e/README.md).
+
 - E2E tests: `tests/e2e/` (Playwright, TypeScript)
 - Integration tests: `source/c#-build/{project}Test/` (xUnit, C#)
+- Staging URL: `https://{addon-staging-site}`
+- Key pages to test: {list the addon's main UI pages/features}
 ```
 
 ---

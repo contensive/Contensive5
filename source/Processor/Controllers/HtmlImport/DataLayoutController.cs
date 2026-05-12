@@ -55,9 +55,9 @@ namespace Contensive.Processor {
                                     layout.name = layoutRecordName;
                                 }
                                 if(cp.Site.htmlPlatformVersion == 5) {
-                                    layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.OuterHtml);
+                                    layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
                                 } else {
-                                    layout.layout.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.OuterHtml);
+                                    layout.layout.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
                                 }
                                 layout.save(cp);
                                 userMessageList.Add("Saved Layout '" + layoutRecordName + "' from data-layout attribute.");

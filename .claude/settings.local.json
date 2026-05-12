@@ -53,7 +53,9 @@
       "mcp__claude_ai_sprint11__page_list",
       "Bash(claude mcp list:*)",
       "Bash(unzip:*)",
-      "Bash(npx playwright test)"
+      "Bash(npx playwright test)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright:*)"
     ]
   }
 }
