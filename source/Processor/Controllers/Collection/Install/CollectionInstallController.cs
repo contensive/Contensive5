@@ -83,7 +83,12 @@ namespace Contensive.Processor.Controllers {
                         core.programFiles.copyPath("\\", installTempPath, core.tempFiles);
                         //
                         // -- copy all files from subfolders to root to be compatible with installation system
+                        // -- skip McpServer subfolder as it is a standalone self-contained service, not part of the base collection
                         foreach (FolderDetail subFolder in core.tempFiles.getFolderList(installTempPath)) {
+                            if (subFolder.Name.Equals("McpServer", StringComparison.OrdinalIgnoreCase)) {
+                                core.tempFiles.deleteFolder(installTempPath + subFolder.Name + "\\");
+                                continue;
+                            }
                             copyTempSubfoldersToRoot(core, installTempPath + subFolder.Name + "\\", installTempPath);
                         }
                         //

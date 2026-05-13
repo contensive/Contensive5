@@ -74,7 +74,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             name = GenericController.getText(dr["name"]),
                             url = portalUrl,
                             active = currentPortalGuid.Equals(portalGuid, StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.getInteger(dr["id"])),
-                            icon = string.IsNullOrEmpty(icon) ? "" : (cp.Http.CdnFilePathPrefix + icon).Replace("\\", "/")
+                            icon = string.IsNullOrEmpty(icon) ? "" : (cp.Http.CdnFilePathPrefix + icon.TrimStart('/')).Replace("\\", "/")
                         });
                     }
                 }

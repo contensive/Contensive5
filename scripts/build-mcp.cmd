@@ -1,7 +1,11 @@
 @echo off
 rem ==============================================================
 rem
-rem Builds and publishes the ContensiveMcpServer to c:\git\contensive5\McpDeployment
+rem Builds and publishes the ContensiveMcpServer as self-contained .NET 9.
+rem
+rem Standalone: publishes to McpDeployment\ for manual deployment.
+rem MSI build:  build.cmd publishes to source\Cli\bin\Debug\McpServer\
+rem             which WiX harvests into the installer.
 rem
 rem ==============================================================
 cls

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Contensive.DashboardWidgets {
+namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
     public class SampleLineChartWidget : AddonBaseClass {
 
         public override object Execute(CPBaseClass cp) {
@@ -87,9 +87,9 @@ namespace Contensive.DashboardWidgets {
                     url = "",
                     dataLabels = dataLabels,
                     dataSets = [
-                        new Contensive.Processor.Models.DataSet() { label = "Sent", data = sentData },
-                        new Contensive.Processor.Models.DataSet() { label = "Opened", data = openedData },
-                        new Contensive.Processor.Models.DataSet() { label = "Clicked", data = clickedData }
+                        new Models.DataSet() { label = "Sent", data = sentData },
+                        new Models.DataSet() { label = "Opened", data = openedData },
+                        new Models.DataSet() { label = "Clicked", data = clickedData }
                     ],
                     widgetType = WidgetTypeEnum.line,
                     filterOptions = [

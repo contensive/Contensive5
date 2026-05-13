@@ -1,7 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using HtmlAgilityPack;
-using NUglify.JavaScript.Syntax;
+
 using System.Collections.Generic;
 
 namespace Contensive.Processor {
@@ -31,11 +31,20 @@ namespace Contensive.Processor {
                     if (nodeList != null) {
                         foreach (HtmlNode node in nodeList) {
                             string layoutRecordName = node.Attributes["data-layout"]?.Value;
-                            node.Attributes.Remove("data-layout");
+                            string innerHtml = node.InnerHtml;
                             //
-                            // -- body found, set the htmlDoc to the body
+                            // -- replace the data-layout node with its inner html in the parent document
+                            var parentNode = node.ParentNode;
+                            var fragmentDoc = new HtmlDocument();
+                            fragmentDoc.LoadHtml(innerHtml);
+                            foreach (var child in fragmentDoc.DocumentNode.ChildNodes) {
+                                parentNode.InsertBefore(child.CloneNode(true), node);
+                            }
+                            parentNode.RemoveChild(node);
+                            //
+                            // -- create a separate document for processing and saving the layout
                             var layoutDoc = new HtmlDocument();
-                            layoutDoc.LoadHtml( node.InnerHtml );
+                            layoutDoc.LoadHtml(innerHtml);
                             //
                             // -- process the layout 
                             DataDeleteController.process(layoutDoc);

@@ -6,6 +6,14 @@ using System.Data;
 
 namespace Contensive.Models.Db {
     //
+    /// <summary>
+    /// Database connection definitions. Each record represents a database connection.
+    /// Table: ccdatasources
+    /// The "default" datasource is a special case — it is not stored in this table but resolved from application configuration.
+    ///
+    /// Referenced by:
+    /// - TableModel.dataSourceId - tables that belong to this datasource
+    /// </summary>
     public class DataSourceModel : DbBaseModel {
         //
         //====================================================================================================
