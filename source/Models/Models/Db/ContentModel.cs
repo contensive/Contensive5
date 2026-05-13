@@ -4,6 +4,24 @@ using System.Collections.Generic;
 
 namespace Contensive.Models.Db {
     //
+    /// <summary>
+    /// Content definition metadata. Each record defines a content entity (e.g., People, Pages).
+    /// Table: cccontent
+    ///
+    /// Relationships:
+    /// - contentTableId -> TableModel (cctables.id) - the database table that stores records for this content definition
+    /// - parentId -> ContentModel (cccontent.id) - parent content definition for inheritance
+    /// - defaultSortMethodId -> sort method record
+    /// - editorGroupId -> group that can edit this content
+    /// - installedByCollectionId -> the addon collection that installed this content definition
+    ///
+    /// Referenced by:
+    /// - ContentFieldModel.contentId - fields belonging to this content definition
+    /// - ContentFieldModel.lookupContentId - lookup fields that reference this content
+    /// - ContentFieldModel.manyToManyContentId - many-to-many fields referencing this content
+    /// - ContentFieldModel.redirectContentId - redirect fields referencing this content
+    /// - DbBaseModel.contentControlId - every record in any table references back to its content definition
+    /// </summary>
     public class ContentModel : DbBaseModel {
         //
         //====================================================================================================
@@ -24,6 +42,9 @@ namespace Contensive.Models.Db {
         /// deprecated
         /// </summary>
         public int authoringTableId { get; set; }
+        /// <summary>
+        /// FK to TableModel (cctables.id) - identifies the database table for this content definition
+        /// </summary>
         public int contentTableId { get; set; }
         public int defaultSortMethodId { get; set; }
         public bool developerOnly { get; set; }

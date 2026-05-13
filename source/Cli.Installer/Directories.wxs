@@ -17,20 +17,26 @@
           program files folder 64-bit. ProgramFiles64Folder is keyword 
         -->
         <Directory Id="ProgramFiles64Folder">
-          <!-- 
-            folder in program files folder where we will copy file 
+          <!--
+            folder in program files folder where we will copy file
           -->
-          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)" />
+          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)">
+            <!-- MCP Server subfolder for self-contained .NET 9 service -->
+            <Directory Id="MCPSERVERFOLDER" Name="McpServer" />
+          </Directory>
         </Directory>
       <?else?>
         <!-- 
           folder in program files folder where we will copy file 
         -->
         <Directory Id="ProgramFilesFolder">
-          <!-- 
-            folder in program files folder where we will copy file 
+          <!--
+            folder in program files folder where we will copy file
           -->
-          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)" />
+          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)">
+            <!-- MCP Server subfolder for self-contained .NET 9 service -->
+            <Directory Id="MCPSERVERFOLDER" Name="McpServer" />
+          </Directory>
         </Directory>
       <?endif?>
     </Directory>

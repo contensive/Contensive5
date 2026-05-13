@@ -2,91 +2,113 @@ using Contensive.BaseClasses;
 using Contensive.Processor.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data;
 
 namespace Contensive.DashboardWidgets {
     public class SampleLineChartWidget : AddonBaseClass {
-
-        private static readonly double[] DefaultDataValues = {
-               45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0
-           };
 
         public override object Execute(CPBaseClass cp) {
             try {
                 //
                 // -- read in id passed from widgetcontroller and filter passed from widget ajax.
                 string widgetId = cp.Doc.GetText("widgetId");
-                int lines = cp.Doc.GetInteger("widgetFilter");
-                int savedFilter = cp.User.GetInteger($"SampleLineChartWidget {widgetId} filter");
-                if (lines < 4) { lines = 2; } else if (lines < 8) { lines = 6; } else { lines = 10; }
-                if (lines != savedFilter) { cp.User.SetProperty($"SampleLineChartWidget {widgetId} filter", lines); }
+                int days = cp.Doc.GetInteger("widgetFilter");
+                int savedFilter = cp.User.GetInteger($"EmailDeliverabilityWidget {widgetId} filter");
+                if (days < 45) { days = 30; } else if (days < 75) { days = 60; } else { days = 90; }
+                if (days != savedFilter) { cp.User.SetProperty($"EmailDeliverabilityWidget {widgetId} filter", days); }
                 //
-                string[] defaultDataLabels = {
-                    "Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"
-                };
+                // -- query email log grouped by date and logType
+                // logType 1=Drop, 6=ImmediateSend (both count as "sent"), 2=Open, 3=Click
+                string startDate = cp.Db.EncodeSQLDate(DateTime.Now.AddDays(-days));
+                string sql = $"select cast(dateAdded as date) as logDate, logType, count(*) as cnt"
+                    + $" from ccemaillog"
+                    + $" where dateAdded>={startDate}"
+                    + $" and logType in (1,2,3,6)"
+                    + $" group by cast(dateAdded as date), logType"
+                    + $" order by cast(dateAdded as date)";
                 //
-                List<DataSet> defaultDataSet = [
-                    new DataSet() {
-                        label = "Bob",
-                        data = [3, 6, 8, 14, 17, 20, 11]
-                    },new DataSet() {
-                        label = "Jim",
-                        data = [2, 5, 7, 9, 18, 16, 13]
-                    },new DataSet() {
-                        label = "Sally",
-                        data = [3, 4, 6, 10, 12, 15, 19]
-                    },new DataSet() {
-                        label = "Michael",
-                        data = [20, 17, 14, 11, 1, 7, 8]
-                    },new DataSet() {
-                        label = "Emily",
-                        data = [5, 3, 16, 9, 18, 13, 2]
-                    },new DataSet() {
-                        label = "John",
-                        data = [19, 7, 4, 12, 1, 10, 15]
-                    },new DataSet() {
-                        label = "Jessica",
-                        data = [20, 6, 11, 8, 17, 3, 14]
-                    },new DataSet() {
-                        label = "Ashley",
-                        data = [ 16, 5, 13, 2, 18, 9, 7]
-                    },new DataSet() {
-                        label = "James",
-                        data = [12, 19, 10, 4, 15, 1, 6]
-                    },new DataSet() {
-                        label = "Sarah",
-                        data = [2, 4, 8, 13, 16, 17, 17]
+                // -- build date-indexed dictionaries for each series
+                var sentByDate = new Dictionary<DateTime, double>();
+                var openedByDate = new Dictionary<DateTime, double>();
+                var clickedByDate = new Dictionary<DateTime, double>();
+                //
+                // -- initialize all dates in range
+                DateTime startDt = DateTime.Now.Date.AddDays(-days + 1);
+                DateTime endDt = DateTime.Now.Date;
+                for (DateTime dt = startDt; dt <= endDt; dt = dt.AddDays(1)) {
+                    sentByDate[dt] = 0;
+                    openedByDate[dt] = 0;
+                    clickedByDate[dt] = 0;
+                }
+                //
+                // -- populate from query results
+                using (DataTable dt = cp.Db.ExecuteQuery(sql)) {
+                    if (dt?.Rows != null) {
+                        foreach (DataRow row in dt.Rows) {
+                            DateTime logDate = cp.Utils.EncodeDate(row["logDate"]).Date;
+                            int logType = cp.Utils.EncodeInteger(row["logType"]);
+                            double count = cp.Utils.EncodeNumber(row["cnt"]);
+                            if (!sentByDate.ContainsKey(logDate)) { continue; }
+                            switch (logType) {
+                                case 1:
+                                case 6:
+                                    sentByDate[logDate] += count;
+                                    break;
+                                case 2:
+                                    openedByDate[logDate] = count;
+                                    break;
+                                case 3:
+                                    clickedByDate[logDate] = count;
+                                    break;
+                            }
+                        }
                     }
-                    ];
+                }
+                //
+                // -- build labels and data arrays
+                var dataLabels = new List<string>();
+                var sentData = new List<double>();
+                var openedData = new List<double>();
+                var clickedData = new List<double>();
+                for (DateTime dt = startDt; dt <= endDt; dt = dt.AddDays(1)) {
+                    dataLabels.Add(dt.ToString("M/d"));
+                    sentData.Add(sentByDate[dt]);
+                    openedData.Add(openedByDate[dt]);
+                    clickedData.Add(clickedByDate[dt]);
+                }
                 //
                 DashboardWidgetLineChartModel result = new() {
-                    widgetName = "Sample Line Chart Widget",
-                    subhead = "Sample Line Chart Widget",
-                    description = "This is a sample line chart widget. It is used to demonstrate how to create a line chart widget.",
+                    widgetName = "Email Deliverability",
+                    subhead = "Email Deliverability",
+                    description = "Emails sent, opened, and clicked by day.",
                     uniqueId = cp.Utils.GetRandomString(4),
                     width = 2,
                     refreshSeconds = 0,
-                    url = "https://www.contensive.com",
-                    dataLabels = ["Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"],
-                    dataSets = defaultDataSet.Take(lines).ToList(),
+                    url = "",
+                    dataLabels = dataLabels,
+                    dataSets = [
+                        new Contensive.Processor.Models.DataSet() { label = "Sent", data = sentData },
+                        new Contensive.Processor.Models.DataSet() { label = "Opened", data = openedData },
+                        new Contensive.Processor.Models.DataSet() { label = "Clicked", data = clickedData }
+                    ],
                     widgetType = WidgetTypeEnum.line,
                     filterOptions = [
-                                   new() {
-                               filterCaption = "2 lines",
-                               filterValue = "2",
-                               filterActive = (lines == 2)
-                           },
-                           new() {
-                               filterCaption = "6 lines",
-                               filterValue = "6",
-                               filterActive = (lines == 6 )
-                           },
-                           new() {
-                               filterCaption = "10 lines",
-                               filterValue = "10",
-                               filterActive = (lines == 10)
-                           }
-                               ]
+                        new() {
+                            filterCaption = "30 days",
+                            filterValue = "30",
+                            filterActive = (days == 30)
+                        },
+                        new() {
+                            filterCaption = "60 days",
+                            filterValue = "60",
+                            filterActive = (days == 60)
+                        },
+                        new() {
+                            filterCaption = "90 days",
+                            filterValue = "90",
+                            filterActive = (days == 90)
+                        }
+                    ]
                 };
                 return result;
             } catch (Exception ex) {

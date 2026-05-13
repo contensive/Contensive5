@@ -392,7 +392,13 @@ for hints created with getAdminHintWrapper
 	background-color: #80E080;
 	color: black;
 }
-.ccTextEditMaxWidth {
-	max-width:750px;
-	
+.ccTextEditMaxWidth input[type="text"],
+.ccTextEditMaxWidth input[type="number"],
+.ccTextEditMaxWidth input[type="password"],
+.ccTextEditMaxWidth input[type="email"],
+.ccTextEditMaxWidth input[type="url"],
+.ccTextEditMaxWidth input[type="tel"],
+.ccTextEditMaxWidth input[type="date"],
+.ccTextEditMaxWidth input[type="datetime-local"] {
+	max-width: 750px;
 }

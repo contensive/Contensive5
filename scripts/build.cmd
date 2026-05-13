@@ -115,6 +115,12 @@ rd /s /q  "..\source\taskservice\bin"
 del /s /q  "..\source\taskservice\obj"
 rd /s /q  "..\source\taskservice\obj"
 
+del /s /q  "..\source\ContensiveMcpServer\bin"
+rd /s /q  "..\source\ContensiveMcpServer\bin"
+
+del /s /q  "..\source\ContensiveMcpServer\obj"
+rd /s /q  "..\source\ContensiveMcpServer\obj"
+
 del /q "..\WebDeploymentPackage\*.*"
 
 rem del /s /q "C:\Git\Contensive5\source\Cli.Installer\bin"
@@ -326,6 +332,23 @@ rem
 
 copy "C:\Git\Contensive5\source\Cli\bin\Debug\net48\cc.exe.config" "C:\Git\Contensive5\source\Cli\bin\Debug\net48\TaskService.exe.config"
 
+
+rem ==============================================================
+rem
+rem publish MCP Server as self-contained .NET 9 into Cli build folder
+rem -- WiX HeatDirectory harvests from Cli\bin\Debug\McpServer\
+rem
+
+cd ..\source
+
+dotnet publish ContensiveMcpServer\ContensiveMcpServer.csproj -c Release -o "Cli\bin\Debug\McpServer" --self-contained -r win-x64
+if errorlevel 1 (
+   echo failure publishing MCP Server
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+cd ..\scripts
 
 rem ==============================================================
 rem

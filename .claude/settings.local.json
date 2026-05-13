@@ -48,7 +48,14 @@
       "Bash(\"c:\\\\program files\\\\7-zip\\\\7z.exe\" a:*)",
       "Bash(git status:*)",
       "Bash(/c/Windows/System32/cmd.exe //c \"cd /d C:\\\\Git\\\\Contensive5\\\\scripts & C:\\\\Git\\\\Contensive5\\\\scripts\\\\build.cmd /nopause\")",
-      "Bash(dotnet restore:*)"
+      "Bash(dotnet restore:*)",
+      "mcp__sprint11__page_list",
+      "mcp__claude_ai_sprint11__page_list",
+      "Bash(claude mcp list:*)",
+      "Bash(unzip:*)",
+      "Bash(npx playwright test)",
+      "Bash(npm install:*)",
+      "Bash(npx playwright:*)"
     ]
   }
 }

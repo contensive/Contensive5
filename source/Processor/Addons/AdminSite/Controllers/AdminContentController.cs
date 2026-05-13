@@ -83,6 +83,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 int adminForm = cp.Doc.GetInteger(rnAdminForm);
                 var adminData = new AdminDataModel(cp.core, new AdminDataRequest {
                     contentId = cp.Doc.GetInteger("cid"),
+                    contentGuid = cp.Doc.GetText("cguid"),
                     id = cp.Doc.GetInteger("id"),
                     guid = cp.Doc.GetText("guid"),
                     titleExtension = cp.Doc.GetText(RequestNameTitleExtension),

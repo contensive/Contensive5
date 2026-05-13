@@ -5,6 +5,27 @@ using System.Collections.Generic;
 
 namespace Contensive.Models.Db {
     //
+    /// <summary>
+    /// Field definitions for content definitions. Each record defines one field within a content definition.
+    /// Table: ccfields
+    ///
+    /// Relationships:
+    /// - contentId -> ContentModel (cccontent.id) - the content definition this field belongs to
+    /// - lookupContentId -> ContentModel (cccontent.id) - for Lookup (type 7) and MemberSelect (type 15) fields, the target content
+    /// - manyToManyContentId -> ContentModel (cccontent.id) - for ManyToMany (type 14) fields, the secondary content
+    /// - manyToManyRuleContentId -> ContentModel (cccontent.id) - for ManyToMany fields, the rule table content
+    /// - redirectContentId -> ContentModel (cccontent.id) - for Redirect (type 8) fields
+    /// - editorAddonId -> AddonModel - custom editor addon
+    /// - memberSelectGroupId -> group record for MemberSelect fields
+    /// - installedByCollectionId -> the addon collection that installed this field
+    ///
+    /// Field type values (type property):
+    ///   1=Integer, 2=Text, 3=LongText, 4=Boolean, 5=Date, 6=File, 7=Lookup,
+    ///   8=Redirect, 9=Currency, 10=FileText, 11=FileImage, 12=Float,
+    ///   13=AutoIdIncrement, 14=ManyToMany, 15=MemberSelect, 16=FileCSS,
+    ///   17=FileXML, 18=FileJavaScript, 19=Link, 20=ResourceLink, 21=HTML,
+    ///   22=FileHTML, 23=HTMLCode, 24=FileHTMLCode
+    /// </summary>
     public class ContentFieldModel : DbBaseModel {
         //
         //====================================================================================================
@@ -27,7 +48,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         public string caption { get; set; }
         /// <summary>
-        /// the table metadata
+        /// FK to ContentModel (cccontent.id) - the content definition this field belongs to
         /// </summary>
         public int contentId { get; set; }
         /// <summary>
@@ -77,19 +98,30 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int installedByCollectionId { get; set; }
         /// <summary>
-        /// if field type is lookup, this field is a foreign key into this table metadata
+        /// FK to ContentModel (cccontent.id) - for Lookup (type 7) and MemberSelect (type 15) fields,
+        /// the content definition that this field references. To find the actual database table,
+        /// join: cccontent c on c.id = lookupContentId, then cctables t on t.id = c.contentTableId, use t.name
         /// </summary>
         public int lookupContentId { get; set; }
         /// <summary>
-        /// if field type is lookup and lookupcontentid is 0, this is a 1-based comma separated list of index values
+        /// if field type is lookup and lookupContentId is 0, this is a 1-based comma separated list of index values
         /// </summary>
         public string lookupList { get; set; }
         /// <summary>
-        /// for manytomany field types, the other content referenced by the m2m rules
+        /// FK to ContentModel (cccontent.id) - for ManyToMany (type 14) fields, the secondary content referenced by the rule table
         /// </summary>
         public int manyToManyContentId { get; set; }
+        /// <summary>
+        /// FK to ContentModel (cccontent.id) - for ManyToMany fields, the rule table content definition
+        /// </summary>
         public int manyToManyRuleContentId { get; set; }
+        /// <summary>
+        /// for ManyToMany fields, the field name in the rule table that references the primary content
+        /// </summary>
         public string manyToManyRulePrimaryField { get; set; }
+        /// <summary>
+        /// for ManyToMany fields, the field name in the rule table that references the secondary content
+        /// </summary>
         public string manyToManyRuleSecondaryField { get; set; }
         public int memberSelectGroupId { get; set; }
         public bool notEditable { get; set; }

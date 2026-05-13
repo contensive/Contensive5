@@ -279,6 +279,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                         };
                         Processor.Controllers.ErrorController.addUserError(core, "There is no content with the requested id [" + request.contentId + "]");
                     }
+                } else if (!string.IsNullOrEmpty(request.contentGuid)) {
+                    adminContent = ContentMetadataModel.create(core, request.contentGuid);
+                    if (adminContent == null) {
+                        adminContent = new ContentMetadataModel {
+                            id = 0
+                        };
+                        Processor.Controllers.ErrorController.addUserError(core, $"There is no content with the requested GUID [{request.contentGuid}]");
+                    }
                 }
                 if (adminContent == null) {
                     adminContent = new ContentMetadataModel();
@@ -431,6 +439,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// content for edit or list
         /// </summary>
         public int contentId { get; set; }
+        /// <summary>
+        /// content guid for edit or list (used when contentId is 0)
+        /// </summary>
+        public string contentGuid { get; set; }
         /// <summary>
         /// record id for edit
         /// </summary>
