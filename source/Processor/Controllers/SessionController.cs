@@ -256,11 +256,12 @@ namespace Contensive.Processor.Controllers {
                         isFingerprintedSession = true;
                         //
                         // -- Look for existing visitor with this fingerprint.
-                        //    Use direct SQL because the fingerprint column may not yet exist
-                        //    during the upgrade process (cc -u). The try/catch allows the
-                        //    upgrade to proceed — a new visitor will simply be created.
-                        try {
-                            using var dt = core.db.executeQuery($"select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint={DbController.encodeSQLText(fingerprintHash)}) order by id desc");
+                        //    Use COL_LENGTH to guard against the fingerprint column not yet
+                        //    existing during the upgrade process (cc -u). When the column is
+                        //    missing the query safely returns no rows instead of throwing.
+                        {
+                            string fingerprintSql = $"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL BEGIN select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint={DbController.encodeSQLText(fingerprintHash)}) order by id desc END";
+                            using var dt = core.db.executeQuery(fingerprintSql);
                             if (dt?.Rows.Count > 0) {
                                 int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
                                 if (existingVisitorId > 0) {
@@ -280,8 +281,6 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                             }
-                        } catch (Exception ex) {
-                            logger.Trace($"{core.logCommonMessage},fingerprint column not yet available, skipping lookup [{ex.Message}]");
                         }
                     }
                 }
@@ -462,11 +461,18 @@ namespace Contensive.Processor.Controllers {
                             user = createGuest(core, true);
                             resultSessionContext_user_changes = true;
                             //
+                            // -- if this is a bot, name the user record with the bot identifier
+                            if (visit.bot && !string.IsNullOrEmpty(visit.name) && !visit.name.Equals("user", StringComparison.OrdinalIgnoreCase)) {
+                                user.name = visit.name;
+                                user.firstName = visit.name;
+                            }
+                            //
                             visit.visitAuthenticated = false;
                             visit.memberNew = true;
                             visit.memberId = user.id;
                             //
                             visitor.memberId = user.id;
+                            visitor.name = visit.name;
                             resultSessionContect_visitor_changes = true;
                         }
                     }
@@ -503,15 +509,11 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- save fingerprint to visitor record via direct SQL.
                     //    This runs separately from visitor.save() because the fingerprint column
-                    //    may not yet exist during the upgrade process (cc -u). A missing column
-                    //    here is caught and ignored so the upgrade can proceed.
+                    //    may not yet exist during the upgrade process (cc -u). COL_LENGTH guards
+                    //    against the missing column so no error is thrown.
                     //
                     if (isFingerprintedSession && !string.IsNullOrEmpty(fingerprintHash) && visitor.id > 0) {
-                        try {
-                            core.db.executeNonQuery($"update ccvisitors set fingerprint={DbController.encodeSQLText(fingerprintHash)} where id={visitor.id}");
-                        } catch (Exception ex) {
-                            logger.Trace($"{core.logCommonMessage},fingerprint column not yet available, skipping save [{ex.Message}]");
-                        }
+                        core.db.executeNonQuery($"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL BEGIN update ccvisitors set fingerprint={DbController.encodeSQLText(fingerprintHash)} where id={visitor.id} END");
                     }
                 }
                 //

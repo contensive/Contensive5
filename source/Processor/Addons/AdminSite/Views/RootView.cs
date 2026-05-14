@@ -25,63 +25,14 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string getForm_Root(CoreController core) {
             string returnHtml = "";
             try {
-                StringBuilderLegacyController Stream = new StringBuilderLegacyController();
                 int addonId = 0;
-                string AddonIDText = null;
                 //
-                // This is really messy -- there must be a better way
+                // -- select dashboard based on per-user preference (default to widget dashboard)
                 //
-                addonId = 0;
-                if (core.session.visit.id == core.docProperties.getInteger(RequestNameDashboardReset)) {
-                    //$$$$$ cache this
-                    using (var csData = new CsModel(core)) {
-                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbController.encodeSQLText(addonGuidIconDashboard));
-                        if (csData.ok()) {
-                            addonId = csData.getInteger("id");
-                            core.siteProperties.setProperty("AdminRootAddonID", GenericController.getText(addonId));
-                        }
-                    }
-                }
-                if (addonId == 0) {
-                    //
-                    // Get AdminRootAddon
-                    //
-                    AddonIDText = core.siteProperties.getText("AdminRootAddonID", "");
-                    if (string.IsNullOrEmpty(AddonIDText)) {
-                        //
-                        // the desktop is likely unset, auto set it to dashboard
-                        //
-                        core.siteProperties.setProperty("Admin Nav Widget Dashboard", true);
-                        AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidWidgetDashboard);
-                        addonId = addon?.id ?? 0;
-                        core.siteProperties.setProperty("ADMINROOTADDONID", addonId);
-                    } else if (AddonIDText == "0") {
-                        //
-                        // the desktop has been set to none - go with default desktop
-                        //
-                        addonId = 0;
-                    } else if (AddonIDText.isNumeric()) {
-                        //
-                        // it has been set to a non-zero number
-                        //
-                        addonId = GenericController.getInteger(AddonIDText);
-                        //
-                        // Verify it so there is no error when it runs
-                        if (core.cacheRuntime.addonCache.create(addonId) == null) {
-                            addonId = -1;
-                            core.siteProperties.setProperty("AdminRootAddonID", "");
-                        }
-                    }
-                    if (addonId == -1) {
-                        //
-                        // This has never been set, try to get the dashboard ID
-                        var addon = core.cacheRuntime.addonCache.create(addonGuidIconDashboard);
-                        if (addon != null) {
-                            addonId = addon.id;
-                            core.siteProperties.setProperty("AdminRootAddonID", addonId);
-                        }
-                    }
-                }
+                bool useIconDashboard = core.userProperty.getBoolean("Admin Nav Icon Dashboard", false);
+                string dashboardGuid = useIconDashboard ? addonGuidIconDashboard : addonGuidWidgetDashboard;
+                var dashboardAddon = DbBaseModel.create<AddonModel>(core.cpParent, dashboardGuid);
+                addonId = dashboardAddon?.id ?? 0;
                 if (addonId != 0) {
                     //
                     // Display the Addon

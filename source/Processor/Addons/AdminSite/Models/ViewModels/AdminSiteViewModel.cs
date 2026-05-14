@@ -460,41 +460,27 @@ namespace Contensive.Processor.Addons.AdminSite {
                 };
 
                 //
-                // -- beta the Grid-Stack Dashboard
-                if (cp.Doc.IsProperty("widgetDashboard")) {
+                // -- toggle dashboard preference per-user
+                if (cp.Doc.IsProperty("iconDashboard")) {
                     //
-                    // -- change widgetDashboard setting
-                    AddonModel addon = null;
-                    if (cp.Doc.GetBoolean("widgetDashboard")) {
-                        //
-                        // -- turn on the WidgetDashboard
-                        addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidWidgetDashboard);
-                        cp.Site.SetProperty("Admin Nav Widget Dashboard", true);
-                    } else {
-                        //
-                        // -- turn off the WidgetDashboard
-                        addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidIconDashboard);
-                        cp.Site.SetProperty("Admin Nav Widget Dashboard", false);
-                    }
-                    if (addon is not null) {
-                        cp.Site.SetProperty("ADMINROOTADDONID", addon.id);
-                    }
+                    // -- save user's dashboard preference
+                    cp.User.SetProperty("Admin Nav Icon Dashboard", cp.Doc.GetBoolean("iconDashboard"));
                 }
-                int dashboardAddonid = cp.Site.GetInteger("ADMINROOTADDONID");
-                if (cp.Content.GetRecordGuid("add-ons", dashboardAddonid) == Contensive.Processor.Constants.addonGuidIconDashboard) {
+                bool useIconDashboard = cp.User.GetBoolean("Admin Nav Icon Dashboard", false);
+                if (useIconDashboard) {
                     //
-                    // -- link to switch to beta
+                    // -- user prefers icon dashboard, link to switch to widget
                     _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
                         navItemName = "Switch to Widget Dashboard",
-                        navItemHref = "?widgetDashboard=1",
+                        navItemHref = "?iconDashboard=0",
                         navItemDataDragId = $""
                     });
                 } else {
                     //
-                    // -- link to switch to icon-dashboard
+                    // -- user prefers widget dashboard, link to switch to icon
                     _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
                         navItemName = "Switch to Icon Dashboard",
-                        navItemHref = "?widgetDashboard=0",
+                        navItemHref = "?iconDashboard=1",
                         navItemDataDragId = $""
                     });
                 }

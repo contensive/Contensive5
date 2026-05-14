@@ -11,7 +11,7 @@ namespace Contensive.Processor.Addons.AdminSite {
     public class AdminNav {
         public static string get(CPClass cp) {
             try {
-                if (cp.Site.GetBoolean("Admin Nav Widget Dashboard", true)) {
+                if (!cp.User.GetBoolean("Admin Nav Icon Dashboard", false)) {
                     //
                     // -- beta portal nav
                     string layout = cp.Layout.GetLayout(layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
