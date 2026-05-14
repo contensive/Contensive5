@@ -41,6 +41,11 @@ namespace Contensive.Processor.Controllers.Build {
                 string logPrefix = "upgrade[" + core.appConfig.name + "]";
                 //
                 {
+                    //
+                    // -- Verify core table fields first, before any reads that depend on system tables.
+                    //    This ensures columns exist before dataBuildVersion or domain reads attempt to use them.
+                    verifyBasicTables(core, logPrefix);
+                    //
                     string DataBuildVersion = core.siteProperties.dataBuildVersion;
                     if (versionIsOlder(DataBuildVersion, "4.1.636")) {
                         // this is a test
@@ -51,9 +56,6 @@ namespace Contensive.Processor.Controllers.Build {
                     if (core.appConfig.domainList.Count > 0) {
                         primaryDomain = core.appConfig.domainList[0];
                     }
-                    //
-                    // -- Verify core table fields (DataSources, Content Tables, Content, Content Fields, Setup, Sort Methods), then other basic system ops work, like site properties
-                    verifyBasicTables(core, logPrefix);
                     //
                     // 20180217 - move this before base collection because during install it runs addons (like _oninstall)
                     // if anything is needed that is not there yet, I need to build a list of adds to run after the app goes to app status ok
@@ -843,6 +845,62 @@ namespace Contensive.Processor.Controllers.Build {
                     core.db.createSQLTableField("ccSortMethods", "OrderByClause", CPContentBaseClass.FieldTypeIdEnum.Text);
                     //
                     core.db.createSQLTable("ccFieldTypes");
+                    //
+                    // -- session-critical tables: these are queried during session construction
+                    //    which runs before the collection installer creates columns from the XML.
+                    //
+                    core.db.createSQLTable("ccProperties");
+                    core.db.createSQLTableField("ccProperties", "TypeID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccProperties", "KeyID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccProperties", "FieldValue", CPContentBaseClass.FieldTypeIdEnum.LongText);
+                    //
+                    core.db.createSQLTable("ccVisitors");
+                    core.db.createSQLTableField("ccVisitors", "MemberID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisitors", "CookieSupport", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisitors", "Bot", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisitors", "Fingerprint", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    //
+                    core.db.createSQLTable("ccVisits");
+                    core.db.createSQLTableField("ccVisits", "StartTime", CPContentBaseClass.FieldTypeIdEnum.Date);
+                    core.db.createSQLTableField("ccVisits", "LastVisitTime", CPContentBaseClass.FieldTypeIdEnum.Date);
+                    core.db.createSQLTableField("ccVisits", "TimeToLastHit", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisits", "VisitorID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisits", "VisitorNew", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "MemberID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisits", "MemberNew", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "REMOTE_ADDR", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccVisits", "Browser", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccVisits", "HTTP_REFERER", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccVisits", "RefererPathPage", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccVisits", "PageVisits", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisits", "LoginAttempts", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisits", "VisitAuthenticated", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "CookieSupport", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "Bot", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "ExcludeFromAnalytics", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "CanSeeAgeRestrictedContent", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "StartDateValue", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccVisits", "StopTime", CPContentBaseClass.FieldTypeIdEnum.Date);
+                    core.db.createSQLTableField("ccVisits", "VerboseReporting", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccVisits", "Mobile", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    //
+                    core.db.createSQLTable("ccMembers");
+                    core.db.createSQLTableField("ccMembers", "FirstName", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccMembers", "LastName", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccMembers", "email", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccMembers", "Username", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccMembers", "Password", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccMembers", "PasswordHash", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccMembers", "Admin", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccMembers", "Developer", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccMembers", "AutoLogin", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccMembers", "AllowBulkEmail", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccMembers", "ExcludeFromAnalytics", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccMembers", "Visits", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccMembers", "LastVisit", CPContentBaseClass.FieldTypeIdEnum.Date);
+                    core.db.createSQLTableField("ccMembers", "CreatedByVisit", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    core.db.createSQLTableField("ccMembers", "LanguageID", CPContentBaseClass.FieldTypeIdEnum.Lookup);
+                    core.db.createSQLTableField("ccMembers", "bearerToken", CPContentBaseClass.FieldTypeIdEnum.Text);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

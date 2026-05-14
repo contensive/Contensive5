@@ -26,5 +26,9 @@ namespace Contensive.Models.Db {
         /// the browser string prsented by the client browser during the visit. Used to housekeep unneeded visitors
         /// </summary>
         public bool cookieSupport { get; set; }
+        /// <summary>
+        /// Hash of IP+UserAgent used to group cookie-less requests into a single visitor
+        /// </summary>
+        public string fingerprint { get; set; }
     }
 }

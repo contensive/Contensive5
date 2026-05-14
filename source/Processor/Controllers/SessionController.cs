@@ -208,6 +208,84 @@ namespace Contensive.Processor.Controllers {
                 bool resultSessionContect_visitor_changes = false;
                 bool resultSessionContext_user_changes = false;
                 //
+                // -- Early bearer-token resolution for cookie-less API clients.
+                //    When no cookies are present, detect bearer token before creating visit/visitor
+                //    so we can reuse the user's existing records instead of creating new ones each request.
+                //
+                PersonModel earlyResolvedUser = null;
+                bool earlyBearerAuth = false;
+                string fingerprintHash = "";
+                bool isFingerprintedSession = false;
+                if ((visitor == null || visitor.id == 0) && (visit == null || visit.id == 0)) {
+                    if (core.webServer?.requestHeaders != null
+                        && core.webServer.requestHeaders.TryGetValue("Authorization", out string earlyAuthHeader)
+                        && !string.IsNullOrWhiteSpace(earlyAuthHeader)
+                        && earlyAuthHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
+                        earlyResolvedUser = BearerTokenAuthController.tryResolveUserByBearerToken(core, earlyAuthHeader);
+                        if (earlyResolvedUser != null && earlyResolvedUser.id > 0) {
+                            earlyBearerAuth = true;
+                            //
+                            // -- reuse the user's most recent visitor
+                            var visitorList = DbBaseModel.createList<VisitorModel>(core.cpParent, $"(memberId={earlyResolvedUser.id})", "id desc", 1);
+                            if (visitorList.Count > 0) {
+                                visitor = visitorList[0];
+                            }
+                            //
+                            // -- reuse the user's most recent visit if within 1 hour
+                            string oneHourAgo = DbController.encodeSQLDate(core.doc.profileStartTime.AddHours(-1));
+                            var visitList = DbBaseModel.createList<VisitModel>(core.cpParent, $"(memberId={earlyResolvedUser.id})and(lastVisitTime>{oneHourAgo})", "id desc", 1);
+                            if (visitList.Count > 0) {
+                                visit = visitList[0];
+                                trackVisits = true;
+                            }
+                        }
+                    }
+                    //
+                    // -- If no bearer token found, try bot/spider fingerprinting for cookie-less requests.
+                    //    This groups bot hits from the same IP+UserAgent into a single visitor/visit,
+                    //    preventing database pollution from crawlers and background processes.
+                    //
+                    if (earlyResolvedUser == null && (visitor == null || visitor.id == 0)) {
+                        string userAgent = core.webServer.requestBrowser ?? "";
+                        string remoteIP = core.webServer.requestRemoteIP ?? "";
+                        //
+                        // -- Create fingerprint from IP + User-Agent
+                        //    Use Base64 encoding to ensure safe storage in DB text field
+                        string fingerprint = $"{remoteIP}|{userAgent}";
+                        fingerprintHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(fingerprint));
+                        isFingerprintedSession = true;
+                        //
+                        // -- Look for existing visitor with this fingerprint.
+                        //    Use direct SQL because the fingerprint column may not yet exist
+                        //    during the upgrade process (cc -u). The try/catch allows the
+                        //    upgrade to proceed — a new visitor will simply be created.
+                        try {
+                            using var dt = core.db.executeQuery($"select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint={DbController.encodeSQLText(fingerprintHash)}) order by id desc");
+                            if (dt?.Rows.Count > 0) {
+                                int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
+                                if (existingVisitorId > 0) {
+                                    visitor = new VisitorModel {
+                                        id = existingVisitorId,
+                                        memberId = GenericController.getInteger(dt.Rows[0]["memberId"]),
+                                        bot = GenericController.getBoolean(dt.Rows[0]["bot"]),
+                                        cookieSupport = GenericController.getBoolean(dt.Rows[0]["cookieSupport"])
+                                    };
+                                    //
+                                    // -- Reuse this visitor's most recent visit if within 1 hour
+                                    string oneHourAgo = DbController.encodeSQLDate(core.doc.profileStartTime.AddHours(-1));
+                                    var visitList = DbBaseModel.createList<VisitModel>(core.cpParent, $"(visitorId={visitor.id})and(lastVisitTime>{oneHourAgo})", "id desc", 1);
+                                    if (visitList.Count > 0) {
+                                        visit = visitList[0];
+                                        trackVisits = true;
+                                    }
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.Trace($"{core.logCommonMessage},fingerprint column not yet available, skipping lookup [{ex.Message}]");
+                        }
+                    }
+                }
+                //
                 // -- setup session from user,visit,visitor
                 //
                 bool AllowOnNewVisitEvent = false;
@@ -321,6 +399,13 @@ namespace Contensive.Processor.Controllers {
                     visit.visitorNew = visitorNew;
                     visit.visitorId = visitor.id;
                     //
+                    // -- if bearer token was resolved early, authenticate now that visit/visitor exist
+                    //
+                    if (earlyBearerAuth && earlyResolvedUser != null) {
+                        AuthController.authenticateById(core, this, earlyResolvedUser.id);
+                        user = this.user;
+                    }
+                    //
                     // -- verify user identity
                     //
                     if ((user is null) || user.id.Equals(0)) {
@@ -414,6 +499,19 @@ namespace Contensive.Processor.Controllers {
                     }
                     if (resultSessionContext_user_changes) {
                         user.save(core.cpParent, 0, true);
+                    }
+                    //
+                    // -- save fingerprint to visitor record via direct SQL.
+                    //    This runs separately from visitor.save() because the fingerprint column
+                    //    may not yet exist during the upgrade process (cc -u). A missing column
+                    //    here is caught and ignored so the upgrade can proceed.
+                    //
+                    if (isFingerprintedSession && !string.IsNullOrEmpty(fingerprintHash) && visitor.id > 0) {
+                        try {
+                            core.db.executeNonQuery($"update ccvisitors set fingerprint={DbController.encodeSQLText(fingerprintHash)} where id={visitor.id}");
+                        } catch (Exception ex) {
+                            logger.Trace($"{core.logCommonMessage},fingerprint column not yet available, skipping save [{ex.Message}]");
+                        }
                     }
                 }
                 //

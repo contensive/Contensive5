@@ -55,7 +55,8 @@
       "Bash(unzip:*)",
       "Bash(npx playwright test)",
       "Bash(npm install:*)",
-      "Bash(npx playwright:*)"
+      "Bash(npx playwright:*)",
+      "Bash(scripts/build.cmd:*)"
     ]
   }
 }
