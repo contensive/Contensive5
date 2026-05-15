@@ -1,217 +1,209 @@
-# Plan: Add `textLength` to Content Fields
-
-## Problem
-Text fields in ccFields are created as `nvarchar(255)` but some fields (like `Fingerprint` at 272 chars) need longer lengths. There is no metadata to configure this per-field.
+# Plan: Add "Login By Email" Custom Blocking Method
 
 ## Overview
-Add a `textLength` integer property to ccFields metadata. When 0 or blank, default to 255 (current behavior). When set, use that value for the SQL column width and for the admin editor's `maxlength` attribute.
+
+Add a new blocking method (value `5`) called "Login By Email" to the Page Content blocking system. When selected, unauthenticated users are prompted for their email, sent a One Time Password (OTP), and logged in after entering the OTP — with different flows for existing vs. new users.
 
 ---
 
-## Step 1: Add `TextLength` to the base collection XML (`aoBase51.xml`)
+## Step 1: Update Collection XML — Add "Login By Email" to the LookupList
 
-**File:** [aoBase51.xml](source/Processor/aoBase51.xml)
+**File:** `source/Processor/aoBase51.xml` (line 1153)
 
-- Add a new `<Field>` element inside the "Content Fields" CDef (around line 135):
-  ```xml
-  <Field Name="TextLength" Active="true" AdminOnly="0" Authorable="1" Caption="Text Length" DeveloperOnly="1" EditSortPriority="1015" FieldType="Integer" HtmlContent="0" ... DefaultValue="0" ...>
-    <HelpDefault>For text fields, the nvarchar length in the database. If 0 or blank, defaults to 255.</HelpDefault>
-  </Field>
-  ```
-- Add `TextLength="512"` attribute to the Visitors.Fingerprint field definition (if it's in the base XML), or to the appropriate collection XML that defines the Fingerprint field
+Change the `BlockSourceID` field's `LookupList` from:
+```
+"Custom Blocking Message,Login Form,Registration Form,Age Restricted Content Block"
+```
+to:
+```
+"Custom Blocking Message,Login Form,Registration Form,Age Restricted Content Block,Login By Email"
+```
 
----
-
-## Step 2: Add `textLength` to `ContentFieldModel` (database model)
-
-**File:** [ContentFieldModel.cs](source/Models/Models/Db/ContentFieldModel.cs) ~line 144
-
-- Add property:
-  ```csharp
-  /// <summary>
-  /// For text fields, the nvarchar length in the database. If 0, defaults to 255.
-  /// </summary>
-  public int textLength { get; set; }
-  ```
+This makes "Login By Email" appear as the 5th option (blockSourceId = 5) in the Blocking Tab dropdown.
 
 ---
 
-## Step 3: Add `textLength` to `ContentFieldMetadataModel` (runtime metadata model)
+## Step 2: Add New CDef for OTP Records
 
-**File:** [ContentFieldMetadataModel.cs](source/Processor/Models/Domain/ContentFieldMetadataModel.cs)
+**File:** `source/Processor/aoBase51.xml`
 
-- Add property (~line 275):
-  ```csharp
-  /// <summary>
-  /// For text fields, the nvarchar length in the database. If 0, defaults to 255.
-  /// </summary>
-  public int textLength { get; set; }
-  ```
-- Update `createDefault()` (~line 31) to include `textLength = 0` in the initializer
+Add a new `<CDef>` for table `LoginByEmailOtp` with fields:
+- `Name` (Text) — auto-generated identifier
+- `email` (Text) — the email address the OTP was sent to
+- `otp` (Text) — the generated OTP code (6 digits)
+- `expires` (Date) — expiration timestamp
+- `used` (Boolean) — whether the OTP has been consumed
 
 ---
 
-## Step 4: Add `TextLength` to `verifyBasicTables` in `BuildController`
+## Step 3: Add Constants
 
-**File:** [BuildController.cs](source/Processor/Controllers/Build/BuildController.cs) ~line 833
+**File:** `source/Processor/Constants.cs`
 
-- Add after existing ccFields field definitions:
-  ```csharp
-  core.db.createSQLTableField("ccFields", "TextLength", CPContentBaseClass.FieldTypeIdEnum.Integer);
-  ```
+```csharp
+internal const int ContentBlockWithLoginByEmail = 5;
 
----
+// Layout GUIDs for Login By Email blocking
+public const string layoutLoginByEmailGuid = "{generated-guid}";
+public const string layoutLoginByEmailName = "Login By Email Form Layout";
+public const string layoutLoginByEmailCdnPathFilename = @"baseAssets\LoginByEmailForm.html";
 
-## Step 5: Read `TextLength` from XML during collection install
+public const string layoutLoginByEmailOtpGuid = "{generated-guid}";
+public const string layoutLoginByEmailOtpName = "Login By Email OTP Form Layout";
+public const string layoutLoginByEmailOtpCdnPathFilename = @"baseAssets\LoginByEmailOtpForm.html";
 
-**File:** [CollectionInstallMetadataController.cs](source/Processor/Controllers/Collection/Install/CollectionInstallMetadataController.cs) ~line 282
+public const string layoutLoginByEmailNewUserOtpGuid = "{generated-guid}";
+public const string layoutLoginByEmailNewUserOtpName = "Login By Email New User OTP Form Layout";
+public const string layoutLoginByEmailNewUserOtpCdnPathFilename = @"baseAssets\LoginByEmailNewUserOtpForm.html";
 
-- In `loadXML()`, add after `editorAddonGuid` line:
-  ```csharp
-  metaDataField.textLength = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "TextLength", DefaultMetaDataField.textLength);
-  ```
-
----
-
-## Step 6: Save `textLength` to DB during metadata install
-
-**File:** [ContentMetadataModel.cs](source/Processor/Models/Domain/ContentMetadataModel.cs) ~line 976
-
-- In `verifyContentField()`, add `textLength` to the `sqlList` NameValueCollection:
-  ```csharp
-  { "textlength", DbController.encodeSQLNumber(fieldMetadata.textLength) }
-  ```
-- Gate behind a version check similar to `editgroup` (line 980) so it only writes if the column exists:
-  ```csharp
-  if (!GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "<new-version>")) {
-      sqlList.Add("textlength", DbController.encodeSQLNumber(fieldMetadata.textLength));
-  }
-  ```
+// System email GUIDs for Login By Email
+public const string systemEmailLoginByEmailExistingUserGuid = "{generated-guid}";
+public const string systemEmailLoginByEmailNewUserGuid = "{generated-guid}";
+```
 
 ---
 
-## Step 7: Use `textLength` when creating SQL table fields
+## Step 4: Create Database Model for OTP
 
-**File:** [DbController.cs](source/Processor/Controllers/DbController.cs)
+**File:** `source/Models/Models/Db/LoginByEmailOtpModel.cs` (new file)
 
-### 7a: Add overload for `getSQLAlterColumnType` (~line 759)
-- Add a new overload that accepts `textLength`:
-  ```csharp
-  public string getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum fieldType, int textLength)
-  ```
-- For the Text/File/etc. case (line 780-788), return `$"nvarchar({effectiveLength}) NULL"` where `effectiveLength = textLength > 0 ? textLength : 255`
-- The existing parameterless version continues to default to 255
-
-### 7b: Add overload for `createSQLTableField` (~line 606)
-- Add a new overload:
-  ```csharp
-  public void createSQLTableField(string tableName, string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType, int textLength, bool clearMetadataCache = false)
-  ```
-- This calls `getSQLAlterColumnType(fieldType, textLength)` instead of `getSQLAlterColumnType(fieldType)`
-
-### 7c: Update `installMetaDataMiniCollection_BuildDb` stage 1 (~line 581)
-- In [CollectionInstallMetadataController.cs](source/Processor/Controllers/Collection/Install/CollectionInstallMetadataController.cs):581, pass `textLength`:
-  ```csharp
-  core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId, fieldKvp.Value.textLength);
-  ```
-
-### 7d: Update `verifyContentField` table field creation (~line 939)
-- In [ContentMetadataModel.cs](source/Processor/Models/Domain/ContentMetadataModel.cs):939, pass `textLength`:
-  ```csharp
-  db.createSQLTableField(tableName, fieldMetadata.nameLc, fieldMetadata.fieldTypeId, fieldMetadata.textLength);
-  ```
+```csharp
+public class LoginByEmailOtpModel : DbBaseModel {
+    public static DbBaseTableMetadataModel tableMetadata { get; }
+        = new DbBaseTableMetadataModel("Login By Email Otp", "LoginByEmailOtp", false);
+    public string email { get; set; }
+    public string otp { get; set; }
+    public DateTime expires { get; set; }
+    public bool used { get; set; }
+}
+```
 
 ---
 
-## Step 8: Verify field length during housekeeping
+## Step 5: Create Layout HTML Files
 
-**File:** [ContentFieldsClass.cs](source/Processor/Addons/Housekeeping/ContentFieldsClass.cs) (daily tasks, ~line 39)
+### 5a. Email Request Form (`baseAssets/LoginByEmailForm.html`)
+- Caption: "Enter Your Email to Access This Page"
+- Email input with `type="email"` + client-side JavaScript regex validation
+- Submit button
+- JavaScript AJAX call to the `SubmitLoginByEmailRequest` remote method
 
-- Add logic to `executeDailyTasks`:
-  1. Query all text-type fields from ccFields that have `textLength > 0`, joined to cccontent and cctables to get the SQL table name
-  2. For each, look up the actual SQL column schema using `TableSchemaModel.getTableSchema()`
-  3. Compare `ColumnSchemaModel.CHARACTER_MAXIMUM_LENGTH` to the field's `textLength`
-  4. If the db column is shorter than `textLength`:
-     - Check `tableSchema.indexes` for any index whose `indexKeyList` contains the column name
-     - If indexes exist on the column, drop them first (same pattern as [BuildController.cs:406-414](source/Processor/Controllers/Build/BuildController.cs#L406-L414)):
-       ```csharp
-       foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
-           if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
-               core.db.deleteIndex(tableName, index.index_name);
-           }
-       }
-       ```
-     - ALTER the column to match:
-       ```sql
-       ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar({textLength}) NULL
-       ```
-     - Recreate any dropped indexes:
-       ```csharp
-       foreach (TableSchemaModel.IndexSchemaModel index in droppedIndexes) {
-           core.db.createSQLIndex(tableName, index.index_name, index.index_keys);
-       }
-       ```
-  5. Log the change
+### 5b. Existing User OTP Form (`baseAssets/LoginByEmailOtpForm.html`)
+- OTP input field (6 digits)
+- Hidden field for email
+- Submit button
+- JavaScript AJAX call to `SubmitLoginByEmailOtp` remote method
+
+### 5c. New User OTP + Registration Form (`baseAssets/LoginByEmailNewUserOtpForm.html`)
+- Instructions: "A code was sent to {{email}}. Check your email and enter the code below."
+- First Name, Last Name inputs
+- Email displayed (read-only)
+- OTP input field
+- Submit button
+- JavaScript AJAX call to `SubmitLoginByEmailNewUserOtp` remote method
 
 ---
 
-## Step 9: Upgrade migration — populate `textLength` from current database schema
+## Step 6: Create Addon — SubmitLoginByEmailRequest
 
-**File:** [BuildController.cs](source/Processor/Controllers/Build/BuildController.cs)
+**File:** `source/Processor/Addons/CustomBlocking/SubmitLoginByEmailRequest.cs` (new)
 
-- Add a new method `verifyTextFieldLengths()` called from the build process (near `verifySqlfieldCompatibility`):
-  1. Query all ccFields records where `type` is a text-type (2=Text, 6=File, 10=FileText, etc.) and `textLength` is 0 or null
-  2. For each, look up the actual column's `CHARACTER_MAXIMUM_LENGTH` from `TableSchemaModel`
-  3. If the actual length is not 255, update the ccFields record's `textLength` to match the actual db length
-  4. This handles existing fields that were manually altered to be wider
+Logic:
+1. Get `email` from doc properties, validate format server-side
+2. Generate a 6-digit OTP code
+3. Create a `LoginByEmailOtpModel` record (email, otp, expires = now + 10 min, used = false)
+4. Query `ccmembers` for existing user with this email
+5. If user **exists**: send OTP via "existing user" system email → return `{ success: true, isNewUser: false }`
+6. If user **does not exist**: send OTP via "new user" system email → return `{ success: true, isNewUser: true }`
 
----
-
-## Step 10: Admin edit — use `textLength` for text input maxlength
-
-### 10a: Edit Modal (new admin UI)
-**File:** [EditModalViewModel_Field.cs](source/Processor/Models/Domain/EditModalViewModel_Field.cs) ~line 81
-
-- Change from:
-  ```csharp
-  textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
-  ```
-- To:
-  ```csharp
-  int effectiveTextLength = (field.textLength > 0) ? field.textLength : 255;
-  textMaxLength = isText ? effectiveTextLength : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : effectiveTextLength));
-  ```
-
-### 10b: Legacy Admin Text Editor
-**File:** [AdminUIEditorController.cs](source/Processor/Controllers/EditControls/AdminUIEditorController.cs) ~line 724
-
-- Add a `textLength` parameter to the `getTextEditor` method (or an overload):
-  ```csharp
-  public static string getTextEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId, bool required, int textLength)
-  ```
-- Change hardcoded `255` at line 733 to `textLength > 0 ? textLength : 255`
-- Update callers to pass the field's `textLength`
+The OTP is appended to the system email body in the send method.
 
 ---
 
-## Step 11: Update the Visitors Fingerprint field
+## Step 7: Create Addon — SubmitLoginByEmailOtp (Existing User)
 
-- In the collection XML that defines Visitors content, add `TextLength="512"` (or appropriate value) to the Fingerprint `<Field>` element
-- This will cause the next install/upgrade to widen the database column
+**File:** `source/Processor/Addons/CustomBlocking/SubmitLoginByEmailOtp.cs` (new)
+
+Logic:
+1. Get `email` and `otp` from doc properties
+2. Query `LoginByEmailOtp` for matching record where `expires > now` and `used = false`
+3. If not found: return error
+4. Mark OTP record as `used = true`
+5. Find user in `ccmembers` by email
+6. Call `cp.User.LoginByID(userId)`
+7. Return `{ success: true }`
 
 ---
 
-## Files Modified (summary)
+## Step 8: Create Addon — SubmitLoginByEmailNewUserOtp (New User)
 
-| # | File | Change |
-|---|------|--------|
-| 1 | `source/Processor/aoBase51.xml` | Add TextLength field to "Content Fields" CDef; set TextLength on Fingerprint field |
-| 2 | `source/Models/Models/Db/ContentFieldModel.cs` | Add `textLength` property |
-| 3 | `source/Processor/Models/Domain/ContentFieldMetadataModel.cs` | Add `textLength` property + default |
-| 4 | `source/Processor/Controllers/Build/BuildController.cs` | Add TextLength to verifyBasicTables; add `verifyTextFieldLengths()` migration |
-| 5 | `source/Processor/Controllers/Collection/Install/CollectionInstallMetadataController.cs` | Read TextLength from XML; pass to createSQLTableField |
-| 6 | `source/Processor/Models/Domain/ContentMetadataModel.cs` | Save textLength in verifyContentField; pass to createSQLTableField |
-| 7 | `source/Processor/Controllers/DbController.cs` | Add textLength overloads for getSQLAlterColumnType and createSQLTableField |
-| 8 | `source/Processor/Addons/Housekeeping/ContentFieldsClass.cs` | Verify db column length matches textLength |
-| 9 | `source/Processor/Models/Domain/EditModalViewModel_Field.cs` | Use textLength for textMaxLength |
-| 10 | `source/Processor/Controllers/EditControls/AdminUIEditorController.cs` | Use textLength for maxlength in text inputs |
+**File:** `source/Processor/Addons/CustomBlocking/SubmitLoginByEmailNewUserOtp.cs` (new)
+
+Logic:
+1. Get `email`, `otp`, `firstName`, `lastName` from doc properties
+2. Validate OTP (same as Step 7)
+3. Mark OTP record as `used = true`
+4. Check current session's people record:
+   - If current record **has no email**: update it with email, firstName, lastName → login with this record
+   - If current record **already has an email**: create a **new** PersonModel with firstName, lastName, email → login with the new record
+5. Return `{ success: true }`
+
+---
+
+## Step 9: Register Addons in Collection XML
+
+**File:** `source/Processor/aoBase51.xml`
+
+Add three `<Addon>` entries with `<RemoteMethod>true</RemoteMethod>`:
+1. `SubmitLoginByEmailRequest` → `Contensive.Processor.Addons.CustomBlocking.SubmitLoginByEmailRequest`
+2. `SubmitLoginByEmailOtp` → `Contensive.Processor.Addons.CustomBlocking.SubmitLoginByEmailOtp`
+3. `SubmitLoginByEmailNewUserOtp` → `Contensive.Processor.Addons.CustomBlocking.SubmitLoginByEmailNewUserOtp`
+
+---
+
+## Step 10: Add Case to PageManagerController Switch
+
+**File:** `source/Processor/Controllers/PageManagerController.cs` (~line 790, before `default:`)
+
+```csharp
+case ContentBlockWithLoginByEmail: {
+    if (core.session.isAuthenticated) {
+        ContentBlocked = false;
+    } else {
+        result = core.cpParent.Layout.GetLayout(
+            Constants.layoutLoginByEmailGuid,
+            Constants.layoutLoginByEmailName,
+            Constants.layoutLoginByEmailCdnPathFilename);
+    }
+    break;
+}
+```
+
+The client-side JavaScript handles form transitions (email → OTP or new-user form) via AJAX responses.
+
+---
+
+## Step 11: Build and Test
+
+1. Build the solution to verify compilation
+2. Test flows:
+   - Authenticated user → passes through, no block
+   - Unauthenticated, existing email → email form → OTP email → OTP form → logged in
+   - Unauthenticated, new email → email form → OTP email → name + OTP form → registered + logged in
+
+---
+
+## File Change Summary
+
+| File | Action |
+|------|--------|
+| `source/Processor/aoBase51.xml` | Modify LookupList, add OTP CDef, add 3 Addon registrations |
+| `source/Processor/Constants.cs` | Add `ContentBlockWithLoginByEmail = 5`, layout GUIDs, email GUIDs |
+| `source/Models/Models/Db/LoginByEmailOtpModel.cs` | **New** — OTP database model |
+| `source/Processor/Addons/CustomBlocking/SubmitLoginByEmailRequest.cs` | **New** — email submission + OTP generation |
+| `source/Processor/Addons/CustomBlocking/SubmitLoginByEmailOtp.cs` | **New** — existing user OTP verification + login |
+| `source/Processor/Addons/CustomBlocking/SubmitLoginByEmailNewUserOtp.cs` | **New** — new user OTP verification + registration + login |
+| `source/Processor/Controllers/PageManagerController.cs` | Add `case ContentBlockWithLoginByEmail` to switch |
+| `source/Processor/baseAssets/LoginByEmailForm.html` | **New** — email entry form with client-side validation |
+| `source/Processor/baseAssets/LoginByEmailOtpForm.html` | **New** — OTP entry form for existing users |
+| `source/Processor/baseAssets/LoginByEmailNewUserOtpForm.html` | **New** — OTP + registration form for new users |

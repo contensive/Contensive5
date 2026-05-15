@@ -111,6 +111,102 @@ namespace Contensive.Processor.Controllers {
                         return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString });
                     }
                 }
+                if (processFormType == FormTypeLoginByEmailOtpRequest) {
+                    //
+                    // -- process OTP email request: generate OTP, send email, show code form
+                    string otpEmail = core.cpParent.Doc.GetText("email").Trim();
+                    if (string.IsNullOrWhiteSpace(otpEmail)) {
+                        userErrorMessage = "Email is required.";
+                    } else if (!EmailController.verifyEmailAddress(core, otpEmail)) {
+                        userErrorMessage = "Email is not valid.";
+                    } else {
+                        //
+                        // -- generate 6-digit OTP
+                        var random = new Random();
+                        string otpCode = random.Next(100000, 999999).ToString();
+                        //
+                        // -- create OTP record (reuses same table as page-blocking email login)
+                        var otpRecord = DbBaseModel.addDefault<LoginByEmailOtpModel>(core.cpParent);
+                        otpRecord.name = $"OTP for {otpEmail}";
+                        otpRecord.email = otpEmail;
+                        otpRecord.otp = otpCode;
+                        otpRecord.expires = DateTime.Now.AddMinutes(10);
+                        otpRecord.used = false;
+                        otpRecord.save(core.cpParent);
+                        //
+                        // -- send OTP email (same response whether user exists or not for security)
+                        string emailSubject = "Your Access Code";
+                        string emailBody = $"<p>You requested access to {core.cpParent.Request.Host}.</p>"
+                            + $"<p>Your one-time access code is: <b>{otpCode}</b></p>"
+                            + "<p>This code will expire in 10 minutes.</p>"
+                            + "<p>If you did not request this code, please ignore this email.</p>";
+                        core.cpParent.Email.send(otpEmail, core.cpParent.Email.fromAddressDefault, emailSubject, emailBody);
+                        //
+                        // -- show OTP code entry form
+                        return getLoginOtpCodeForm(core, otpEmail, "");
+                    }
+                    //
+                    // -- email validation failed, show OTP email form with error
+                    return getLoginOtpEmailForm(core, userErrorMessage);
+                }
+                if (processFormType == FormTypeLoginByEmailOtpVerify) {
+                    //
+                    // -- process OTP code verification
+                    string otpEmail = core.cpParent.Doc.GetText("email").Trim();
+                    string otpCode = core.cpParent.Doc.GetText("otp").Trim();
+                    if (string.IsNullOrWhiteSpace(otpEmail) || string.IsNullOrWhiteSpace(otpCode)) {
+                        return getLoginOtpCodeForm(core, otpEmail, "Please enter your access code.");
+                    }
+                    //
+                    // -- find valid OTP record
+                    string otpQuery = $"select top 1 id from LoginByEmailOtp where email={DbController.encodeSQLText(otpEmail)} and otp={DbController.encodeSQLText(otpCode)} and expires>{DbController.encodeSQLDate(DateTime.Now)} and (used=0 or used is null) order by id desc";
+                    int otpRecordId = 0;
+                    using (var csData = new CsModel(core)) {
+                        if (csData.openSql(otpQuery)) {
+                            otpRecordId = csData.getInteger("id");
+                        }
+                    }
+                    if (otpRecordId == 0) {
+                        return getLoginOtpCodeForm(core, otpEmail, "Invalid or expired access code. Please request a new code.");
+                    }
+                    //
+                    // -- mark OTP as used
+                    var usedOtpRecord = DbBaseModel.create<LoginByEmailOtpModel>(core.cpParent, otpRecordId);
+                    if (usedOtpRecord != null) {
+                        usedOtpRecord.used = true;
+                        usedOtpRecord.save(core.cpParent);
+                    }
+                    //
+                    // -- find user by email
+                    int userId = 0;
+                    string findUserSQL = $"select top 1 id from ccmembers where email={DbController.encodeSQLText(otpEmail)} order by dateadded desc";
+                    using (var csData = new CsModel(core)) {
+                        if (csData.openSql(findUserSQL)) {
+                            userId = csData.getInteger("id");
+                        }
+                    }
+                    if (userId == 0) {
+                        //
+                        // -- no user found with this email, create a new user
+                        var newUser = DbBaseModel.addDefault<PersonModel>(core.cpParent);
+                        newUser.email = otpEmail;
+                        newUser.name = otpEmail;
+                        newUser.save(core.cpParent);
+                        userId = newUser.id;
+                    }
+                    //
+                    // -- log in the user
+                    core.cpParent.User.LoginByID(userId);
+                    return "";
+                }
+                //
+                // -- check if the user clicked the "Login with Email Code" link
+                //
+                bool allowLoginByEmailOtp = core.siteProperties.getBoolean(sitePropertyName_AllowLoginByEmailOtp, true);
+                string requestMethod = core.docProperties.getText("method");
+                if (allowLoginByEmailOtp && requestMethod == "loginbyemailotp") {
+                    return getLoginOtpEmailForm(core, userErrorMessage);
+                }
                 //
                 // -- get next auth workflow form
                 //
@@ -161,8 +257,8 @@ namespace Contensive.Processor.Controllers {
                     layout = LayoutController.getLayout(core.cpParent, "{1E9C7EA7-04E0-46BB-AA45-88387D9DFC69}", "login username password", "BaseAssets/login_username_password.html", "");
                 }
                 //
-                // -- add user errors
-                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage });
+                // -- add user errors and template variables
+                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, allowLoginByEmailOtp });
                 layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
                 // -- wrap in form that sumbits to the same request URL, to return to the same page after login
@@ -187,6 +283,44 @@ namespace Contensive.Processor.Controllers {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Returns the OTP email entry form wrapped in the standard login container
+        /// </summary>
+        private static string getLoginOtpEmailForm(CoreController core, string userErrorMessage) {
+            string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, "");
+            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage });
+            layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpRequest);
+            string action = core.cpParent.Request.QueryString;
+            string result = HtmlController.form(core, layout, action);
+            result = HtmlController.div(result, "ccLoginFormCon pt-4");
+            return ""
+                + "<div style=\"width:100%;padding:50px 20px\">"
+                + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">"
+                + result
+                + "</div>"
+                + "</div>";
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Returns the OTP code verification form wrapped in the standard login container
+        /// </summary>
+        private static string getLoginOtpCodeForm(CoreController core, string otpEmail, string userErrorMessage) {
+            string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpCodeGuid, layoutLoginOtpCodeName, layoutLoginOtpCodeCdnPathFilename, "");
+            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, otpEmail });
+            layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpVerify);
+            string action = core.cpParent.Request.QueryString;
+            string result = HtmlController.form(core, layout, action);
+            result = HtmlController.div(result, "ccLoginFormCon pt-4");
+            return ""
+                + "<div style=\"width:100%;padding:50px 20px\">"
+                + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">"
+                + result
+                + "</div>"
+                + "</div>";
         }
         //
         //====================================================================================================

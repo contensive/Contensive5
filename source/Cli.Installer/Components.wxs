@@ -9,6 +9,7 @@
       <!-- reference the components to install -->
       <ComponentRef Id="MainAppShortcut"/>
       <ComponentRef Id="ReadmeFile"/>
+      <ComponentRef Id="TaskServiceComponent"/>
       <ComponentRef Id="McpServerService"/>
       <ComponentRef Id="McpServerConfig"/>
     </ComponentGroup>
@@ -63,6 +64,41 @@
           Source="..\..\docs\README.txt"
           Vital="yes"
           KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Task Service Windows Service.
+         The exe is declared here with ServiceInstall/ServiceControl.
+         The XSL transform in the HeatDirectory step excludes the exe from the
+         auto-harvested componentsGenerated.wxs to avoid duplicate file errors. -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="TaskServiceComponent" Guid="{D4E5F6A7-B8C9-0123-DEF0-123456789ABC}">
+        <File
+          Id="TaskServiceExe"
+          Name="TaskService.exe"
+          Source="$(var.BasePath)\TaskService.exe"
+          Vital="yes"
+          KeyPath="yes" />
+
+        <ServiceInstall
+          Id="TaskServiceInstaller"
+          Type="ownProcess"
+          Vital="yes"
+          Name="TaskService"
+          DisplayName="Contensive Task Service"
+          Description="Manages Task Scheduler and Task Runner activities"
+          Start="auto"
+          Account="LocalSystem"
+          ErrorControl="normal"
+          Interactive="no" />
+
+        <ServiceControl
+          Id="TaskServiceControl"
+          Stop="both"
+          Start="install"
+          Remove="uninstall"
+          Name="TaskService"
+          Wait="yes" />
       </Component>
     </DirectoryRef>
 

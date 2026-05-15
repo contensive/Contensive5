@@ -99,6 +99,10 @@ namespace Contensive.Processor {
         /// </summary>
         internal const string sitePropertyName_AllowNoPasswordLogin = "allowNoPasswordLogin";
         /// <summary>
+        /// if true, the login page includes an option to login with an email one-time password
+        /// </summary>
+        internal const string sitePropertyName_AllowLoginByEmailOtp = "AllowLoginByEmailOtp";
+        /// <summary>
         /// if true, user plain text password field to login. If false, has the entered password and compare to passwordHash
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
@@ -375,6 +379,8 @@ namespace Contensive.Processor {
         internal const string FormTypeMyProfile = "89aLi180j5";
         internal const string FormTypeLogin = "login";
         internal const string FormTypePasswordRecovery = "lk0q56am09";
+        internal const string FormTypeLoginByEmailOtpRequest = "otpEmailReq01";
+        internal const string FormTypeLoginByEmailOtpVerify = "otpEmailVfy01";
         internal const string FormTypeRegister = "6df38abv00";
         internal const string FormTypeHelpBubbleEditor = "9df019d77sA";
         internal const string FormTypeAddonSettingsEditor = "4ed923aFGw9d";
@@ -957,6 +963,7 @@ namespace Contensive.Processor {
         internal const int ContentBlockWithLogin = 2;
         internal const int ContentBlockWithRegistration = 3;
         internal const int ContentBlockWithAgeRestriction = 4;
+        internal const int ContentBlockWithLoginByEmail = 5;
         internal const string main_FieldDelimiter = " , ";
         internal const string main_LineDelimiter = " ,, ";
         internal const int main_IPosType = 0;
@@ -1056,6 +1063,19 @@ namespace Contensive.Processor {
         public const string layoutCustomBlockingAgeRestrictionName = "Age Verification Layout";
         public const string layoutCustomBlockingAgeRestrictionCdnPathFilename = @"baseAssets\AgeVerificationLayout.html";
         //
+        // -- layouts for Login By Email blocking
+        public const string layoutLoginByEmailGuid = "{BCA80458-2D5E-4ECB-9B07-A652A315E6B9}";
+        public const string layoutLoginByEmailName = "Login By Email Form Layout";
+        public const string layoutLoginByEmailCdnPathFilename = @"baseAssets\LoginByEmailForm.html";
+        //
+        public const string layoutLoginByEmailOtpGuid = "{AB098DB4-F4BE-4393-A9E7-0CBF863C0D42}";
+        public const string layoutLoginByEmailOtpName = "Login By Email OTP Form Layout";
+        public const string layoutLoginByEmailOtpCdnPathFilename = @"baseAssets\LoginByEmailOtpForm.html";
+        //
+        public const string layoutLoginByEmailNewUserOtpGuid = "{99C8FB3D-745E-4F3E-9994-3B521BDBEDDA}";
+        public const string layoutLoginByEmailNewUserOtpName = "Login By Email New User OTP Form Layout";
+        public const string layoutLoginByEmailNewUserOtpCdnPathFilename = @"baseAssets\LoginByEmailNewUserOtpForm.html";
+        //
         // -- layout for password recovery form
         public const string layoutRecoverPasswordGuid = "{1E4385F6-4F77-4BB3-9D5A-8B3B2D08E024}";
         public const string layoutRecoverPasswordName = "recover password";
@@ -1100,6 +1120,16 @@ namespace Contensive.Processor {
         public const string layoutLoginUsernamePasswordGuid = "{1E9C7EA7-04E0-46BB-AA45-88387D9DFC69}";
         public const string layoutLoginUsernamePasswordName = "login username password";
         public const string layoutLoginUsernamePasswordCdnPathFilename = @"BaseAssets\login_username_password.html";
+        //
+        // -- layout for login OTP email request form
+        public const string layoutLoginOtpEmailGuid = "{A7F3B2C1-9D4E-4F5A-8B6C-1E2D3F4A5B6C}";
+        public const string layoutLoginOtpEmailName = "login otp email";
+        public const string layoutLoginOtpEmailCdnPathFilename = @"BaseAssets\login_otp_email.html";
+        //
+        // -- layout for login OTP code verification form
+        public const string layoutLoginOtpCodeGuid = "{B8E4C3D2-0E5F-4A6B-9C7D-2F3E4A5B6C7D}";
+        public const string layoutLoginOtpCodeName = "login otp code";
+        public const string layoutLoginOtpCodeCdnPathFilename = @"BaseAssets\login_otp_code.html";
 
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

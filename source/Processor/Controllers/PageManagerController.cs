@@ -784,6 +784,16 @@ namespace Contensive.Processor.Controllers {
                                 result = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingAgeRestrictionGuid, Constants.layoutCustomBlockingAgeRestrictionName, Constants.layoutCustomBlockingAgeRestrictionCdnPathFilename);
                             }
                             break;
+                        case ContentBlockWithLoginByEmail: {
+                                //
+                                // ----- Login By Email - show email entry form for unauthenticated users
+                                if (core.session.isAuthenticated) {
+                                    ContentBlocked = false;
+                                } else {
+                                    result = core.cpParent.Layout.GetLayout(Constants.layoutLoginByEmailGuid, Constants.layoutLoginByEmailName, Constants.layoutLoginByEmailCdnPathFilename);
+                                }
+                                break;
+                            }
                         default: {
                                 //
                                 // ----- Content as blocked - convert from site property to content page

@@ -437,7 +437,139 @@ function Invoke-ContensiveBuild {
     Write-Host "========================================"
 }
 
-Export-ModuleMember -Function Invoke-ContensiveBuild, `
+# ===========================================================================
+# Invoke-ContensiveDeploy  — deploy a collection zip to a remote site
+# ===========================================================================
+function Invoke-ContensiveDeploy {
+<#
+.SYNOPSIS
+    Deploys a Contensive collection zip to a remote site via HTTP POST with
+    bearer-token authentication.
+
+.DESCRIPTION
+    Handles token caching (one token per site per day), interactive prompting,
+    and automatic retry on auth failure (HTTP 401/403).
+
+    Typical caller (build-deploy-sprint11.cmd in an addon repo):
+
+        Import-Module "C:\Git\Contensive5\scripts\contensive-build.psm1" -Force
+        Invoke-ContensiveDeploy `
+            -SiteUrl        'https://sprint11.sitefpo.com/installCollection' `
+            -CollectionZip  "$PSScriptRoot\..\collections\MyAddon\MyAddon.zip" `
+            -SiteName       'sprint11'
+
+.PARAMETER SiteUrl
+    The deploy endpoint URL (e.g. https://sprint11.sitefpo.com/installCollection).
+
+.PARAMETER CollectionZip
+    Absolute path to the collection .zip file to upload.
+
+.PARAMETER SiteName
+    Short label used for prompts and the cached token filename (e.g. 'sprint11').
+#>
+    param(
+        [Parameter(Mandatory)][string]$SiteUrl,
+        [Parameter(Mandatory)][string]$CollectionZip,
+        [Parameter(Mandatory)][string]$SiteName
+    )
+
+    if (-not (Test-Path $CollectionZip)) {
+        throw "Collection zip not found: $CollectionZip"
+    }
+
+    # -------------------------------------------------------------------
+    # Token caching — reuse today's token or prompt for a new one
+    # -------------------------------------------------------------------
+    $tokenFile = Join-Path $env:TEMP "$SiteName-bearer-token.txt"
+    $needToken = $true
+
+    if (Test-Path $tokenFile) {
+        $tokenDate = (Get-Item $tokenFile).LastWriteTime.ToString('yyyy-MM-dd')
+        $today = (Get-Date).ToString('yyyy-MM-dd')
+        if ($tokenDate -eq $today) {
+            $needToken = $false
+        }
+    }
+
+    if ($needToken) {
+        $token = Read-Host "Enter bearer token for $SiteName"
+        if ([string]::IsNullOrWhiteSpace($token)) {
+            throw "No token provided. Aborting deploy."
+        }
+        Set-Content -Path $tokenFile -Value $token -NoNewline
+    } else {
+        $token = (Get-Content $tokenFile -Raw).Trim()
+        Write-Host "Using cached bearer token for $SiteName (from today)."
+    }
+
+    # -------------------------------------------------------------------
+    # Deploy via curl
+    # -------------------------------------------------------------------
+    $zipName = [System.IO.Path]::GetFileName($CollectionZip)
+    Write-Host ""
+    Write-Host "Deploying $zipName to $SiteUrl..."
+    Write-Host ""
+
+    $responseFile = Join-Path $env:TEMP "$SiteName-deploy-response.txt"
+    $httpCodeFile = Join-Path $env:TEMP "$SiteName-http-code.txt"
+
+    try {
+        & curl.exe -s -o $responseFile -w '%{http_code}' -X POST $SiteUrl `
+            -H "Authorization: Bearer $token" `
+            -F "collectionFile=@$CollectionZip" > $httpCodeFile 2>&1
+        $curlExit = $LASTEXITCODE
+        $httpCode = (Get-Content $httpCodeFile -Raw).Trim()
+
+        # --------------------------------------------------------------
+        # Auth failure — prompt for new token and retry once
+        # --------------------------------------------------------------
+        if ($httpCode -eq '401' -or $httpCode -eq '403') {
+            Write-Host ""
+            Write-Host "Bearer token was rejected (HTTP $httpCode). Please provide a new token."
+            $token = Read-Host "Enter new bearer token for $SiteName"
+            if ([string]::IsNullOrWhiteSpace($token)) {
+                throw "No token provided. Aborting deploy."
+            }
+            Set-Content -Path $tokenFile -Value $token -NoNewline
+
+            Write-Host ""
+            Write-Host "Retrying deploy with new token..."
+            Write-Host ""
+
+            & curl.exe -s -o $responseFile -w '%{http_code}' -X POST $SiteUrl `
+                -H "Authorization: Bearer $token" `
+                -F "collectionFile=@$CollectionZip" > $httpCodeFile 2>&1
+            $curlExit = $LASTEXITCODE
+            $httpCode = (Get-Content $httpCodeFile -Raw).Trim()
+        }
+
+        # --------------------------------------------------------------
+        # Show response and check result
+        # --------------------------------------------------------------
+        if (Test-Path $responseFile) {
+            Get-Content $responseFile -Raw | Write-Host
+        }
+
+        if ($curlExit -ne 0) {
+            throw "DEPLOY FAILED - curl error $curlExit"
+        }
+
+        $httpCodeInt = [int]$httpCode
+        if ($httpCodeInt -ge 400) {
+            throw "DEPLOY FAILED - HTTP $httpCode"
+        }
+
+        Write-Host ""
+        Write-Host "========================================"
+        Write-Host "Deploy complete: $zipName -> $SiteName"
+        Write-Host "========================================"
+    } finally {
+        Remove-Item $responseFile -Force -ErrorAction SilentlyContinue
+        Remove-Item $httpCodeFile -Force -ErrorAction SilentlyContinue
+    }
+}
+
+Export-ModuleMember -Function Invoke-ContensiveBuild, Invoke-ContensiveDeploy, `
                                Get-ContensiveVersion, Find-MSBuild, `
                                New-DeploymentFolder,  Invoke-ZipFolder, `
                                Invoke-MSBuildSolution, Invoke-DotnetBuildSolution
