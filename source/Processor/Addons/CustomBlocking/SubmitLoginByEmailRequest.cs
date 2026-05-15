@@ -7,6 +7,12 @@ namespace Contensive.Processor.Addons.CustomBlocking {
     public class SubmitLoginByEmailRequest : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
+                if (!cp.Site.GetBoolean("AllowLoginByEmailOtp", true)) {
+                    return new SubmitLoginByEmailRequestResult {
+                        success = false,
+                        errorMessage = "One-Time-Password login is not enabled."
+                    };
+                }
                 string emailInput = cp.Doc.GetText("email");
                 if (string.IsNullOrEmpty(emailInput)) {
                     return new SubmitLoginByEmailRequestResult {

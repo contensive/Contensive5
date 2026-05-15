@@ -125,6 +125,11 @@
         var obj = JSON.parse(response);
         if (obj.success) {
           location.reload();
+        } else if (obj.expired) {
+          document.getElementById('otpForm').style.display = 'none';
+          document.getElementById('emailForm').style.display = 'block';
+          document.getElementById('emailError').textContent = obj.errorMessage;
+          document.getElementById('emailError').style.display = 'block';
         } else {
           alert(obj.errorMessage);
         }
@@ -152,6 +157,11 @@
         var obj = JSON.parse(response);
         if (obj.success) {
           location.reload();
+        } else if (obj.expired) {
+          document.getElementById('newUserOtpForm').style.display = 'none';
+          document.getElementById('emailForm').style.display = 'block';
+          document.getElementById('emailError').textContent = obj.errorMessage;
+          document.getElementById('emailError').style.display = 'block';
         } else {
           alert(obj.errorMessage);
         }

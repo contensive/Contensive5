@@ -158,16 +158,23 @@ namespace Contensive.Processor.Controllers {
                         return getLoginOtpCodeForm(core, otpEmail, "Please enter your access code.");
                     }
                     //
-                    // -- find valid OTP record
-                    string otpQuery = $"select top 1 id from LoginByEmailOtp where email={DbController.encodeSQLText(otpEmail)} and otp={DbController.encodeSQLText(otpCode)} and expires>{DbController.encodeSQLDate(DateTime.Now)} and (used=0 or used is null) order by id desc";
+                    // -- find matching OTP record (unused, any expiration)
+                    string otpQuery = $"select top 1 id, expires from ccLoginByEmailOtp where email={DbController.encodeSQLText(otpEmail)} and otp={DbController.encodeSQLText(otpCode)} and (used=0 or used is null) order by id desc";
                     int otpRecordId = 0;
+                    DateTime otpExpires = DateTime.MinValue;
                     using (var csData = new CsModel(core)) {
                         if (csData.openSql(otpQuery)) {
                             otpRecordId = csData.getInteger("id");
+                            otpExpires = csData.getDate("expires");
                         }
                     }
                     if (otpRecordId == 0) {
-                        return getLoginOtpCodeForm(core, otpEmail, "Invalid or expired access code. Please request a new code.");
+                        return getLoginOtpCodeForm(core, otpEmail, "Invalid access code. Please check your code and try again.");
+                    }
+                    if (otpExpires < DateTime.Now) {
+                        //
+                        // -- OTP has expired, redirect to email form so user can request a new code
+                        return getLoginOtpEmailForm(core, "Your access code has expired. Please request a new code.");
                     }
                     //
                     // -- mark OTP as used

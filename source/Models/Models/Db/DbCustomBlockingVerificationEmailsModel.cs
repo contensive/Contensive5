@@ -9,7 +9,7 @@ namespace Contensive.Models.Db
 {
     public class DbCustomBlockingVerificationEmailsModel : DbBaseModel
     {
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Custom Blocking Verification Emails", "CustomBlockingVerificationEmails", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Custom Blocking Verification Emails", "ccCustomBlockingVerificationEmails", "default", false);
         public string emailSentTo { get; set; }
     }
 }

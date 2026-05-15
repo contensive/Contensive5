@@ -6,12 +6,12 @@
 ## Overview
 The Contensive architecture provides a database api
 
-## Naming Convensions
+## Naming Conventions
 
-- tables are named first with a 2 letter prefix that represents the collection that installed them
-- table names are camel case with no dashes and no underscores
-- fields are camelcase with no dashes and no underscores
-- foreign keys are named with the table they refernce followed by the field in that table where they connect
+- Tables are named first with a 2-letter prefix unique to the collection codebase that installed them. The Contensive5 main codebase uses the prefix `cc` (e.g., `ccMembers`, `ccGroups`, `ccContent`). Each addon collection should choose its own unique 2-letter prefix to avoid table name collisions (e.g., an ecommerce collection might use `ec`, a blog collection might use `bl`).
+- Table names are camelCase with no dashes and no underscores
+- Field names are camelCase with no dashes and no underscores
+- Foreign keys are named with the table they reference followed by the field in that table where they connect
 
 ## Basic required Fields
 

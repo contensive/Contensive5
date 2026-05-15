@@ -7,6 +7,12 @@ namespace Contensive.Processor.Addons.CustomBlocking {
     public class SubmitLoginByEmailNewUserOtp : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
+                if (!cp.Site.GetBoolean("AllowLoginByEmailOtp", true)) {
+                    return new SubmitLoginByEmailNewUserOtpResult {
+                        success = false,
+                        errorMessage = "One-Time-Password login is not enabled."
+                    };
+                }
                 string emailInput = cp.Doc.GetText("email");
                 string otpInput = cp.Doc.GetText("otp");
                 string firstName = cp.Doc.GetText("firstname");
@@ -18,18 +24,27 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                     };
                 }
                 //
-                // -- find valid OTP record
-                string otpQuery = $"select top 1 id from LoginByEmailOtp where email={cp.Db.EncodeSQLText(emailInput)} and otp={cp.Db.EncodeSQLText(otpInput)} and expires>{cp.Db.EncodeSQLDate(DateTime.Now)} and (used=0 or used is null) order by id desc";
+                // -- find matching OTP record (unused, any expiration)
+                string otpQuery = $"select top 1 id, expires from ccLoginByEmailOtp where email={cp.Db.EncodeSQLText(emailInput)} and otp={cp.Db.EncodeSQLText(otpInput)} and (used=0 or used is null) order by id desc";
                 int otpRecordId = 0;
+                DateTime otpExpires = DateTime.MinValue;
                 using (var cs = cp.CSNew()) {
                     if (cs.OpenSQL(otpQuery)) {
                         otpRecordId = cs.GetInteger("id");
+                        otpExpires = cs.GetDate("expires");
                     }
                 }
                 if (otpRecordId == 0) {
                     return new SubmitLoginByEmailNewUserOtpResult {
                         success = false,
-                        errorMessage = "Invalid or expired access code. Please request a new code."
+                        errorMessage = "Invalid access code. Please check your code and try again."
+                    };
+                }
+                if (otpExpires < DateTime.Now) {
+                    return new SubmitLoginByEmailNewUserOtpResult {
+                        success = false,
+                        expired = true,
+                        errorMessage = "Your access code has expired. Please request a new code."
                     };
                 }
                 //
@@ -100,6 +115,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
 
         public class SubmitLoginByEmailNewUserOtpResult {
             public bool success { get; set; }
+            public bool expired { get; set; }
             public string successMessage { get; set; }
             public string errorMessage { get; set; }
         }
