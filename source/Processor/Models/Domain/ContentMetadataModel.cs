@@ -315,6 +315,7 @@ namespace Contensive.Processor.Models.Domain {
                     // load Db version
                     //
                     string editGroupFieldSelect = $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0") ? "''" : "f.EditGroup")} as EditGroup";
+                    string textLengthFieldSelect = $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "26.5.14.0") ? "0" : "f.TextLength")} as TextLength";
                     string sql = "SELECT "
                         + "c.ID"
                         + ", c.Name"
@@ -463,6 +464,7 @@ namespace Contensive.Processor.Models.Domain {
                                 + ",a.ccguid as editorAddonGuid"
                                 + ",f.LookupContentSqlFilter as LookupContentSqlFilter"
                                 + editGroupFieldSelect
+                                + textLengthFieldSelect
                                 + ""
                                 + " from (((ccFields f"
                                 + " left join ccContent c ON f.ContentId = c.ID)"
@@ -601,6 +603,7 @@ namespace Contensive.Processor.Models.Domain {
                                                 result.selectList.Add(fieldNameLower);
                                             }
                                             field.editGroupName = GenericController.getText(fieldRow[45]);
+                                            field.textLength = GenericController.getInteger(fieldRow[46]);
                                         }
                                     }
                                     result.selectCommaList = string.Join(",", result.selectList);
@@ -936,7 +939,7 @@ namespace Contensive.Processor.Models.Domain {
                 } else {
                     //
                     // All other fields
-                    db.createSQLTableField(tableName, fieldMetadata.nameLc, fieldMetadata.fieldTypeId);
+                    db.createSQLTableField(tableName, fieldMetadata.nameLc, fieldMetadata.fieldTypeId, fieldMetadata.textLength);
                 }
                 //
                 // create or update the field
@@ -979,6 +982,11 @@ namespace Contensive.Processor.Models.Domain {
                 // -- editgroup, added 24.8.26.0
                 if (!GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0")) {
                     sqlList.Add("editgroup", DbController.encodeSQLText(fieldMetadata.editGroupName));
+                }
+                //
+                // -- textlength, added 26.5.14.0
+                if (!GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "26.5.14.0")) {
+                    sqlList.Add("textlength", DbController.encodeSQLNumber(fieldMetadata.textLength));
                 }
                 //
                 // -- conditional fields

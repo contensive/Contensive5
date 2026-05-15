@@ -603,18 +603,72 @@ namespace Contensive.Processor.Controllers {
         /// <param name="fieldName"></param>
         /// <param name="fieldType"></param>
         /// <param name="clearMetadataCache">If true, the metadata cache is cleared on success.</param>
-        public void createSQLTableField(string tableName, string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType, bool clearMetadataCache = false) {
+        public void createSQLTableField(string tableName, string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType, bool clearMetadataCache = false)
+            => createSQLTableField(tableName, fieldName, fieldType, 0, clearMetadataCache);
+        //
+        //========================================================================
+        /// <summary>
+        /// Add a field to a table, with optional textLength for text fields.
+        /// If textLength is 0 or less, defaults to 255.
+        /// </summary>
+        public void createSQLTableField(string tableName, string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType, int textLength, bool clearMetadataCache = false) {
             try {
                 if ((fieldType == CPContentBaseClass.FieldTypeIdEnum.Redirect) || (fieldType == CPContentBaseClass.FieldTypeIdEnum.ManyToMany)) { return; }
                 if (string.IsNullOrEmpty(tableName)) { throw new ArgumentException("Table Name cannot be blank."); }
-                if (fieldType == 0) { throw new ArgumentException("invalid fieldtype[" + fieldType + "]"); }
+                if (fieldType == 0) { throw new ArgumentException($"invalid fieldtype[{fieldType}]"); }
                 if (GenericController.strInstr(1, tableName, ".") != 0) { throw new ArgumentException("Table name cannot include a period(.)"); }
                 if (string.IsNullOrEmpty(fieldName)) { throw new ArgumentException("Field name cannot be blank"); }
-                if (isSQLTableField(tableName, fieldName)) { return; }
+                if (isSQLTableField(tableName, fieldName)) {
+                    //
+                    // -- field already exists, check if text-type field needs to be widened
+                    if (textLength > 0) {
+                        switch (fieldType) {
+                            case CPContentBaseClass.FieldTypeIdEnum.FileImage:
+                            case CPContentBaseClass.FieldTypeIdEnum.Link:
+                            case CPContentBaseClass.FieldTypeIdEnum.ResourceLink:
+                            case CPContentBaseClass.FieldTypeIdEnum.Text:
+                            case CPContentBaseClass.FieldTypeIdEnum.File:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileXML:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
+                                    var tableSchema = TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
+                                    if (tableSchema != null) {
+                                        foreach (var column in tableSchema.columns) {
+                                            if (column.COLUMN_NAME.Equals(fieldName, System.StringComparison.InvariantCultureIgnoreCase)) {
+                                                if (column.CHARACTER_MAXIMUM_LENGTH > 0 && column.CHARACTER_MAXIMUM_LENGTH < textLength) {
+                                                    //
+                                                    // -- widen the column, drop/recreate indexes if needed
+                                                    logger.Info($"{core.logCommonMessage},widening sql table field[{fieldName}],table[{tableName}] from nvarchar({column.CHARACTER_MAXIMUM_LENGTH}) to nvarchar({textLength})");
+                                                    var droppedIndexes = new System.Collections.Generic.List<TableSchemaModel.IndexSchemaModel>();
+                                                    foreach (var index in tableSchema.indexes) {
+                                                        if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
+                                                            deleteIndex(tableName, index.index_name);
+                                                            droppedIndexes.Add(index);
+                                                        }
+                                                    }
+                                                    executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar({textLength}) NULL");
+                                                    foreach (var index in droppedIndexes) {
+                                                        createSQLIndex(tableName, index.index_name, index.index_keys);
+                                                    }
+                                                    TableSchemaModel.tableSchemaListClear(core);
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                        }
+                    }
+                    return;
+                }
                 //
-                logger.Info($"{core.logCommonMessage},creating sql table field[" + fieldName + "],table[" + tableName + "], datasource[" + dataSourceName + "]");
+                logger.Info($"{core.logCommonMessage},creating sql table field[{fieldName}],table[{tableName}], datasource[{dataSourceName}]");
                 //
-                executeNonQuery("ALTER TABLE " + tableName + " ADD " + fieldName + " " + getSQLAlterColumnType(fieldType));
+                executeNonQuery($"ALTER TABLE {tableName} ADD {fieldName} {getSQLAlterColumnType(fieldType, textLength)}");
                 TableSchemaModel.tableSchemaListClear(core);
                 //
                 if (clearMetadataCache) {
@@ -756,7 +810,15 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="fieldType"></param>
         /// <returns></returns>
-        public string getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum fieldType) {
+        public string getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum fieldType)
+            => getSQLAlterColumnType(fieldType, 0);
+        //
+        //========================================================================
+        /// <summary>
+        /// Get the SQL column type for a field type, with optional textLength for text fields.
+        /// If textLength is 0 or less, defaults to 255.
+        /// </summary>
+        public string getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum fieldType, int textLength) {
             try {
                 switch (fieldType) {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean:
@@ -785,7 +847,8 @@ namespace Contensive.Processor.Controllers {
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
-                            return "nvarchar(255) NULL";
+                            int effectiveLength = textLength > 0 ? textLength : 255;
+                            return $"nvarchar({effectiveLength}) NULL";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.LongText:
                     case CPContentBaseClass.FieldTypeIdEnum.HTML:

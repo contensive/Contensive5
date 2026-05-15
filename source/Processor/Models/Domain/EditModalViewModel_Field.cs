@@ -78,7 +78,8 @@ namespace Contensive.Processor.Models.Domain {
                     });
                     customEditor = editorResponse.editorString;
                 }
-                textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
+                int effectiveTextLength = field.textLength > 0 ? field.textLength : 255;
+                textMaxLength = isText ? effectiveTextLength : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : effectiveTextLength));
                 numberMin = 0;
                 numberMax = 2147483647;
                 fieldClearName = $"field{field.id}delete";

@@ -142,5 +142,9 @@ namespace Contensive.Models.Db {
         public int type { get; set; }
         public bool uniqueName { get; set; }
         public bool isBaseField { get; set; }
+        /// <summary>
+        /// For text fields, the nvarchar length in the database. If 0, defaults to 255.
+        /// </summary>
+        public int textLength { get; set; }
     }
 }

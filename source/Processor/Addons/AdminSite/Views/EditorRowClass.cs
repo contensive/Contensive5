@@ -328,7 +328,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             case CPContentBaseClass.FieldTypeIdEnum.ResourceLink: {
                                     //
                                     // ----- Text Type
-                                    response.editorString += AdminUIEditorController.getTextEditor(core, request.field.nameLc, request.currentValue, editorReadOnly, response.fieldHtmlId);
+                                    response.editorString += AdminUIEditorController.getTextEditor(core, request.field.nameLc, request.currentValue, editorReadOnly, response.fieldHtmlId, false, request.field.textLength);
                                     request.formFieldList += "," + request.field.nameLc;
                                     response.editorWrapperClass = "ccTextEditMaxWidth";
                                     break;
@@ -513,7 +513,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (request.field.password) {
                                         response.editorString += AdminUIEditorController.getPasswordEditor(core, request.field.nameLc, request.currentValue, false, response.fieldHtmlId);
                                     } else {
-                                        response.editorString += AdminUIEditorController.getTextEditor(core, request.field.nameLc, request.currentValue, false, response.fieldHtmlId);
+                                        response.editorString += AdminUIEditorController.getTextEditor(core, request.field.nameLc, request.currentValue, false, response.fieldHtmlId, false, request.field.textLength);
                                     }
                                     request.formFieldList += "," + request.field.nameLc;
                                     response.editorWrapperClass = "ccTextEditMaxWidth";

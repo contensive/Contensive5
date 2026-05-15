@@ -146,6 +146,11 @@ namespace Contensive.Processor.Controllers.Build {
                     logger.Info($"{core.logCommonMessage},{logPrefix}, run database migrations, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
                     BuildDataMigrationController.migrateData(core, DataBuildVersion, logPrefix);
                     //
+                    //
+                    // -- populate textLength from current db schema for existing text fields
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, verify text field lengths");
+                    verifyTextFieldLengths(core, logPrefix);
+                    //
                     //  verify data
                     logger.Info($"{core.logCommonMessage},{logPrefix}, verify records required");
                     verifyAdminMenus(core, DataBuildVersion);
@@ -441,6 +446,59 @@ namespace Contensive.Processor.Controllers.Build {
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"hint [{hint}], {core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// One-time upgrade migration: for text-type fields where textLength is 0, read the actual
+        /// database column length and set textLength if it differs from the default 255.
+        /// This captures fields that were manually widened before the textLength feature existed.
+        /// </summary>
+        private static void verifyTextFieldLengths(CoreController core, string logPrefix) {
+            try {
+                //
+                // -- query text-type ccFields where textLength is 0 or null, joined to get table name
+                // -- type values: 2=Text, 6=File, 10=FileText, 11=FileImage, 16=FileCSS, 17=FileXML, 18=FileJavaScript, 19=Link, 20=ResourceLink
+                string sql = "select f.id, f.name as fieldName, t.name as tableName"
+                    + " from ccfields f"
+                    + " inner join cccontent c on c.id = f.contentId"
+                    + " inner join cctables t on t.id = c.contentTableId"
+                    + " where (f.textLength is null or f.textLength = 0)"
+                    + " and f.type in (2,6,10,11,16,17,18,19,20)";
+                using DataTable dt = core.db.executeQuery(sql);
+                if (!DbController.isDataTableOk(dt)) { return; }
+                //
+                var schemaCache = new System.Collections.Generic.Dictionary<string, TableSchemaModel>(StringComparer.InvariantCultureIgnoreCase);
+                foreach (System.Data.DataRow row in dt.Rows) {
+                    int fieldId = GenericController.getInteger(row["id"]);
+                    string fieldName = GenericController.getText(row["fieldName"]);
+                    string tableName = GenericController.getText(row["tableName"]);
+                    if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(tableName)) { continue; }
+                    //
+                    if (!schemaCache.ContainsKey(tableName)) {
+                        var schema = TableSchemaModel.getTableSchema(core, tableName, "default");
+                        if (schema == null) { continue; }
+                        schemaCache[tableName] = schema;
+                    }
+                    var tableSchema = schemaCache[tableName];
+                    //
+                    // -- find the column
+                    foreach (var column in tableSchema.columns) {
+                        if (column.COLUMN_NAME.Equals(fieldName, System.StringComparison.InvariantCultureIgnoreCase)) {
+                            if (column.CHARACTER_MAXIMUM_LENGTH > 0 && column.CHARACTER_MAXIMUM_LENGTH != 255) {
+                                //
+                                // -- actual db length differs from default, set textLength to match
+                                logger.Info($"{core.logCommonMessage},{logPrefix}, verifyTextFieldLengths, setting textLength={column.CHARACTER_MAXIMUM_LENGTH} for field [{fieldName}] in table [{tableName}]");
+                                core.db.executeNonQuery($"update ccfields set textLength={column.CHARACTER_MAXIMUM_LENGTH} where id={fieldId}");
+                            }
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -831,6 +889,7 @@ namespace Contensive.Processor.Controllers.Build {
                     core.db.createSQLTableField("ccFields", "LookupList", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "IsBaseField", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "installedByCollectionId", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "TextLength", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     //
                     core.db.createSQLTable("ccFieldHelp");
                     core.db.createSQLTableField("ccFieldHelp", "FieldID", CPContentBaseClass.FieldTypeIdEnum.Lookup);

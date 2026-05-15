@@ -63,7 +63,8 @@ namespace Contensive.Processor.Models.Domain {
                 required = false,
                 scramble = false,
                 textBuffered = false,
-                uniqueName = false
+                uniqueName = false,
+                textLength = 0
             };
             fieldMeta.memberSelectGroupId_set(core, 0);
             fieldMeta.nameLc = fieldName.ToLowerInvariant();
@@ -267,6 +268,12 @@ namespace Contensive.Processor.Models.Domain {
         /// on the edit modal, fields with an edit group appear on the right side, grouped
         /// </summary>
         public string editGroupName { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// For text fields, the nvarchar length in the database. If 0, defaults to 255.
+        /// </summary>
+        public int textLength { get; set; }
         //
         //====================================================================================================
         /// <summary>

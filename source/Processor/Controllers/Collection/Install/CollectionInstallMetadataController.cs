@@ -280,6 +280,7 @@ namespace Contensive.Processor.Controllers {
                                             metaDataField.set_manyToManyRuleContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRuleContent", DefaultMetaDataField.get_manyToManyRuleContentName(core)));
                                             metaDataField.installedByCollectionGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "installedByCollectionId", DefaultMetaDataField.installedByCollectionGuid);
                                             metaDataField.editorAddonGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "editorAddonId", DefaultMetaDataField.editorAddonGuid);
+                                            metaDataField.textLength = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "TextLength", DefaultMetaDataField.textLength);
                                             metaDataField.id = DbController.getContentFieldId(core, targetMetaData.id, metaDataField.nameLc);
                                             metaDataField.dataChanged = setAllDataChanged;
                                             //
@@ -578,7 +579,7 @@ namespace Contensive.Processor.Controllers {
                                 logger.Warn($"{core.logCommonMessage}, Field [# " + fieldKvp.Value.id + "] in content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
                                 continue;
                             }
-                            core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId);
+                            core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId, fieldKvp.Value.textLength);
                         }
                     }
                     core.cacheRuntime.clear();

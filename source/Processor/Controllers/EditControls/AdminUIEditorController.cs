@@ -721,8 +721,16 @@ namespace Contensive.Processor.Controllers.EditControls {
         /// <param name="htmlId"></param>
         /// <param name="isPassword"></param>
         /// <returns></returns>
-        public static string getTextEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId, bool required = false) {
+        public static string getTextEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId, bool required = false)
+            => getTextEditor(core, fieldName, fieldValue, readOnly, htmlId, required, 0);
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Text editor with optional textLength for maxlength attribute. If textLength is 0, defaults to 255.
+        /// </summary>
+        public static string getTextEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId, bool required, int textLength) {
             string editValue = fieldValue ?? "";
+            int effectiveMaxLength = textLength > 0 ? textLength : 255;
             if (editValue.IndexOf("\n", StringComparison.InvariantCulture) == -1 && editValue.Length < 80) {
                 //
                 // text field shorter then 40 characters without a CR
@@ -730,7 +738,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                 if (fieldName.ToLowerInvariant().Equals("username") || fieldName.ToLowerInvariant().Equals("password") || fieldName.ToLowerInvariant().Equals("passwordhash")) {
                     autocomplete = "off";
                 }
-                return HtmlController.inputText_Legacy(core, fieldName, editValue, 1, -1, htmlId, false, readOnly, "text form-control", 255, false, "", required, autocomplete);
+                return HtmlController.inputText_Legacy(core, fieldName, editValue, 1, -1, htmlId, false, readOnly, "text form-control", effectiveMaxLength, false, "", required, autocomplete);
             }
             return getHtmlCodeEditor(core, fieldName, editValue, readOnly, htmlId, required);
         }
