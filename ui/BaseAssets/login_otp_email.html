@@ -38,7 +38,10 @@
 <div class="p-4 pt-0 container-fluid">
     <h4 class="mt-0">Login with Email</h4>
 	{{#userError}}<div class="alert alert-danger" role="alert">{{{userError}}}</div>{{/userError}}
-	<p class="text-muted">Enter your email address and we'll send you a one-time access code.</p>
+	<p class="text-muted">Enter your email address to receive a one-time verification code valid for 10 minutes.</p>
+	<p class="text-muted">If we recognize your email, you'll be logged in and granted access immediately. If not, we'll guide you through a quick registration process before continuing.</p>
+	<p class="text-muted">Need another code? You can request a new verification code at any time.</p>
+	<hr>
 	<div class="otp-floating-label-group">
 		<input type="email" name="email" id="otpInputEmail" class="form-control" required autofocus>
 		<label for="otpInputEmail">Email</label>

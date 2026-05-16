@@ -121,26 +121,8 @@ namespace Contensive.Processor.Controllers {
                         userErrorMessage = "Email is not valid.";
                     } else {
                         //
-                        // -- generate 6-digit OTP
-                        var random = new Random();
-                        string otpCode = random.Next(100000, 999999).ToString();
-                        //
-                        // -- create OTP record (reuses same table as page-blocking email login)
-                        var otpRecord = DbBaseModel.addDefault<LoginByEmailOtpModel>(core.cpParent);
-                        otpRecord.name = $"OTP for {otpEmail}";
-                        otpRecord.email = otpEmail;
-                        otpRecord.otp = otpCode;
-                        otpRecord.expires = DateTime.Now.AddMinutes(10);
-                        otpRecord.used = false;
-                        otpRecord.save(core.cpParent);
-                        //
-                        // -- send OTP email (same response whether user exists or not for security)
-                        string emailSubject = "Your Access Code";
-                        string emailBody = $"<p>You requested access to {core.cpParent.Request.Host}.</p>"
-                            + $"<p>Your one-time access code is: <b>{otpCode}</b></p>"
-                            + "<p>This code will expire in 10 minutes.</p>"
-                            + "<p>If you did not request this code, please ignore this email.</p>";
-                        core.cpParent.Email.send(otpEmail, core.cpParent.Email.fromAddressDefault, emailSubject, emailBody);
+                        // -- generate OTP, save record, send email
+                        LoginByEmailOtpController.createAndSendOtp(core.cpParent, otpEmail);
                         //
                         // -- show OTP code entry form
                         return getLoginOtpCodeForm(core, otpEmail, "");
@@ -158,40 +140,17 @@ namespace Contensive.Processor.Controllers {
                         return getLoginOtpCodeForm(core, otpEmail, "Please enter your access code.");
                     }
                     //
-                    // -- find matching OTP record (unused, any expiration)
-                    string otpQuery = $"select top 1 id, expires from ccLoginByEmailOtp where email={DbController.encodeSQLText(otpEmail)} and otp={DbController.encodeSQLText(otpCode)} and (used=0 or used is null) order by id desc";
-                    int otpRecordId = 0;
-                    DateTime otpExpires = DateTime.MinValue;
-                    using (var csData = new CsModel(core)) {
-                        if (csData.openSql(otpQuery)) {
-                            otpRecordId = csData.getInteger("id");
-                            otpExpires = csData.getDate("expires");
+                    // -- verify OTP code
+                    var verifyResult = LoginByEmailOtpController.verifyOtp(core.cpParent, otpEmail, otpCode);
+                    if (!verifyResult.valid) {
+                        if (verifyResult.expired) {
+                            return getLoginOtpEmailForm(core, "Your access code has expired. Please request a new code.");
                         }
-                    }
-                    if (otpRecordId == 0) {
                         return getLoginOtpCodeForm(core, otpEmail, "Invalid access code. Please check your code and try again.");
-                    }
-                    if (otpExpires < DateTime.Now) {
-                        //
-                        // -- OTP has expired, redirect to email form so user can request a new code
-                        return getLoginOtpEmailForm(core, "Your access code has expired. Please request a new code.");
-                    }
-                    //
-                    // -- mark OTP as used
-                    var usedOtpRecord = DbBaseModel.create<LoginByEmailOtpModel>(core.cpParent, otpRecordId);
-                    if (usedOtpRecord != null) {
-                        usedOtpRecord.used = true;
-                        usedOtpRecord.save(core.cpParent);
                     }
                     //
                     // -- find user by email
-                    int userId = 0;
-                    string findUserSQL = $"select top 1 id from ccmembers where email={DbController.encodeSQLText(otpEmail)} order by dateadded desc";
-                    using (var csData = new CsModel(core)) {
-                        if (csData.openSql(findUserSQL)) {
-                            userId = csData.getInteger("id");
-                        }
-                    }
+                    int userId = LoginByEmailOtpController.findUserIdByEmail(core.cpParent, otpEmail);
                     if (userId == 0) {
                         //
                         // -- no user found with this email, create a new user
