@@ -10,6 +10,7 @@
       <ComponentRef Id="MainAppShortcut"/>
       <ComponentRef Id="ReadmeFile"/>
       <ComponentRef Id="TaskServiceComponent"/>
+      <ComponentRef Id="DefaultAspxSiteZip"/>
     </ComponentGroup>
     
     <!-- reference the directory in the directories file -->
@@ -60,6 +61,18 @@
           Id="ReadmeFile"
           Name="README.txt"
           Source="..\..\docs\README.txt"
+          Vital="yes"
+          KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- DefaultAspxSite.zip web deployment package -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="DefaultAspxSiteZip" Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}">
+        <File
+          Id="DefaultAspxSiteZip"
+          Name="DefaultAspxSite.zip"
+          Source="..\..\WebDeploymentPackage\DefaultAspxSite.zip"
           Vital="yes"
           KeyPath="yes" />
       </Component>

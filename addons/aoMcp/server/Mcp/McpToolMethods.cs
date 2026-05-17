@@ -348,6 +348,9 @@ namespace Contensive.Addons.Mcp {
                     linkAlias.save(cp);
                 }
                 //
+                // -- capture undo (record was created, undo will delete it)
+                captureUndo(cp, "Page Content", page.id, page.ccguid ?? "", "page_create", new Dictionary<string, string>(), true);
+                //
                 return successResponse(cp, new { pageId = page.id, url = newUrl }, "Page created.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -371,6 +374,19 @@ namespace Contensive.Addons.Mcp {
                     return errorResponse(cp, $"No page found for url '{url}'.");
                 }
                 var page = context.page;
+                //
+                // -- capture undo before modifying
+                var beforeFields = new Dictionary<string, string> {
+                    ["headline"] = page.headline ?? "",
+                    ["menuHeadline"] = page.menuHeadline ?? "",
+                    ["metaDescription"] = page.metaDescription ?? "",
+                    ["metaKeywordList"] = page.metaKeywordList ?? "",
+                    ["structuredData"] = page.structuredData ?? "",
+                    ["pageTitle"] = page.pageTitle ?? "",
+                    ["templateId"] = page.templateId.ToString(),
+                    ["parentId"] = page.parentId.ToString()
+                };
+                captureUndo(cp, "Page Content", page.id, page.ccguid ?? "", "page_update", beforeFields);
                 //
                 if (args.ContainsKey("headline")) { page.headline = getStringArg(args, "headline"); }
                 if (args.ContainsKey("navHeadline")) { page.menuHeadline = getStringArg(args, "navHeadline"); }
@@ -529,6 +545,10 @@ namespace Contensive.Addons.Mcp {
                     ? new List<AddonListItemModel>()
                     : cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
                 //
+                // -- capture undo before modifying addonList
+                var beforeFields = new Dictionary<string, string> { ["addonList"] = page.addonList ?? "" };
+                captureUndo(cp, "Page Content", page.id, page.ccguid ?? "", "page_widget_add", beforeFields);
+                //
                 var newItem = new AddonListItemModel {
                     designBlockTypeGuid = designBlockTypeGuid,
                     instanceGuid = cp.Utils.CreateGuid()
@@ -574,6 +594,10 @@ namespace Contensive.Addons.Mcp {
                     ? new List<AddonListItemModel>()
                     : cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
                 //
+                // -- capture undo before modifying addonList
+                var beforeFields = new Dictionary<string, string> { ["addonList"] = page.addonList ?? "" };
+                captureUndo(cp, "Page Content", page.id, page.ccguid ?? "", "page_widget_remove", beforeFields);
+                //
                 bool removed = AddonListItemModel.deleteInstance(cp, addonList, instanceGuid);
                 if (!removed) {
                     return errorResponse(cp, "Widget instance not found on this page.");
@@ -616,6 +640,10 @@ namespace Contensive.Addons.Mcp {
                 var addonList = string.IsNullOrEmpty(page.addonList)
                     ? new List<AddonListItemModel>()
                     : cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
+                //
+                // -- capture undo before modifying addonList
+                var beforeFields = new Dictionary<string, string> { ["addonList"] = page.addonList ?? "" };
+                captureUndo(cp, "Page Content", page.id, page.ccguid ?? "", "page_widget_reorder", beforeFields);
                 //
                 var reordered = new List<AddonListItemModel>();
                 foreach (string guid in instanceGuids) {
@@ -690,12 +718,26 @@ namespace Contensive.Addons.Mcp {
                 }
                 //
                 using (CPCSBaseClass cs = cp.CSNew()) {
+                    bool isNew = false;
                     if (!cs.Open(contentName, $"ccguid={cp.Db.EncodeSQLText(instanceGuid)}", "id", true, "", 1)) {
+                        isNew = true;
                         if (!cs.Insert(contentName)) {
                             return errorResponse(cp, "Failed to create instance record.");
                         }
                         cs.SetField("ccguid", instanceGuid);
                         cs.SetField("name", $"Instance {instanceGuid}");
+                    }
+                    //
+                    if (isNew) {
+                        // -- new record created, undo will delete it
+                        captureUndo(cp, contentName, cs.GetInteger("id"), instanceGuid, "widget_instance_update", new Dictionary<string, string>(), true);
+                    } else {
+                        // -- capture current field values before update
+                        var beforeFields = new Dictionary<string, string>();
+                        foreach (var kvp in fields) {
+                            beforeFields[kvp.Key] = cs.GetText(kvp.Key);
+                        }
+                        captureUndo(cp, contentName, cs.GetInteger("id"), instanceGuid, "widget_instance_update", beforeFields);
                     }
                     //
                     foreach (var kvp in fields) {
@@ -849,6 +891,9 @@ namespace Contensive.Addons.Mcp {
                 if (folderId > 0) { libraryFile.folderId = folderId; }
                 libraryFile.save(cp);
                 //
+                // -- capture undo (record was created, undo will delete it)
+                captureUndo(cp, "Library Files", libraryFile.id, libraryFile.ccguid ?? "", "resource_upload", new Dictionary<string, string>(), true);
+                //
                 var result = new {
                     id = libraryFile.id,
                     name = libraryFile.name,
@@ -884,6 +929,15 @@ namespace Contensive.Addons.Mcp {
                     return errorResponse(cp, $"Resource #{id} not found.");
                 }
                 //
+                // -- capture undo before modifying
+                var beforeFields = new Dictionary<string, string> {
+                    ["name"] = file.name ?? "",
+                    ["altText"] = file.altText ?? "",
+                    ["description"] = file.description ?? "",
+                    ["folderId"] = file.folderId.ToString()
+                };
+                captureUndo(cp, "Library Files", file.id, file.ccguid ?? "", "resource_update", beforeFields);
+                //
                 if (args.ContainsKey("name")) { file.name = getStringArg(args, "name"); }
                 if (args.ContainsKey("altText")) { file.altText = getStringArg(args, "altText"); }
                 if (args.ContainsKey("description")) { file.description = getStringArg(args, "description"); }
@@ -899,6 +953,211 @@ namespace Contensive.Addons.Mcp {
                     folderId = file.folderId,
                     filename = file.filename
                 }, "Resource updated.");
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                return errorResponse(cp, $"Error: {ex.Message}");
+            }
+        }
+        //
+        // ====================================================================================================
+        // -- undo helpers
+        // ====================================================================================================
+        //
+        private static void captureUndo(CPBaseClass cp, string contentName, int recordId, string recordGuid, string toolName, Dictionary<string, string> fieldsBefore, bool recordDeleted = false) {
+            try {
+                using (CPCSBaseClass cs = cp.CSNew()) {
+                    if (cs.Insert("MCP Undo")) {
+                        cs.SetField("name", $"{toolName}: {contentName} id:{recordId} {DateTime.Now:yyyy-MM-dd HH:mm}");
+                        cs.SetField("contentName", contentName);
+                        cs.SetField("recordId", recordId.ToString());
+                        cs.SetField("recordGuid", recordGuid ?? "");
+                        cs.SetField("mcpToolName", toolName);
+                        cs.SetField("fieldData", cp.JSON.Serialize(fieldsBefore));
+                        cs.SetField("recordDeleted", recordDeleted ? "1" : "0");
+                        cs.Save();
+                    }
+                }
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+            }
+        }
+        //
+        // ====================================================================================================
+        // -- undo_list
+        // ====================================================================================================
+        //
+        public static string undoList(CPBaseClass cp, Dictionary<string, object> args) {
+            try {
+                string toolFilter = getStringArg(args, "mcpToolName");
+                int pageSize = getIntArg(args, "pageSize", 50);
+                int pageNumber = getIntArg(args, "pageNumber", 1);
+                if (pageSize <= 0) { pageSize = 50; }
+                if (pageNumber <= 0) { pageNumber = 1; }
+                int offset = (pageNumber - 1) * pageSize;
+                //
+                var conditions = new List<string> { "(active<>0 OR active IS NULL)" };
+                if (!string.IsNullOrEmpty(toolFilter)) {
+                    conditions.Add($"mcpToolName={cp.Db.EncodeSQLText(toolFilter)}");
+                }
+                string where = string.Join(" AND ", conditions);
+                //
+                string sql = $@"
+                    SELECT id, name, contentName, recordId, recordGuid, mcpToolName, dateAdded, recordDeleted
+                    FROM mcpUndo
+                    WHERE {where}
+                    ORDER BY id DESC
+                    OFFSET {offset} ROWS FETCH NEXT {pageSize} ROWS ONLY";
+                //
+                var result = new List<object>();
+                using (DataTable dt = cp.Db.ExecuteQuery(sql)) {
+                    if (dt?.Rows != null) {
+                        foreach (DataRow row in dt.Rows) {
+                            result.Add(new {
+                                id = cp.Utils.EncodeInteger(row["id"]),
+                                name = row["name"]?.ToString() ?? "",
+                                contentName = row["contentName"]?.ToString() ?? "",
+                                recordId = cp.Utils.EncodeInteger(row["recordId"]),
+                                recordGuid = row["recordGuid"]?.ToString() ?? "",
+                                mcpToolName = row["mcpToolName"]?.ToString() ?? "",
+                                dateAdded = row["dateAdded"]?.ToString() ?? "",
+                                recordDeleted = row["recordDeleted"]?.ToString() == "1" || row["recordDeleted"]?.ToString()?.ToLower() == "true"
+                            });
+                        }
+                    }
+                }
+                //
+                return successResponse(cp, result);
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                return errorResponse(cp, $"Error: {ex.Message}");
+            }
+        }
+        //
+        // ====================================================================================================
+        // -- undo_apply
+        // ====================================================================================================
+        //
+        public static string undoApply(CPBaseClass cp, Dictionary<string, object> args) {
+            try {
+                int undoId = getIntArg(args, "undoId");
+                if (undoId <= 0) {
+                    return errorResponse(cp, "undoId is required.");
+                }
+                //
+                // -- load the undo record
+                string undoSql = $"SELECT id, contentName, recordId, recordGuid, mcpToolName, fieldData, recordDeleted FROM mcpUndo WHERE id={undoId} AND (active<>0 OR active IS NULL)";
+                string contentName = "";
+                int recordId = 0;
+                string recordGuid = "";
+                string mcpToolName = "";
+                string fieldDataJson = "";
+                bool recordDeleted = false;
+                //
+                using (DataTable dt = cp.Db.ExecuteQuery(undoSql)) {
+                    if (dt?.Rows == null || dt.Rows.Count == 0) {
+                        return errorResponse(cp, $"Undo record #{undoId} not found or already applied.");
+                    }
+                    DataRow row = dt.Rows[0];
+                    contentName = row["contentName"]?.ToString() ?? "";
+                    recordId = cp.Utils.EncodeInteger(row["recordId"]);
+                    recordGuid = row["recordGuid"]?.ToString() ?? "";
+                    mcpToolName = row["mcpToolName"]?.ToString() ?? "";
+                    fieldDataJson = row["fieldData"]?.ToString() ?? "";
+                    recordDeleted = row["recordDeleted"]?.ToString() == "1" || row["recordDeleted"]?.ToString()?.ToLower() == "true";
+                }
+                //
+                if (string.IsNullOrEmpty(contentName)) {
+                    return errorResponse(cp, "Undo record has no content name.");
+                }
+                //
+                if (recordDeleted) {
+                    //
+                    // -- this record was created by MCP, undo means deactivate it
+                    // -- first capture current state so undo of the undo can restore it
+                    using (CPCSBaseClass cs = cp.CSNew()) {
+                        bool opened = false;
+                        if (!string.IsNullOrEmpty(recordGuid)) {
+                            opened = cs.Open(contentName, $"ccguid={cp.Db.EncodeSQLText(recordGuid)}", "id", true, "", 1);
+                        } else if (recordId > 0) {
+                            opened = cs.Open(contentName, $"id={recordId}", "id", true, "", 1);
+                        }
+                        if (opened) {
+                            //
+                            // -- capture current state as a new undo record (enables redo)
+                            var currentFields = new Dictionary<string, string> { ["active"] = "1" };
+                            captureUndo(cp, contentName, recordId, recordGuid, "undo_apply", currentFields, false);
+                            //
+                            cs.SetField("active", "0");
+                            cs.Save();
+                        }
+                    }
+                } else {
+                    //
+                    // -- restore field values from the undo record
+                    Dictionary<string, string> fields;
+                    try {
+                        fields = cp.JSON.Deserialize<Dictionary<string, string>>(fieldDataJson);
+                    } catch {
+                        return errorResponse(cp, "Invalid fieldData in undo record.");
+                    }
+                    if (fields == null || fields.Count == 0) {
+                        return errorResponse(cp, "Undo record has no field data to restore.");
+                    }
+                    //
+                    using (CPCSBaseClass cs = cp.CSNew()) {
+                        bool opened = false;
+                        if (!string.IsNullOrEmpty(recordGuid)) {
+                            opened = cs.Open(contentName, $"ccguid={cp.Db.EncodeSQLText(recordGuid)}", "id", true, "", 1);
+                        } else if (recordId > 0) {
+                            opened = cs.Open(contentName, $"id={recordId}", "id", true, "", 1);
+                        }
+                        //
+                        if (!opened) {
+                            //
+                            // -- record was deleted/deactivated, try to find and reactivate it
+                            string reactivateSql = "";
+                            if (!string.IsNullOrEmpty(recordGuid)) {
+                                reactivateSql = $"SELECT id FROM {cp.Content.GetTable(contentName)} WHERE ccguid={cp.Db.EncodeSQLText(recordGuid)}";
+                            } else if (recordId > 0) {
+                                reactivateSql = $"SELECT id FROM {cp.Content.GetTable(contentName)} WHERE id={recordId}";
+                            }
+                            if (!string.IsNullOrEmpty(reactivateSql)) {
+                                using (DataTable dtReactivate = cp.Db.ExecuteQuery(reactivateSql)) {
+                                    if (dtReactivate?.Rows != null && dtReactivate.Rows.Count > 0) {
+                                        int foundId = cp.Utils.EncodeInteger(dtReactivate.Rows[0]["id"]);
+                                        if (foundId > 0) {
+                                            opened = cs.Open(contentName, $"id={foundId}", "id", false, "", 1);
+                                        }
+                                    }
+                                }
+                            }
+                            if (!opened) {
+                                return errorResponse(cp, $"Target record not found in '{contentName}'.");
+                            }
+                        }
+                        //
+                        // -- capture current state before applying undo (enables redo)
+                        var currentFields = new Dictionary<string, string>();
+                        foreach (var kvp in fields) {
+                            currentFields[kvp.Key] = cs.GetText(kvp.Key);
+                        }
+                        captureUndo(cp, contentName, recordId, recordGuid, "undo_apply", currentFields, false);
+                        //
+                        // -- apply the undo field data
+                        foreach (var kvp in fields) {
+                            cs.SetField(kvp.Key, kvp.Value);
+                        }
+                        //
+                        // -- ensure record is active
+                        cs.SetField("active", "1");
+                        cs.Save();
+                    }
+                }
+                //
+                // -- deactivate the consumed undo record
+                cp.Db.ExecuteNonQuery($"UPDATE mcpUndo SET active=0 WHERE id={undoId}");
+                //
+                return successResponse(cp, new { undoId, contentName, recordId, recordGuid }, "Undo applied successfully.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 return errorResponse(cp, $"Error: {ex.Message}");

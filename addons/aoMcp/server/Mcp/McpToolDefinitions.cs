@@ -191,6 +191,33 @@ namespace Contensive.Addons.Mcp {
                         },
                         required = new[] { "id" }
                     }
+                },
+                //
+                // -- undo tools
+                //
+                new McpToolDefinition {
+                    name = "undo_list",
+                    description = "List recent MCP undo records. Each record captures the state before an MCP change and can be applied to revert it. Returns records in reverse chronological order (newest first).",
+                    inputSchema = new {
+                        type = "object",
+                        properties = new {
+                            mcpToolName = new { type = "string", description = "Optional filter by tool name (e.g. 'page_update', 'widget_instance_update')" },
+                            pageSize = new { type = "integer", description = "Number of records to return (default 50)" },
+                            pageNumber = new { type = "integer", description = "Page number for pagination (default 1)" }
+                        },
+                        required = new string[] { }
+                    }
+                },
+                new McpToolDefinition {
+                    name = "undo_apply",
+                    description = "Apply an MCP undo record to restore content to its previous state. If the target record was created by MCP, it will be deactivated. If it was modified, the previous field values will be restored. If it was deleted, it will be reactivated. Applying undo creates a new undo record enabling redo.",
+                    inputSchema = new {
+                        type = "object",
+                        properties = new {
+                            undoId = new { type = "integer", description = "The undo record ID (from undo_list)" }
+                        },
+                        required = new[] { "undoId" }
+                    }
                 }
             };
         }

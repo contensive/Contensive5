@@ -30,7 +30,9 @@ namespace Contensive.Addons.Mcp {
             ["widget_instance_update"] = McpToolMethods.widgetInstanceUpdate,
             ["resource_list"] = McpToolMethods.resourceList,
             ["resource_upload"] = McpToolMethods.resourceUpload,
-            ["resource_update"] = McpToolMethods.resourceUpdate
+            ["resource_update"] = McpToolMethods.resourceUpdate,
+            ["undo_list"] = McpToolMethods.undoList,
+            ["undo_apply"] = McpToolMethods.undoApply
         };
         //
         public override object Execute(CPBaseClass cp) {

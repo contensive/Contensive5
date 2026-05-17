@@ -7,6 +7,159 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
 >
+	<CDef
+		Name="MCP Undo"
+		NavTypeId="Content"
+		ActiveOnly="1"
+		AdminOnly="1"
+		AliasID="id"
+		AliasName="name"
+		AllowAdd="1"
+		AllowDelete="1"
+		AllowContentTracking="0"
+		AllowTopicRules="0"
+		AllowWorkflowAuthoring="0"
+		AuthoringDataSourceName="DEFAULT"
+		AuthoringTableName="mcpUndo"
+		ContentDataSourceName="DEFAULT"
+		ContentTableName="mcpUndo"
+		DefaultSortMethod="By Date"
+		DeveloperOnly="0"
+		DropDownFieldList="NAME"
+		EditorGroupName=""
+		Parent=""
+		AllowContentChildTool="0"
+		NavIconType="Content"
+		Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+	>
+		<Field
+			Name="contentName"
+			Active="true"
+			AdminOnly="0"
+			Authorable="1"
+			Caption="Content Name"
+			DeveloperOnly="0"
+			EditSortPriority="1010"
+			FieldType="Text"
+			HtmlContent="0"
+			IndexColumn="1"
+			IndexSortDirection="0"
+			IndexSortOrder="0"
+			IndexWidth="20"
+			NotEditable="0"
+			ReadOnly="0"
+			Required="0"
+			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}"
+		>
+			<HelpDefault><![CDATA[The content definition name of the edited record]]></HelpDefault>
+		</Field>
+		<Field
+			Name="recordId"
+			Active="true"
+			AdminOnly="0"
+			Authorable="1"
+			Caption="Record ID"
+			DeveloperOnly="0"
+			EditSortPriority="1020"
+			FieldType="Integer"
+			HtmlContent="0"
+			IndexColumn="2"
+			IndexSortDirection="0"
+			IndexSortOrder="0"
+			IndexWidth="10"
+			NotEditable="0"
+			ReadOnly="0"
+			Required="0"
+			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567892}"
+		>
+			<HelpDefault><![CDATA[The ID of the record that was changed]]></HelpDefault>
+		</Field>
+		<Field
+			Name="recordGuid"
+			Active="true"
+			AdminOnly="0"
+			Authorable="1"
+			Caption="Record GUID"
+			DeveloperOnly="0"
+			EditSortPriority="1030"
+			FieldType="Text"
+			HtmlContent="0"
+			IndexColumn="0"
+			IndexSortDirection="0"
+			IndexSortOrder="0"
+			IndexWidth="20"
+			NotEditable="0"
+			ReadOnly="0"
+			Required="0"
+			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567893}"
+		>
+			<HelpDefault><![CDATA[The ccguid of the record, used for widget instances identified by guid]]></HelpDefault>
+		</Field>
+		<Field
+			Name="fieldData"
+			Active="true"
+			AdminOnly="0"
+			Authorable="1"
+			Caption="Field Data"
+			DeveloperOnly="0"
+			EditSortPriority="1040"
+			FieldType="LongText"
+			HtmlContent="0"
+			IndexColumn="0"
+			IndexSortDirection="0"
+			IndexSortOrder="0"
+			IndexWidth="0"
+			NotEditable="0"
+			ReadOnly="0"
+			Required="0"
+			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567894}"
+		>
+			<HelpDefault><![CDATA[JSON snapshot of field values before the change]]></HelpDefault>
+		</Field>
+		<Field
+			Name="mcpToolName"
+			Active="true"
+			AdminOnly="0"
+			Authorable="1"
+			Caption="MCP Tool Name"
+			DeveloperOnly="0"
+			EditSortPriority="1050"
+			FieldType="Text"
+			HtmlContent="0"
+			IndexColumn="3"
+			IndexSortDirection="0"
+			IndexSortOrder="0"
+			IndexWidth="15"
+			NotEditable="0"
+			ReadOnly="0"
+			Required="0"
+			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567895}"
+		>
+			<HelpDefault><![CDATA[Which MCP tool triggered the change]]></HelpDefault>
+		</Field>
+		<Field
+			Name="recordDeleted"
+			Active="true"
+			AdminOnly="0"
+			Authorable="1"
+			Caption="Record Was Created"
+			DeveloperOnly="0"
+			EditSortPriority="1060"
+			FieldType="Boolean"
+			HtmlContent="0"
+			IndexColumn="0"
+			IndexSortDirection="0"
+			IndexSortOrder="0"
+			IndexWidth="0"
+			NotEditable="0"
+			ReadOnly="0"
+			Required="0"
+			DefaultValue="0"
+			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567896}"
+		>
+			<HelpDefault><![CDATA[If true, undo will delete/deactivate the record (it was created by MCP)]]></HelpDefault>
+		</Field>
+	</CDef>
 	<Addon name="mcp" guid="{10656AC3-75DF-4E39-B78D-43B0589A7D81}" type="add-on">
 		<Help>MCP (Model Context Protocol) endpoint for AI tool integration. Handles JSON-RPC requests at the /mcp route.</Help>
 		<Admin>No</Admin>
