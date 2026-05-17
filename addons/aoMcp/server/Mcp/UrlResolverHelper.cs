@@ -3,7 +3,7 @@ using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using System.Data;
 //
-namespace Contensive.Processor.Addons.ContentApi {
+namespace Contensive.Addons.Mcp {
     //
     /// <summary>
     /// Result of resolving a URL to its page context via the link alias table.
@@ -16,7 +16,7 @@ namespace Contensive.Processor.Addons.ContentApi {
     }
     //
     /// <summary>
-    /// Shared URL resolution logic used by all ContentApi remote methods.
+    /// Shared URL resolution logic used by MCP tool methods.
     /// Resolves a URL string to its (pageId, queryStringSuffix, page) context
     /// via the cclinkaliases table.
     /// </summary>

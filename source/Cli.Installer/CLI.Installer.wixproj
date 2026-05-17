@@ -28,7 +28,6 @@
   <ItemGroup>
     <Compile Include="Components.wxs" />
     <Compile Include="componentsGenerated.wxs" />
-    <Compile Include="componentsMcpGenerated.wxs" />
     <Compile Include="Directories.wxs" />
     <Compile Include="Product.wxs" />
   </ItemGroup>
@@ -61,16 +60,12 @@
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
     </GetAssemblyIdentity>
     <PropertyGroup>
-      <DefineConstants>BuildVersion=%(AssemblyVersion.Version);BasePath=../Cli/bin/$(Configuration)/net48;McpBasePath=../Cli/bin/$(Configuration)/McpServer;</DefineConstants>
+      <DefineConstants>BuildVersion=%(AssemblyVersion.Version);BasePath=../Cli/bin/$(Configuration)/net48;</DefineConstants>
     </PropertyGroup>
     <!-- Harvest components from Cli build folder -->
     <!-- The XSL transform excludes TaskService.exe since it is declared
          explicitly in Components.wxs with ServiceInstall/ServiceControl. -->
     <HeatDirectory OutputFile="componentsGenerated.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="PublishedComponents" Directory="../Cli/bin/$(Configuration)/net48" SuppressCom="true" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutogenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" Transforms="CliHeatTransform.xsl" />
-    <!-- Harvest components from MCP Server self-contained publish folder.
-         The XSL transform excludes ContensiveMcpServer.exe since it is declared
-         explicitly in Components.wxs with ServiceInstall/ServiceControl. -->
-    <HeatDirectory OutputFile="componentsMcpGenerated.wxs" DirectoryRefId="MCPSERVERFOLDER" ComponentGroupName="McpPublishedComponents" Directory="../Cli/bin/$(Configuration)/McpServer" SuppressCom="true" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutogenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.McpBasePath" Transforms="McpHeatTransform.xsl" />
   </Target>
   <Target Name="AfterBuild">
   </Target>

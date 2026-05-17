@@ -10,8 +10,6 @@
       <ComponentRef Id="MainAppShortcut"/>
       <ComponentRef Id="ReadmeFile"/>
       <ComponentRef Id="TaskServiceComponent"/>
-      <ComponentRef Id="McpServerService"/>
-      <ComponentRef Id="McpServerConfig"/>
     </ComponentGroup>
     
     <!-- reference the directory in the directories file -->
@@ -102,53 +100,5 @@
       </Component>
     </DirectoryRef>
 
-    <!-- MCP Server Windows Service.
-         The exe is declared here with ServiceInstall/ServiceControl.
-         The XSL transform in the HeatDirectory step excludes the exe from the
-         auto-harvested componentsMcpGenerated.wxs to avoid duplicate file errors.
-         All other runtime DLLs are harvested automatically. -->
-    <DirectoryRef Id="MCPSERVERFOLDER">
-      <Component Id="McpServerService" Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}">
-        <File
-          Id="McpServerExe"
-          Name="ContensiveMcpServer.exe"
-          Source="$(var.McpBasePath)\ContensiveMcpServer.exe"
-          Vital="yes"
-          KeyPath="yes" />
-
-        <ServiceInstall
-          Id="McpServiceInstaller"
-          Type="ownProcess"
-          Vital="yes"
-          Name="ContensiveMcpServer"
-          DisplayName="Contensive MCP Server"
-          Description="Contensive Model Context Protocol server for AI-assisted content management"
-          Start="auto"
-          Account="LocalSystem"
-          ErrorControl="normal"
-          Interactive="no" />
-
-        <ServiceControl
-          Id="McpServiceControl"
-          Stop="both"
-          Start="install"
-          Remove="uninstall"
-          Name="ContensiveMcpServer"
-          Wait="yes" />
-      </Component>
-
-      <!-- MCP Server configuration file.
-           NeverOverwrite="yes" preserves user edits across upgrades and reinstalls.
-           Permanent="yes" leaves the file on disk after uninstall so a reinstall
-           picks up the existing configuration. -->
-      <Component Id="McpServerConfig" Guid="{B2C3D4E5-F6A7-8901-BCDE-F23456789012}" NeverOverwrite="yes" Permanent="yes">
-        <File
-          Id="McpServerAppSettings"
-          Name="appsettings.json"
-          Source="$(var.McpBasePath)\appsettings.json"
-          Vital="yes"
-          KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
   </Fragment>
 </Wix>

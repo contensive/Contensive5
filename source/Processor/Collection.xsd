@@ -169,36 +169,36 @@
 								<xs:choice minOccurs="0" maxOccurs="unbounded">
 									<xs:element minOccurs="0" maxOccurs="1" name="Admin" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="DotNetClass" type="xs:string"  />
-									<xs:element minOccurs="0" maxOccurs="1" name="RemoteMethod"  type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="DashboardWidget"  type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="RemoteMethod"  type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="DashboardWidget"  type="booleanYesNo" />
 									<xs:element minOccurs="0" maxOccurs="1" name="FormXml" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="ProcessInterval"  type="xs:integer" />
-									<xs:element minOccurs="0" maxOccurs="1" name="BlockEditTools"  type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="BlockEditTools"  type="booleanYesNo" />
 									<xs:element minOccurs="0" maxOccurs="1" name="StylesLinkHref"  type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Styles"  type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="StylesLinkPlatform5Href"  type="xs:string" />
-									<xs:element minOccurs="0" maxOccurs="1" name="HtmlDocument" type="xs:boolean"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="HtmlDocument" type="booleanYesNo"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="JavaScriptInHead"  type="xs:string" />
-									<xs:element minOccurs="0" maxOccurs="1" name="JavaScriptForceHead" type="xs:boolean"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="JavaScriptForceHead" type="booleanYesNo"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="JsHeadScriptSrc" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="JsHeadScriptPlatform5Src" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="Category" type="xs:string"  />
-									<xs:element minOccurs="0" maxOccurs="1" name="Content" type="xs:boolean"  />
-									<xs:element minOccurs="0" maxOccurs="1" name="Template"  type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="Email"  type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Content" type="booleanYesNo"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="Template"  type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Email"  type="booleanYesNo" />
 									<xs:element minOccurs="0" maxOccurs="1" name="ArgumentList"  type="xs:string" />
-									<xs:element minOccurs="0" maxOccurs="1" name="IsInline" type="xs:boolean"  />
-									<xs:element minOccurs="0" maxOccurs="1" name="Diagnostic"  type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="IsInline" type="booleanYesNo"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="Diagnostic"  type="booleanYesNo" />
 									<xs:element minOccurs="0" maxOccurs="1" name="CopyText" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Copy" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="InstanceSettingPrimaryContentId" type="xs:string" />
-									<xs:element minOccurs="0" maxOccurs="1" name="AsAjax" type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="Filter" type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="OnPageEndEvent" type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="OnPageStartEvent" type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="OnBodyStart" type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="OnBodyEnd" type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="ProcessRunOnce" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="AsAjax" type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Filter" type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnPageEndEvent" type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnPageStartEvent" type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnBodyStart" type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnBodyEnd" type="booleanYesNo" />
+									<xs:element minOccurs="0" maxOccurs="1" name="ProcessRunOnce" type="booleanYesNo" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Help" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="HelpLink" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="MetaDescription" type="xs:string" />
@@ -213,7 +213,7 @@
 											<xs:attribute name="sprites" type="xs:boolean" use="required" />
 										</xs:complexType>
 									</xs:element>
-									<xs:element minOccurs="0" maxOccurs="1" name="InIframe" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="InIframe" type="booleanYesNo" />
 									<xs:element minOccurs="0" maxOccurs="1" name="AliasList" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="unbounded" name="IncludeAddon">
 										<xs:complexType>
@@ -416,6 +416,11 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+	<xs:simpleType name="booleanYesNo">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[Yy]es|[Nn]o|true|false|1|0"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="GUID">
 		<xs:restriction base="xs:string">
 		  <xs:pattern value="([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|(\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\})"/>

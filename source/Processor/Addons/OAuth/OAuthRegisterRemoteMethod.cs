@@ -24,9 +24,6 @@ namespace Contensive.Processor.Addons.OAuth {
             try {
                 cp.Response.SetType("application/json");
                 cp.Response.AddHeader("Cache-Control", "no-store");
-                cp.Response.AddHeader("Access-Control-Allow-Origin", "*");
-                cp.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type");
-                cp.Response.AddHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
                 //
                 string requestBody = cp.Request.Body;
                 if (string.IsNullOrEmpty(requestBody)) {

@@ -20,23 +20,17 @@
           <!--
             folder in program files folder where we will copy file
           -->
-          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)">
-            <!-- MCP Server subfolder for self-contained .NET 9 service -->
-            <Directory Id="MCPSERVERFOLDER" Name="McpServer" />
-          </Directory>
+          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)" />
         </Directory>
       <?else?>
-        <!-- 
-          folder in program files folder where we will copy file 
+        <!--
+          folder in program files folder where we will copy file
         -->
         <Directory Id="ProgramFilesFolder">
           <!--
             folder in program files folder where we will copy file
           -->
-          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)">
-            <!-- MCP Server subfolder for self-contained .NET 9 service -->
-            <Directory Id="MCPSERVERFOLDER" Name="McpServer" />
-          </Directory>
+          <Directory Id="INSTALLFOLDER" Name="!(loc.ProductNameFolder)" />
         </Directory>
       <?endif?>
     </Directory>

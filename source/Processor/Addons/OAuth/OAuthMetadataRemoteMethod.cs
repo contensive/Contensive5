@@ -15,7 +15,6 @@ namespace Contensive.Processor.Addons.OAuth {
                 string baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}";
                 cp.Response.SetType("application/json");
                 cp.Response.AddHeader("Cache-Control", "no-store");
-                cp.Response.AddHeader("Access-Control-Allow-Origin", "*");
                 return $@"{{
   ""issuer"": ""{baseUrl}"",
   ""authorization_endpoint"": ""{baseUrl}/oauth/authorize"",

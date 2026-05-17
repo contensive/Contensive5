@@ -18,8 +18,6 @@ namespace Contensive.Processor.Addons.OAuth {
             try {
                 cp.Response.SetType("application/json");
                 cp.Response.AddHeader("Cache-Control", "no-store");
-                cp.Response.AddHeader("Access-Control-Allow-Origin", "*");
-                cp.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
                 //
                 string grantType = cp.Doc.GetText("grant_type");
                 if (!string.Equals(grantType, "authorization_code", StringComparison.OrdinalIgnoreCase)) {

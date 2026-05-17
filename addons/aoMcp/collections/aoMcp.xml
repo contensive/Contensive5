@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<Collection
+    Name="MCP Server"
+    Guid="{3F8A1B2C-4D5E-6F70-8192-A3B4C5D6E7F8}"
+    System="false"
+    Updateable="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
+>
+	<Addon name="mcp" guid="{10656AC3-75DF-4E39-B78D-43B0589A7D81}" type="add-on">
+		<Help>MCP (Model Context Protocol) endpoint for AI tool integration. Handles JSON-RPC requests at the /mcp route.</Help>
+		<Admin>No</Admin>
+		<Content>No</Content>
+		<Template>No</Template>
+		<Email>No</Email>
+		<RemoteMethod>Yes</RemoteMethod>
+		<BlockEditTools>Yes</BlockEditTools>
+		<DotNetClass><![CDATA[Contensive.Addons.Mcp.McpRemoteMethod]]></DotNetClass>
+	</Addon>
+</Collection> 
+
+ 
