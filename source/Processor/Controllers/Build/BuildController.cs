@@ -160,7 +160,6 @@ namespace Contensive.Processor.Controllers.Build {
                     verifyLibraryFolders(core);
                     verifyLibraryFileTypes(core);
                     verifyDefaultGroups(core);
-                    verifyLayouts(core);
                     //
                     // -- verify many to many triggers for all many-to-many fields
                     verifyManyManyDeleteTriggers(core);
@@ -1330,33 +1329,6 @@ namespace Contensive.Processor.Controllers.Build {
         /// add and upgrade layouts used in base platform
         /// </summary>
         /// <param name="core"></param>
-        public static void verifyLayouts(CoreController core) {
-            try {
-                appendUpgradeLogAddStep(core, core.appConfig.name, "verifyLayouts", "add and upgrade layouts used in base platform");
-                //
-                core.cpParent.Layout.updateLayout(layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename);
-                core.cpParent.Layout.updateLayout(guidLayoutAdminUITwoColumnLeft, nameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft);
-                core.cpParent.Layout.updateLayout(guidLayoutAdminUITwoColumnRight, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutEditControlAutocompleteGuid, layoutEditControlAutocompleteName, layoutEditControlAutocompleteCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename);
-                //
-                core.cpParent.Layout.updateLayout(Constants.guidLayoutPageWithNav, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
-                core.cpParent.Layout.updateLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);
-                core.cpParent.Layout.updateLayout(Constants.layoutAdminUILayoutBuilderNameValueBodyGuid, Constants.layoutAdminUILayoutBuilderNameValueBodyName, Constants.layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename);
-                core.cpParent.Layout.updateLayout(Constants.layoutAdminUILayoutBuilderBaseGuid, Constants.layoutAdminUILayoutBuilderBaseName, Constants.layoutAdminUILayoutBuilderBaseCdnPathFilename);
-                //
-                core.cpParent.Layout.updateLayout(layoutEmailVerificationGuid, layoutEmailVerificationName, layoutEmailVerificationCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutCustomBlockingRegistrationGuid, layoutCustomBlockingRegistrationName, layoutCustomBlockingRegistrationCdnPathFilename);
-                core.cpParent.Layout.updateLayout(SiteWarningMessageWrapperLayoutGuid, SiteWarningMessageWrapperLayoutName, SiteWarningMessageWrapperLayoutCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutCustomBlockingAgeRestrictionGuid, layoutCustomBlockingAgeRestrictionName, layoutCustomBlockingAgeRestrictionCdnPathFilename);
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
-            }
-        }
         //
         //====================================================================================================
         /// <summary>

@@ -23,24 +23,38 @@ namespace Contensive.Processor.Addons.Base {
                     addon.save(core.cpParent);
                 }
                 //
-                // -- update layouts 
+                // -- admin site layouts
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename, layoutAdminSiteCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename, layoutAdminEditIconCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditControlAutocompleteGuid, layoutEditControlAutocompleteName, layoutEditControlAutocompleteCdnPathFilename, layoutEditControlAutocompleteCdnPathFilename);
+                //
+                // -- admin UI layouts
+                _ = LayoutController.updateLayout(core.cpParent, 0, guidLayoutPageWithNav, nameLayoutPageWithNav, pathFilenameLayoutAdminUIPageWithNav, pathFilenameLayoutAdminUIPageWithNav);
                 _ = LayoutController.updateLayout(core.cpParent, 0, guidLayoutAdminUITwoColumnLeft, nameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft);
                 _ = LayoutController.updateLayout(core.cpParent, 0, guidLayoutAdminUITwoColumnRight, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename, layoutAdminUITwoColumnRightCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                //
+                // -- layout builder layouts
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderBaseGuid, layoutAdminUILayoutBuilderBaseName, layoutAdminUILayoutBuilderBaseCdnPathFilename, layoutAdminUILayoutBuilderBaseCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderListBodyGuid, layoutAdminUILayoutBuilderListBodyName, layoutAdminUILayoutBuilderListBodyCdnPathFilename, layoutAdminUILayoutBuilderListBodyCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderNameValueBodyGuid, layoutAdminUILayoutBuilderNameValueBodyName, layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename, layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderTabbedBodyGuid, layoutAdminUILayoutBuilderTabbedBodyName, layoutAdminUILayoutBuilderTabbedBodyCdnPathFilename, layoutAdminUILayoutBuilderTabbedBodyCdnPathFilename);
                 //
-                // -- widget dashboard layout(s)
+                // -- blocking and verification layouts
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutEmailVerificationGuid, layoutEmailVerificationName, layoutEmailVerificationCdnPathFilename, layoutEmailVerificationCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutCustomBlockingRegistrationGuid, layoutCustomBlockingRegistrationName, layoutCustomBlockingRegistrationCdnPathFilename, layoutCustomBlockingRegistrationCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, SiteWarningMessageWrapperLayoutGuid, SiteWarningMessageWrapperLayoutName, SiteWarningMessageWrapperLayoutCdnPathFilename, SiteWarningMessageWrapperLayoutCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutCustomBlockingAgeRestrictionGuid, layoutCustomBlockingAgeRestrictionName, layoutCustomBlockingAgeRestrictionCdnPathFilename, layoutCustomBlockingAgeRestrictionCdnPathFilename);
+                //
+                // -- widget dashboard layouts
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardLayoutGuid, dashboardLayoutName, dashboardLayoutPathFilename, dashboardLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetNumberLayoutGuid, dashboardWidgetNumberLayoutName, dashboardWidgetNumberLayoutPathFilename, dashboardWidgetNumberLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetHtmlContentLayoutGuid, dashboardWidgetHtmlContentLayoutName, dashboardWidgetHtmlContentLayoutPathFilename, dashboardWidgetHtmlContentLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetPieChartLayoutGuid, dashboardWidgetPieChartLayoutName, dashboardWidgetPieChartLayoutPathFilename, dashboardWidgetPieChartLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetBarChartLayoutGuid, dashboardWidgetBarChartLayoutName, dashboardWidgetBarChartLayoutPathFilename, dashboardWidgetBarChartLayoutPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetLineChartLayoutGuid, dashboardWidgetLineChartLayoutName, dashboardWidgetLineChartLayoutPathFilename, dashboardWidgetLineChartLayoutPathFilename);
                 //
                 // -- password recovery layout
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutRecoverPasswordGuid, layoutRecoverPasswordName, layoutRecoverPasswordCdnPathFilename, layoutRecoverPasswordCdnPathFilename);
@@ -54,6 +68,15 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernameNoPasswordGuid, layoutLoginUsernameNoPasswordName, layoutLoginUsernameNoPasswordCdnPathFilename, layoutLoginUsernameNoPasswordCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernamePasswordAutoGuid, layoutLoginUsernamePasswordAutoName, layoutLoginUsernamePasswordAutoCdnPathFilename, layoutLoginUsernamePasswordAutoCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginUsernamePasswordGuid, layoutLoginUsernamePasswordName, layoutLoginUsernamePasswordCdnPathFilename, layoutLoginUsernamePasswordCdnPathFilename);
+                //
+                // -- OTP login layouts
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, layoutLoginOtpEmailCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginOtpCodeGuid, layoutLoginOtpCodeName, layoutLoginOtpCodeCdnPathFilename, layoutLoginOtpCodeCdnPathFilename);
+                //
+                // -- login by email layouts
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginByEmailGuid, layoutLoginByEmailName, layoutLoginByEmailCdnPathFilename, layoutLoginByEmailCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginByEmailOtpGuid, layoutLoginByEmailOtpName, layoutLoginByEmailOtpCdnPathFilename, layoutLoginByEmailOtpCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutLoginByEmailNewUserOtpGuid, layoutLoginByEmailNewUserOtpName, layoutLoginByEmailNewUserOtpCdnPathFilename, layoutLoginByEmailNewUserOtpCdnPathFilename);
                 //
                 // -- delete social media open graph addon
                 //cp.Db.ExecuteNonQuery("delete from ccaggregatefunctions where ccguid='{13231CF9-C06D-4748-83F4-A49545C1B4DA}'");
