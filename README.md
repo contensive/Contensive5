@@ -111,6 +111,17 @@ Database entities in `source/Models/Models/Db/` include:
 - **NLog Integration**: Structured logging with AWS CloudWatch support
 - **AWS Services**: S3, CloudWatch Logs, SES, SQS, SNS, Secrets Manager, IAM, STS
 
+## GUIDs in Collection XML
+
+Every CDef, Field, and Addon element in a collection XML file requires a unique GUID. These GUIDs must be proper v4 UUIDs — never sequential, predictable, or manually typed.
+
+**Generate GUIDs using:**
+```bash
+powershell -Command "[guid]::NewGuid().ToString('B').ToUpper()"
+```
+
+Generate a separate GUID for each element. Reusing or incrementing GUIDs across elements causes metadata collisions at install time.
+
 ## Code Structure Patterns
 
 ### Addon Development

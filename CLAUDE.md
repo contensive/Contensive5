@@ -41,6 +41,17 @@ inner join cctables t on t.id = c.contenttableid
 -- then use t.name for the SQL table name
 ```
 
+## GUIDs
+
+When you need a GUID value (for CDefs, Fields, Addons, or any XML/code element), you MUST generate it using a system command. NEVER invent or type GUID values manually — Claude's token prediction produces sequential/predictable values that cause collisions.
+
+**Required:** Run this command to generate each GUID:
+```bash
+powershell -Command "[guid]::NewGuid().ToString('B').ToUpper()"
+```
+
+This returns a proper v4 UUID like `{7F2A9C4E-B831-4D6F-A5E2-9C1B3D8F6A42}`. Generate a separate GUID for every element that needs one — never reuse or increment.
+
 ## Code Style
 
 - Always prefer string interpolation over string concatenation

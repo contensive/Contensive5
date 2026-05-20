@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Collection
     Name="MCP Server"
-    Guid="{3F8A1B2C-4D5E-6F70-8192-A3B4C5D6E7F8}"
+    Guid="{D89C47DD-1971-4999-9CCB-D889BD33E939}"
     System="false"
     Updateable="true"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -30,7 +30,7 @@
 		Parent=""
 		AllowContentChildTool="0"
 		NavIconType="Content"
-		Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+		Guid="{DAAEF630-0501-4831-A348-D3C6F9299B22}"
 	>
 		<Field
 			Name="contentName"
@@ -49,7 +49,7 @@
 			NotEditable="0"
 			ReadOnly="0"
 			Required="0"
-			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}"
+			Guid="{4B1DDDEF-FD6D-4AD6-A55A-19C7FCC3A306}"
 		>
 			<HelpDefault><![CDATA[The content definition name of the edited record]]></HelpDefault>
 		</Field>
@@ -70,7 +70,7 @@
 			NotEditable="0"
 			ReadOnly="0"
 			Required="0"
-			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567892}"
+			Guid="{C5B28A50-1E19-485A-9E87-C216802A4100}"
 		>
 			<HelpDefault><![CDATA[The ID of the record that was changed]]></HelpDefault>
 		</Field>
@@ -91,7 +91,7 @@
 			NotEditable="0"
 			ReadOnly="0"
 			Required="0"
-			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567893}"
+			Guid="{C0C3CC9E-C972-42D2-B81D-9FEEC5B386BE}"
 		>
 			<HelpDefault><![CDATA[The ccguid of the record, used for widget instances identified by guid]]></HelpDefault>
 		</Field>
@@ -112,7 +112,7 @@
 			NotEditable="0"
 			ReadOnly="0"
 			Required="0"
-			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567894}"
+			Guid="{8968161B-47B2-4E2F-A297-40A3AB2D3476}"
 		>
 			<HelpDefault><![CDATA[JSON snapshot of field values before the change]]></HelpDefault>
 		</Field>
@@ -133,7 +133,7 @@
 			NotEditable="0"
 			ReadOnly="0"
 			Required="0"
-			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567895}"
+			Guid="{5DF7F18F-FF3F-4333-B49E-90182097AA4B}"
 		>
 			<HelpDefault><![CDATA[Which MCP tool triggered the change]]></HelpDefault>
 		</Field>
@@ -155,7 +155,7 @@
 			ReadOnly="0"
 			Required="0"
 			DefaultValue="0"
-			Guid="{A1B2C3D4-E5F6-7890-ABCD-EF1234567896}"
+			Guid="{9FE9DEEC-99F6-4B4C-A88D-EB1314C6902C}"
 		>
 			<HelpDefault><![CDATA[If true, undo will delete/deactivate the record (it was created by MCP)]]></HelpDefault>
 		</Field>
