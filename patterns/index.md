@@ -49,6 +49,10 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 - [Authentication Pattern](authentication-pattern.md) — username/password, bearer token, HTTP Basic, and session cookie authentication flows
 - [Security Best Practices](security-best-practices.md) — authentication vs authorization, the recognized state, secure coding patterns, and common vulnerabilities
 
+## Infrastructure
+
+- [Redis Cache Setup](redis-cache-setup.md) — setting up AWS ElastiCache for Redis as the remote cache service
+
 ## Build & Deployment
 
 - [Build Script Pattern](build-script-pattern.md) — automating compile, package, and deploy of addon collections

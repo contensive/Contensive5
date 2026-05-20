@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Caching;
-using System.Runtime.Serialization.Formatters.Binary;
+
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using static Newtonsoft.Json.JsonConvert;
@@ -132,7 +132,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
                 if (string.IsNullOrEmpty(cacheEndpoint)) { return false; }
-                ConnectionMultiplexer redisConnectionGroup = ConnectionMultiplexer.Connect(cacheEndpoint);
+                using ConnectionMultiplexer redisConnectionGroup = ConnectionMultiplexer.Connect(cacheEndpoint);
                 if (redisConnectionGroup == null) { return false; }
                 IDatabase redisDb = redisConnectionGroup.GetDatabase();
                 return true;
@@ -158,8 +158,17 @@ namespace Contensive.Processor.Controllers {
                 // -- Redis implementation
                 string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
                 if (!string.IsNullOrEmpty(cacheEndpoint)) {
-                    redisConnectionGroup = ConnectionMultiplexer.Connect(cacheEndpoint);
+                    var options = ConfigurationOptions.Parse(cacheEndpoint);
+                    options.AbortOnConnectFail = false;
+                    options.ConnectTimeout = 5000;
+                    redisConnectionGroup = ConnectionMultiplexer.Connect(options);
                     if (redisConnectionGroup != null) {
+                        redisConnectionGroup.ConnectionFailed += (sender, e) => {
+                            logger.Warn($"{core.logCommonMessage},Redis connection failed: {e.Exception?.Message}");
+                        };
+                        redisConnectionGroup.ConnectionRestored += (sender, e) => {
+                            logger.Info($"{core.logCommonMessage},Redis connection restored");
+                        };
                         redisDb = redisConnectionGroup.GetDatabase();
                         remoteCacheInitialized = true;
                     }
@@ -352,8 +361,9 @@ namespace Contensive.Processor.Controllers {
                             result = Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(redisValue);
                         }
                     } catch (Exception ex) {
-                        logger.Error(ex, $"{core.logCommonMessage}");
-                        throw;
+                        //
+                        // -- remote cache read failed, fall through to local memory/file cache
+                        logger.Error(ex, $"{core.logCommonMessage},remote cache read failed, falling back to local");
                     }
                 }
                 if ((result == null) && core.serverConfig.enableLocalMemoryCache) {
@@ -840,7 +850,33 @@ namespace Contensive.Processor.Controllers {
                 if (keyHash == null) {
                     throw new ArgumentException("cache key cannot be blank");
                 }
+                if (cacheDocument is null) {
+                    logger.Trace($"{core.logCommonMessage},storeCacheDocument, cacheDocument null, key [{keyHash.key}]");
+                    return;
+                }
                 string cacheTypeMsg = "";
+                if (core.serverConfig.enableRemoteCache) {
+                    //
+                    // -- save remote cache first (shared source of truth for multi-instance)
+                    cacheTypeMsg = "remote";
+                    if (remoteCacheInitialized) {
+                        try {
+                            var redisKey = new RedisKey(keyHash.hash);
+                            string jsonCacheDocument = SerializeObject(cacheDocument);
+                            var redisValue = new RedisValue(jsonCacheDocument);
+                            TimeSpan redisTimeSpan = cacheDocument.invalidationDate.Subtract(core.dateTimeNowMockable);
+                            if (redisTimeSpan <= TimeSpan.Zero) {
+                                redisDb.StringSet(redisKey, redisValue, flags: CommandFlags.FireAndForget);
+                            } else {
+                                redisDb.StringSet(redisKey, redisValue, redisTimeSpan, flags: CommandFlags.FireAndForget);
+                            }
+                        } catch (Exception ex) {
+                            //
+                            // -- remote cache write failed, continue with local caches
+                            logger.Error(ex, $"{core.logCommonMessage},remote cache write failed, continuing with local caches");
+                        }
+                    }
+                }
                 if (core.serverConfig.enableLocalMemoryCache) {
                     //
                     // -- save local memory cache
@@ -856,28 +892,8 @@ namespace Contensive.Processor.Controllers {
                     core.privateFiles.saveFile("appCache\\" + FileController.encodeDosPathFilename(keyHash + ".txt"), serializedData);
                     mutex.ReleaseMutex();
                 }
-                if (core.serverConfig.enableRemoteCache) {
-                    cacheTypeMsg = "remote";
-                    if (remoteCacheInitialized) {
-                        //
-                        // -- save remote cache
-                        var redisKey = new RedisKey(keyHash.hash);
-                        string jsonCacheDocument = SerializeObject(cacheDocument);
-                        var redisValue = new RedisValue(jsonCacheDocument);
-                        TimeSpan? redisTimeSpan = cacheDocument.invalidationDate.Subtract(DateTime.Now);
-                        if (redisTimeSpan is null || redisTimeSpan.Value == TimeSpan.Zero) {
-                            redisDb.StringSet(redisKey, redisValue);
-                        } else {
-                            redisDb.StringSet(redisKey, redisValue, redisTimeSpan);
-                        }
-                    }
-                }
-                if (cacheDocument is null) {
-                    logger.Trace(core.logCommonMessage + ",storeCacheDocument, cacheDocument null, key [{1}]", keyHash.key);
-                    return;
-                }
-                string depKey = cacheDocument?.keyPtrHash?.key is null ? "" : cacheDocument.keyPtrHash.key;
-                string dependentKeyHashList = cacheDocument?.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count == 0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
+                string depKey = cacheDocument.keyPtrHash?.key ?? "";
+                string dependentKeyHashList = cacheDocument.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count == 0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
                 logger.Trace($"{core.logCommonMessage},cacheType [{cacheTypeMsg}], key [{keyHash.key}], invalidationDate [{cacheDocument.invalidationDate}], depends on [{dependentKeyHashList}], points to key [{depKey}]");
                 //
             } catch (Exception ex) {
