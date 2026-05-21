@@ -16,6 +16,10 @@ namespace Contensive.Models.Db {
         public int authenticatedVisits { get; set; }
         public int aveTimeOnSite { get; set; }
         public int botVisits { get; set; }
+        /// <summary>
+        /// Total page views from bot visits during this period
+        /// </summary>
+        public int botPageViews { get; set; }
         public int dateNumber { get; set; }
         public int mobileVisits { get; set; }
         public int newVisitorVisits { get; set; }

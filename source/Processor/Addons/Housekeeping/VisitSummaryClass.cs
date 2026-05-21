@@ -253,6 +253,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         int AuthenticatedVisits = 0;
                         int MobileVisits = 0;
                         int BotVisits = 0;
+                        int BotPageViews = 0;
                         double AveTimeOnSite = 0;
                         if (VisitCnt > 0) {
                             SQL = "select count(v.id) as NewVisitorVisits"
@@ -367,6 +368,24 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 }
                             }
                             //
+                            // Bot Page Views - total page views from bot visits
+                            //
+                            SQL = "select sum(v.PageVisits) as cnt "
+                                + " from ccvisits v"
+                                + " where (v.CookieSupport<>0)"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
+                                + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
+                                + " and(Bot<>0)"
+                                + "";
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
+                                csData.openSql(SQL);
+                                if (csData.ok()) {
+                                    BotPageViews = csData.getInteger("cnt");
+                                }
+                            }
+                            //
                             if ((MultiPageHitCnt > MultiPageVisitCnt) && (HitCnt > 0)) {
                                 int AveReadTime = getInteger(MultiPageTimetoLastHitSum / (MultiPageHitCnt - MultiPageVisitCnt));
                                 double TotalTimeOnSite = MultiPageTimetoLastHitSum + (AveReadTime * VisitCnt);
@@ -399,6 +418,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 {
                                     csData.set("MobileVisits", MobileVisits);
                                     csData.set("BotVisits", BotVisits);
+                                    csData.set("BotPageViews", BotPageViews);
                                 }
                             }
                         }

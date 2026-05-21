@@ -2,6 +2,16 @@
 
 Contensive supports three cache modes: local memory, local file, and remote (Redis). This document covers setting up AWS ElastiCache for Redis as the remote cache, configuring Contensive to use it, and testing the connection.
 
+## Cache Modes
+
+| Mode | Config property | Use case | Notes |
+|------|----------------|----------|-------|
+| **Remote (Redis)** | `enableRemoteCache` | Production, scale-out | Required when running multiple application instances. All instances share the same cache through Redis, ensuring consistency. |
+| **Local Memory** | `enableLocalMemoryCache` | Single-server deployments only | Uses .NET `MemoryCache`. Each application instance has its own isolated cache, so this mode must not be used in scale-out (multi-instance) deployments — instances will serve stale data because cache invalidation on one instance is invisible to the others. |
+| **Local File** | `enableLocalFileCache` | Debugging only | Writes cache entries to disk files under `appCache/` using mutex-based locking. This mode is slow, does not scale, and exists only for debugging cache behavior by inspecting serialized cache documents on disk. Do not use in production. |
+
+For any deployment running behind a load balancer or with more than one application process, use Redis.
+
 ## Prerequisites
 
 - An AWS account with permissions to create ElastiCache resources, VPC security groups, and EC2 instances
@@ -162,7 +172,7 @@ The server configuration is stored in `config.json` on the application server. S
 }
 ```
 
-**Important**: When `enableRemoteCache` is true, the other two cache modes should typically be false. The CacheController treats remote as the primary and falls back to local caches only if they are also enabled.
+**Important**: When `enableRemoteCache` is true, set `enableLocalMemoryCache` and `enableLocalFileCache` to false. Redis is the shared source of truth across all application instances. Enabling local memory alongside remote can cause stale reads when one instance invalidates a key that another instance still holds in its local memory. Local file mode is for debugging only and should never be enabled in production.
 
 ### TLS Connections
 
