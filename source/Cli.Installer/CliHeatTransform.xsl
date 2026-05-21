@@ -17,13 +17,19 @@
     </xsl:copy>
   </xsl:template>
 
-  <!-- Key: look up Component IDs by the source filename they contain -->
+  <!-- Key: look up Component IDs by the source filename they contain.
+       Use substring() to match only filenames that END with 'TaskService.exe'
+       so that 'TaskService.exe.config' is not excluded. -->
   <xsl:key name="ExcludedComponents"
-           match="wix:Component[wix:File[contains(@Source, 'TaskService.exe')]]"
+           match="wix:Component[wix:File[
+             substring(@Source, string-length(@Source) - string-length('TaskService.exe') + 1) = 'TaskService.exe'
+           ]]"
            use="@Id" />
 
-  <!-- Remove the Component elements that contain TaskService.exe -->
-  <xsl:template match="wix:Component[wix:File[contains(@Source, 'TaskService.exe')]]" />
+  <!-- Remove the Component elements that contain TaskService.exe (but not TaskService.exe.config) -->
+  <xsl:template match="wix:Component[wix:File[
+    substring(@Source, string-length(@Source) - string-length('TaskService.exe') + 1) = 'TaskService.exe'
+  ]]" />
 
   <!-- Remove the ComponentRef elements that reference the excluded components -->
   <xsl:template match="wix:ComponentRef[key('ExcludedComponents', @Id)]" />
