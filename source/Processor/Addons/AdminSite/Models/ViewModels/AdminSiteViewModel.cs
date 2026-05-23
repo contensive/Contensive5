@@ -485,7 +485,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                     });
                 }
                 List<string> cacheKeyList = [
-                    cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower)
+                    cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower),
+                    cp.Cache.CreateTableDependencyKey(PersonModel.tableMetadata.tableNameLower)
                 ];
                 cp.Cache.Store(cacheKey, _navProfileCategoryList, DateTime.Now, cacheKeyList);
                 return _navProfileCategoryList;
@@ -550,7 +551,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                     navItemDataDragId = $"c{peopleContentId}"
                 });
                 List<string> cacheKeyList = new List<string> {
-                    cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower)
+                    cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower),
+                    cp.Cache.CreateTableDependencyKey(PersonModel.tableMetadata.tableNameLower)
                 };
                 cp.Cache.Store(cacheKey, _navProfileList, DateTime.Now, cacheKeyList);
                 return navList;
