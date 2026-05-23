@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Contensive.BaseModels;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Controllers.Aws;
 using NLog;
 using static Newtonsoft.Json.JsonConvert;
 
@@ -154,6 +155,12 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public override bool useSecretManager { get; set; }
         //
+        /// <summary>
+        /// The name of the AWS Secrets Manager secret that holds the full server configuration JSON.
+        /// Only used when useSecretManager is true. Defaults to "contensive/{serverName}" based on the server group name.
+        /// </summary>
+        public override string awsSecretName { get; set; }
+        //
         // ----------------------------------------------------------------------------------------------------
         // -- Secrets, valid only if useSecretManager is false. else get/set should go to core.secrets
         //
@@ -223,6 +230,7 @@ namespace Contensive.Processor.Models.Domain {
             allowTaskRunnerService = false;
             allowTaskSchedulerService = false;
             awsCloudWatchLogGroup = "";
+            awsSecretName = "";
             apps = new Dictionary<string, AppConfigModel>(StringComparer.OrdinalIgnoreCase);
             //
             // -- secrets from secret manager
@@ -244,21 +252,51 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="recordId"></param>
         public static ServerConfigModel create(CoreController core) {
             try {
-                ServerConfigModel returnModel;// = new();
+                ServerConfigModel returnModel;
                 //
-                // ----- read/create serverConfig
+                // ----- read/create serverConfig from local config.json
                 string JSONTemp = core.programDataFiles.readFileText("config.json");
                 if (string.IsNullOrEmpty(JSONTemp)) {
                     //
-                    // for now it fails, maybe later let it autobuild a local cluster
-                    //
+                    // -- no config.json found, create default
                     returnModel = new ServerConfigModel();
                     core.programDataFiles.saveFile("config.json", SerializeObject(returnModel));
                     returnModel.core = core;
-                } else {
-                    returnModel = DeserializeObject<ServerConfigModel>(JSONTemp);
-                    returnModel.core = core;
+                    return returnModel;
                 }
+                //
+                // -- deserialize bootstrap config from file
+                var bootstrapConfig = DeserializeObject<ServerConfigModel>(JSONTemp);
+                if (!bootstrapConfig.useSecretManager) {
+                    //
+                    // -- file-based config (current behavior), return as-is
+                    bootstrapConfig.core = core;
+                    return bootstrapConfig;
+                }
+                //
+                // -- secrets manager mode: load full config from AWS Secrets Manager
+                var region = bootstrapConfig.getAwsRegion();
+                if (region == null) {
+                    logger.Error($"{core.logCommonMessage},ServerConfigModel.create, useSecretManager is true but awsRegionName is not configured");
+                    throw new InvalidOperationException("useSecretManager is true but awsRegionName is not configured in config.json");
+                }
+                string secretName = !string.IsNullOrEmpty(bootstrapConfig.awsSecretName)
+                    ? bootstrapConfig.awsSecretName
+                    : !string.IsNullOrEmpty(bootstrapConfig.name)
+                        ? $"contensive/{bootstrapConfig.name}"
+                        : "contensive/server-config";
+                string secretJson = AwsSecretManagerController.getSecret(core, region, secretName);
+                if (string.IsNullOrEmpty(secretJson)) {
+                    logger.Error($"{core.logCommonMessage},ServerConfigModel.create, secret [{secretName}] returned empty from AWS Secrets Manager");
+                    throw new InvalidOperationException($"AWS Secrets Manager secret [{secretName}] is empty or not found");
+                }
+                returnModel = DeserializeObject<ServerConfigModel>(secretJson);
+                //
+                // -- preserve bootstrap fields from local config.json (these control how we connect to SM)
+                returnModel.useSecretManager = true;
+                returnModel.awsRegionName = bootstrapConfig.awsRegionName;
+                returnModel.awsSecretName = secretName;
+                returnModel.core = core;
                 return returnModel;
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "exception in serverConfigModel.getObject");
@@ -274,8 +312,33 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public int save(CoreController core) {
             try {
-                string jsonTemp = SerializeObject(this);
-                core.programDataFiles.saveFile("config.json", jsonTemp);
+                if (useSecretManager) {
+                    //
+                    // -- secrets manager mode: save full config to SM, save only bootstrap fields to config.json
+                    var region = getAwsRegion();
+                    if (region != null) {
+                        string fullJson = SerializeObject(this);
+                        string secretName = !string.IsNullOrEmpty(awsSecretName)
+                            ? awsSecretName
+                            : !string.IsNullOrEmpty(name)
+                                ? $"contensive/{name}"
+                                : "contensive/server-config";
+                        AwsSecretManagerController.setSecret(core, region, secretName, fullJson);
+                    }
+                    //
+                    // -- write minimal bootstrap config.json
+                    var bootstrapConfig = new {
+                        useSecretManager = true,
+                        awsRegionName,
+                        awsSecretName
+                    };
+                    core.programDataFiles.saveFile("config.json", SerializeObject(bootstrapConfig));
+                } else {
+                    //
+                    // -- file-based config (current behavior)
+                    string jsonTemp = SerializeObject(this);
+                    core.programDataFiles.saveFile("config.json", jsonTemp);
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }

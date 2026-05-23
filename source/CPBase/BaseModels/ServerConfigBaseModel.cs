@@ -128,6 +128,11 @@ namespace Contensive.BaseModels {
         }
         public abstract bool useSecretManager { get; set; }
         /// <summary>
+        /// The name of the AWS Secrets Manager secret that holds the full server configuration JSON.
+        /// Only used when useSecretManager is true. Defaults to "contensive/{serverName}" based on the server group name.
+        /// </summary>
+        public abstract string awsSecretName { get; set; }
+        /// <summary>
         /// email address for the server contact. Also used as the default from email address for the server.
         /// </summary>
         public abstract string defaultEmailContact { get; set; }

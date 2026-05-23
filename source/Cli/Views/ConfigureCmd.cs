@@ -3,6 +3,7 @@ using Amazon;
 using Amazon.SecurityToken;
 using Contensive.CLI.Controllers;
 using Contensive.Processor;
+using Contensive.Processor.Controllers.Aws;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -111,10 +112,18 @@ namespace Contensive.CLI {
                         core.serverConfig.useSecretManager = false;
                     } else {
                         Console.WriteLine($"\n\nSecrets Manager");
-                        Console.WriteLine($"Create and use a secrets manager application [{core.serverConfig.name}]. Store secrets like database endpoint and credentials automatically in Secrets manager. If no, store secrets in local file config.json.");
+                        Console.WriteLine($"Store the entire server configuration in AWS Secrets Manager instead of the local config.json file. The local config.json will only contain bootstrap fields (region, secret name). If no, all settings are stored in local config.json.");
                         String prompt = "Use AWS Secrets Manager (y/n)?";
                         String defaultValue = (core.serverConfig.useSecretManager) ? "y" : "n";
                         core.serverConfig.useSecretManager = Equals(GenericController.promptForReply(prompt, defaultValue).ToLowerInvariant(), "y");
+                        if (core.serverConfig.useSecretManager) {
+                            Console.WriteLine($"\n\nSecrets Manager Secret Name");
+                            Console.WriteLine($"Enter the name of the AWS Secrets Manager secret that will hold the full server configuration.");
+                            string secretNameDefault = !string.IsNullOrEmpty(core.serverConfig.awsSecretName)
+                                ? core.serverConfig.awsSecretName
+                                : $"contensive/{core.serverConfig.name}";
+                            core.serverConfig.awsSecretName = GenericController.promptForReply("Secret Name", secretNameDefault);
+                        }
                     }
                 }
                 {
@@ -141,6 +150,47 @@ namespace Contensive.CLI {
                             }
                         } while (string.IsNullOrWhiteSpace(awsRegionName));
                         core.serverConfig.awsRegionName = awsRegionName;
+                    }
+                }
+                //
+                // -- migrate local config to secrets manager
+                {
+                    if (core.serverConfig.useSecretManager && !string.IsNullOrEmpty(core.serverConfig.awsRegionName)) {
+                        var region = core.serverConfig.getAwsRegion();
+                        if (region != null) {
+                            string secretName = !string.IsNullOrEmpty(core.serverConfig.awsSecretName)
+                                ? core.serverConfig.awsSecretName
+                                : !string.IsNullOrEmpty(core.serverConfig.name)
+                                    ? $"contensive/{core.serverConfig.name}"
+                                    : "contensive/server-config";
+                            string existingSecret = null;
+                            try {
+                                existingSecret = AwsSecretManagerController.tryGetSecret(core, region, secretName);
+                            } catch (Exception ex) {
+                                Console.WriteLine($"Warning: could not read from Secrets Manager: {ex.Message}");
+                            }
+                            if (string.IsNullOrEmpty(existingSecret)) {
+                                //
+                                // -- secret is empty or does not exist, check if local config has data to migrate
+                                string localConfigJson = core.programDataFiles.readFileText("config.json");
+                                if (!string.IsNullOrEmpty(localConfigJson)) {
+                                    Console.WriteLine($"\n\nMigrate Configuration");
+                                    Console.WriteLine($"The secret [{secretName}] is empty but the local config.json contains configuration data.");
+                                    string migrateReply = GenericController.promptForReply("Do you want to migrate your config file to secret manager (y/n)?", "y");
+                                    if (Equals(migrateReply.ToLowerInvariant(), "y")) {
+                                        Console.Write("Migrating configuration to Secrets Manager...");
+                                        try {
+                                            AwsSecretManagerController.setSecret(core, region, secretName, localConfigJson);
+                                            Console.WriteLine("success");
+                                        } catch (Exception ex) {
+                                            Console.WriteLine("fail");
+                                            Console.WriteLine($"Error migrating to Secrets Manager: {ex.Message}");
+                                            Console.WriteLine("Configuration will continue. The save at the end will retry writing to Secrets Manager.");
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 //
