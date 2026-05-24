@@ -4005,7 +4005,7 @@
 
 	<Addon Name="Email Deliverability Widget" Guid="{1D3B1AB0-B1E5-4976-B1BB-2D8069E4C0C8}" Type="Add-on">
 		<DashboardWidget>Yes</DashboardWidget>
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleLineChartWidget]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.EmailDeliverabilityWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
