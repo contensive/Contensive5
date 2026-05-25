@@ -1260,7 +1260,7 @@ namespace Contensive.Processor.Controllers.Build {
             // -- determine primary domain
             string primaryDomain = core.appConfig.name;
             var domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, primaryDomain);
-            if (DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, primaryDomain) == null) {
+            if (domain == null) {
                 domain = DbBaseModel.addDefault<DomainModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "domains"));
                 domain.name = primaryDomain;
             }
@@ -1278,11 +1278,12 @@ namespace Contensive.Processor.Controllers.Build {
             if (defaultTemplate == null) {
                 // -- did not install correctly, build a placeholder
                 // -- create content, never update content
-                core.doc.pageController.template = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
-                core.doc.pageController.template.bodyHTML = Properties.Resources.DefaultTemplateHtml;
-                core.doc.pageController.template.name = singleColumnTemplateName;
-                core.doc.pageController.template.ccguid = singleColumnTemplateGuid;
-                core.doc.pageController.template.save(core.cpParent);
+                defaultTemplate = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
+                defaultTemplate.bodyHTML = Properties.Resources.DefaultTemplateHtml;
+                defaultTemplate.name = singleColumnTemplateName;
+                defaultTemplate.ccguid = singleColumnTemplateGuid;
+                defaultTemplate.save(core.cpParent);
+                core.doc.pageController.template = defaultTemplate;
             }
             //
             // -- verify menu record
