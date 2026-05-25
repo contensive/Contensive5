@@ -460,20 +460,34 @@ namespace Contensive.Processor.Controllers {
                     _programFiles = new FileController(this, executePath);
                     return _programFiles;
                 }
-                if (!string.IsNullOrEmpty(serverConfig.programFilesPath) && System.IO.File.Exists(serverConfig.programFilesPath + "Processor.dll")) {
-                    //
-                    // -- use saved path if it exists
-                    _programFiles = new FileController(this, serverConfig.programFilesPath);
-                    return _programFiles;
+                if (!string.IsNullOrEmpty(serverConfig.programFilesPath)) {
+                    if (System.IO.File.Exists(serverConfig.programFilesPath + "Processor.dll")) {
+                        //
+                        // -- use saved path if it exists (framework build with shared folder)
+                        _programFiles = new FileController(this, serverConfig.programFilesPath);
+                        return _programFiles;
+                    }
+                    if (System.IO.File.Exists(serverConfig.programFilesPath + "Cli\\Processor.dll")) {
+                        //
+                        // -- core build with CLI in subfolder
+                        _programFiles = new FileController(this, serverConfig.programFilesPath + "Cli\\");
+                        return _programFiles;
+                    }
+                    if (System.IO.File.Exists(serverConfig.programFilesPath + "TaskService\\Processor.dll")) {
+                        //
+                        // -- core build with TaskService in subfolder
+                        _programFiles = new FileController(this, serverConfig.programFilesPath + "TaskService\\");
+                        return _programFiles;
+                    }
                 }
                 //
-                //  -- developer, fake a path
+                //  -- serverConfig.programFilesPath not set, probe default paths
                 logger.Warn($"{this.logCommonMessage},serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
-                if (System.IO.File.Exists("c:\\Program Files\\Contensive\\Processor.dll")) {
-                    serverConfig.programFilesPath = "c:\\Program Files\\Contensive\\";
-                } else {
-                    serverConfig.programFilesPath = "c:\\Program Files (x86)\\Contensive\\";
-                }
+                string probePath = System.IO.File.Exists("c:\\Program Files\\Contensive\\Processor.dll") ? "c:\\Program Files\\Contensive\\"
+                    : System.IO.File.Exists("c:\\Program Files\\Contensive\\Cli\\Processor.dll") ? "c:\\Program Files\\Contensive\\Cli\\"
+                    : System.IO.File.Exists("c:\\Program Files\\Contensive\\TaskService\\Processor.dll") ? "c:\\Program Files\\Contensive\\TaskService\\"
+                    : "c:\\Program Files\\Contensive\\";
+                serverConfig.programFilesPath = probePath;
                 serverConfig.save(this);
                 _programFiles = new FileController(this, serverConfig.programFilesPath);
                 return _programFiles;
