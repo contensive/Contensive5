@@ -256,11 +256,11 @@ namespace Contensive.Processor.Controllers {
                         isFingerprintedSession = true;
                         //
                         // -- Look for existing visitor with this fingerprint.
-                        //    Use COL_LENGTH to guard against the fingerprint column not yet
-                        //    existing during the upgrade process (cc -u). When the column is
-                        //    missing the query safely returns no rows instead of throwing.
+                        //    Use dynamic SQL so the SELECT is only parsed when the column exists.
+                        //    A static IF COL_LENGTH check does not work because SQL Server validates
+                        //    column references in both branches at parse time.
                         {
-                            string fingerprintSql = $"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL BEGIN select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint={DbController.encodeSQLText(fingerprintHash)}) order by id desc END";
+                            string fingerprintSql = $"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC('select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint=''{fingerprintHash.Replace("'", "''")}'') order by id desc')";
                             using var dt = core.db.executeQuery(fingerprintSql);
                             if (dt?.Rows.Count > 0) {
                                 int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
@@ -509,11 +509,11 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- save fingerprint to visitor record via direct SQL.
                     //    This runs separately from visitor.save() because the fingerprint column
-                    //    may not yet exist during the upgrade process (cc -u). COL_LENGTH guards
-                    //    against the missing column so no error is thrown.
+                    //    may not yet exist during the upgrade process (cc -u). Dynamic SQL via
+                    //    EXEC ensures the UPDATE is only parsed when the column exists.
                     //
                     if (isFingerprintedSession && !string.IsNullOrEmpty(fingerprintHash) && visitor.id > 0) {
-                        core.db.executeNonQuery($"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL BEGIN update ccvisitors set fingerprint={DbController.encodeSQLText(fingerprintHash)} where id={visitor.id} END");
+                        core.db.executeNonQuery($"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC('update ccvisitors set fingerprint=''{fingerprintHash.Replace("'", "''")}'' where id={visitor.id}')");
                     }
                 }
                 //
