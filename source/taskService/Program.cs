@@ -1,22 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Contensive.Services {
-    internal static class Program {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        static void Main() {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
-            {
-                new TaskService()
-            };
-            ServiceBase.Run(ServicesToRun);
-        }
-    }
-}
+using Contensive.Services;
+using Microsoft.Extensions.Hosting;
+
+Host.CreateDefaultBuilder(args)
+    .UseWindowsService(options => {
+        options.ServiceName = "Contensive Task Service";
+    })
+    .ConfigureServices(services => {
+        services.AddHostedService<ContensiveWorker>();
+    })
+    .Build()
+    .Run();

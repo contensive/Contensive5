@@ -5,59 +5,32 @@ using Contensive.Processor.Models.Domain;
 namespace Contensive.WebApi {
     internal class Program {
         private static void Main(string[] args) {
-
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
                 Args = args,
-                // Look for static files in webroot
                 WebRootPath = "webroot"
             });
-            //var builder = WebApplication.CreateBuilder(args);
             var app = builder.Build();
             app.UseStaticFiles();
-
-            app.MapGet("/test", () => {
-                return "Hello World 3";
-            });
             //
-            // -- get root route w
-            app.MapGet("/", () => $"Hello World, no qs");
-            //
-            // -- post root route w
-            app.MapPost("/", () => $"Hello World, no qs");
-            //
-            // -- root route with  querystring parameter test=
-            //app.MapGet("/", (string test) => $"Hello World {test}");
-            //
-            // -- 
-            app.MapGet("/customers", () => $"customer route");
-            app.MapGet("/customers/{id}", (int id) => $"customer route that is an integer segment, {id}");
-            //app.MapGet("/customers/{id}", (int id, string option) => $"customer route that is an integer segment, {id}, and option querystring {option}");
-            app.MapGet("/customers/{id}/{thing}", (int id, string thing) => $"customer route with an integer then string segment,  {id}, {thing}");
-
-
-
-            //app.MapGet("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
-            //    return executeManagedRoute(request, response, iisContext);
-            //});
-            //app.MapPost("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
-            //    return executeManagedRoute(request, response, iisContext);
-            //});
-
-            // -- query all dynamic routes
-            //
+            // -- all dynamic routes handled by Contensive processor
             app.MapFallback((HttpRequest request, HttpResponse response, HttpContext iisContext) => {
-                return executeManagedRoute(request, response, iisContext);
+                return executeManagedRoute(app.Configuration, request, response, iisContext);
             });
-
-
-            app.Run("http://localhost:5099");
+            //
+            // -- read url from config, fallback to http://localhost:5099
+            string urls = app.Configuration["Contensive:Urls"] ?? "http://localhost:5099";
+            app.Run(urls);
         }
-        public static string someRoute() {
-            return "method test";
-        }
-        public static IResult executeManagedRoute(HttpRequest request, HttpResponse response, HttpContext iisContext) {
-
-            string appName = "c5test";
+        public static IResult executeManagedRoute(IConfiguration configuration, HttpRequest request, HttpResponse response, HttpContext iisContext) {
+            //
+            // -- resolve appName: config override, then IIS site name, then env var
+            string appName = configuration["Contensive:AppName"] ?? "";
+            if (string.IsNullOrEmpty(appName)) {
+                appName = iisContext.GetServerVariable("IIS_SITE_NAME") ?? "";
+            }
+            if (string.IsNullOrEmpty(appName)) {
+                appName = Environment.GetEnvironmentVariable("CONTENSIVE_APPNAME") ?? "";
+            }
             HttpContextModel context = ConfigurationClass.buildContext(appName, iisContext);
             //HttpContextModel context = new();
             string content = "";

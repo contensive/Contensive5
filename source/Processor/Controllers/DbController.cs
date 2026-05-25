@@ -66,13 +66,43 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// timeout in seconds
         /// </summary>
-        public int sqlCommandTimeout { get; set; } = 30;
+        public int sqlCommandTimeout { get; set; } = 60;
         //
         //====================================================================================================
         /// <summary>
         /// nlog class instance
         /// </summary>
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Returns true if the SqlException represents a transient network/connection error
+        /// that is safe to retry (connection dropped, timeout, transport-level error, etc.)
+        /// </summary>
+        private static bool isTransientSqlException(SqlException ex) {
+            // SQL Server error numbers for transient/network errors:
+            //  -2  = Timeout expired
+            //  20  = Instance does not support encryption
+            //  64  = Connection was successfully established but then broken
+            //  121 = Semaphore timeout (TCP transport-level)
+            //  233 = Connection closed by server
+            //  10053 = Transport-level error (connection broken)
+            //  10054 = Connection forcibly closed by remote host
+            //  10060 = Connection timed out
+            //  10061 = Connection refused
+            //  40143 = Connection could not be initialized
+            //  40197 = Service encountered an error processing request
+            //  40501 = Service is busy
+            //  40613 = Database not currently available
+            //  49918 = Not enough resources to process request
+            //  49919 = Too many create/update requests
+            //  49920 = Too many requests
+            int[] transientErrors = { -2, 20, 64, 121, 233, 10053, 10054, 10060, 10061, 40143, 40197, 40501, 40613, 49918, 49919, 49920 };
+            foreach (SqlError err in ex.Errors) {
+                if (Array.IndexOf(transientErrors, err.Number) >= 0) { return true; }
+            }
+            return false;
+        }
         //
         //==========================================================================================
         /// <summary>
@@ -194,14 +224,28 @@ namespace Contensive.Processor.Controllers {
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
                 if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
                 //
-                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
-                    connSQL.Open();
-                    using (SqlCommand cmdSQL = new()) {
-                        cmdSQL.CommandType = CommandType.Text;
-                        cmdSQL.CommandText = sql;
-                        cmdSQL.Connection = connSQL;
-                        cmdSQL.CommandTimeout = sqlCommandTimeout;
-                        returnValue = (int)cmdSQL.ExecuteScalar();
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            connSQL.Open();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                returnValue = (int)cmdSQL.ExecuteScalar();
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeScalar transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        System.Threading.Thread.Sleep(1000);
                     }
                 }
             } catch (Exception ex) {
@@ -232,42 +276,35 @@ namespace Contensive.Processor.Controllers {
                 // https://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqldatareader.aspx
                 //
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
-                    int retryCnt = 1;
-                    bool success = false;
-                    do {
-                        try {
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
                             connSQL.Open();
-                            success = true;
-                        } catch (SqlException exSql) {
-                            //
-                            // network related error, retry once
-                            try {
-                                string errMsg = "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]";
-                                Logger.Error(exSql, $"{core.logCommonMessage},{errMsg}");
-                            } catch (Exception) {
-                                // -- swallow logging internal errors
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                using (SqlDataAdapter adptSQL = new(cmdSQL)) {
+                                    recordsAffected = adptSQL.Fill(startRecord, maxRecords, returnData);
+                                }
                             }
-                            //
-                            if (retryCnt <= 0) { throw; }
-                            retryCnt--;
-                        } catch (Exception ex) {
-                            logger.Error(ex, $"{core.logCommonMessage}");
-                            throw;
                         }
-                    } while (!success && (retryCnt >= 0));
-                    using (SqlCommand cmdSQL = new()) {
-                        cmdSQL.CommandType = CommandType.Text;
-                        cmdSQL.CommandText = sql;
-                        cmdSQL.Connection = connSQL;
-                        cmdSQL.CommandTimeout = sqlCommandTimeout;
-                        using (SqlDataAdapter adptSQL = new(cmdSQL)) {
-                            recordsAffected = adptSQL.Fill(startRecord, maxRecords, returnData);
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeQuery transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
                         }
+                        retryCount--;
+                        returnData = new DataTable();
+                        System.Threading.Thread.Sleep(1000);
                     }
                 }
                 try {
-                    string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    string logMsg = $", duration [{sw.ElapsedMilliseconds}ms], recordsAffected [{recordsAffected}], sql [{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
                         Logger.Warn($"{core.logCommonMessage},Slow SQL Query{logMsg}");
                     } else {
@@ -277,7 +314,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], startRecord [" + startRecord + "], maxRecords [" + maxRecords + "], recordsReturned [" + recordsAffected + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException($"Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]", ex));
                 throw;
             }
             return returnData;
@@ -303,18 +340,32 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (!dbEnabled) { return; }
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
-                    connSQL.Open();
-                    using (SqlCommand cmdSQL = new()) {
-                        cmdSQL.CommandType = CommandType.Text;
-                        cmdSQL.CommandText = sql;
-                        cmdSQL.Connection = connSQL;
-                        cmdSQL.CommandTimeout = sqlCommandTimeout;
-                        recordsAffected = cmdSQL.ExecuteNonQuery();
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            connSQL.Open();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                recordsAffected = cmdSQL.ExecuteNonQuery();
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeNonQuery transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        System.Threading.Thread.Sleep(1000);
                     }
                 }
                 try {
-                    string logMsg = ",duration[" + sw.ElapsedMilliseconds + "ms],recordsAffected[" + recordsAffected + "],sql[" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    string logMsg = $",duration[{sw.ElapsedMilliseconds}ms],recordsAffected[{recordsAffected}],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
                         Logger.Warn($"{core.logCommonMessage},Slow SQL NonQuery{logMsg}");
                     } else {
@@ -324,7 +375,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("exception[" + ex.Message + "] executing sql[" + sql + "],datasource[" + dataSourceName + "],recordsAffected[" + recordsAffected + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]", ex));
                 throw;
             }
         }
@@ -339,29 +390,43 @@ namespace Contensive.Processor.Controllers {
                 int result = 0;
                 if (!dbEnabled) { return result; }
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
-                    connSQL.Open();
-                    using (SqlCommand cmdSQL = new()) {
-                        cmdSQL.CommandType = CommandType.Text;
-                        cmdSQL.CommandText = sql;
-                        cmdSQL.Connection = connSQL;
-                        cmdSQL.CommandTimeout = sqlCommandTimeout;
-                        result = await cmdSQL.ExecuteNonQueryAsync();
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            await connSQL.OpenAsync();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                result = await cmdSQL.ExecuteNonQueryAsync();
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeNonQueryAsync transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        await Task.Delay(1000);
                     }
                 }
                 try {
-                    string logMsg = ", duration[" + sw.ElapsedMilliseconds + "ms],recordsAffected[n/a],sql[" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    string logMsg = $", duration[{sw.ElapsedMilliseconds}ms],recordsAffected[n/a],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                        Logger.Warn(core.logCommonMessage + ",Slow Query " + logMsg);
+                        Logger.Warn($"{core.logCommonMessage},Slow Query {logMsg}");
                     } else {
-                        Logger.Debug(core.logCommonMessage + "," + logMsg);
+                        Logger.Debug($"{core.logCommonMessage},{logMsg}");
                     }
                 } catch (Exception) {
                     // -- swallow logging internal errors
                 }
                 return result;
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("exception[" + ex.Message + "] executing sql[" + sql + "],datasource[" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]", ex));
                 throw;
             }
         }

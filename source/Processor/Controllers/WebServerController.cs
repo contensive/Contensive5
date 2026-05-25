@@ -1049,8 +1049,8 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     appPool = serverManager.ApplicationPools[poolName];
                 }
-                appPool.ManagedRuntimeVersion = "v4.0";
-                appPool.Enable32BitAppOnWin64 = true;
+                appPool.ManagedRuntimeVersion = "";
+                appPool.Enable32BitAppOnWin64 = false;
                 appPool.ManagedPipelineMode = ManagedPipelineMode.Integrated;
                 serverManager.CommitChanges();
             } catch (Exception ex) {

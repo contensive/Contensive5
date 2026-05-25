@@ -219,12 +219,19 @@ if errorlevel 1 (
 
 dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
-   echo failure building Processor
+   echo failure building Processor net48
    if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
 
-dotnet build taskservice/taskservice.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
+if errorlevel 1 (
+   echo failure building Processor net9.0-windows
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet build taskservice/taskservice.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
 if errorlevel 1 (
    echo failure building taskservice
    if %PAUSE_ON_ERROR%==1 pause
@@ -233,7 +240,14 @@ if errorlevel 1 (
 
 dotnet build cli/cli.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
 if errorlevel 1 (
-   echo failure building cli
+   echo failure building cli net48
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet build cli/cli.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
+if errorlevel 1 (
+   echo failure building cli net9.0-windows
    if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
@@ -316,16 +330,6 @@ xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
 cd ..\scripts
 
 rem
-
-rem ==============================================================
-rem
-rem copy the cc.exe.config file to the taskservice.exe.config file
-rem -- because the auto-update of assembly redirects does not work correctly for the task project
-rem
-
-
-copy "C:\Git\Contensive5\source\Cli\bin\Debug\net48\cc.exe.config" "C:\Git\Contensive5\source\Cli\bin\Debug\net48\TaskService.exe.config"
-
 
 rem ==============================================================
 rem

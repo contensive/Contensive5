@@ -37,7 +37,7 @@ namespace Contensive.CLI {
         /// <param name="appName"></param>
         public static async System.Threading.Tasks.Task executeAsync(string appName, string domainName) {
             try {
-                const string iisDefaultDoc = "default.aspx";
+                const string iisDefaultDoc = "";
                 //
                 string allowableNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 if (!appName.All(x => allowableNameCharacters.Contains(x))) {
@@ -54,24 +54,28 @@ namespace Contensive.CLI {
                         return;
                     }
                     //
-                    // -- verify defaultaspxsite.zip
-                    if (!cp.core.programFiles.fileExists("defaultaspxsite.zip")) {
-                        Console.WriteLine($"To build a new site, the DefaultAspxSite.zip must be downloaded from contensive.io/downloads to the program files folder, {cp.core.programFiles.localAbsRootPath}");
+                    // -- verify program files folder (update to current CLI location)
+                    string currentPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    if (!cp.core.serverConfig.programFilesPath.Equals(currentPath)) {
+                        cp.core.serverConfig.programFilesPath = currentPath;
+                        cp.core.serverConfig.save(cp.core);
+                    }
+                    //
+                    // -- resolve install root (parent of CLI folder, e.g. C:\Program Files\Contensive)
+                    string installRoot = Path.GetDirectoryName(currentPath);
+                    //
+                    // -- verify WebApi package exists in install folder
+                    string webApiPackagePath = Path.Combine(installRoot, "WebApi");
+                    if (!Directory.Exists(webApiPackagePath) || !File.Exists(Path.Combine(webApiPackagePath, "WebApi.dll"))) {
+                        Console.WriteLine($"The WebApi package was not found at [{webApiPackagePath}]. Run install.ps1 to install server components first.");
                         Console.ReadLine();
                         return;
                     }
                     //
                     // -- make sure this app does not already exist
                     if (cp.GetAppNameList().Contains(appName, StringComparer.OrdinalIgnoreCase)) {
-                        Console.WriteLine("The application name you seleted is in use [" + appName + "]");
+                        Console.WriteLine($"The application name you selected is in use [{appName}]");
                         return;
-                    }
-                    //
-                    // -- verify program files folder
-                    string currentPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    if (!cp.core.serverConfig.programFilesPath.Equals(currentPath)) {
-                        cp.core.serverConfig.programFilesPath = currentPath;
-                        cp.core.serverConfig.save(cp.core);
                     }
                     //
                     // -- create the new app
@@ -324,14 +328,7 @@ namespace Contensive.CLI {
                     logger.Info($"{cp.core.logCommonMessage},Create database.");
                     cp.core.dbServer.createCatalog(appConfig.name);
                     //
-                    logger.Info($"{cp.core.logCommonMessage},When app creation is complete, use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
-                    //// copy in the pattern files 
-                    ////  - the only pattern is aspx
-                    ////  - this is cc running, so they are setting up new application which may or may not have a webrole here.
-                    ////  - setup a basic webrole just in case this will include one -- maybe later make it an option
-                    ////
-                    // - logger.Info($"{cp.core.logCommonMessage},Copy default site to www folder.");
-                    // - cp.core.programFiles.copyFolder("resources\\DefaultAspxSite\\", "\\", cp.core.appRootFiles);
+                    logger.Info($"{cp.core.logCommonMessage},Creating database and deploying WebApi to IIS site.");
                 }
                 //
                 // initialize the new app, use the save authentication that was used to authorize this object
@@ -340,36 +337,25 @@ namespace Contensive.CLI {
                     logger.Info($"{cp.core.logCommonMessage},Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath);
                     //
-                    bool DefaultAspxSiteInstalled = false;
-                    logger.Info($"{cp.core.logCommonMessage},Install DefaultAspxSite.");
-                    if (!cp.core.programFiles.fileExists(@"\defaultaspxsite.zip")) {
-                        //
-                        // -- message to install defaultsite manually
-                        Console.WriteLine($"File [defaultaspxsite.zip] was not found in the folder [{cp.core.programFiles.localAbsRootPath}\\Contensive]. To setup an IIS website, import this file using IIS Manager from the deployment folder. To automatically install during this process, copy the file into the program files folder.");
+                    //
+                    // -- deploy WebApi files to the app's www folder
+                    bool webApiInstalled = false;
+                    logger.Info($"{cp.core.logCommonMessage},Deploy WebApi to www folder.");
+                    string webApiSourcePath = Path.Combine(Path.GetDirectoryName(cp.core.serverConfig.programFilesPath), "WebApi");
+                    if (!Directory.Exists(webApiSourcePath)) {
+                        Console.WriteLine($"WebApi package not found at [{webApiSourcePath}]. Copy WebApi files manually to [{cp.core.appConfig.localWwwPath}].");
                     } else {
                         //
-                        // -- install defaultaspxsite
-                        DefaultAspxSiteInstalled = true;
-                        cp.core.programFiles.copyFile(@"\defaultaspxsite.zip", @"\defaultaspxsite.zip", cp.core.tempFiles);
-                        cp.TempFiles.UnzipFile(@"\defaultaspxsite.zip");
-                        string srcPath = getZipSrcTempPath(cp, "Content", "Web.config");
-                        if (string.IsNullOrWhiteSpace(srcPath)) {
-                            Console.WriteLine("The installation on this server does not include a valid DefaultAspxSite.zip file. Replace this file with a valid DefaultAspxSite.zip file or delete the invalid file and retry.");
-                            return;
+                        // -- copy WebApi files to the app's www folder
+                        CopyDirectory(webApiSourcePath, cp.core.appConfig.localWwwPath);
+                        webApiInstalled = true;
+                        //
+                        // -- create logs folder for IIS stdout logging
+                        string logsPath = Path.Combine(cp.core.appConfig.localWwwPath, "logs");
+                        if (!Directory.Exists(logsPath)) {
+                            Directory.CreateDirectory(logsPath);
                         }
-                        cp.TempFiles.CopyPath(srcPath, @"", cp.WwwFiles);
-                        cp.TempFiles.DeleteFile(@"\defaultaspxsite.zip");
-                        cp.TempFiles.DeleteFolder(@"content");
-                    }
-                    // -- 
-                    // -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
-                    if (!cp.WwwFiles.FileExists("WebAppSettings.config")) {
-                        cp.WwwFiles.Copy("WebAppSettings-Sample.config", "WebAppSettings.config");
-                    }
-                    //
-                    // -- if WebRewrite.config does not exist, copy WebRewrite-Sample.config
-                    if (!cp.WwwFiles.FileExists("WebRewrite.config")) {
-                        cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
+                        Console.WriteLine($"  WebApi deployed to [{cp.core.appConfig.localWwwPath}]");
                     }
                     //
                     logger.Info($"{cp.core.logCommonMessage},Run db upgrade.");
@@ -383,15 +369,33 @@ namespace Contensive.CLI {
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailFromAddress, defaultEmailAddress);
                     //
                     logger.Info($"{cp.core.logCommonMessage},Upgrade complete.");
-                    if (DefaultAspxSiteInstalled) {
-                        logger.Info($"{cp.core.logCommonMessage},A default website was imported into an iis website with this applicaiton name.");
+                    if (webApiInstalled) {
+                        logger.Info($"{cp.core.logCommonMessage},WebApi deployed to IIS site [{appName}].");
                     } else {
-                        logger.Info($"{cp.core.logCommonMessage},The Contensive website was not imported because the file DefaultAspxSite.zip was not found in path [" + cp.core.programFiles.localAbsRootPath + "].");
+                        logger.Info($"{cp.core.logCommonMessage},WebApi was not deployed. Copy WebApi files manually to the app's www folder.");
                     }
                 }
                 //
             } catch (Exception ex) {
                 Console.WriteLine("Error: [" + ex + "]");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Recursively copy a directory and all its contents to a destination
+        /// </summary>
+        /// <param name="sourceDir"></param>
+        /// <param name="destDir"></param>
+        private static void CopyDirectory(string sourceDir, string destDir) {
+            Directory.CreateDirectory(destDir);
+            foreach (string file in Directory.GetFiles(sourceDir)) {
+                string destFile = Path.Combine(destDir, Path.GetFileName(file));
+                File.Copy(file, destFile, true);
+            }
+            foreach (string subDir in Directory.GetDirectories(sourceDir)) {
+                string destSubDir = Path.Combine(destDir, Path.GetFileName(subDir));
+                CopyDirectory(subDir, destSubDir);
             }
         }
         //

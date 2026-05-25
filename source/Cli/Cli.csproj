@@ -52,15 +52,6 @@
     <ProjectReference Include="..\Processor\Processor.csproj">
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\TaskService\TaskService.csproj">
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="netstandard">
-      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\netstandard.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
