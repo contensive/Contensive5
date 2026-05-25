@@ -136,9 +136,15 @@ function Install-TaskService {
     }
 
     Write-Host "  Starting service: $ServiceName"
-    Start-Service -Name $ServiceName
-
-    Write-Host "  TaskService installed at $taskDest" -ForegroundColor Green
+    try {
+        Start-Service -Name $ServiceName
+        Write-Host "  TaskService installed and started at $taskDest" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "  TaskService installed at $taskDest but the service did not start." -ForegroundColor Yellow
+        Write-Host "  Run 'cc --configure' first, then start the service with:" -ForegroundColor Yellow
+        Write-Host "    sc start `"$ServiceName`"" -ForegroundColor Yellow
+    }
 }
 
 function Install-Cli {

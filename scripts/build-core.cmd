@@ -19,7 +19,7 @@ c:
 cd \Git\Contensive5\scripts
 
 rem Setup deployment folder with date-based version
-set deploymentFolderRoot=C:\Deployments\Contensive5\Dev\
+set deploymentFolderRoot=C:\Deployments\Contensive5-Core\
 set year=%date:~12,4%
 set month=%date:~4,2%
 if %month% GEQ 10 goto monthOk
@@ -218,8 +218,11 @@ rem
 rem copy install/uninstall scripts into the deployment folder
 rem
 
-copy "C:\Git\Contensive5\scripts\install.ps1" "%deploymentFolderRoot%%versionNumber%\"
-copy "C:\Git\Contensive5\scripts\uninstall.ps1" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\etc\install-core.ps1" "%deploymentFolderRoot%%versionNumber%\install.ps1"
+copy "C:\Git\Contensive5\etc\uninstall-core.ps1" "%deploymentFolderRoot%%versionNumber%\uninstall.ps1"
+copy "C:\Git\Contensive5\etc\install-core.cmd" "%deploymentFolderRoot%%versionNumber%\install.cmd"
+copy "C:\Git\Contensive5\etc\uninstall-core.cmd" "%deploymentFolderRoot%%versionNumber%\uninstall.cmd"
+copy "C:\Git\Contensive5\etc\README-core.txt" "%deploymentFolderRoot%%versionNumber%\README.txt"
 
 rem ==============================================================
 rem
@@ -230,7 +233,7 @@ rem
 @echo Creating distribution package...
 @echo.
 
-"c:\program files\7-zip\7z.exe" a "%deploymentFolderRoot%%versionNumber%\deploy.zip" "%deploymentFolderRoot%%versionNumber%\*"
+"c:\program files\7-zip\7z.exe" a "%deploymentFolderRoot%%versionNumber%\contensive.zip" "%deploymentFolderRoot%%versionNumber%\*"
 if errorlevel 1 (
    echo.
    echo FAILURE creating zip package
@@ -240,7 +243,7 @@ if errorlevel 1 (
 
 rem ==============================================================
 rem
-rem remove source files, leaving only deploy.zip in the version folder
+rem remove source files, leaving only contensive.zip in the version folder
 rem
 
 @echo.
@@ -252,6 +255,9 @@ rd /s /q "%deploymentFolderRoot%%versionNumber%\Cli" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\TaskService" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.ps1" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\install.cmd" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\uninstall.cmd" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
 
 rem ==============================================================
 rem
@@ -266,13 +272,12 @@ rem
 @echo   %deploymentFolderRoot%%versionNumber%\
 @echo.
 @echo Distribution package:
-@echo   %deploymentFolderRoot%%versionNumber%\deploy.zip
+@echo   %deploymentFolderRoot%%versionNumber%\contensive.zip
 @echo.
 @echo To install on a server:
 @echo   1. Copy the zip to the server and extract
-@echo   2. Run: powershell -ExecutionPolicy Bypass -File install.ps1
+@echo   2. Run install.cmd as Administrator (or see README.txt)
 @echo   3. Create apps: cc -n appName domainName
-@echo   4. See docs\setup-and-deployment.md for details
 @echo ==============================================================
 @echo.
 

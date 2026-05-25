@@ -54,27 +54,31 @@ namespace Contensive.CLI {
                 Console.WriteLine("Applications: " + cpServer.core.serverConfig.apps.Count);
                 foreach (var kvp in cpServer.core.serverConfig.apps) {
                     AppConfigModel app = (AppConfigModel)kvp.Value;
-                    using (CPClass cp = new CPClass(app.name)) {
-                        Console.WriteLine("    name: " + app.name);
-                        Console.WriteLine("        enabled: " + app.enabled);
-                        Console.WriteLine("        data version: " + cp.Site.GetText("BUILDVERSION"));
-                        Console.WriteLine("        delete protection: " + app.deleteProtection);
-                        Console.WriteLine("        admin route: " + app.adminRoute);
-                        Console.WriteLine("        local file storage");
-                        Console.WriteLine("            www (app) path: " + app.localWwwPath);
-                        Console.WriteLine("            private path: " + app.localPrivatePath);
-                        Console.WriteLine("            files (cdn) path: " + app.localFilesPath);
-                        Console.WriteLine("            temp path: " + app.localTempPath);
-                        if (!cpServer.core.serverConfig.isLocalFileSystem) {
-                            Console.WriteLine("        remote file storage");
-                            Console.WriteLine("            www (app) path: " + app.remoteWwwPath);
-                            Console.WriteLine("            private path: " + app.remotePrivatePath);
-                            Console.WriteLine("            files (cdn) path: " + app.remoteFilePath);
+                    Console.WriteLine("    name: " + app.name);
+                    Console.WriteLine("        enabled: " + app.enabled);
+                    try {
+                        using (CPClass cp = new CPClass(app.name)) {
+                            Console.WriteLine("        data version: " + cp.Site.GetText("BUILDVERSION"));
+                            Console.WriteLine("        delete protection: " + app.deleteProtection);
+                            Console.WriteLine("        admin route: " + app.adminRoute);
+                            Console.WriteLine("        local file storage");
+                            Console.WriteLine("            www (app) path: " + app.localWwwPath);
+                            Console.WriteLine("            private path: " + app.localPrivatePath);
+                            Console.WriteLine("            files (cdn) path: " + app.localFilesPath);
+                            Console.WriteLine("            temp path: " + app.localTempPath);
+                            if (!cpServer.core.serverConfig.isLocalFileSystem) {
+                                Console.WriteLine("        remote file storage");
+                                Console.WriteLine("            www (app) path: " + app.remoteWwwPath);
+                                Console.WriteLine("            private path: " + app.remotePrivatePath);
+                                Console.WriteLine("            files (cdn) path: " + app.remoteFilePath);
+                            }
+                            Console.WriteLine("        cdnFilesNetprefix: " + app.cdnFileUrl);
+                            foreach (string domain in app.domainList) {
+                                Console.WriteLine("        domain: " + domain);
+                            }
                         }
-                        Console.WriteLine("        cdnFilesNetprefix: " + app.cdnFileUrl);
-                        foreach (string domain in app.domainList) {
-                            Console.WriteLine("        domain: " + domain);
-                        }
+                    } catch (Exception ex) {
+                        Console.WriteLine($"        ERROR: {ex.Message}");
                     }
                 }
             }
