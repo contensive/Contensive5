@@ -888,7 +888,17 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="blockCacheClear"></param>
         /// <param name="logMsgContext">A message to be added to log entries to help understand the context of the issue.</param>
         /// <returns></returns>
-        public void verifyContentField(CoreController core, ContentFieldMetadataModel fieldMetadata, bool blockCacheClear, string logMsgContext) {
+        public void verifyContentField(CoreController core, ContentFieldMetadataModel fieldMetadata, bool blockCacheClear, string logMsgContext)
+            => verifyContentField(core, fieldMetadata, blockCacheClear, logMsgContext, null, null, null);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Verify a content field, with optional pre-loaded caches to avoid per-field SQL queries.
+        /// existingFieldsByName: pre-loaded dictionary of existing ContentFieldModel records keyed by lowercase field name.
+        /// guidToIdCache: shared cache of GUID-to-ID lookups for collections and addons.
+        /// batchSqlList: when provided, UPDATE SQL is collected here instead of executed immediately. Caller must flush with executeNonQueryBatch.
+        /// </summary>
+        public void verifyContentField(CoreController core, ContentFieldMetadataModel fieldMetadata, bool blockCacheClear, string logMsgContext, Dictionary<string, ContentFieldModel> existingFieldsByName, Dictionary<string, int> guidToIdCache, List<string> batchSqlList) {
             try {
                 if (fieldMetadata == null) {
                     throw (new GenericException("Could not create Field for content [" + name + "] because the field metadata is not valid."));
@@ -900,10 +910,15 @@ namespace Contensive.Processor.Models.Domain {
                     throw (new GenericException("Could not create Field [" + fieldMetadata.nameLc + "] for content [" + name + "] because the field type [" + fieldMetadata.fieldTypeId + "] is not valid."));
                 }
                 bool RecordIsBaseField = false;
-                var contentFieldList = DbBaseModel.createList<ContentFieldModel>(core.cpParent, "(ContentID=" + DbController.encodeSQLNumber(id) + ")and(name=" + DbController.encodeSQLText(fieldMetadata.nameLc) + ")");
-                if (contentFieldList.Count > 0) {
-                    fieldMetadata.id = contentFieldList.First().id;
-                    RecordIsBaseField = contentFieldList.First().isBaseField;
+                if (existingFieldsByName != null && existingFieldsByName.TryGetValue(fieldMetadata.nameLc.ToLowerInvariant(), out var existingField)) {
+                    fieldMetadata.id = existingField.id;
+                    RecordIsBaseField = existingField.isBaseField;
+                } else {
+                    var contentFieldList = DbBaseModel.createList<ContentFieldModel>(core.cpParent, $"(ContentID={DbController.encodeSQLNumber(id)})and(name={DbController.encodeSQLText(fieldMetadata.nameLc)})");
+                    if (contentFieldList.Count > 0) {
+                        fieldMetadata.id = contentFieldList.First().id;
+                        RecordIsBaseField = contentFieldList.First().isBaseField;
+                    }
                 }
                 //
                 // check if this is a non-base field updating a base field
@@ -914,19 +929,35 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 using var db = new DbController(core, dataSourceName);
                 //
-                // -- Get the installedByCollectionId
+                // -- Get the installedByCollectionId, use guidToIdCache to avoid repeated SQL queries for the same GUID
                 int InstalledByCollectionId = 0;
                 if (!string.IsNullOrEmpty(fieldMetadata.installedByCollectionGuid)) {
-                    var addonCollection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
-                    if (addonCollection != null) {
-                        InstalledByCollectionId = addonCollection.id;
+                    string collectionCacheKey = $"collection:{fieldMetadata.installedByCollectionGuid}";
+                    if (guidToIdCache != null && guidToIdCache.TryGetValue(collectionCacheKey, out int cachedCollectionId)) {
+                        InstalledByCollectionId = cachedCollectionId;
+                    } else {
+                        var addonCollection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
+                        if (addonCollection != null) {
+                            InstalledByCollectionId = addonCollection.id;
+                        }
+                        if (guidToIdCache != null && !guidToIdCache.ContainsKey(collectionCacheKey)) {
+                            guidToIdCache.Add(collectionCacheKey, InstalledByCollectionId);
+                        }
                     }
                 }
                 //
-                // -- Get the installedByCollectionId
+                // -- Get the editorAddonId, use guidToIdCache to avoid repeated SQL queries for the same GUID
                 int editorAddonId = 0;
                 if (!string.IsNullOrEmpty(fieldMetadata.editorAddonGuid)) {
-                    editorAddonId = DbBaseModel.getRecordId<AddonModel>(core.cpParent, fieldMetadata.editorAddonGuid);
+                    string addonCacheKey = $"addon:{fieldMetadata.editorAddonGuid}";
+                    if (guidToIdCache != null && guidToIdCache.TryGetValue(addonCacheKey, out int cachedAddonId)) {
+                        editorAddonId = cachedAddonId;
+                    } else {
+                        editorAddonId = DbBaseModel.getRecordId<AddonModel>(core.cpParent, fieldMetadata.editorAddonGuid);
+                        if (guidToIdCache != null && !guidToIdCache.ContainsKey(addonCacheKey)) {
+                            guidToIdCache.Add(addonCacheKey, editorAddonId);
+                        }
+                    }
                 }
                 //
                 // Create or update the Table Field
@@ -1061,7 +1092,13 @@ namespace Contensive.Processor.Models.Domain {
                 if (fieldMetadata.id == 0) {
                     throw (new GenericException("Could not create Field [" + fieldMetadata.nameLc + "] because insert into ccfields failed."));
                 }
-                db.update("ccFields", "ID=" + fieldMetadata.id, sqlList);
+                if (batchSqlList != null) {
+                    //
+                    // -- collect SQL for batch execution instead of executing immediately
+                    batchSqlList.Add($"update ccFields set {sqlList.getNameValueList()} where ID={fieldMetadata.id};");
+                } else {
+                    db.update("ccFields", "ID=" + fieldMetadata.id, sqlList);
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

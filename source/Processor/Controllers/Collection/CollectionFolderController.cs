@@ -201,6 +201,7 @@ namespace Contensive.Processor.Controllers {
                                                             try {
                                                                 //
                                                                 // try-finally to delete the working folder
+                                                                logger.Info($"{core.logCommonMessage}, downloading collection [{ChildCollectionName}], guid [{ChildCollectionGUID}] from library");
                                                                 if (!CollectionLibraryController.downloadCollectionFromLibrary(core, workingTempPath, ChildCollectionGUID, ref libraryCollectionLastModifiedDate, ref return_ErrorMessage)) {
                                                                     //
                                                                     // -- did not download correctly

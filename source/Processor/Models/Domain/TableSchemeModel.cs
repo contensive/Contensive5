@@ -124,6 +124,37 @@ namespace Contensive.Processor.Models.Domain {
         public static void tableSchemaListClear(CoreController core) {
             core.cacheRuntime.tableSchemaDictionary.Clear();
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Mark a single table's schema cache as dirty so it will be reloaded on next access.
+        /// Use this instead of tableSchemaListClear when only one table has changed.
+        /// </summary>
+        public static void tableSchemaDirty(CoreController core, string tableName) {
+            if (string.IsNullOrEmpty(tableName)) { return; }
+            string lowerTablename = tableName.ToLowerInvariant();
+            if (core.cacheRuntime.tableSchemaDictionary.TryGetValue(lowerTablename, out var tableSchema)) {
+                tableSchema.dirty = true;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Add a column to the in-memory schema cache for a table without re-querying the database.
+        /// If the table is not in cache, does nothing (it will be loaded from DB on next access).
+        /// </summary>
+        public static void tableSchemaAddColumn(CoreController core, string tableName, string fieldName, string dataType, int characterMaxLength) {
+            if (string.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(fieldName)) { return; }
+            string lowerTablename = tableName.ToLowerInvariant();
+            if (core.cacheRuntime.tableSchemaDictionary.TryGetValue(lowerTablename, out var tableSchema)) {
+                tableSchema.columns.Add(new ColumnSchemaModel {
+                    COLUMN_NAME = fieldName.ToLowerInvariant(),
+                    DATA_TYPE = dataType.ToLowerInvariant(),
+                    CHARACTER_MAXIMUM_LENGTH = characterMaxLength,
+                    DATETIME_PRECISION = 0
+                });
+            }
+        }
     }
 
 }

@@ -44,8 +44,6 @@ namespace Contensive.Processor.Controllers {
         public static MetadataMiniCollectionModel loadXML(CoreController core, string srcCollecionXml, bool isBaseCollection, bool setAllDataChanged, bool IsNewBuild, string logPrefix) {
             try {
                 //
-                logger.Info($"{core.logCommonMessage},Application: " + core.appConfig.name + ", Upgrademetadata_LoadDataToCollection");
-                //
                 var result = new MetadataMiniCollectionModel();
                 if (string.IsNullOrEmpty(srcCollecionXml)) {
                     //
@@ -561,8 +559,6 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                  string logMsgContext = "installing MetaDataMiniCollection BuildDb, collection [" + Collection.name + "]";
-                logger.Info($"{core.logCommonMessage},Application: " + core.appConfig.name + ", Upgrademetadata_BuildDbFromCollection");
-                //
                 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 logger.Info($"{core.logCommonMessage},metadata Load, stage 1: create SQL tables in default datasource");
                 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -835,37 +831,86 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- update Content Field Records and Content Field Help records
-                    ContentMetadataModel metaDataFieldHelp = ContentMetadataModel.createByUniqueName(core, ContentFieldHelpModel.tableMetadata.contentName);
+                    //
+                    // -- pre-load all existing field records for this content into a dictionary to avoid per-field SQL queries
+                    var existingFieldsByName = new Dictionary<string, ContentFieldModel>(StringComparer.OrdinalIgnoreCase);
+                    var allFieldsForContent = DbBaseModel.createList<ContentFieldModel>(core.cpParent, $"(ContentID={DbController.encodeSQLNumber(contentMetadata.id)})");
+                    foreach (var field in allFieldsForContent) {
+                        if (!string.IsNullOrEmpty(field.name)) {
+                            string key = field.name.ToLowerInvariant();
+                            if (!existingFieldsByName.ContainsKey(key)) {
+                                existingFieldsByName.Add(key, field);
+                            }
+                        }
+                    }
+                    //
+                    // -- pre-load all help records for fields in this content to avoid per-field SQL queries
+                    var fieldIds = allFieldsForContent.Select(f => f.id).Where(fid => fid > 0).ToList();
+                    var existingHelpByFieldId = new Dictionary<int, ContentFieldHelpModel>();
+                    if (fieldIds.Count > 0) {
+                        string fieldIdList = string.Join(",", fieldIds);
+                        var allHelpForFields = DbBaseModel.createList<ContentFieldHelpModel>(core.cpParent, $"fieldid in ({fieldIdList})");
+                        foreach (var help in allHelpForFields) {
+                            if (!existingHelpByFieldId.ContainsKey(help.fieldId)) {
+                            existingHelpByFieldId.Add(help.fieldId, help);
+                        }
+                        }
+                    }
+                    //
+                    // -- shared GUID-to-ID cache for collection and addon lookups across all fields in this CDef
+                    var guidToIdCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                    //
+                    // -- collect field UPDATE SQL for batch execution
+                    var batchSqlList = new List<string>();
+                    //
                     foreach (var nameValuePair in contentMetadata.fields) {
                         ContentFieldMetadataModel fieldMetadata = nameValuePair.Value;
                         if (fieldMetadata.dataChanged) {
-                            contentMetadata.verifyContentField(core, fieldMetadata, false, logMsgContext);
+                            contentMetadata.verifyContentField(core, fieldMetadata, false, logMsgContext, existingFieldsByName, guidToIdCache, batchSqlList);
                         }
                         //
                         // -- update content field help records
                         if (fieldMetadata.helpChanged) {
                             ContentFieldHelpModel fieldHelp = null;
-                            var fieldHelpList = DbBaseModel.createList<ContentFieldHelpModel>(core.cpParent, "fieldid=" + fieldMetadata.id);
-                            if (fieldHelpList.Count == 0) {
+                            if (fieldMetadata.id > 0 && existingHelpByFieldId.TryGetValue(fieldMetadata.id, out var cachedHelp)) {
                                 //
-                                // -- no current field help record, if adding help, create record
-                                if ((!string.IsNullOrWhiteSpace(fieldMetadata.helpDefault)) || (!string.IsNullOrWhiteSpace(fieldMetadata.helpCustom))) {
-                                    fieldHelp = DbBaseModel.addEmpty<ContentFieldHelpModel>(core.cpParent);
-                                    fieldHelp.helpDefault = fieldMetadata.helpDefault;
-                                    fieldHelp.helpCustom = fieldMetadata.helpCustom;
-                                    fieldHelp.save(core.cpParent);
+                                // -- found in pre-loaded cache
+                                if ((!cachedHelp.helpCustom.Equals(fieldMetadata.helpCustom)) || !cachedHelp.helpDefault.Equals(fieldMetadata.helpDefault)) {
+                                    cachedHelp.helpDefault = fieldMetadata.helpDefault;
+                                    cachedHelp.helpCustom = fieldMetadata.helpCustom;
+                                    cachedHelp.save(core.cpParent);
                                 }
                             } else {
                                 //
-                                // -- if help changed, save it
-                                fieldHelp = fieldHelpList.First();
-                                if ((!fieldHelp.helpCustom.Equals(fieldMetadata.helpCustom)) || !fieldHelp.helpDefault.Equals(fieldMetadata.helpDefault)) {
-                                    fieldHelp.helpDefault = fieldMetadata.helpDefault;
-                                    fieldHelp.helpCustom = fieldMetadata.helpCustom;
-                                    fieldHelp.save(core.cpParent);
+                                // -- not in cache, query individually (new field or field not in original set)
+                                var fieldHelpList = DbBaseModel.createList<ContentFieldHelpModel>(core.cpParent, $"fieldid={fieldMetadata.id}");
+                                if (fieldHelpList.Count == 0) {
+                                    //
+                                    // -- no current field help record, if adding help, create record
+                                    if ((!string.IsNullOrWhiteSpace(fieldMetadata.helpDefault)) || (!string.IsNullOrWhiteSpace(fieldMetadata.helpCustom))) {
+                                        fieldHelp = DbBaseModel.addEmpty<ContentFieldHelpModel>(core.cpParent);
+                                        fieldHelp.helpDefault = fieldMetadata.helpDefault;
+                                        fieldHelp.helpCustom = fieldMetadata.helpCustom;
+                                        fieldHelp.save(core.cpParent);
+                                    }
+                                } else {
+                                    //
+                                    // -- if help changed, save it
+                                    fieldHelp = fieldHelpList.First();
+                                    if ((!fieldHelp.helpCustom.Equals(fieldMetadata.helpCustom)) || !fieldHelp.helpDefault.Equals(fieldMetadata.helpDefault)) {
+                                        fieldHelp.helpDefault = fieldMetadata.helpDefault;
+                                        fieldHelp.helpCustom = fieldMetadata.helpCustom;
+                                        fieldHelp.save(core.cpParent);
+                                    }
                                 }
                             }
                         }
+                    }
+                    //
+                    // -- flush batched field UPDATE statements in a single connection
+                    if (batchSqlList.Count > 0) {
+                        using var db = new DbController(core, contentMetadata.dataSourceName);
+                        db.executeNonQueryBatch(batchSqlList);
                     }
                 }
             } catch (Exception ex) {
