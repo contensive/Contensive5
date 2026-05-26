@@ -295,6 +295,42 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Execute multiple SQL statements in a single connection to reduce connection overhead.
+        /// Each statement is executed sequentially within the same connection.
+        /// </summary>
+        public void executeNonQueryBatch(List<string> sqlStatements) {
+            if (sqlStatements == null || sqlStatements.Count == 0) { return; }
+            if (!dbEnabled) { return; }
+            try {
+                Stopwatch sw = Stopwatch.StartNew();
+                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                    connSQL.Open();
+                    foreach (string sql in sqlStatements) {
+                        if (string.IsNullOrEmpty(sql)) { continue; }
+                        using (SqlCommand cmdSQL = new()) {
+                            cmdSQL.CommandType = CommandType.Text;
+                            cmdSQL.CommandText = sql;
+                            cmdSQL.Connection = connSQL;
+                            cmdSQL.CommandTimeout = sqlCommandTimeout;
+                            cmdSQL.ExecuteNonQuery();
+                        }
+                    }
+                }
+                try {
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn($"{core.logCommonMessage},Slow SQL NonQuery batch, duration[{sw.ElapsedMilliseconds}ms], statements[{sqlStatements.Count}]");
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
+                }
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql batch, datasource[{dataSourceName}], statements[{sqlStatements.Count}]", ex));
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// execute a nonQuery command (non-record returning) and return records affected
         /// </summary>
         /// <param name="sql"></param>
@@ -653,7 +689,7 @@ namespace Contensive.Processor.Controllers {
                                                     foreach (var index in droppedIndexes) {
                                                         createSQLIndex(tableName, index.index_name, index.index_keys);
                                                     }
-                                                    TableSchemaModel.tableSchemaListClear(core);
+                                                    TableSchemaModel.tableSchemaDirty(core, tableName);
                                                 }
                                                 break;
                                             }
@@ -669,7 +705,10 @@ namespace Contensive.Processor.Controllers {
                 logger.Info($"{core.logCommonMessage},creating sql table field[{fieldName}],table[{tableName}], datasource[{dataSourceName}]");
                 //
                 executeNonQuery($"ALTER TABLE {tableName} ADD {fieldName} {getSQLAlterColumnType(fieldType, textLength)}");
-                TableSchemaModel.tableSchemaListClear(core);
+                //
+                // -- update in-memory schema cache for this table only instead of clearing all tables
+                int effectiveLength = getFieldCharacterMaxLength(fieldType, textLength);
+                TableSchemaModel.tableSchemaAddColumn(core, tableName, fieldName, getFieldSchemaDataType(fieldType), effectiveLength);
                 //
                 if (clearMetadataCache) {
                     core.cache.invalidateAll();
@@ -879,6 +918,59 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Return the INFORMATION_SCHEMA DATA_TYPE string for a field type (e.g. "int", "nvarchar", "float", "datetime2").
+        /// Used to update the in-memory table schema cache when a column is added.
+        /// </summary>
+        public static string getFieldSchemaDataType(CPContentBaseClass.FieldTypeIdEnum fieldType) {
+            switch (fieldType) {
+                case CPContentBaseClass.FieldTypeIdEnum.Boolean:
+                case CPContentBaseClass.FieldTypeIdEnum.Integer:
+                case CPContentBaseClass.FieldTypeIdEnum.Lookup:
+                case CPContentBaseClass.FieldTypeIdEnum.MemberSelect:
+                case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
+                case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
+                case CPContentBaseClass.FieldTypeIdEnum.Redirect:
+                    return "int";
+                case CPContentBaseClass.FieldTypeIdEnum.Currency:
+                case CPContentBaseClass.FieldTypeIdEnum.Float:
+                    return "float";
+                case CPContentBaseClass.FieldTypeIdEnum.Date:
+                    return "datetime2";
+                default:
+                    return "nvarchar";
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Return the CHARACTER_MAXIMUM_LENGTH for the in-memory schema cache.
+        /// Returns -1 for nvarchar(max), the effective length for text types, or 0 for non-character types.
+        /// </summary>
+        public static int getFieldCharacterMaxLength(CPContentBaseClass.FieldTypeIdEnum fieldType, int textLength) {
+            switch (fieldType) {
+                case CPContentBaseClass.FieldTypeIdEnum.LongText:
+                case CPContentBaseClass.FieldTypeIdEnum.HTML:
+                case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
+                    return -1;
+                case CPContentBaseClass.FieldTypeIdEnum.FileImage:
+                case CPContentBaseClass.FieldTypeIdEnum.Link:
+                case CPContentBaseClass.FieldTypeIdEnum.ResourceLink:
+                case CPContentBaseClass.FieldTypeIdEnum.Text:
+                case CPContentBaseClass.FieldTypeIdEnum.File:
+                case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                case CPContentBaseClass.FieldTypeIdEnum.FileXML:
+                case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
+                    return textLength > 0 ? textLength : 255;
+                default:
+                    return 0;
             }
         }
         //
