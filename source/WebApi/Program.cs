@@ -27,10 +27,13 @@ namespace Contensive.WebApi {
         }
         public static IResult executeManagedRoute(IConfiguration configuration, HttpRequest request, HttpResponse response, HttpContext iisContext) {
             //
-            // -- resolve appName: config override, then IIS site name, then env var
+            // -- resolve appName: config override, then IIS server variables, then env var
             string appName = configuration["Contensive:AppName"] ?? "";
             if (string.IsNullOrEmpty(appName)) {
-                appName = iisContext.GetServerVariable("IIS_SITE_NAME") ?? "";
+                appName = iisContext.GetServerVariable("SERVER_NAME") ?? "";
+            }
+            if (string.IsNullOrEmpty(appName)) {
+                appName = iisContext.GetServerVariable("APP_POOL_ID") ?? "";
             }
             if (string.IsNullOrEmpty(appName)) {
                 appName = Environment.GetEnvironmentVariable("CONTENSIVE_APPNAME") ?? "";
