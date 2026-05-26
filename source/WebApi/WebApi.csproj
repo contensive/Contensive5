@@ -12,6 +12,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>hello_aspnet</RootNamespace>
 		<StartupObject></StartupObject>
+		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
 	</PropertyGroup>
 
 	<ItemGroup>

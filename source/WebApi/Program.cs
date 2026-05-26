@@ -9,6 +9,13 @@ namespace Contensive.WebApi {
                 Args = args,
                 WebRootPath = "webroot"
             });
+            //
+            // -- when running standalone (dotnet run, Kestrel), set the listen url from config.
+            // -- when hosted by IIS in-process, UseUrls is ignored because IIS controls the binding.
+            string urls = builder.Configuration["Contensive:Urls"] ?? "";
+            if (!string.IsNullOrEmpty(urls)) {
+                builder.WebHost.UseUrls(urls);
+            }
             var app = builder.Build();
             app.UseStaticFiles();
             //
@@ -16,10 +23,7 @@ namespace Contensive.WebApi {
             app.MapFallback((HttpRequest request, HttpResponse response, HttpContext iisContext) => {
                 return executeManagedRoute(app.Configuration, request, response, iisContext);
             });
-            //
-            // -- read url from config, fallback to http://localhost:5099
-            string urls = app.Configuration["Contensive:Urls"] ?? "http://localhost:5099";
-            app.Run(urls);
+            app.Run();
         }
         public static IResult executeManagedRoute(IConfiguration configuration, HttpRequest request, HttpResponse response, HttpContext iisContext) {
             //
@@ -30,6 +34,12 @@ namespace Contensive.WebApi {
             }
             if (string.IsNullOrEmpty(appName)) {
                 appName = Environment.GetEnvironmentVariable("CONTENSIVE_APPNAME") ?? "";
+            }
+            if (string.IsNullOrEmpty(appName)) {
+                string errorMessage = "appName is not valid. Set Contensive:AppName in appsettings.json, configure the IIS site name, or set the CONTENSIVE_APPNAME environment variable.";
+                Console.Error.WriteLine(errorMessage);
+                response.StatusCode = 500;
+                return Results.Text(errorMessage, "text/plain", statusCode: 500);
             }
             HttpContextModel context = ConfigurationClass.buildContext(appName, iisContext);
             //HttpContextModel context = new();
