@@ -86,7 +86,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
-        /// The url originally presented to the webserver, that appears in the browsers. The URL being executed may be rewritten.
+        /// The url originally presented to the webserver, that appears in the browsers. 
+        /// Found to by the path (plus page) plus querystring and fragement, with no domain or port.  For example, /myfolder/mypage.aspx?myquerystring=abc#myfragment
+        /// The URL being executed may be rewritten.
         /// </summary>
         public string  RawUrl { get; set; }
         //
