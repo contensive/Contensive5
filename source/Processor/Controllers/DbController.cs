@@ -657,26 +657,48 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- Local table -- create if not in schema
-                bool isNewTable = TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null;
+                var tableSchema = TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
+                bool isNewTable = tableSchema == null;
                 if (isNewTable) {
                     //
-                    logger.Info($"{core.logCommonMessage},creating sql table[" + tableName + "], datasource[" + dataSourceName + "]");
+                    logger.Info($"{core.logCommonMessage},creating sql table[{tableName}], datasource[{dataSourceName}]");
                     //
-                    executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement) + ");");
+                    executeNonQuery($"Create Table {tableName}(ID {getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement)});");
                 }
                 //
                 // ----- Test the common fields required in all tables
-                createSQLTableField(tableName, "id", CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement);
-                createSQLTableField(tableName, "name", CPContentBaseClass.FieldTypeIdEnum.Text);
-                createSQLTableField(tableName, "dateAdded", CPContentBaseClass.FieldTypeIdEnum.Date);
-                createSQLTableField(tableName, "createdby", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                createSQLTableField(tableName, "modifiedBy", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                createSQLTableField(tableName, "modifiedDate", CPContentBaseClass.FieldTypeIdEnum.Date);
-                createSQLTableField(tableName, "active", CPContentBaseClass.FieldTypeIdEnum.Boolean);
-                createSQLTableField(tableName, "sortOrder", CPContentBaseClass.FieldTypeIdEnum.Text);
-                createSQLTableField(tableName, "contentControlId", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                createSQLTableField(tableName, "ccGuid", CPContentBaseClass.FieldTypeIdEnum.Text);
-                createSQLTableField(tableName, "createKey", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                // -- fast-path: if the table already exists and all core fields are present
+                // -- in the cached schema, skip the per-field SQL checks entirely
+                string[] coreFieldNames = { "id", "name", "dateadded", "createdby", "modifiedby", "modifieddate", "active", "sortorder", "contentcontrolid", "ccguid", "createkey" };
+                bool allCoreFieldsExist = false;
+                if (!isNewTable && tableSchema != null) {
+                    var columnSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var col in tableSchema.columns) {
+                        columnSet.Add(col.COLUMN_NAME);
+                    }
+                    allCoreFieldsExist = true;
+                    foreach (string fieldName in coreFieldNames) {
+                        if (!columnSet.Contains(fieldName)) {
+                            allCoreFieldsExist = false;
+                            break;
+                        }
+                    }
+                }
+                if (!allCoreFieldsExist) {
+                    //
+                    // -- one or more core fields missing, verify each one individually
+                    createSQLTableField(tableName, "id", CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement);
+                    createSQLTableField(tableName, "name", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    createSQLTableField(tableName, "dateAdded", CPContentBaseClass.FieldTypeIdEnum.Date);
+                    createSQLTableField(tableName, "createdby", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    createSQLTableField(tableName, "modifiedBy", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    createSQLTableField(tableName, "modifiedDate", CPContentBaseClass.FieldTypeIdEnum.Date);
+                    createSQLTableField(tableName, "active", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                    createSQLTableField(tableName, "sortOrder", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    createSQLTableField(tableName, "contentControlId", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    createSQLTableField(tableName, "ccGuid", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    createSQLTableField(tableName, "createKey", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                }
                 //
                 // ----- setup core indexes
                 if (isNewTable) {
@@ -689,7 +711,9 @@ namespace Contensive.Processor.Controllers {
                     createSQLIndex(tableName, tableName + "CcGuid", "ccGuid");
                 }
                 //
-                TableSchemaModel.tableSchemaListClear(core);
+                // -- only mark this table's schema dirty (not the entire cache)
+                // -- so other tables retain their cached schema during bulk metadata updates
+                TableSchemaModel.tableSchemaDirty(core, tableName);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
