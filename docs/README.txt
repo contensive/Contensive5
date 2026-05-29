@@ -2,61 +2,55 @@
 CONTENSIVE 5 - POST-INSTALLATION SETUP
 ================================================================================
 
-Thank you for installing Contensive 5. Complete these steps to finish setup:
+Thank you for installing Contensive 5. Complete these steps to finish setup.
+
+The install script (install.cmd) has already:
+  - Copied CLI files to C:\Program Files\Contensive\Cli\
+  - Added cc.exe to the system PATH
+  - Copied TaskService files to C:\Program Files\Contensive\TaskService\
+  - Registered and started the "Contensive Task Service" Windows service
+  - Copied WebApi package to C:\Program Files\Contensive\WebApi\
 
 --------------------------------------------------------------------------------
-1. INSTALL TASK SERVICE (Windows Service)
+1. CONFIGURE THE SERVER
 --------------------------------------------------------------------------------
 
-The Contensive Task Service runs scheduled tasks and background processes.
+Open a NEW command prompt as Administrator (so PATH updates take effect):
 
-INSTALLATION STEPS:
-  1. Open Command Prompt as Administrator
-  2. Navigate to installation folder:
-     cd "C:\Program Files\Contensive"
+  cc --configure
 
-  3. Install the service using .NET Framework InstallUtil:
-     C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe TaskService.exe
-
-  4. Start the service:
-     net start TaskService
-
-     OR use Services console (services.msc):
-     - Find "Contensive Task Service"
-     - Right-click -> Start
-
-VERIFICATION:
-  • Open Services (services.msc)
-  • Verify "Contensive Task Service" is Running
-  • Set Startup Type to "Automatic" for auto-start on boot
-
-UNINSTALLATION:
-  1. Stop the service:
-     net stop TaskService
-
-  2. Uninstall the service:
-     C:\Windows\Microsoft.NET\Framework64\v4.0.30319\installutil.exe /u TaskService.exe
-
-TROUBLESHOOTING:
-  • Service runs as LocalService account (limited permissions)
-  • Logs are stored in: C:\ProgramData\Contensive\[AppName]\Logs\
-  • If InstallUtil is not found, verify .NET Framework 4.x is installed
+Follow the prompts to set up database connection, AWS credentials, and
+other server-level settings.
 
 --------------------------------------------------------------------------------
-2. SETUP SCHEDULED TASK (Server Diagnostics)
+2. CREATE AN APPLICATION
+--------------------------------------------------------------------------------
+
+For a new .NET Core WebApi site (recommended):
+
+  cc -n appName domainName
+
+For a legacy .NET Framework ASPX site:
+
+  cc -nf appName domainName
+
+This creates:
+  - A SQL Server database for the application
+  - Local file storage folders (www, files, private, temp)
+  - An IIS site with the appropriate binaries deployed
+
+--------------------------------------------------------------------------------
+3. SETUP SCHEDULED TASK (Server Diagnostics)
 --------------------------------------------------------------------------------
 
 Run daily server diagnostics (Windows updates, domain bindings) for ALL
 applications on the server with elevated permissions via Windows Task Scheduler.
 
-This single task checks Windows updates once and validates domain bindings for
-each application, saving results to each application's site properties.
-
 POWERSHELL INSTALLATION (Recommended):
   1. Open PowerShell as Administrator
   2. Run the following:
 
-  $ccExePath = "C:\Program Files\Contensive\cc.exe"
+  $ccExePath = "C:\Program Files\Contensive\Cli\cc.exe"
   $taskName = "Contensive Server Diagnostics"
 
   $action = New-ScheduledTaskAction `
@@ -86,49 +80,67 @@ POWERSHELL INSTALLATION (Recommended):
 
 MANUAL TEST:
   1. Open Command Prompt as Administrator
-  2. Run manually to verify:
-     cc.exe --serverdiagnostic
-
-  3. Check output shows results for each application:
-     - Windows updates status (server-wide)
-     - Domain bindings validation (per application)
-     - Summary of successful/failed checks
+  2. Run: cc --serverdiagnostic
+  3. Check output shows results for each application
 
 VERIFICATION:
-  • Open Task Scheduler (taskschd.msc)
-  • Verify "Contensive Server Diagnostics" task exists
-  • Right-click task -> Run to test manually
-  • Check "Last Run Result" should be 0x0 (success)
-  • View diagnostics for each app at: https://yoursite.com/status
+  - Open Task Scheduler (taskschd.msc)
+  - Verify "Contensive Server Diagnostics" task exists
+  - Right-click task -> Run to test manually
+  - Check "Last Run Result" should be 0x0 (success)
 
 NOTE: One scheduled task handles ALL applications on the server.
 
 --------------------------------------------------------------------------------
-3. ADDITIONAL CONFIGURATION
+4. VERIFY INSTALLATION
 --------------------------------------------------------------------------------
 
-CREATE CONTENSIVE APPLICATION:
-  • Run: cc.exe --new "YourAppName"
-  • Follow prompts to configure database and settings
+  cc --version                       Show version
+  cc --status                        Display server and app status
+  cc -a appName --status             Check a specific application
 
-VERIFY INSTALLATION:
-  • Run: cc.exe --version
-  • Run: cc.exe -a "YourAppName" --status
+--------------------------------------------------------------------------------
+5. UPGRADE EXISTING INSTALLATION
+--------------------------------------------------------------------------------
 
-CHECK IIS BINDINGS:
-  • Ensure application domains are registered in IIS
-  • Configure SSL certificates as needed
+To upgrade an existing server to a new build:
+
+  1. Run uninstall.cmd as Administrator
+  2. Run install.cmd as Administrator
+  3. Open a new command prompt and upgrade all apps:
+       cc -u
+     Wait for this to complete before proceeding.
+  4. Upgrade each IIS site:
+     - Core WebApi apps: copy new WebApi files from
+         C:\Program Files\Contensive\WebApi\
+       into the site's physical path, then recycle the app pool.
+     - Framework ASPX apps: in IIS Manager, click the site,
+       click "Import Application", and select:
+         C:\Program Files\Contensive\defaultaspxsite.zip
+  5. Verify the Task Service is running:
+       sc query "Contensive Task Service"
+
+--------------------------------------------------------------------------------
+6. UNINSTALL
+--------------------------------------------------------------------------------
+
+Run uninstall.cmd as Administrator. This will:
+  - Stop and remove the "Contensive Task Service"
+  - Remove cc.exe from the system PATH
+  - Delete all files from C:\Program Files\Contensive\
+
+Individual app IIS sites, databases, and file folders are NOT removed.
 
 --------------------------------------------------------------------------------
 DOCUMENTATION
 --------------------------------------------------------------------------------
 
-Detailed documentation available at:
-  • Server Diagnostics Setup: docs\server-diagnostics-monitoring-setup.md
-  • Contensive Documentation: https://contensive.com/docs
+  - Setup & Deployment:   docs\setup-and-deployment.md
+  - Migration to Core:    docs\migration-to-core.md
+  - Contensive Docs:      https://contensive.com/docs
 
 SUPPORT:
-  • GitHub: https://github.com/contensive/contensive5
-  • Email: support@contensive.com
+  - GitHub: https://github.com/contensive/contensive5
+  - Email:  support@contensive.com
 
 ================================================================================

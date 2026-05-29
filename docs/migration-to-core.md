@@ -4,9 +4,55 @@ There are two migration paths for moving a Contensive application to .NET Core.
 
 ## Path 1: Full System Migration
 
-Migrate the entire Contensive installation from .NET Framework to .NET Core by uninstalling the Contensive Framework version and installing the Core version.
+Migrate the entire Contensive installation from .NET Framework to .NET Core. This replaces the IIS-hosted framework application with the Core-based WebApi, CLI, and TaskService components. The application logic, addon collections, and database remain unchanged — only the hosting infrastructure changes.
 
-This replaces the IIS-hosted Framework application with the Core-based WebApi, CLI, and TaskService components. The application logic, addon collections, and database remain unchanged — only the hosting infrastructure changes.
+### Prerequisites
+
+- .NET 9.0 Hosting Bundle installed on the server (see [setup-and-deployment.md](setup-and-deployment.md))
+- A new build from `build-core.cmd`, extracted to a temporary folder on the server
+
+### Steps
+
+1. **Stop the existing framework Task Service:**
+   ```
+   sc stop "Contensive Task Service"
+   ```
+
+2. **Uninstall the framework components:**
+   - Uninstall the Contensive Console MSI (Add/Remove Programs)
+   - Delete the framework Task Service:
+     ```
+     sc delete "Contensive Task Service"
+     ```
+
+3. **Install the core components:**
+   Run `install.cmd` as Administrator from the extracted build folder. This installs the CLI, TaskService, and WebApi package to `C:\Program Files\Contensive\`.
+
+4. **Configure the server** (if first time with core CLI):
+   ```
+   cc --configure
+   ```
+
+5. **Upgrade all applications:**
+   ```
+   cc -u
+   ```
+   Wait for this to complete. This upgrades the database schema and collections for every application on the server.
+
+6. **Upgrade each IIS site:**
+   - For sites migrating to core WebApi: copy the files from `C:\Program Files\Contensive\WebApi\` into the site's IIS physical path, replacing all files. Then in IIS Manager, change the app pool CLR version to "No Managed Code" and recycle the app pool.
+   - For sites remaining on framework ASPX: in IIS Manager, click the site, click "Import Application", and select `C:\Program Files\Contensive\defaultaspxsite.zip`. The app pool stays at CLR v4.0.
+
+7. **Verify the Task Service is running:**
+   ```
+   sc query "Contensive Task Service"
+   ```
+
+### Notes
+
+- You do not need to migrate all sites at once. Core WebApi and framework ASPX sites can run side-by-side on the same server.
+- If you need to create additional framework ASPX sites during the transition, use `cc -nf appName domainName`.
+- All new sites should be created with `cc -n appName domainName` (core WebApi).
 
 ## Path 2: SPA Remote Methods to .NET Core Without Contensive Routing
 

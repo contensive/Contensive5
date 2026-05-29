@@ -42,12 +42,13 @@ This produces:
   | `Cli\` | `cc.exe` command-line tool |
   | `TaskService\` | Windows service executable |
   | `WebApi\` | ASP.NET Core website package (deployed per-app by `cc.exe -n`) |
+  | `defaultaspxsite.zip` | Legacy .NET Framework ASPX deployment package (for `cc -nf`) |
   | `install.ps1` | PowerShell install script |
   | `uninstall.ps1` | PowerShell uninstall script |
 
-- A distribution zip at `C:\Deployments\Contensive5\Dev\Contensive-{version}.zip`
+- A distribution zip at `C:\Deployments\Contensive5-Core\{version}\contensive.zip`
 
-The build generates a date-based version number (YY.M.D.R), packages help files and base assets, runs `dotnet publish` for all three projects, and creates a single zip for distribution.
+The build generates a date-based version number (YY.M.D.R), packages help files and base assets, builds NuGet packages, builds the legacy ASPX site, runs `dotnet publish` for all three core projects, and creates a single zip for distribution.
 
 ### CI/CD build (GitHub Actions)
 
@@ -81,16 +82,24 @@ This will:
 
 ### Create an application
 
-After the server install, create individual applications using the CLI:
+After the server install, create individual applications using the CLI.
+
+For a new .NET Core WebApi site (recommended for all new sites):
 
 ```
 cc -n appName domainName
 ```
 
+For a legacy .NET Framework ASPX site (existing sites only):
+
+```
+cc -nf appName domainName
+```
+
 This creates:
 - A SQL Server database for the application
 - Local file storage folders (www, files, private, temp)
-- An IIS site named after the app, with the WebApi files deployed into it
+- An IIS site named after the app, with the appropriate binaries deployed into it
 - The initial database schema
 
 ### Install options
@@ -117,14 +126,31 @@ This creates:
 
 ### Upgrade
 
-To upgrade, first uninstall the previous version, then run `install.ps1` with the new build:
+To upgrade, first uninstall the previous version, then install the new build:
 
 ```powershell
 .\uninstall.ps1
 .\install.ps1
 ```
 
-The install script checks for an existing installation and will stop with an error if one is found. This prevents accidental partial upgrades. Individual app IIS sites need their WebApi files updated separately — use `cc.exe` upgrade commands or manually copy the WebApi files from the install folder to each app's IIS site physical path.
+The install script checks for an existing installation and will stop with an error if one is found. This prevents accidental partial upgrades.
+
+After installing the new server components, upgrade all applications and IIS sites:
+
+1. Open a new command prompt and run the schema/collection upgrade:
+   ```
+   cc -u
+   ```
+   Wait for this to complete before proceeding.
+
+2. Upgrade each IIS site to use the new binaries:
+   - **Core WebApi apps:** Copy the new WebApi files from `C:\Program Files\Contensive\WebApi\` into the site's existing physical path, replacing all files. Then recycle the app pool.
+   - **Framework ASPX apps:** In IIS Manager, click the site, then click "Import Application" and select `C:\Program Files\Contensive\defaultaspxsite.zip`.
+
+3. Verify the Task Service is running:
+   ```
+   sc query "Contensive Task Service"
+   ```
 
 ### Uninstall
 
@@ -172,7 +198,9 @@ cc --help                          Show all commands
 cc --version                       Show version
 cc --configure                     Server configuration wizard
 cc --status                        Display server and app status
-cc -n appName domainName           Create a new application
+cc -n appName domainName           Create a new core WebApi application
+cc -nf appName domainName          Create a legacy framework ASPX application
+cc -u                              Upgrade all applications
 cc -a myApp --upgrade              Upgrade a specific application
 cc -a myApp --install MyCollection Install a collection from the library
 cc -a myApp --tasks run            Run task scheduler and runner in console
@@ -244,14 +272,15 @@ In normal operation, the IIS site name matches the Contensive app name, so no co
 
 ## Upgrading an existing server
 
-To add the .NET 9.0 components alongside existing .NET Framework 4.8 deployments:
+To upgrade a server running the .NET Framework deployment to .NET 9.0 Core:
 
 1. Install the .NET 9.0 Hosting Bundle (see Prerequisites)
 2. Run `build-core.cmd` on your dev machine, or download a release from GitHub
-3. Copy the zip to the server, extract, and run `install.ps1`
-4. Existing Web Forms IIS sites continue to run unchanged
-5. New apps created with `cc.exe -n` will use the WebApi
-6. The Task Service installs under a different service name if you want to run both temporarily
-7. The .NET 9.0 CLI can coexist with the .NET Framework CLI in different folders
+3. Copy the zip to the server, extract it, and run `uninstall.cmd` then `install.cmd`
+4. Run `cc -u` to upgrade the database schema and collections for all applications
+5. Upgrade each IIS site (see the Upgrade section above for per-site steps)
+6. Existing framework ASPX sites continue to run unchanged until you upgrade them
+7. All new apps should be created with `cc -n` (core WebApi)
+8. If you need to create additional framework ASPX sites during transition, use `cc -nf`
 
-Both the old and new components use the same Contensive server configuration, database, and file storage. They can run simultaneously for testing before cutting over.
+Both core and framework components use the same Contensive server configuration, database, and file storage. Core and framework IIS sites can run side-by-side on the same server.

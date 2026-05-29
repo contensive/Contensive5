@@ -64,13 +64,13 @@ The **CoreController** (Processor/Controllers/CoreController.cs) is the central 
 **ContensiveCommon.sln** (core):
 - `CPBase`: Base classes & interfaces (netstandard2.0, signed assembly)
 - `Models`: Database entity models (netstandard2.0, signed assembly)
-- `Processor`: Core execution engine with embedded addons (net48/net9.0, signed assembly)
-- `TaskService`: Windows Service for background jobs (net48)
-- `Cli`: Command-line interface (net48)
-
-**ContensiveAspx.sln** (ASP.NET deployment):
+- `Processor`: Core execution engine with embedded addons (net48/net9.0-windows, signed assembly)
+- `TaskService`: Windows Service for background jobs (net9.0-windows)
+- `Cli`: Command-line interface (net48/net9.0-windows)
 - `WebApi`: ASP.NET Core REST API (net9.0-windows)
-- `iisDefaultSite`: IIS website (.NET Framework 4.8)
+
+**ContensiveAspx.sln** (legacy, transitional):
+- `iisDefaultSite`: IIS website (.NET Framework 4.8) — for existing framework ASPX sites
 
 **Test Projects**:
 - `ProcessorTests`: Unit tests using MSTest (net48/net9.0)
@@ -159,14 +159,14 @@ Addons follow this pattern:
 - Local NuGet package folder: `C:\NuGetLocalPackages\`
 
 ### Main Build Script
-The primary build entry point is `scripts/build.cmd`. This script:
+The primary build entry point is `scripts/build-core.cmd`. This script:
 1. Cleans all bin/obj folders across projects
 2. Generates version numbers based on current date
-3. Builds and packages CPBase, Models, and Processor (core suite)
-4. Zips help files and UI assets (BaseAssets)
-5. Builds CLI installer (WiX)
-6. Updates test project NuGet packages
-7. Creates deployment package to `C:\Deployments\Contensive5\Dev\`
+3. Zips help files and UI assets (BaseAssets)
+4. Builds and packs NuGet packages (CPBase, Models, Processor)
+5. Builds the legacy iisDefaultSite ASPX deployment package
+6. Publishes WebApi, CLI, and TaskService for .NET 9.0
+7. Creates deployment zip at `C:\Deployments\Contensive5-Core\{version}\`
 
 ### Building Individual Projects
 ```bash
@@ -182,11 +182,11 @@ dotnet build source/Models/Models.csproj -p:TargetFramework=netstandard2.0
 # Build WebApi (net9.0)
 dotnet build source/WebApi/WebApi.csproj
 
-# Build TaskService (net48)
-dotnet build source/TaskService/taskService.csproj -p:TargetFramework=net48
+# Build TaskService (net9.0-windows)
+dotnet build source/TaskService/taskService.csproj -p:TargetFramework=net9.0-windows
 
-# Build CLI (net48)
-dotnet build source/Cli/Cli.csproj -p:TargetFramework=net48
+# Build CLI (net9.0-windows)
+dotnet build source/Cli/Cli.csproj -p:TargetFramework=net9.0-windows
 ```
 
 ### Running Tests
@@ -219,8 +219,8 @@ dotnet clean source/Processor/Processor.csproj
 2. **Build**: Use specific project build commands (see Build Commands) for incremental changes
 3. **Test Locally**: Run MSTest projects with `dotnet test`
 4. **Assembly Redirects**: If adding NuGet packages, update app.config binding redirects
-5. **Full Build**: Run `scripts/build.cmd` when ready for deployment package
-6. **Deployment**: Packages are created in versioned folder at `C:\Deployments\Contensive5\Dev\`
+5. **Full Build**: Run `scripts/build-core.cmd` when ready for deployment package
+6. **Deployment**: Packages are created in versioned folder at `C:\Deployments\Contensive5-Core\{version}\`
 
 ## Important Implementation Notes
 
@@ -238,7 +238,7 @@ dotnet clean source/Processor/Processor.csproj
 - CPBase/Models target `netstandard2.0` for maximum compatibility
 - Processor targets `net48` and `net9.0-windows` (multi-target)
 - WebApi is `net9.0-windows` (modern ASP.NET Core)
-- TaskService is `net48` (Windows Service requirement)
+- TaskService is `net9.0-windows` (Windows Service using Microsoft.Extensions.Hosting)
 
 ### Code Generation
 - Processor includes auto-generated binding redirects (AutoGenerateBindingRedirects=true)
@@ -258,4 +258,4 @@ dotnet clean source/Processor/Processor.csproj
 - `source/CPBase/BaseClasses/CPBaseClass.cs`: Main public API definition
 - `source/Models/Models/Db/`: Database entity definitions
 - `source/Processor/Processor.csproj`: Main project with dependencies and package configuration
-- `scripts/build.cmd`: Complete build orchestration
+- `scripts/build-core.cmd`: Complete build orchestration

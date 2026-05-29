@@ -87,6 +87,14 @@ rd /s /q "..\source\Processor\bin" 2>nul
 del /s /q "..\source\Processor\obj" 2>nul
 rd /s /q "..\source\Processor\obj" 2>nul
 
+del /s /q "..\source\iisDefaultSite\bin" 2>nul
+rd /s /q "..\source\iisDefaultSite\bin" 2>nul
+
+del /s /q "..\source\iisDefaultSite\obj" 2>nul
+rd /s /q "..\source\iisDefaultSite\obj" 2>nul
+
+del /q "..\WebDeploymentPackage\*.*" 2>nul
+
 rem ==============================================================
 rem
 rem package helpfiles and baseassets (same as main build)
@@ -187,6 +195,50 @@ xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%
 
 move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+
+cd ..\scripts
+
+rem ==============================================================
+rem
+rem build iisDefaultSite (framework ASPX) deployment package
+rem This section can be removed when framework support is phased out.
+rem Requires Visual Studio 2022 MSBuild for WebApplication targets.
+rem
+
+set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\
+
+@echo.
+@echo Updating iisDefaultSite NuGet packages...
+@echo.
+
+cd ..\source\iisdefaultsite
+dotnet remove package Contensive.CPBaseClass
+dotnet add package Contensive.CPBaseClass --source c:\NuGetLocalPackages
+
+dotnet remove package Contensive.DbModels
+dotnet add package Contensive.DbModels --source c:\NuGetLocalPackages
+
+dotnet remove package Contensive.Processor
+dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
+cd ..\..\scripts
+
+@echo.
+@echo Building iisDefaultSite (framework ASPX)...
+@echo.
+
+del /q "..\WebDeploymentPackage\*.*" 2>nul
+
+cd ..\source
+
+"%msbuildLocation%msbuild.exe" ContensiveAspx.sln /p:DeployOnBuild=true /p:PublishProfile=defaultSite
+if errorlevel 1 (
+   echo.
+   echo FAILURE building iisDefaultSite
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
 
 cd ..\scripts
 
@@ -341,6 +393,10 @@ del /q "%deploymentFolderRoot%%versionNumber%\uninstall.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\defaultaspxsite.zip" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" 2>nul
 
 rem ==============================================================
 rem
@@ -360,7 +416,8 @@ rem
 @echo To install on a server:
 @echo   1. Copy the zip to the server and extract
 @echo   2. Run install.cmd as Administrator (or see README.txt)
-@echo   3. Create apps: cc -n appName domainName
+@echo   3. Create core WebApi apps:      cc -n appName domainName
+@echo   4. Create framework ASPX apps:   cc -nf appName domainName
 @echo ==============================================================
 @echo.
 
