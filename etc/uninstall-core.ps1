@@ -129,5 +129,14 @@ if (-not $SkipTaskService) { Uninstall-TaskService }
 if (-not $SkipCli)         { Uninstall-Cli }
 if (-not $SkipWebApi)      { Uninstall-WebApiPackage }
 
+# Remove legacy ASPX deployment package if present
+if (-not $KeepFiles) {
+    $aspxZip = Join-Path $InstallPath "defaultaspxsite.zip"
+    if (Test-Path $aspxZip) {
+        Write-Host "  Removing defaultaspxsite.zip"
+        Remove-Item -Path $aspxZip -Force
+    }
+}
+
 Write-Step "Uninstall complete"
 Write-Host ""

@@ -1558,9 +1558,20 @@ namespace Contensive.Processor.Controllers {
             ResolveEventHandler assemblyResolveHandler = (sender, args) => {
                 try {
                     var assemblyName = new AssemblyName(args.Name);
+                    //
+                    // -- if an assembly with this name is already loaded in the AppDomain, return it
+                    // -- addon folders often contain dependency DLLs (AWSSDK, Microsoft.*, System.*, etc.)
+                    // -- at different versions than what the host process has loaded, causing FileLoadException
+                    Assembly alreadyLoaded = Array.Find(
+                        AppDomain.CurrentDomain.GetAssemblies(),
+                        a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)
+                    );
+                    if (alreadyLoaded != null) {
+                        return alreadyLoaded;
+                    }
                     string candidatePath = Path.Combine(addonDirectory, assemblyName.Name + ".dll");
                     if (File.Exists(candidatePath)) {
-                        return Assembly.LoadFrom(candidatePath);
+                        return Assembly.LoadFile(candidatePath);
                     }
                 } catch (Exception ex) {
                     logger.Trace($"{core.logCommonMessage},AssemblyResolve handler, failed to resolve [{args.Name}], exception [{ex.Message}]");
@@ -1591,7 +1602,15 @@ namespace Contensive.Processor.Controllers {
                 }
                 try {
                     //
-                    testAssembly = Assembly.LoadFrom(assemblyPrivateAbsPathFilename);
+                    // -- check if this assembly is already loaded (e.g. Processor.dll loaded by the host)
+                    // -- Assembly.LoadFile creates a separate load context, so loading the same DLL again
+                    // -- would create duplicate types that cannot be cast to each other
+                    string loadAssemblyName = Path.GetFileNameWithoutExtension(assemblyPrivateAbsPathFilename);
+                    Assembly alreadyLoadedAssembly = Array.Find(
+                        AppDomain.CurrentDomain.GetAssemblies(),
+                        a => string.Equals(a.GetName().Name, loadAssemblyName, StringComparison.OrdinalIgnoreCase)
+                    );
+                    testAssembly = alreadyLoadedAssembly ?? Assembly.LoadFile(assemblyPrivateAbsPathFilename);
                 } catch (System.IO.FileLoadException ex) {
                     //
                     // -- core throws System.IO.FileLoadException: 'Assembly with same name is already loaded'

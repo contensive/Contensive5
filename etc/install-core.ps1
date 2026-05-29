@@ -192,6 +192,15 @@ if (-not $SkipCli)         { Install-Cli }
 if (-not $SkipTaskService) { Install-TaskService }
 if (-not $SkipWebApi)      { Install-WebApiPackage }
 
+# Copy defaultaspxsite.zip for legacy framework site installs and upgrades
+$aspxZipSource = Join-Path $SourcePath "defaultaspxsite.zip"
+if (Test-Path $aspxZipSource) {
+    Write-Step "Installing legacy ASPX deployment package"
+    if (-not (Test-Path $InstallPath)) { New-Item -Path $InstallPath -ItemType Directory -Force | Out-Null }
+    Copy-Item $aspxZipSource $InstallPath -Force
+    Write-Host "  defaultaspxsite.zip copied to $InstallPath" -ForegroundColor Green
+}
+
 Write-Step "Installation complete"
 
 Write-Host ""
