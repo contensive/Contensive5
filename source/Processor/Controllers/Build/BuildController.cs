@@ -93,8 +93,10 @@ namespace Contensive.Processor.Controllers.Build {
                     if (isNewBuild) {
                         //
                         // -- verify iis configuration
-                        logger.Info($"{core.logCommonMessage},{logPrefix}, verify iis configuration");
-                        core.webServer.verifySite(core.appConfig.name, primaryDomain, core.appConfig.localWwwPath);
+                        // -- detect framework vs core by checking for default.aspx in the www root
+                        bool isFrameworkSite = System.IO.File.Exists(System.IO.Path.Combine(core.appConfig.localWwwPath, "default.aspx"));
+                        logger.Info($"{core.logCommonMessage},{logPrefix}, verify iis configuration, isFramework [{isFrameworkSite}]");
+                        core.webServer.verifySite(core.appConfig.name, primaryDomain, core.appConfig.localWwwPath, isFrameworkSite);
                         //
                         // -- verify root developer
                         logger.Info($"{core.logCommonMessage},{logPrefix}, verify developer user");

@@ -225,6 +225,20 @@ namespace Contensive.CLI {
                                 string domainName = getNextCmdArg(args, ref argPtr);
                                 await NewAppCmd.executeAsync(appName, domainName);
                                 break;
+                            case "--newappframework":
+                            case "-nf":
+                                //
+                                // -- require elevated permissions
+                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                    Console.WriteLine("The --newappframework (-nf) command requires elevated permissions (run as administrator).");
+                                    return;
+                                }
+                                //
+                                // -- start the new framework app wizard
+                                appName = getNextCmdArg(args, ref argPtr);
+                                string fwDomainName = getNextCmdArg(args, ref argPtr);
+                                await NewAppFrameworkCmd.executeAsync(appName, fwDomainName);
+                                break;
                             case "--status":
                             case "-s":
                                 //

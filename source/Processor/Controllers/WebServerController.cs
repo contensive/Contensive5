@@ -1018,9 +1018,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appName"></param>
         /// <param name="DomainName"></param>
         /// <param name="wwwRootPath"></param>
-        public void verifySite(string appName, string DomainName, string wwwRootPath) {
+        /// <param name="isFramework">When true, configure the app pool for .NET Framework 4.x (ManagedRuntimeVersion v4.0). When false, configure for .NET Core (no managed code).</param>
+        public void verifySite(string appName, string DomainName, string wwwRootPath, bool isFramework = false) {
             try {
-                verifyAppPool(appName);
+                verifyAppPool(appName, isFramework);
                 verifyWebsite(appName, DomainName, wwwRootPath, appName);
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifySite");
@@ -1033,7 +1034,8 @@ namespace Contensive.Processor.Controllers {
         /// verify the application pool. If it exists, update it. If not, create it
         /// </summary>
         /// <param name="poolName"></param>
-        public void verifyAppPool(string poolName) {
+        /// <param name="isFramework">When true, configure for .NET Framework 4.x. When false, configure for .NET Core (no managed code).</param>
+        public void verifyAppPool(string poolName, bool isFramework = false) {
             try {
                 using ServerManager serverManager = new();
                 bool poolFound = false;
@@ -1049,8 +1051,13 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     appPool = serverManager.ApplicationPools[poolName];
                 }
-                appPool.ManagedRuntimeVersion = "";
-                appPool.Enable32BitAppOnWin64 = false;
+                if (isFramework) {
+                    appPool.ManagedRuntimeVersion = "v4.0";
+                    appPool.Enable32BitAppOnWin64 = true;
+                } else {
+                    appPool.ManagedRuntimeVersion = "";
+                    appPool.Enable32BitAppOnWin64 = false;
+                }
                 appPool.ManagedPipelineMode = ManagedPipelineMode.Integrated;
                 serverManager.CommitChanges();
             } catch (Exception ex) {

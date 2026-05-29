@@ -109,6 +109,89 @@ cd "C:\Git\Contensive5\scripts"
 
 rem ==============================================================
 rem
+rem build and pack NuGet packages (CPBase + Models + Processor)
+rem CPBase and Models target netstandard2.0 for framework + core compatibility
+rem Processor targets net48 (for framework NuGet consumers) and net9.0-windows (for core)
+rem
+
+set NuGetLocalPackagesFolder=C:\NuGetLocalPackages\
+
+@echo.
+@echo Building and packing NuGet packages...
+@echo.
+
+cd ..\source
+
+dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
+if errorlevel 1 (
+   echo.
+   echo FAILURE building CPBase
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
+if errorlevel 1 (
+   echo.
+   echo FAILURE building Models
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
+if errorlevel 1 (
+   echo.
+   echo FAILURE building Processor net48
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
+if errorlevel 1 (
+   echo.
+   echo FAILURE building Processor net9.0-windows
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber% -p:TargetFrameworks=netstandard2.0
+if errorlevel 1 (
+   echo.
+   echo FAILURE packing CPBase
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber% -p:TargetFrameworks=netstandard2.0
+if errorlevel 1 (
+   echo.
+   echo FAILURE packing Models
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber% -p:TargetFrameworks=net48
+if errorlevel 1 (
+   echo.
+   echo FAILURE packing Processor
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+rem move packages to deployment folder and local package cache
+move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
+xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+
+move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
+xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+
+move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
+xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+
+cd ..\scripts
+
+rem ==============================================================
+rem
 rem publish WebApi as a self-contained deployment to a folder
 rem This produces a complete deployment folder with all dependencies
 rem

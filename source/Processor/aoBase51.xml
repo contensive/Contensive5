@@ -3872,19 +3872,6 @@
     <DotNetClass>Contensive.Processor.Addons.Base.OnInstallClass</DotNetClass>	
   </Addon>
 
-  <Addon Name="NewApp" Guid="{DFE6FD4B-B361-4F9C-BA52-18F6DCFABF56}" Type="Add-on">
-    <Category></Category>
-    <Admin>No</Admin>
-    <Content>No</Content>
-    <Template>No</Template>
-    <Email>No</Email>
-    <RemoteMethod>No</RemoteMethod>
-    <IsInline>No</IsInline>
-    <BlockEditTools>Yes</BlockEditTools>
-    <Diagnostic>No</Diagnostic>
-    <DotNetClass>Contensive.Processor.Addons.NewApp.NewAppClass</DotNetClass>	
-  </Addon>
-
   <Addon Name="See Also" Guid="{C4198871-A848-4B0F-95D4-ADDE08A5620D}" Type="Widget">
     <Category>Extras.Navigation</Category>
     <Admin>No</Admin>

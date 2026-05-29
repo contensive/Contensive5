@@ -16,6 +16,7 @@ namespace Contensive.CLI {
             Console.Write(AddFileCmd.helpText);
             Console.Write(ConfigureCmd.helpText);
             Console.Write(NewAppCmd.helpText);
+            Console.Write(NewAppFrameworkCmd.helpText);
             Console.Write(DeleteAppCmd.helpText);
             Console.Write(DeleteProtectionCmd.helpText);
             Console.Write(DisableCmd.helpText);
