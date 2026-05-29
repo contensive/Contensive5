@@ -490,7 +490,6 @@ namespace Contensive.Processor.Controllers {
                             BucketName = core.serverConfig.awsBucketName,
                             Key = remoteUnixPathFilename
                         };
-                        logger.Info($"{core.logCommonMessage},deleteFile_remote, s3Client.DeleteObject");
                         s3Client.DeleteObjectAsync(deleteObjectRequest).waitSynchronously();
                     }
                 }
