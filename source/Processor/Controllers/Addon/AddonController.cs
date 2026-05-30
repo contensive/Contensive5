@@ -1581,6 +1581,17 @@ namespace Contensive.Processor.Controllers {
                     testAssembly = alreadyLoadedAssembly;
                     return execute_dotNetClass_assembly_run(addon, testAssembly, assemblyPrivateAbsPathFilename, ref addonFound);
                 }
+                //
+                // -- before loading, check if this DLL references CPBase (the addon base class assembly).
+                // -- if it doesn't, it cannot contain an addon class, so skip it entirely.
+                // -- this prevents calling GetTypes() on non-addon DLLs like System.Data.SqlClient
+                // -- which can throw ReflectionTypeLoadException due to struct layout incompatibilities.
+                var assemblyReferences = AssemblyMetadataHelper.GetAssemblyReferences(assemblyPrivateAbsPathFilename);
+                if (!assemblyReferences.Exists(r => string.Equals(r, "CPBase", StringComparison.OrdinalIgnoreCase))) {
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly (ALC), skipping [{assemblyPrivateAbsPathFilename}] - does not reference CPBase");
+                    addonFound = false;
+                    return string.Empty;
+                }
                 try {
                     testAssembly = addonContext.LoadFromAssemblyPath(assemblyPrivateAbsPathFilename);
                 } catch (System.IO.FileLoadException ex) {
