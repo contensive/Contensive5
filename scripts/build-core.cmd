@@ -29,17 +29,16 @@ set day=%date:~7,2%
 if %day% GEQ 10 goto dayOk
 set day=%date:~8,1%
 :dayOk
-set versionMajor=%year%
+set versionMajor=%year:~2,2%
 set versionMinor=%month%
 set versionBuild=%day%
-set versionRevision=1
 
-:tryagain
+rem Calculate revision as (seconds since midnight) / 2 to match addon build pattern
+for /f "tokens=1-3 delims=:." %%a in ("%time: =0%") do (
+    set /a "versionRevision=(%%a * 3600 + %%b * 60 + %%c) / 2"
+)
+
 set versionNumber=%versionMajor%.%versionMinor%.%versionBuild%.%versionRevision%
-if not exist "%deploymentFolderRoot%%versionNumber%" goto :makefolder
-set /a versionRevision=%versionRevision%+1
-goto tryagain
-:makefolder
 md "%deploymentFolderRoot%%versionNumber%"
 
 @echo.
