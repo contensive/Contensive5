@@ -1114,7 +1114,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <param name="contentMetadata"></param>
         /// <returns></returns>
-        public static int verifyContent_returnId(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext) {
+        public static int verifyContent_returnId(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext, bool invalidateCache = true) {
             try {
                 //
                 logMsgContext += ", verifying content [" + contentMetadata.name + "]";
@@ -1416,10 +1416,12 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // ----- Load metadata
                 //
-                ContentModel.invalidateCacheOfTable<ContentModel>(core.cpParent);
-                ContentFieldModel.invalidateCacheOfTable<ContentFieldModel>(core.cpParent);
-                core.cacheRuntime.clear();
-                core.cache.invalidateAll();
+                if (invalidateCache) {
+                    ContentModel.invalidateCacheOfTable<ContentModel>(core.cpParent);
+                    ContentFieldModel.invalidateCacheOfTable<ContentFieldModel>(core.cpParent);
+                    core.cacheRuntime.clear();
+                    core.cache.invalidateAll();
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

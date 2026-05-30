@@ -643,7 +643,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 foreach (var keypairvalue in Collection.metaData) {
                     if (keypairvalue.Value.name.ToLowerInvariant() == "content") {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, false);
                         break;
                     }
                 }
@@ -664,7 +664,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if ((fieldChanged || workingMetaData.dataChanged) && (workingMetaData.name.ToLowerInvariant() != "content")) {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, false);
                     }
                 }
                 core.cacheRuntime.clear();
@@ -815,7 +815,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Update a table from a collection metadata node
         /// </summary>
-        internal static void installMetaDataMiniCollection_buildDb_saveMetaDataToDb(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext) {
+        internal static void installMetaDataMiniCollection_buildDb_saveMetaDataToDb(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext, bool invalidateCache = true) {
             try {
                 //
                 logMsgContext += ", updating db metadata for content [" + contentMetadata.name + "]";
@@ -827,7 +827,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- update definition (use SingleRecord as an update flag)
                         var datasource = DataSourceModel.createByUniqueName(core.cpParent, contentMetadata.dataSourceName);
-                        ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext);
+                        ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext, invalidateCache);
                     }
                     //
                     // -- update Content Field Records and Content Field Help records

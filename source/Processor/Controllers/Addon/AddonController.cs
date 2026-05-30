@@ -610,7 +610,7 @@ namespace Contensive.Processor.Controllers {
                             } catch (Exception ex) {
                                 //
                                 // -- exeption in outside code
-                                logger.Error($"{core.logCommonMessage}", ex, "Exception in script component of addon [" + getAddonDescription(core, addon) + "]");
+                                logger.Error(ex, $"{core.logCommonMessage}, Exception in script component of addon [{getAddonDescription(core, addon)}]");
                             }
                         }
                         //
@@ -624,7 +624,7 @@ namespace Contensive.Processor.Controllers {
                             } catch (Exception ex) {
                                 //
                                 // -- exeption in outside code
-                                logger.Error($"{core.logCommonMessage}", ex, "Exception in dotnet component of addon [" + getAddonDescription(core, addon) + "]");
+                                logger.Error(ex, $"{core.logCommonMessage}, Exception in dotnet component of addon [{getAddonDescription(core, addon)}]");
                             }
                         }
                         //
@@ -1551,10 +1551,64 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addonFound">If found, the search for the assembly can be abandoned</param>
         /// <returns></returns>
         private string execute_dotNetClass_assembly(AddonModel addon, string assemblyPrivateAbsPathFilename, ref bool addonFound) {
-            //
-            // -- register an AssemblyResolve handler so the CLR can find dependency DLLs
-            // -- that live in the same directory as the addon assembly (e.g. transitive NuGet dependencies)
             string addonDirectory = Path.GetDirectoryName(assemblyPrivateAbsPathFilename);
+#if NET
+            //
+            // ===== .NET 9+ path: use AddonAssemblyLoadContext for per-addon isolation =====
+            // Each addon gets its own AssemblyLoadContext so it can load its own dependency
+            // versions (e.g. AWSSDK v4) without conflicting with the host's versions (e.g. AWSSDK v3).
+            // Shared types (CPBase, Processor, ContensiveDbModels) resolve from the default context
+            // so cross-context casts like (AddonBaseClass)instance succeed.
+            //
+            string[] sharedAssemblyNames = { "CPBase", "Processor", "ContensiveDbModels" };
+            var addonContext = new AddonAssemblyLoadContext(addonDirectory, sharedAssemblyNames);
+            try {
+                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, enter (ALC), [{assemblyPrivateAbsPathFilename}]");
+                //
+                Assembly testAssembly = null;
+                addonFound = false;
+                //
+                // -- check if this assembly is already loaded in the default context
+                // -- (e.g. Processor.dll contains built-in addons like EmailProcessTask).
+                // -- LoadFromAssemblyPath bypasses the ALC's Load() override, so the shared
+                // -- assembly list doesn't protect against loading a duplicate here.
+                string loadAssemblyName = Path.GetFileNameWithoutExtension(assemblyPrivateAbsPathFilename);
+                Assembly alreadyLoadedAssembly = Array.Find(
+                    AppDomain.CurrentDomain.GetAssemblies(),
+                    a => string.Equals(a.GetName().Name, loadAssemblyName, StringComparison.OrdinalIgnoreCase)
+                );
+                if (alreadyLoadedAssembly != null) {
+                    testAssembly = alreadyLoadedAssembly;
+                    return execute_dotNetClass_assembly_run(addon, testAssembly, assemblyPrivateAbsPathFilename, ref addonFound);
+                }
+                try {
+                    testAssembly = addonContext.LoadFromAssemblyPath(assemblyPrivateAbsPathFilename);
+                } catch (System.IO.FileLoadException ex) {
+                    logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly (ALC), FileLoadException, [{assemblyPrivateAbsPathFilename}]");
+                    addonFound = false;
+                    return string.Empty;
+                } catch (System.BadImageFormatException) {
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly (ALC), BadImageFormat, [{assemblyPrivateAbsPathFilename}]");
+                    addonFound = false;
+                    string filename = Path.GetFileName(assemblyPrivateAbsPathFilename);
+                    if (!string.IsNullOrWhiteSpace(filename)) { core.assemblyList_NonAddonsInstalled.Add("//" + filename); }
+                    return string.Empty;
+                } catch (Exception ex) {
+                    logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly (ALC), load error, [{assemblyPrivateAbsPathFilename}]");
+                    addonFound = false;
+                    return string.Empty;
+                }
+                return execute_dotNetClass_assembly_run(addon, testAssembly, assemblyPrivateAbsPathFilename, ref addonFound);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+#else
+            //
+            // ===== .NET Framework 4.8 path: Assembly.LoadFile + AppDomain.AssemblyResolve =====
+            // AssemblyLoadContext does not exist in net48. Use the AppDomain resolve handler
+            // with "already loaded" checks to avoid version conflicts.
+            //
             ResolveEventHandler assemblyResolveHandler = (sender, args) => {
                 try {
                     var assemblyName = new AssemblyName(args.Name);
@@ -1581,7 +1635,7 @@ namespace Contensive.Processor.Controllers {
             AppDomain.CurrentDomain.AssemblyResolve += assemblyResolveHandler;
             try {
                 //
-                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, enter, [" + assemblyPrivateAbsPathFilename + "]");
+                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, enter, [{assemblyPrivateAbsPathFilename}]");
                 //
                 Assembly testAssembly = null;
                 addonFound = false;
@@ -1612,155 +1666,172 @@ namespace Contensive.Processor.Controllers {
                     );
                     testAssembly = alreadyLoadedAssembly ?? Assembly.LoadFile(assemblyPrivateAbsPathFilename);
                 } catch (System.IO.FileLoadException ex) {
-                    //
-                    // -- core throws System.IO.FileLoadException: 'Assembly with same name is already loaded'
-                    // -- if older version of assembly is already loaded, exception is throws
-                    // -- if newer version is loaded, it still loads, but uses the newer version
-                    // -- "once an assembly is loaded into an appdomain, it's there for the life of the appdomain."
-                    // -- https://stackoverflow.com/questions/35418131/how-to-find-a-type-that-is-not-loaded-yet-in-appdomain
-                    // ---- try AppDomain.GetAssemblies() tells you the loaded assemblies
-                    // ---- try loadfrom or use getAssemblies to search what we have.
-                    // ---- try loadfile, then GetReferencedAssemblies() and check .getAssemblies, or loadfile them before calling execute
-                    // -- https://stackoverflow.com/questions/51738633/strange-behavior-when-loading-assemblies-and-its-dependencies-programatically
-                    // ---- explains and sample code implementation
-                    // -- https://stackoverflow.com/questions/658498/how-to-load-an-assembly-to-appdomain-with-all-references-recursively
-                    // ---- load code in another AppDomain.
-                    // -- see if it can be found in the appdomain and run it
-                    // -- 
-                    logger.Error($"{core.logCommonMessage}", ex, "execute_dotNetClass_assembly, 1a, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly, 1a, [{assemblyPrivateAbsPathFilename}]");
                     addonFound = false;
                     return string.Empty;
                 } catch (System.BadImageFormatException) {
-                    //
-                    // -- file is not an assembly, return addonFound false
-                    //
-                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 1b, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 1b, [{assemblyPrivateAbsPathFilename}]");
                     addonFound = false;
-                    //
-                    // -- MS says BadImageFormatException is how you detect non-assembly DLLs
                     string filename = Path.GetFileName(assemblyPrivateAbsPathFilename);
                     if (!string.IsNullOrWhiteSpace(filename)) { core.assemblyList_NonAddonsInstalled.Add("//" + filename); }
                     return string.Empty;
                 } catch (Exception ex) {
-                    //
-                    // -- file is not an assembly, return addonFound false
-                    //
-                    logger.Error($"{core.logCommonMessage}", ex, "execute_dotNetClass_assembly, 2, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly, 2, [{assemblyPrivateAbsPathFilename}]");
                     addonFound = false;
                     return string.Empty;
                 }
-                //
-                // -- get type list
-                Type[] typeList = [];
-                try {
-                    typeList = testAssembly.GetTypes();
-                } catch (ReflectionTypeLoadException ex) {
-                    //
-                    // -- loader error, one of the types listed could not be loaded. Could be bad or missing dependency
-                    logger.Error($"{core.logCommonMessage}", ex, "ReflectionTypeLoadException while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
-
-                    if (ex.LoaderExceptions != null) {
-                        foreach (var loaderException in ex.LoaderExceptions) {
-                            if (loaderException != null) {
-                                logger.Error($"{core.logCommonMessage}", loaderException,
-                                    $"LoaderException Details - Type: {loaderException.GetType().Name}, " +
-                                    $"Message: {loaderException.Message}, " +
-                                    $"Source: {loaderException.Source}");
-                            }
-                        }
-                    }
-                    //
-                    // -- attempt to recover the types that did load
-                    typeList = ex.Types.Where(t => t != null).ToArray();
-                    //addonFound = false;
-                    //return string.Empty;
-                } catch (Exception ex) {
-                    //
-                    // -- unknown error. Better to log and continue
-                    logger.Error($"{core.logCommonMessage}", ex, "Exception in GetTypes() for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
-                    addonFound = false;
-                    return string.Empty;
-                }
-                //
-                // -- find the addon type
-                Type addonType = null;
-                try {
-                    //
-                    // -- catch exceptions found (Select.Pdf.dll has two classes that differ by only case)
-                    addonType = Array.Find<Type>(
-                        typeList,
-                        testType => (testType.IsPublic)
-                            && (testType.FullName.Equals(addon.dotNetClass, StringComparison.InvariantCultureIgnoreCase))
-                            && ((testType.Attributes & TypeAttributes.Abstract) != TypeAttributes.Abstract)
-                            && (testType.BaseType != null)
-                            && (!string.IsNullOrEmpty(testType.BaseType.FullName)
-                            && (testType.BaseType.FullName.Equals("contensive.baseclasses.addonbaseclass", StringComparison.InvariantCultureIgnoreCase)))
-                        );
-                    //
-                    addonFound = (addonType != null);
-                } catch (ArgumentException ex) {
-                    //
-                    // -- argument exception
-                    logger.Warn(ex, $"{core.logCommonMessage},Argument Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "], assembly [" + assemblyPrivateAbsPathFilename + "]. Typically these are when the assembly has two classes that differ only by the case of the class name or namespace.");
-                    addonFound = false;
-                    return string.Empty;
-                } catch (Exception ex) {
-                    //
-                    // -- unknown error. Better to log and continue
-                    logger.Error($"{core.logCommonMessage}", ex, "Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
-                    addonFound = false;
-                    return string.Empty;
-                }
-                //
-                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 4, [" + assemblyPrivateAbsPathFilename + "]");
-                //
-                // -- if not addon found, exit now
-                if (!addonFound) { return string.Empty; }
-                //
-                // -- addon found, execute it
-                AddonBaseClass AddonObj = null;
-                try {
-                    //
-                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 5, [" + assemblyPrivateAbsPathFilename + "]");
-                    //
-                    // -- Create an object from the Assembly
-                    AddonObj = (AddonBaseClass)testAssembly.CreateInstance(addonType.FullName);
-                } catch (ReflectionTypeLoadException ex) {
-                    //
-                    // -- exception thrown out of application bin folder when xunit library included -- ignore
-                    //
-                    logger.Warn($"{core.logCommonMessage}, execute_dotNetClass_assembly, 6, Assembly matches addon pattern but caused a ReflectionTypeLoadException. Return blank. addon [" + addon.name + "], [" + assemblyPrivateAbsPathFilename + "], exception [" + ex + "]");
-                    return string.Empty;
-                } catch (Exception ex) {
-                    //
-                    // -- problem loading types
-                    //
-                    logger.Warn($"{core.logCommonMessage}, execute_dotNetClass_assembly, 6, Assembly matches addon pattern but caused a load exception. Return blank. addon [" + addon.name + "], [" + assemblyPrivateAbsPathFilename + "], exception [" + ex + "]");
-                    return string.Empty;
-                }
-                try {
-                    //
-                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 8, [" + assemblyPrivateAbsPathFilename + "]");
-                    //
-                    // -- Call Execute
-                    object AddonObjResult = AddonObj.Execute(core.cpParent);
-                    return convertAddonReturntoString(AddonObjResult);
-                } catch (Exception ex) {
-                    //
-                    // -- error in the addon
-                    //
-                    logger.Error($"{core.logCommonMessage}", ex, "execute_dotNetClass_assembly, 9, [" + assemblyPrivateAbsPathFilename + "]. There was an error in the addon [" + addon.name + "]. It could not be executed because there was an error in the addon assembly [" + assemblyPrivateAbsPathFilename + "], in class [" + addonType.FullName.Trim().ToLowerInvariant() + "]. The error was [" + ex + "]");
-                    return string.Empty;
-                }
+                return execute_dotNetClass_assembly_run(addon, testAssembly, assemblyPrivateAbsPathFilename, ref addonFound);
             } catch (Exception ex) {
-                //
-                // -- this exception should interrupt the caller
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             } finally {
                 //
                 // -- always remove the handler so it does not leak across unrelated assembly loads
                 AppDomain.CurrentDomain.AssemblyResolve -= assemblyResolveHandler;
+            }
+#endif
+        }
+        //
+        //====================================================================================================================
+        /// <summary>
+        /// Given a loaded assembly, find the addon type, create an instance, and execute it.
+        /// Shared by both the net9 AssemblyLoadContext path and the net48 AppDomain.AssemblyResolve path.
+        /// </summary>
+        private string execute_dotNetClass_assembly_run(AddonModel addon, Assembly testAssembly, string assemblyPrivateAbsPathFilename, ref bool addonFound) {
+            //
+            // -- get type list
+            Type[] typeList = [];
+            try {
+                typeList = testAssembly.GetTypes();
+            } catch (ReflectionTypeLoadException ex) {
+                //
+                // -- loader error, one of the types listed could not be loaded. Could be bad or missing dependency
+                logger.Error(ex, $"{core.logCommonMessage}, ReflectionTypeLoadException while enumerating classes for addon [{addon.id},{addon.name}], assembly [{assemblyPrivateAbsPathFilename}]");
+                if (ex.LoaderExceptions != null) {
+                    string addonDir = Path.GetDirectoryName(assemblyPrivateAbsPathFilename);
+                    foreach (var loaderException in ex.LoaderExceptions) {
+                        if (loaderException != null) {
+                            logger.Error(loaderException,
+                                $"{core.logCommonMessage}, LoaderException Details - Type: {loaderException.GetType().Name}, " +
+                                $"Message: {loaderException.Message}, " +
+                                $"Source: {loaderException.Source}");
+#if NET
+                            //
+                            // -- check if the failing dependency is a Framework-only DLL in the addon folder
+                            try {
+                                string failingAssemblyName = null;
+                                if (loaderException is System.TypeLoadException tle) {
+                                    // -- extract assembly name from TypeName (format: "TypeName' from assembly 'AssemblyName, ...")
+                                    failingAssemblyName = tle.TypeName?.Split(',')[0];
+                                    // -- the assembly name is in the message, extract from "from assembly 'X,"
+                                    int fromIdx = tle.Message.IndexOf("from assembly '", StringComparison.OrdinalIgnoreCase);
+                                    if (fromIdx >= 0) {
+                                        int start = fromIdx + 15;
+                                        int comma = tle.Message.IndexOf(',', start);
+                                        int quote = tle.Message.IndexOf('\'', start);
+                                        int end = (comma >= 0 && comma < quote) ? comma : quote;
+                                        if (end > start) {
+                                            failingAssemblyName = tle.Message.Substring(start, end - start);
+                                        }
+                                    }
+                                } else if (loaderException is System.IO.FileLoadException fle) {
+                                    failingAssemblyName = new System.Reflection.AssemblyName(fle.FileName ?? "").Name;
+                                } else if (loaderException is System.IO.FileNotFoundException fnfe) {
+                                    failingAssemblyName = new System.Reflection.AssemblyName(fnfe.FileName ?? "").Name;
+                                }
+                                if (!string.IsNullOrEmpty(failingAssemblyName) && !string.IsNullOrEmpty(addonDir)) {
+                                    string candidateDll = Path.Combine(addonDir, failingAssemblyName + ".dll");
+                                    if (File.Exists(candidateDll) && AssemblyMetadataHelper.IsFrameworkOnly(candidateDll)) {
+                                        logger.Warn($"{core.logCommonMessage}, Addon [{addon.name}] dependency [{failingAssemblyName}] targets .NET Framework and is not compatible with this .NET 9 host. Recompile the addon targeting netstandard2.0.");
+                                    }
+                                }
+                            } catch {
+                                // -- best-effort diagnostic, do not let it interrupt error recovery
+                            }
+#endif
+                        }
+                    }
+                }
+                //
+                // -- attempt to recover the types that did load
+                typeList = ex.Types.Where(t => t != null).ToArray();
+            } catch (Exception ex) {
+                //
+                // -- unknown error. Better to log and continue
+                logger.Error(ex, $"{core.logCommonMessage}, Exception in GetTypes() for addon [{addon.id},{addon.name}], assembly [{assemblyPrivateAbsPathFilename}]");
+                addonFound = false;
+                return string.Empty;
+            }
+            //
+            // -- find the addon type
+            Type addonType = null;
+            try {
+                //
+                // -- catch exceptions found (Select.Pdf.dll has two classes that differ by only case)
+                addonType = Array.Find<Type>(
+                    typeList,
+                    testType => (testType.IsPublic)
+                        && (testType.FullName.Equals(addon.dotNetClass, StringComparison.InvariantCultureIgnoreCase))
+                        && ((testType.Attributes & TypeAttributes.Abstract) != TypeAttributes.Abstract)
+                        && (testType.BaseType != null)
+                        && (!string.IsNullOrEmpty(testType.BaseType.FullName)
+                        && (testType.BaseType.FullName.Equals("contensive.baseclasses.addonbaseclass", StringComparison.InvariantCultureIgnoreCase)))
+                    );
+                //
+                addonFound = (addonType != null);
+            } catch (ArgumentException ex) {
+                //
+                // -- argument exception
+                logger.Warn(ex, $"{core.logCommonMessage},Argument Exception while enumerating classes for addon [{addon.id},{addon.name}], assembly [{assemblyPrivateAbsPathFilename}]. Typically these are when the assembly has two classes that differ only by the case of the class name or namespace.");
+                addonFound = false;
+                return string.Empty;
+            } catch (Exception ex) {
+                //
+                // -- unknown error. Better to log and continue
+                logger.Error(ex, $"{core.logCommonMessage}, Exception while enumerating classes for addon [{addon.id},{addon.name}], assembly [{assemblyPrivateAbsPathFilename}]");
+                addonFound = false;
+                return string.Empty;
+            }
+            //
+            logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly_run, type search complete, [{assemblyPrivateAbsPathFilename}]");
+            //
+            // -- if not addon found, exit now
+            if (!addonFound) { return string.Empty; }
+            //
+            // -- addon found, execute it
+            AddonBaseClass AddonObj = null;
+            try {
+                //
+                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly_run, creating instance, [{assemblyPrivateAbsPathFilename}]");
+                //
+                // -- Create an object from the Assembly
+                AddonObj = (AddonBaseClass)testAssembly.CreateInstance(addonType.FullName);
+            } catch (ReflectionTypeLoadException ex) {
+                //
+                // -- exception thrown out of application bin folder when xunit library included -- ignore
+                //
+                logger.Warn($"{core.logCommonMessage}, execute_dotNetClass_assembly_run, ReflectionTypeLoadException creating instance. addon [{addon.name}], [{assemblyPrivateAbsPathFilename}], exception [{ex}]");
+                return string.Empty;
+            } catch (Exception ex) {
+                //
+                // -- problem loading types
+                //
+                logger.Warn($"{core.logCommonMessage}, execute_dotNetClass_assembly_run, exception creating instance. addon [{addon.name}], [{assemblyPrivateAbsPathFilename}], exception [{ex}]");
+                return string.Empty;
+            }
+            try {
+                //
+                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly_run, calling Execute, [{assemblyPrivateAbsPathFilename}]");
+                //
+                // -- Call Execute
+                object AddonObjResult = AddonObj.Execute(core.cpParent);
+                return convertAddonReturntoString(AddonObjResult);
+            } catch (Exception ex) {
+                //
+                // -- error in the addon
+                //
+                logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly_run, addon error [{addon.name}], assembly [{assemblyPrivateAbsPathFilename}], class [{addonType.FullName.Trim().ToLowerInvariant()}]");
+                return string.Empty;
             }
         }
         //
@@ -1803,7 +1874,7 @@ namespace Contensive.Processor.Controllers {
                     args = compositeArgs
                 }, false);
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "executeAsProcess");
+                logger.Error(ex, $"{core.logCommonMessage}, executeAsProcess");
             }
         }
         //

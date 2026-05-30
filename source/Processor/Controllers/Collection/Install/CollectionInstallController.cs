@@ -208,6 +208,27 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
+#if NET
+                //
+                // -- check for Framework-only DLLs and warn during installation
+                foreach (string dllName in assembliesInZip) {
+                    string dllFileName = System.IO.Path.GetFileNameWithoutExtension(dllName);
+                    //
+                    // -- skip System.* and Microsoft.* dependencies (addon author can't control these)
+                    if (dllFileName.StartsWith("System.", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (dllFileName.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    //
+                    // -- skip known host assemblies
+                    if (dllFileName.Equals("CPBase", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (dllFileName.Equals("Processor", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (dllFileName.Equals("ContensiveDbModels", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    //
+                    string dllAbsPath = core.privateFiles.joinPath(core.privateFiles.localAbsRootPath, CollectionVersionFolder) + dllName;
+                    if (System.IO.File.Exists(dllAbsPath) && AssemblyMetadataHelper.IsFrameworkOnly(dllAbsPath)) {
+                        logger.Warn($"{core.logCommonMessage}, Collection [{collectionGuid}] contains DLL [{dllName}] targeting .NET Framework. This addon may not work in the .NET 9 Core environment. Recompile targeting netstandard2.0.");
+                    }
+                }
+#endif
                 //
                 // -- Process the other files
                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], process xml files.");

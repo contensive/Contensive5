@@ -14,6 +14,7 @@ namespace Contensive.CLI {
             Console.Write(AddAdminCmd.helpText);
             Console.Write(AddRootCmd.helpText);
             Console.Write(AddFileCmd.helpText);
+            Console.Write(CompatibilityCmd.helpText);
             Console.Write(ConfigureCmd.helpText);
             Console.Write(NewAppCmd.helpText);
             Console.Write(NewAppFrameworkCmd.helpText);
