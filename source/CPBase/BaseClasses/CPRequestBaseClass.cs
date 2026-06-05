@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.BaseClasses {
     /// <summary>
@@ -28,6 +29,10 @@ namespace Contensive.BaseClasses {
         /// Full key=value list for the form submitted
         /// </summary>
         public abstract string Form { get; }
+        /// <summary>
+        /// The form key=value pairs as a dictionary
+        /// </summary>
+        public abstract Dictionary<string, string> FormDictionary { get; }
         /// <summary>
         /// request verb
         /// </summary>
@@ -126,6 +131,14 @@ namespace Contensive.BaseClasses {
         /// The request querystring (segment following the question mark)
         /// </summary>
         public abstract string QueryString { get; }
+        /// <summary>
+        /// The querystring key=value pairs as a dictionary
+        /// </summary>
+        public abstract Dictionary<string, string> QueryStringDictionary { get; }
+        /// <summary>
+        /// The request headers as a dictionary
+        /// </summary>
+        public abstract Dictionary<string, string> HeadersDictionary { get; }
         /// <summary>
         /// The refering url from the browser
         /// </summary>

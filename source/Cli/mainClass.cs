@@ -308,8 +308,8 @@ namespace Contensive.CLI {
                                     return;
                                 }
                                 //
-                                // delete 
-                                DeleteAppCmd.deleteApp(cpServer, appName);
+                                // delete
+                                await DeleteAppCmd.deleteAppAsync(cpServer, appName);
                                 break;
                             case "--fileupload": {
                                     //

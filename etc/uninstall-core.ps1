@@ -131,9 +131,15 @@ if (-not $SkipWebApi)      { Uninstall-WebApiPackage }
 
 # Remove legacy ASPX deployment package if present
 if (-not $KeepFiles) {
+    $FrameworkSitePath = Join-Path $InstallPath "FrameworkSite"
+    if (Test-Path $FrameworkSitePath) {
+        Write-Host "  Removing FrameworkSite folder"
+        Remove-Item -Path $FrameworkSitePath -Recurse -Force
+    }
+    # Remove legacy location (prior installs put it directly in InstallPath)
     $aspxZip = Join-Path $InstallPath "defaultaspxsite.zip"
     if (Test-Path $aspxZip) {
-        Write-Host "  Removing defaultaspxsite.zip"
+        Write-Host "  Removing defaultaspxsite.zip (legacy location)"
         Remove-Item -Path $aspxZip -Force
     }
 }

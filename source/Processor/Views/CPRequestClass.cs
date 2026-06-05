@@ -86,6 +86,16 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// The form key=value pairs as a dictionary
+        /// </summary>
+        public override Dictionary<string, string> FormDictionary {
+            get {
+                return cp.core.webServer.requestForm ?? new Dictionary<string, string>();
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// The request querystring, to be used for actions
         /// </summary>
         public override string FormAction {
@@ -305,6 +315,27 @@ namespace Contensive.Processor {
         public override string QueryString {
             get {
                 return cp.core.webServer.requestQueryString;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The querystring key=value pairs as a dictionary
+        /// </summary>
+        public override Dictionary<string, string> QueryStringDictionary {
+            get {
+                if (cp.core.webServer.httpContext?.Request?.QueryString == null) { return new Dictionary<string, string>(); }
+                return cp.core.webServer.httpContext.Request.QueryString;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The request headers as a dictionary
+        /// </summary>
+        public override Dictionary<string, string> HeadersDictionary {
+            get {
+                return cp.core.webServer.requestHeaders ?? new Dictionary<string, string>();
             }
         }
         //

@@ -269,7 +269,9 @@ function Invoke-ContensiveBuild {
         [string]   $DotnetProjectPath = '',
         [string]   $PackagesDirectory = '',
         [string]   $Zip7Path        = 'C:\Program Files\7-Zip\7z.exe',
-        [string[]] $NuGetProjects   = @()
+        [string[]] $NuGetProjects   = @(),
+        [string]   $LocalDeployTarget  = '',
+        [hashtable]$RemoteDeployTarget = $null
     )
 
     # -----------------------------------------------------------------------
@@ -435,6 +437,34 @@ function Invoke-ContensiveBuild {
     Write-Host "========================================"
     Write-Host "Build complete: $CollectionName v$version"
     Write-Host "========================================"
+
+    # -----------------------------------------------------------------------
+    # Step 7 — Local deployment (Contensive CLI)
+    # -----------------------------------------------------------------------
+    if ($LocalDeployTarget) {
+        $deployZip = Join-Path $deploymentFolder "$CollectionName.zip"
+        Write-Host ""
+        Write-Host "Installing $CollectionName to local site: $LocalDeployTarget..."
+        & cc -a $LocalDeployTarget --installFile $deployZip
+        if ($LASTEXITCODE -ne 0) {
+            throw "Local install failed for site '$LocalDeployTarget'"
+        }
+        Write-Host ""
+        Write-Host "========================================"
+        Write-Host "Local install complete: $CollectionName -> $LocalDeployTarget"
+        Write-Host "========================================"
+    }
+
+    # -----------------------------------------------------------------------
+    # Step 8 — Remote deployment (HTTP POST)
+    # -----------------------------------------------------------------------
+    if ($RemoteDeployTarget) {
+        $deployZip = Join-Path $deploymentFolder "$CollectionName.zip"
+        Invoke-ContensiveDeploy `
+            -SiteUrl        $RemoteDeployTarget.Url `
+            -CollectionZip  $deployZip `
+            -SiteName       $RemoteDeployTarget.SiteName
+    }
 }
 
 # ===========================================================================

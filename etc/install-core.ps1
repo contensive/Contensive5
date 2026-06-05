@@ -196,9 +196,10 @@ if (-not $SkipWebApi)      { Install-WebApiPackage }
 $aspxZipSource = Join-Path $SourcePath "defaultaspxsite.zip"
 if (Test-Path $aspxZipSource) {
     Write-Step "Installing legacy ASPX deployment package"
-    if (-not (Test-Path $InstallPath)) { New-Item -Path $InstallPath -ItemType Directory -Force | Out-Null }
-    Copy-Item $aspxZipSource $InstallPath -Force
-    Write-Host "  defaultaspxsite.zip copied to $InstallPath" -ForegroundColor Green
+    $FrameworkSiteDest = Join-Path $InstallPath "FrameworkSite"
+    if (-not (Test-Path $FrameworkSiteDest)) { New-Item -Path $FrameworkSiteDest -ItemType Directory -Force | Out-Null }
+    Copy-Item $aspxZipSource $FrameworkSiteDest -Force
+    Write-Host "  defaultaspxsite.zip copied to $FrameworkSiteDest" -ForegroundColor Green
 }
 
 Write-Step "Installation complete"
