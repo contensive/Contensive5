@@ -79,10 +79,8 @@ Public Class Global_asax
             If (exception IsNot Nothing) Then
                 '
                 ' -- dont log [The file '...' does not exist.]
-                Dim exMsg As String = exception.Message
-                If (exMsg.Substring(0, 10).Equals("The file '") AndAlso exMsg.Substring(exMsg.Length - 17, 17).Equals("' does not exist.")) Then
-                    '
-                    ' -- File does not exist, thrown for every bot searching content
+                ' -- check both outer and inner exception because ASP.NET may wrap HttpException in HttpUnhandledException
+                If (isFileNotExistsException(exception) OrElse (exception.InnerException IsNot Nothing AndAlso isFileNotExistsException(exception.InnerException))) Then
                     Return
                 End If
                 LogController.logShortLine("Global.asax, Application_Error, exception message [" + exception.Message + "], toString [" + exception.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error)
@@ -168,6 +166,17 @@ Public Class Global_asax
                 shutdownDetail = "Unknown shutdown reason"
         End Select
         Return shutdownDetail
+    End Function
+    '
+    '====================================================================================================
+    ''' <summary>
+    ''' Returns true if the exception message matches the pattern "The file '...' does not exist."
+    ''' </summary>
+    Private Function isFileNotExistsException(ex As Exception) As Boolean
+        If (ex Is Nothing) Then Return False
+        Dim msg As String = ex.Message
+        If (String.IsNullOrEmpty(msg) OrElse msg.Length < 27) Then Return False
+        Return (msg.Substring(0, 10).Equals("The file '") AndAlso msg.Substring(msg.Length - 17, 17).Equals("' does not exist."))
     End Function
 
 End Class

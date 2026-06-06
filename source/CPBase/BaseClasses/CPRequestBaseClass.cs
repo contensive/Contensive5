@@ -62,7 +62,8 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract double GetNumber(string key);
         /// <summary>
-        /// return a value for a key=value pair
+        /// return a value for a key=value pair. No check on the returned text value. It can be html, etc.
+        /// Use GetTextSafe to be XSS safe if the input should be plain text.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
