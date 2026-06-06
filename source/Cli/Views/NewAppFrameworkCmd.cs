@@ -50,6 +50,19 @@ namespace Contensive.CLI {
                 }
                 string defaultEmailAddress = "";
                 //
+                // -- resolve install root (parent of CLI folder, e.g. C:\Program Files\Contensive)
+                string currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string installRoot = Path.GetDirectoryName(currentPath);
+                //
+                // -- verify defaultaspxsite.zip in FrameworkSite folder
+                string FrameworkSitePath = Path.Combine(installRoot, "FrameworkSite");
+                string defaultAspxSiteZipPath = Path.Combine(FrameworkSitePath, "defaultaspxsite.zip");
+                if (!File.Exists(defaultAspxSiteZipPath)) {
+                    Console.WriteLine($"To build a new framework site, the DefaultAspxSite.zip must be downloaded from contensive.io/downloads to the FrameworkSite folder, {FrameworkSitePath}");
+                    Console.ReadLine();
+                    return;
+                }
+                //
                 using (CPClass cp = new CPClass()) {
                     defaultEmailAddress = cp.ServerConfig.defaultEmailContact;
                     //
@@ -58,15 +71,7 @@ namespace Contensive.CLI {
                         return;
                     }
                     //
-                    // -- verify defaultaspxsite.zip
-                    if (!cp.core.programFiles.fileExists("defaultaspxsite.zip")) {
-                        Console.WriteLine($"To build a new framework site, the DefaultAspxSite.zip must be downloaded from contensive.io/downloads to the program files folder, {cp.core.programFiles.localAbsRootPath}");
-                        Console.ReadLine();
-                        return;
-                    }
-                    //
                     // -- verify program files folder
-                    string currentPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     if (!cp.core.serverConfig.programFilesPath.Equals(currentPath)) {
                         cp.core.serverConfig.programFilesPath = currentPath;
                         cp.core.serverConfig.save(cp.core);
@@ -153,7 +158,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- domain
-                    domainName = appConfig.name + "sitefpo.com";
+                    domainName = $"{appConfig.name}.sitefpo.com";
                     while (promptForArguments) {
                         domainName = GenericController.promptForReply("Primary Domain Name", domainName);
                         domainName = normalizeDomain(domainName);
@@ -334,15 +339,16 @@ namespace Contensive.CLI {
                     //
                     bool defaultAspxSiteInstalled = false;
                     logger.Info($"{cp.core.logCommonMessage},Install DefaultAspxSite.");
-                    if (!cp.core.programFiles.fileExists(@"\defaultaspxsite.zip")) {
+                    if (!File.Exists(defaultAspxSiteZipPath)) {
                         //
                         // -- message to install defaultsite manually
-                        Console.WriteLine($"File [defaultaspxsite.zip] was not found in the folder [{cp.core.programFiles.localAbsRootPath}\\Contensive]. To setup an IIS website, import this file using IIS Manager from the deployment folder. To automatically install during this process, copy the file into the program files folder.");
+                        Console.WriteLine($"File [defaultaspxsite.zip] was not found in the folder [{FrameworkSitePath}]. To setup an IIS website, download DefaultAspxSite.zip from contensive.io/downloads to the FrameworkSite folder.");
                     } else {
                         //
-                        // -- install defaultaspxsite
+                        // -- install defaultaspxsite, copy from FrameworkSite folder to temp
                         defaultAspxSiteInstalled = true;
-                        cp.core.programFiles.copyFile(@"\defaultaspxsite.zip", @"\defaultaspxsite.zip", cp.core.tempFiles);
+                        string tempZipPath = Path.Combine(cp.core.tempFiles.localAbsRootPath, "defaultaspxsite.zip");
+                        File.Copy(defaultAspxSiteZipPath, tempZipPath, true);
                         cp.TempFiles.UnzipFile(@"\defaultaspxsite.zip");
                         string srcPath = NewAppCmd.getZipSrcTempPath(cp, "Content", "Web.config");
                         if (string.IsNullOrWhiteSpace(srcPath)) {
@@ -353,14 +359,14 @@ namespace Contensive.CLI {
                         cp.TempFiles.DeleteFile(@"\defaultaspxsite.zip");
                         cp.TempFiles.DeleteFolder(@"content");
                     }
-                    // --
+                    //
                     // -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
-                    if (!cp.WwwFiles.FileExists("WebAppSettings.config")) {
+                    if (cp.WwwFiles.FileExists("WebAppSettings-Sample.config") && !cp.WwwFiles.FileExists("WebAppSettings.config")) {
                         cp.WwwFiles.Copy("WebAppSettings-Sample.config", "WebAppSettings.config");
                     }
                     //
                     // -- if WebRewrite.config does not exist, copy WebRewrite-Sample.config
-                    if (!cp.WwwFiles.FileExists("WebRewrite.config")) {
+                    if (cp.WwwFiles.FileExists("WebRewrite-Sample.config") && !cp.WwwFiles.FileExists("WebRewrite.config")) {
                         cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
                     }
                     //
@@ -378,7 +384,7 @@ namespace Contensive.CLI {
                     if (defaultAspxSiteInstalled) {
                         logger.Info($"{cp.core.logCommonMessage},A default website was imported into an IIS website with this application name.");
                     } else {
-                        logger.Info($"{cp.core.logCommonMessage},The Contensive website was not imported because the file DefaultAspxSite.zip was not found in path [{cp.core.programFiles.localAbsRootPath}].");
+                        logger.Info($"{cp.core.logCommonMessage},The Contensive website was not imported because the file DefaultAspxSite.zip was not found in path [{FrameworkSitePath}].");
                     }
                 }
                 //

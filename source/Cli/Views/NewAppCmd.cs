@@ -153,7 +153,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- domain
-                    domainName = appConfig.name + "sitefpo.com";
+                    domainName = $"{appConfig.name}.sitefpo.com";
                     while (promptForArguments) {
                         domainName = GenericController.promptForReply("Primary Domain Name", domainName);
                         domainName = normalizeDomain(domainName);
@@ -356,6 +356,16 @@ namespace Contensive.CLI {
                             Directory.CreateDirectory(logsPath);
                         }
                         Console.WriteLine($"  WebApi deployed to [{cp.core.appConfig.localWwwPath}]");
+                    }
+                    //
+                    // -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
+                    if (cp.WwwFiles.FileExists("WebAppSettings-Sample.config") && !cp.WwwFiles.FileExists("WebAppSettings.config")) {
+                        cp.WwwFiles.Copy("WebAppSettings-Sample.config", "WebAppSettings.config");
+                    }
+                    //
+                    // -- if WebRewrite.config does not exist, copy WebRewrite-Sample.config
+                    if (cp.WwwFiles.FileExists("WebRewrite-Sample.config") && !cp.WwwFiles.FileExists("WebRewrite.config")) {
+                        cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
                     }
                     //
                     logger.Info($"{cp.core.logCommonMessage},Run db upgrade.");

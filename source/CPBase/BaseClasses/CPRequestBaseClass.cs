@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.BaseClasses {
     /// <summary>
@@ -29,6 +30,10 @@ namespace Contensive.BaseClasses {
         /// </summary>
         public abstract string Form { get; }
         /// <summary>
+        /// The form key=value pairs as a dictionary
+        /// </summary>
+        public abstract Dictionary<string, string> FormDictionary { get; }
+        /// <summary>
         /// request verb
         /// </summary>
         public abstract string FormAction { get; }
@@ -57,7 +62,8 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract double GetNumber(string key);
         /// <summary>
-        /// return a value for a key=value pair
+        /// return a value for a key=value pair. No check on the returned text value. It can be html, etc.
+        /// Use GetTextSafe to be XSS safe if the input should be plain text.
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
@@ -126,6 +132,14 @@ namespace Contensive.BaseClasses {
         /// The request querystring (segment following the question mark)
         /// </summary>
         public abstract string QueryString { get; }
+        /// <summary>
+        /// The querystring key=value pairs as a dictionary
+        /// </summary>
+        public abstract Dictionary<string, string> QueryStringDictionary { get; }
+        /// <summary>
+        /// The request headers as a dictionary
+        /// </summary>
+        public abstract Dictionary<string, string> HeadersDictionary { get; }
         /// <summary>
         /// The refering url from the browser
         /// </summary>

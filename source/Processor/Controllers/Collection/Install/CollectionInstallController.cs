@@ -208,6 +208,27 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
+#if NET
+                //
+                // -- check for Framework-only DLLs and warn during installation
+                foreach (string dllName in assembliesInZip) {
+                    string dllFileName = System.IO.Path.GetFileNameWithoutExtension(dllName);
+                    //
+                    // -- skip System.* and Microsoft.* dependencies (addon author can't control these)
+                    if (dllFileName.StartsWith("System.", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (dllFileName.StartsWith("Microsoft.", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    //
+                    // -- skip known host assemblies
+                    if (dllFileName.Equals("CPBase", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (dllFileName.Equals("Processor", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    if (dllFileName.Equals("ContensiveDbModels", StringComparison.OrdinalIgnoreCase)) { continue; }
+                    //
+                    string dllAbsPath = core.privateFiles.joinPath(core.privateFiles.localAbsRootPath, CollectionVersionFolder) + dllName;
+                    if (System.IO.File.Exists(dllAbsPath) && AssemblyMetadataHelper.IsFrameworkOnly(dllAbsPath)) {
+                        logger.Warn($"{core.logCommonMessage}, Collection [{collectionGuid}] contains DLL [{dllName}] targeting .NET Framework. This addon may not work in the .NET 9 Core environment. Recompile targeting netstandard2.0.");
+                    }
+                }
+#endif
                 //
                 // -- Process the other files
                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], process xml files.");
@@ -1141,7 +1162,7 @@ namespace Contensive.Processor.Controllers {
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
-                                logger.Error($"{core.logCommonMessage}", new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
+                                logger.Error($"{core.logCommonMessage}", new GenericException($"{MethodInfo.GetCurrentMethod().Name}, installing collection [{parentCollectionName}], addon [{addonName}] (guid [{addonGuid}]) was not found in the database by guid or name. This addon's dependencies (such as IncludeAddon references) will be skipped. Verify the addon is defined in the collection XML and appears before any addons that depend on it."));
                                 return;
                             }
                         }
@@ -1177,7 +1198,7 @@ namespace Contensive.Processor.Controllers {
                                                 string UserError = "While installng collection/addon [" + parentCollectionName + "/" + parentAddonName + "], the include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
                                                 logger.Info($"{core.logCommonMessage}, UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
                                                 ReturnUpgradeOK = false;
-                                                ReturnErrorMessage.errors.Add("<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>");
+                                                ReturnErrorMessage.errors.Add($"The collection was not installed because the add-on [{addonName}] requires an included add-on [{IncludeAddonName}] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.");
                                             } else {
                                                 using (var cs3 = new CsModel(core)) {
                                                     AddRule = !cs3.openSql("select ID from ccAddonIncludeRules where Addonid=" + csData.getInteger("id") + " and IncludedAddonID=" + IncludeAddonId);

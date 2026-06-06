@@ -251,6 +251,12 @@ namespace Contensive.CLI {
                                 // -- repair one or more apps
                                 RepairCmd.execute(cpServer, appName);
                                 break;
+                            case "--compatibility":
+                            case "-c":
+                                //
+                                // -- scan addon DLLs for .NET Core compatibility
+                                CompatibilityCmd.execute(cpServer, appName);
+                                break;
                             case "--upgrade":
                             case "-u":
                                 //
@@ -302,8 +308,8 @@ namespace Contensive.CLI {
                                     return;
                                 }
                                 //
-                                // delete 
-                                DeleteAppCmd.deleteApp(cpServer, appName);
+                                // delete
+                                await DeleteAppCmd.deleteAppAsync(cpServer, appName);
                                 break;
                             case "--fileupload": {
                                     //

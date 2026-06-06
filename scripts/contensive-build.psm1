@@ -253,6 +253,11 @@ function Invoke-ContensiveBuild {
 .PARAMETER PackagesDirectory
     NuGet packages restore target directory. Optional (MSBuild only).
 
+.PARAMETER HelpFilesPath
+    Absolute path to a folder of help files to zip into the collection as
+    HelpFiles.zip. If omitted, the build looks for a 'helpfiles' folder as
+    a sibling of UiPath's parent directory.
+
 .PARAMETER Zip7Path
     Path to 7z.exe. Defaults to 'C:\Program Files\7-Zip\7z.exe'.
 #>
@@ -268,9 +273,20 @@ function Invoke-ContensiveBuild {
         [string[]] $UiAssetFolders  = @('wwwFiles', 'cdnFiles', 'privateFiles', 'layoutFiles'),
         [string]   $DotnetProjectPath = '',
         [string]   $PackagesDirectory = '',
+        [string]   $HelpFilesPath   = '',
         [string]   $Zip7Path        = 'C:\Program Files\7-Zip\7z.exe',
-        [string[]] $NuGetProjects   = @()
+        [string[]] $NuGetProjects   = @(),
+        [string]   $LocalDeployTarget  = '',
+        [hashtable]$RemoteDeployTarget = $null
     )
+
+    # -----------------------------------------------------------------------
+    # Step 0 — Require elevated (Administrator) permissions
+    # -----------------------------------------------------------------------
+    $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        throw "This build script must be run as Administrator. Right-click your terminal and select 'Run as administrator', then try again."
+    }
 
     # -----------------------------------------------------------------------
     # Step 1 — Resolve version, deployment folder, and tools
@@ -337,14 +353,15 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     # Step 3.5 — Package help files
     # -----------------------------------------------------------------------
-    if ($UiPath) {
-        $helpFilesPath = Join-Path (Split-Path $UiPath -Parent) 'helpfiles'
-        if (Test-Path $helpFilesPath) {
-            Write-Host "Packaging help files..."
-            Invoke-ZipFolder -SourceFolder $helpFilesPath `
-                             -DestZip      (Join-Path $collectionFolder 'HelpFiles.zip') `
-                             -Zip7Path     $Zip7Path
-        }
+    $resolvedHelpPath = $HelpFilesPath
+    if (-not $resolvedHelpPath -and $UiPath) {
+        $resolvedHelpPath = Join-Path (Split-Path $UiPath -Parent) 'helpfiles'
+    }
+    if ($resolvedHelpPath -and (Test-Path $resolvedHelpPath)) {
+        Write-Host "Packaging help files..."
+        Invoke-ZipFolder -SourceFolder $resolvedHelpPath `
+                         -DestZip      (Join-Path $collectionFolder 'helpFiles.zip') `
+                         -Zip7Path     $Zip7Path
     }
 
     # -----------------------------------------------------------------------
@@ -435,6 +452,34 @@ function Invoke-ContensiveBuild {
     Write-Host "========================================"
     Write-Host "Build complete: $CollectionName v$version"
     Write-Host "========================================"
+
+    # -----------------------------------------------------------------------
+    # Step 7 — Local deployment (Contensive CLI)
+    # -----------------------------------------------------------------------
+    if ($LocalDeployTarget) {
+        $deployZip = Join-Path $deploymentFolder "$CollectionName.zip"
+        Write-Host ""
+        Write-Host "Installing $CollectionName to local site: $LocalDeployTarget..."
+        & cc -a $LocalDeployTarget --installFile $deployZip
+        if ($LASTEXITCODE -ne 0) {
+            throw "Local install failed for site '$LocalDeployTarget'"
+        }
+        Write-Host ""
+        Write-Host "========================================"
+        Write-Host "Local install complete: $CollectionName -> $LocalDeployTarget"
+        Write-Host "========================================"
+    }
+
+    # -----------------------------------------------------------------------
+    # Step 8 — Remote deployment (HTTP POST)
+    # -----------------------------------------------------------------------
+    if ($RemoteDeployTarget) {
+        $deployZip = Join-Path $deploymentFolder "$CollectionName.zip"
+        Invoke-ContensiveDeploy `
+            -SiteUrl        $RemoteDeployTarget.Url `
+            -CollectionZip  $deployZip `
+            -SiteName       $RemoteDeployTarget.SiteName
+    }
 }
 
 # ===========================================================================

@@ -1068,6 +1068,56 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Stop the application pool by name. Waits for the pool to fully stop before returning.
+        /// </summary>
+        /// <param name="poolName"></param>
+        public void stopAppPool(string poolName) {
+            try {
+                using ServerManager serverManager = new();
+                foreach (ApplicationPool appPool in serverManager.ApplicationPools) {
+                    if (appPool.Name.Equals(poolName, StringComparison.OrdinalIgnoreCase)) {
+                        if (appPool.State != ObjectState.Stopped && appPool.State != ObjectState.Stopping) {
+                            appPool.Stop();
+                        }
+                        //
+                        // -- wait for the pool to stop so file locks are released
+                        int maxWait = 30;
+                        while (appPool.State != ObjectState.Stopped && maxWait > 0) {
+                            System.Threading.Thread.Sleep(1000);
+                            maxWait--;
+                        }
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", ex, "stopAppPool");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Delete the application pool by name.
+        /// </summary>
+        /// <param name="poolName"></param>
+        public void deleteAppPool(string poolName) {
+            try {
+                using ServerManager serverManager = new();
+                foreach (ApplicationPool appPool in serverManager.ApplicationPools) {
+                    if (appPool.Name.Equals(poolName, StringComparison.OrdinalIgnoreCase)) {
+                        serverManager.ApplicationPools.Remove(appPool);
+                        serverManager.CommitChanges();
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", ex, "deleteAppPool");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// remove a site by its name
         /// </summary>
         /// <param name="appName"></param>

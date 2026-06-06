@@ -18,33 +18,20 @@ if "%1"=="/nopause" set PAUSE_ON_ERROR=0
 c:
 cd \Git\Contensive5\scripts
 
-rem Setup deployment folder with date-based version
+pause
+
+rem Setup deployment folder with date-based version (YY.M.D.S where S = seconds/2)
+rem Use PowerShell for reliable date/time parsing (matches contensive-build.psm1)
 set deploymentFolderRoot=C:\Deployments\Contensive5-Core\
-set year=%date:~12,4%
-set month=%date:~4,2%
-if %month% GEQ 10 goto monthOk
-set month=%date:~5,1%
-:monthOk
-set day=%date:~7,2%
-if %day% GEQ 10 goto dayOk
-set day=%date:~8,1%
-:dayOk
-set versionMajor=%year:~2,2%
-set versionMinor=%month%
-set versionBuild=%day%
-
-rem Calculate revision as (seconds since midnight) / 2 to match addon build pattern
-for /f "tokens=1-3 delims=:." %%a in ("%time: =0%") do (
-    set /a "versionRevision=(%%a * 3600 + %%b * 60 + %%c) / 2"
-)
-
-set versionNumber=%versionMajor%.%versionMinor%.%versionBuild%.%versionRevision%
+for /f "delims=" %%v in ('powershell -NoProfile -Command "$n=Get-Date;$s=[int][math]::Floor(($n.Hour*3600+$n.Minute*60+$n.Second)/2);'{0}.{1}.{2}.{3}' -f ($n.Year-2000),$n.Month,$n.Day,$s"') do set versionNumber=%%v
 md "%deploymentFolderRoot%%versionNumber%"
 
 @echo.
 @echo Version: %versionNumber%
 @echo Deploy to: %deploymentFolderRoot%%versionNumber%
 @echo.
+
+pause
 
 rem ==============================================================
 rem

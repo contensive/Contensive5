@@ -38,7 +38,7 @@ namespace Contensive.CLI {
                 if (upgradeApp.GetAppConfig().enabled) {
                     BuildController.upgrade(upgradeApp.core, false, repair);
                     upgradeApp.Cache.InvalidateAll();
-                
+
                 }
             } else {
                 //
@@ -51,6 +51,9 @@ namespace Contensive.CLI {
                     }
                 }
             }
+            //
+            // -- run compatibility scan after upgrade
+            CompatibilityCmd.execute(cp, appName);
         }
     }
 }
