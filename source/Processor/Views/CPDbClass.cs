@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Data;
 using Contensive.Processor.Controllers;
 using Contensive.BaseClasses;
@@ -173,8 +174,26 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override void ExecuteNonQuery(string sql, Dictionary<string, object> parameters) {
+            db.executeNonQuery(sql, parameters);
+        }
+        //
+        //====================================================================================================
+        //
+        public override void ExecuteNonQuery(string sql, Dictionary<string, object> parameters, ref int recordsAffected) {
+            db.executeNonQuery(sql, parameters, ref recordsAffected);
+        }
+        //
+        //====================================================================================================
+        //
         public override async Task<int> ExecuteNonQueryAsync(string sql) {
             return await db.executeNonQueryAsync(sql);
+        }
+        //
+        //====================================================================================================
+        //
+        public override async Task<int> ExecuteNonQueryAsync(string sql, Dictionary<string, object> parameters) {
+            return await db.executeNonQueryAsync(sql, parameters);
         }
         //
         //====================================================================================================
@@ -185,8 +204,26 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override DataTable ExecuteQuery(string sql, Dictionary<string, object> parameters) {
+            return db.executeQuery(sql, parameters);
+        }
+        //
+        //====================================================================================================
+        //
+        public override DataTable ExecuteQuery(string sql, Dictionary<string, object> parameters, int startRecord, int maxRecords) {
+            return db.executeQuery(sql, parameters, startRecord, maxRecords);
+        }
+        //
+        //====================================================================================================
+        //
         public override int ExecuteScalar(string sql) {
             return db.executeScalar(sql);
+        }
+        //
+        //====================================================================================================
+        //
+        public override int ExecuteScalar(string sql, Dictionary<string, object> parameters) {
+            return db.executeScalar(sql, parameters);
         }
         //
         //====================================================================================================

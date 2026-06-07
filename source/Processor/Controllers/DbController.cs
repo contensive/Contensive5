@@ -467,6 +467,244 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
+        //====================================================================================================
+        /// <summary>
+        /// Add parameters from a dictionary to a SqlCommand. Null values are converted to DBNull.Value.
+        /// </summary>
+        private static void addSqlParameters(SqlCommand cmd, Dictionary<string, object> parameters) {
+            if (parameters == null) { return; }
+            foreach (var kvp in parameters) {
+                cmd.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized query (returns data). Start at record 0, max records 10M.
+        /// </summary>
+        public DataTable executeQuery(string sql, Dictionary<string, object> parameters) {
+            int tempVar = 0;
+            return executeQuery(sql, parameters, 0, DbController.sqlPageSizeDefault, ref tempVar);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized query (returns data).
+        /// </summary>
+        public DataTable executeQuery(string sql, Dictionary<string, object> parameters, int startRecord, int maxRecords) {
+            int tempVar = 0;
+            return executeQuery(sql, parameters, startRecord, maxRecords, ref tempVar);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized query (returns data).
+        /// </summary>
+        public DataTable executeQuery(string sql, Dictionary<string, object> parameters, int startRecord, int maxRecords, ref int recordsAffected) {
+            DataTable returnData = new();
+            try {
+                if (!dbEnabled) { return new DataTable(); }
+                if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
+                if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
+                //
+                Stopwatch sw = Stopwatch.StartNew();
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            connSQL.Open();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                addSqlParameters(cmdSQL, parameters);
+                                using (SqlDataAdapter adptSQL = new(cmdSQL)) {
+                                    recordsAffected = adptSQL.Fill(startRecord, maxRecords, returnData);
+                                }
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeQuery transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        returnData = new DataTable();
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+                try {
+                    string logMsg = $", duration [{sw.ElapsedMilliseconds}ms], recordsAffected [{recordsAffected}], sql [{sql.Replace("\r", " ").Replace("\n", " ")}]";
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn($"{core.logCommonMessage},Slow SQL Query{logMsg}");
+                    } else {
+                        Logger.Debug($"{core.logCommonMessage},SQL Query{logMsg}");
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
+                }
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", new GenericException($"Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]", ex));
+                throw;
+            }
+            return returnData;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized scalar query (returns single integer value).
+        /// </summary>
+        public int executeScalar(string sql, Dictionary<string, object> parameters) {
+            int returnValue = 0;
+            try {
+                if (!dbEnabled) { return 0; }
+                if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
+                if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
+                //
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            connSQL.Open();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                addSqlParameters(cmdSQL, parameters);
+                                returnValue = (int)cmdSQL.ExecuteScalar();
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeScalar transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+            return returnValue;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized non-query command.
+        /// </summary>
+        public void executeNonQuery(string sql, Dictionary<string, object> parameters) {
+            int recordsAffectedIgnore = 0;
+            executeNonQuery(sql, parameters, ref recordsAffectedIgnore);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized non-query command and return records affected.
+        /// </summary>
+        public void executeNonQuery(string sql, Dictionary<string, object> parameters, ref int recordsAffected) {
+            try {
+                if (!dbEnabled) { return; }
+                Stopwatch sw = Stopwatch.StartNew();
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            connSQL.Open();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                addSqlParameters(cmdSQL, parameters);
+                                recordsAffected = cmdSQL.ExecuteNonQuery();
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeNonQuery transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+                try {
+                    string logMsg = $",duration[{sw.ElapsedMilliseconds}ms],recordsAffected[{recordsAffected}],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn($"{core.logCommonMessage},Slow SQL NonQuery{logMsg}");
+                    } else {
+                        Logger.Debug($"{core.logCommonMessage},SQL NonQuery{logMsg}");
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
+                }
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]", ex));
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized non-query command asynchronously.
+        /// </summary>
+        public async Task<int> executeNonQueryAsync(string sql, Dictionary<string, object> parameters) {
+            try {
+                int result = 0;
+                if (!dbEnabled) { return result; }
+                Stopwatch sw = Stopwatch.StartNew();
+                int retryCount = 1;
+                while (true) {
+                    try {
+                        using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
+                            await connSQL.OpenAsync();
+                            using (SqlCommand cmdSQL = new()) {
+                                cmdSQL.CommandType = CommandType.Text;
+                                cmdSQL.CommandText = sql;
+                                cmdSQL.Connection = connSQL;
+                                cmdSQL.CommandTimeout = sqlCommandTimeout;
+                                addSqlParameters(cmdSQL, parameters);
+                                result = await cmdSQL.ExecuteNonQueryAsync();
+                            }
+                        }
+                        break;
+                    } catch (SqlException exSql) when (isTransientSqlException(exSql) && retryCount > 0) {
+                        try {
+                            Logger.Error(exSql, $"{core.logCommonMessage},executeNonQueryAsync transient SqlException, retries left [{retryCount}], ex [{exSql}]");
+                        } catch (Exception) {
+                            // -- swallow logging internal errors
+                        }
+                        retryCount--;
+                        await Task.Delay(1000);
+                    }
+                }
+                try {
+                    string logMsg = $", duration[{sw.ElapsedMilliseconds}ms],recordsAffected[n/a],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn($"{core.logCommonMessage},Slow Query {logMsg}");
+                    } else {
+                        Logger.Debug($"{core.logCommonMessage},{logMsg}");
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
+                }
+                return result;
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]", ex));
+                throw;
+            }
+        }
+        //
         //========================================================================
         /// <summary>
         /// Update a record in a table

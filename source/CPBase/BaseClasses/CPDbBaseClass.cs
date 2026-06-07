@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Threading.Tasks;
@@ -207,11 +208,33 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an sql query and return a datatable. Start at record 0,  max records returned is 10M. 
+        /// Execute an sql query and return a datatable. Start at record 0,  max records returned is 10M.
         /// </summary>
         /// <param name="sql"></param>
         /// <returns></returns>
         public abstract DataTable ExecuteQuery(string sql);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized sql query and return a datatable. Start at record 0, max records returned is 10M.
+        /// Use @paramName placeholders in the sql string and matching keys in the parameters dictionary.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public abstract DataTable ExecuteQuery(string sql, Dictionary<string, object> parameters);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized sql query and return a datatable.
+        /// Use @paramName placeholders in the sql string and matching keys in the parameters dictionary.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <param name="startRecord">0 based start record</param>
+        /// <param name="maxRecords"></param>
+        /// <returns></returns>
+        public abstract DataTable ExecuteQuery(string sql, Dictionary<string, object> parameters, int startRecord, int maxRecords);
         //
         //====================================================================================================
         /// <summary>
@@ -221,6 +244,17 @@ namespace Contensive.BaseClasses {
         /// <param name="sql"></param>
         /// <returns></returns>
         public abstract int ExecuteScalar(string sql);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized sql query and return an integer.
+        /// Query should return a single value.
+        /// Use @paramName placeholders in the sql string and matching keys in the parameters dictionary.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public abstract int ExecuteScalar(string sql, Dictionary<string, object> parameters);
         //
         //====================================================================================================
         /// <summary>
@@ -239,10 +273,38 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Execute a parameterized sql command. No data is returned.
+        /// Use @paramName placeholders in the sql string and matching keys in the parameters dictionary.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        public abstract void ExecuteNonQuery(string sql, Dictionary<string, object> parameters);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized sql command. No data is returned.
+        /// Use @paramName placeholders in the sql string and matching keys in the parameters dictionary.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <param name="recordsAffected"></param>
+        public abstract void ExecuteNonQuery(string sql, Dictionary<string, object> parameters, ref int recordsAffected);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Execute an sql command on a specific datasource, dotnet async task pattern.
         /// </summary>
         /// <param name="sql"></param>
         public abstract Task<int> ExecuteNonQueryAsync(string sql);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized sql command, dotnet async task pattern.
+        /// Use @paramName placeholders in the sql string and matching keys in the parameters dictionary.
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        public abstract Task<int> ExecuteNonQueryAsync(string sql, Dictionary<string, object> parameters);
         //
         //====================================================================================================
         /// <summary>

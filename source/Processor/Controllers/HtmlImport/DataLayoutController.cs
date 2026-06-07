@@ -28,53 +28,61 @@ namespace Contensive.Processor {
                 {
                     string xPath = "//*[@data-layout]";
                     HtmlNodeCollection nodeList = htmlDoc.DocumentNode.SelectNodes(xPath);
-                    if (nodeList != null) {
-                        foreach (HtmlNode node in nodeList) {
-                            string layoutRecordName = node.Attributes["data-layout"]?.Value;
-                            string innerHtml = node.InnerHtml;
-                            //
-                            // -- replace the data-layout node with its inner html in the parent document
-                            var parentNode = node.ParentNode;
-                            var fragmentDoc = new HtmlDocument();
-                            fragmentDoc.LoadHtml(innerHtml);
-                            foreach (var child in fragmentDoc.DocumentNode.ChildNodes) {
-                                parentNode.InsertBefore(child.CloneNode(true), node);
+                    if (nodeList == null) { return; }
+                    //
+                    // -- first pass: clone and save each layout
+                    string matchedLayoutHtml = null;
+                    foreach (HtmlNode node in nodeList) {
+                        string layoutRecordName = node.Attributes["data-layout"]?.Value;
+                        string innerHtml = node.InnerHtml;
+                        //
+                        // -- create a separate document for processing and saving the layout
+                        var layoutDoc = new HtmlDocument();
+                        layoutDoc.LoadHtml(innerHtml);
+                        //
+                        // -- process the layout
+                        DataDeleteController.process(layoutDoc);
+                        MustacheVariableController.process(layoutDoc);
+                        MustacheSectionController.process(layoutDoc);
+                        MustacheTruthyController.process(layoutDoc);
+                        MustacheInvertedSectionController.process(layoutDoc);
+                        MustacheValueController.process(layoutDoc);
+                        DataAddonController.process(cp, layoutDoc);
+                        //
+                        // -- save the layout
+                        if (!string.IsNullOrWhiteSpace(layoutRecordName)) {
+                            LayoutModel layout = DbBaseModel.createByUniqueName<LayoutModel>(cp, layoutRecordName);
+                            if (layout == null) {
+                                layout = DbBaseModel.addDefault<LayoutModel>(cp);
+                                layout.name = layoutRecordName;
                             }
-                            parentNode.RemoveChild(node);
+                            if (cp.Site.htmlPlatformVersion == 5) {
+                                layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
+                            } else {
+                                layout.layout.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
+                            }
+                            layout.save(cp);
+                            userMessageList.Add($"Saved Layout '{layoutRecordName}' from data-layout attribute.");
                             //
-                            // -- create a separate document for processing and saving the layout
-                            var layoutDoc = new HtmlDocument();
-                            layoutDoc.LoadHtml(innerHtml);
-                            //
-                            // -- process the layout 
-                            DataDeleteController.process(layoutDoc);
-                            MustacheVariableController.process(layoutDoc);
-                            MustacheSectionController.process(layoutDoc);
-                            MustacheTruthyController.process(layoutDoc);
-                            MustacheInvertedSectionController.process(layoutDoc);
-                            MustacheValueController.process(layoutDoc);
-                            DataAddonController.process(cp, layoutDoc);
-                            //
-                            // -- save the alyout
-                            LayoutModel layout = null;
-                            if ((layout == null) && !string.IsNullOrWhiteSpace(layoutRecordName)) {
-                                layout = DbBaseModel.createByUniqueName<LayoutModel>(cp, layoutRecordName);
-                                if (layout == null) {
-                                    layout = DbBaseModel.addDefault<LayoutModel>(cp);
-                                    layout.name = layoutRecordName;
-                                }
-                                if(cp.Site.htmlPlatformVersion == 5) {
-                                    layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
-                                } else {
-                                    layout.layout.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
-                                }
-                                layout.save(cp);
-                                userMessageList.Add("Saved Layout '" + layoutRecordName + "' from data-layout attribute.");
+                            // -- if this layout matches the filter, capture it
+                            if (!string.IsNullOrWhiteSpace(layoutNameFilter) && layoutRecordName == layoutNameFilter) {
+                                matchedLayoutHtml = layoutDoc.DocumentNode.InnerHtml;
                             }
                         }
                     }
                     //
-                    // -- the layout was not found, return the entire layout
+                    // -- if a matching layout was found, replace the entire document with it
+                    if (matchedLayoutHtml != null) {
+                        htmlDoc.LoadHtml(matchedLayoutHtml);
+                        return;
+                    }
+                    //
+                    // -- no filter match: strip data-layout attributes but keep the element
+                    nodeList = htmlDoc.DocumentNode.SelectNodes(xPath);
+                    if (nodeList == null) { return; }
+                    foreach (HtmlNode node in nodeList) {
+                        node.Attributes.Remove("data-layout");
+                    }
                 }
             }
         }
