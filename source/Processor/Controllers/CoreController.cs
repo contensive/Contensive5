@@ -646,8 +646,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <param name="httpContext"></param>
-        /// <param name="allowVisit"></param>
-        public CoreController(CPClass cp, string appName, HttpContextModel httpContext, bool allowVisit) {
+        /// <param name="allowVisitTracking">block visit tracking if false, else use the site property AllowVisitTracking</param>
+        public CoreController(CPClass cp, string appName, HttpContextModel httpContext, bool allowVisitTracking) {
             try {
                 //
                 cpParent = cp;
@@ -697,7 +697,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- initialize session
-                    session = new(this, allowVisit && siteProperties.allowVisitTracking);
+                    session = new(this, allowVisitTracking && siteProperties.allowVisitTracking);
                     //
                     // -- authentication event if appName is valid
                     //

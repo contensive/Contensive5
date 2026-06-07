@@ -40,25 +40,18 @@ namespace Tests {
         public void views_cpContent_DeleteRecordTest() {
             // arrange
             using (CPClass cp = new(testAppName)) {
-                using (CPCSBaseClass cs = cp.CSNew()) {
-                    int peopleCntBefore = 0;
-                    int peopleCntAfter = 0;
-                    int peopleId = 0;
-                    peopleId = cp.Content.AddRecord("people");
-                    if (cs.OpenSQL("select count(*) as cnt  from ccmembers")) {
-                        peopleCntBefore = cs.GetInteger("cnt");
-                    }
-                    cs.Close();
-                    // act
-                    cp.Content.Delete("people", "id=" + peopleId.ToString());
-                    //
-                    if (cs.OpenSQL("select count(*) as cnt  from ccmembers")) {
-                        peopleCntAfter = cs.GetInteger("cnt");
-                    }
-                    cs.Close();
-                    // assert
-                    Assert.AreEqual(peopleCntAfter, (peopleCntBefore - 1));
-                }
+                // need to do this before adding record, otherwise the user record gets added after the record and messes up the count
+                _ = cp.User.Id; 
+                //using (CPCSBaseClass cs = cp.CSNew()) {
+                int peopleId = cp.Content.AddRecord("people");
+                int peopleCntBefore = cp.Db.ExecuteScalar("select count(*) as cnt  from ccmembers");
+                // act
+                cp.Content.Delete("people", "id=" + peopleId.ToString());
+                int peopleCntAfter = cp.Db.ExecuteScalar("select count(*) as cnt  from ccmembers");
+                //
+                // assert
+                Assert.AreEqual(peopleCntAfter, (peopleCntBefore - 1));
+                //}
             }
         }
         //====================================================================================================
@@ -189,18 +182,18 @@ namespace Tests {
             DateTime testDate;
 
 
-            int recordId=0;
+            int recordId = 0;
             using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) {
-                     contentName1 = "testContent" + cp.Utils.GetRandomInteger().ToString();
-                     contentFieldBooleanName = "testFieldBoolean" + cp.Utils.GetRandomInteger().ToString();
-                     contentFieldTextName = "testFieldText" + cp.Utils.GetRandomInteger().ToString();
-                     contentFieldDateName = "testFieldDate" + cp.Utils.GetRandomInteger().ToString();
-                     contentFieldIntegerName = "testFieldInteger" + cp.Utils.GetRandomInteger().ToString();
-                     testText = "testText" + cp.Utils.GetRandomInteger().ToString();
-                     testInt = cp.Utils.GetRandomInteger();
-                     rnd = new Random(cp.Utils.GetRandomInteger());
-                     testDate = new DateTime(rnd.Next(1900, 2000), rnd.Next(1, 13), rnd.Next(1, 28));
+                    contentName1 = "testContent" + cp.Utils.GetRandomInteger().ToString();
+                    contentFieldBooleanName = "testFieldBoolean" + cp.Utils.GetRandomInteger().ToString();
+                    contentFieldTextName = "testFieldText" + cp.Utils.GetRandomInteger().ToString();
+                    contentFieldDateName = "testFieldDate" + cp.Utils.GetRandomInteger().ToString();
+                    contentFieldIntegerName = "testFieldInteger" + cp.Utils.GetRandomInteger().ToString();
+                    testText = "testText" + cp.Utils.GetRandomInteger().ToString();
+                    testInt = cp.Utils.GetRandomInteger();
+                    rnd = new Random(cp.Utils.GetRandomInteger());
+                    testDate = new DateTime(rnd.Next(1900, 2000), rnd.Next(1, 13), rnd.Next(1, 28));
                     //
                     // act
                     // assert

@@ -435,7 +435,11 @@ namespace Contensive.Processor {
         public override int AddContentField(string contentName, string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType) {
             var contentMetadata = ContentMetadataModel.createByUniqueName(cp.core, contentName);
             var fieldMeta = ContentFieldMetadataModel.createDefault(cp.core, fieldName, fieldType);
-            contentMetadata.verifyContentField(cp.core, fieldMeta, false, "Api CPContent.AddContentField [" + contentName + "." + fieldName + "]");
+            contentMetadata.verifyContentField(cp.core, fieldMeta, false, $"Api CPContent.AddContentField [{contentName}.{fieldName}]");
+            //
+            // -- invalidate cached metadata so next load includes the new field
+            ContentMetadataModel.invalidateCache(cp.core, contentMetadata.id);
+            cp.core.cacheRuntime.metaDataDictionary.Remove(contentMetadata.id.ToString());
             return fieldMeta.id;
         }
         //

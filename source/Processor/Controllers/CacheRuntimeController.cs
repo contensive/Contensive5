@@ -429,7 +429,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// clear store
         /// </summary>
-        private void content_Clear() {
+        public void content_Clear() {
             //
             logger.Trace($"{core.logCommonMessage},CacheRuntime.content_Clear");
             //

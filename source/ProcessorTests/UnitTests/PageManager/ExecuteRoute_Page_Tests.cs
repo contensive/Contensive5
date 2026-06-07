@@ -1,23 +1,26 @@
-﻿
+
 using Contensive.Models.Db;
 using Contensive.Processor;
 using Contensive.Processor.Models.Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using static Tests.TestConstants;
 
 namespace Tests {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     [TestClass()]
     public class ExecuteRoute_Page_Tests {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_Page_Test() {
-            using (CPClass cp = new(testAppName)) {
+            string testPageName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + testPageName);
+            using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
@@ -43,7 +46,7 @@ namespace Tests {
                 });
                 // -- page to render
                 PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
-                testPage.name = cp.Utils.GetRandomInteger().ToString();
+                testPage.name = testPageName;
                 testPage.addonList = cp.JSON.Serialize(testAddonList);
                 testPage.save(cp);
                 // -- link alias for page
@@ -57,7 +60,7 @@ namespace Tests {
                 // act
                 string doc = cp.executeRoute("/" + testPage.name);
                 //
-                // assert 
+                // assert
                 Assert.IsTrue(doc.Contains(testString));
                 // full html page
                 Assert.IsTrue(doc.ToLower().Contains("<html"));
@@ -69,11 +72,12 @@ namespace Tests {
             }
         }
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_Page_AnonymousBlock_Redirect_Test() {
-            HttpContextModel httpContext = new HttpContextModel();
+            string testPageName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + testPageName);
             using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
@@ -103,7 +107,7 @@ namespace Tests {
                 });
                 // -- page to render
                 PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
-                testPage.name = cp.Utils.GetRandomInteger().ToString();
+                testPage.name = testPageName;
                 testPage.addonList = cp.JSON.Serialize(testAddonList);
                 testPage.save(cp);
                 //
@@ -146,7 +150,7 @@ namespace Tests {
                 cp.core.siteProperties.anonymousUserResponseID = 3;
                 cp.core.siteProperties.loginPageId = loginPage.id;
                 //
-                // act - test page should be rediredct to login page
+                // act - test page should be redirected to login page
                 string doc = cp.executeRoute("/" + testPage.name);
                 //
                 // assert neither page is returned, just a redirect to the login page
@@ -170,7 +174,8 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_Page_AnonymousBlock_Redirect_Except_Test() {
-            HttpContextModel httpContext = new HttpContextModel();
+            string loginPageName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + loginPageName);
             using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
@@ -200,7 +205,7 @@ namespace Tests {
                 //
                 // -- page for login
                 PageContentModel loginPage = DbBaseModel.addDefault<PageContentModel>(cp);
-                loginPage.name = cp.Utils.GetRandomInteger().ToString();
+                loginPage.name = loginPageName;
                 loginPage.addonList = cp.JSON.Serialize(loginAddonList);
                 loginPage.save(cp);
                 //
@@ -217,7 +222,7 @@ namespace Tests {
                 cp.core.siteProperties.anonymousUserResponseID = 3;
                 cp.core.siteProperties.loginPageId = loginPage.id;
                 //
-                // act - test page should be rediredct to login page
+                // act - hitting the login page itself should not redirect
                 string doc = cp.executeRoute("/" + loginPage.name);
                 //
                 // -- there was no redirect and we are on login page
@@ -230,11 +235,12 @@ namespace Tests {
             }
         }
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_Page_AnonymousBlock_LoginForm_Test() {
-            HttpContextModel httpContext = new HttpContextModel();
+            string testPageName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + testPageName);
             using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
@@ -264,7 +270,7 @@ namespace Tests {
                 });
                 // -- page to render
                 PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
-                testPage.name = cp.Utils.GetRandomInteger().ToString();
+                testPage.name = testPageName;
                 testPage.addonList = cp.JSON.Serialize(testAddonList);
                 testPage.save(cp);
                 //
@@ -294,12 +300,11 @@ namespace Tests {
                 // -- block with login form
                 cp.core.siteProperties.anonymousUserResponseID = 1;
                 cp.core.siteProperties.loginPageAddonId = loginAddon.id;
-                //cp.core.siteProperties.loginPageId = loginPage.id;
                 //
-                // act - test page should be rediredct to login page
+                // act - anonymous user should be blocked and see login form instead of page content
                 string doc = cp.executeRoute("/" + testPage.name);
                 //
-                // assert neither page is returned, just a redirect to the login page
+                // assert login form addon content is returned instead of page content
                 Assert.IsTrue(doc.Contains(loginAddon.copyText));
                 // cleanup
                 DbBaseModel.delete<AddonModel>(cp, renderPageAddon.id);
@@ -309,11 +314,12 @@ namespace Tests {
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_Page_AnonymousBlock_Message_Test() {
-            HttpContextModel httpContext = new HttpContextModel();
+            string testPageName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + testPageName);
             using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
@@ -343,7 +349,7 @@ namespace Tests {
                 });
                 // -- page to render
                 PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
-                testPage.name = cp.Utils.GetRandomInteger().ToString();
+                testPage.name = testPageName;
                 testPage.addonList = cp.JSON.Serialize(testAddonList);
                 testPage.save(cp);
                 //
@@ -370,15 +376,14 @@ namespace Tests {
                 // -- rebuild routes after adding new page
                 cp.core.routeMapRebuild();
                 //
-                // -- block with login form
+                // -- block with custom message
                 cp.core.siteProperties.anonymousUserResponseID = 2;
                 cp.core.siteProperties.anonymousUserResponseCopy = cp.Utils.GetRandomInteger().ToString();
-                //cp.core.siteProperties.loginPageId = loginPage.id;
                 //
-                // act - test page should be rediredct to login page
+                // act - anonymous user should be blocked and see custom message instead of page content
                 string doc = cp.executeRoute("/" + testPage.name);
                 //
-                // assert neither page is returned, just a redirect to the login page
+                // assert custom message content is returned instead of page content
                 Assert.IsTrue(doc.Contains(cp.core.siteProperties.anonymousUserResponseCopy));
                 // cleanup
                 DbBaseModel.delete<AddonModel>(cp, renderPageAddon.id);

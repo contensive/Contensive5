@@ -2,7 +2,9 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor;
+using Contensive.Processor.Models.Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using static Tests.TestConstants;
 
 namespace Tests {
@@ -116,8 +118,9 @@ namespace Tests {
         public void views_cp_ExecuteRouteTest() {
             //
             // arrange
-            using (CPClass cp = new(testAppName)) {
-                string addonName = "testAddon-2-" + cp.Utils.GetRandomInteger().ToString();
+            string addonName = $"testAddon-2-{new Random().Next()}";
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + addonName);
+            using (CPClass cp = new(testAppName, httpContext)) {
                 int recordId = 0;
                 string htmlText = "12345";
                 string wysiwygText = "<b>abcde</b>";

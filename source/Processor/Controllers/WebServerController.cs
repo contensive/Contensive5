@@ -194,7 +194,7 @@ namespace Contensive.Processor.Controllers {
         public string requestPathPage {
             get {
                 if (!string.IsNullOrEmpty(_requestPathPage)) { return _requestPathPage; }
-                if (httpContext?.Request == null) { return string.Empty; }
+                if (httpContext?.Request == null) { return "/"; }
                 if (!string.IsNullOrEmpty(httpContext.Request.RawUrl)) {
                     try {
                         string[] pathPage = httpContext.Request.RawUrl.Split('?');
@@ -205,8 +205,8 @@ namespace Contensive.Processor.Controllers {
                         //
                     }
                 }
-                if (httpContext.Request.ServerVariables == null) { return string.Empty; }
-                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? httpContext.Request.ServerVariables["SCRIPT_NAME"] : "";
+                if (httpContext.Request.ServerVariables == null) { return "/"; }
+                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? httpContext.Request.ServerVariables["SCRIPT_NAME"] : "/";
                 return _requestPathPage;
             }
         }
@@ -428,7 +428,7 @@ namespace Contensive.Processor.Controllers {
         public string requestPath {
             get {
                 if (_requestPath != null) { return _requestPath; }
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return string.Empty; }
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return "/"; }
                 var segments = splitUrl(httpContext.Request.Url.AbsoluteUri);
                 _requestPath = segments.unixPath;
                 return _requestPath;

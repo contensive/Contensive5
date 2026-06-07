@@ -1,14 +1,15 @@
-﻿
+
 using Contensive.Models.Db;
 using Contensive.Processor;
 using Contensive.Processor.Models.Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using static Tests.TestConstants;
 
 namespace Tests {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     [TestClass()]
     public class ExecuteRoute_RemoteMethod_Tests {
@@ -17,7 +18,8 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_RemoteMethod_Test() {
-            HttpContextModel httpContext = new HttpContextModel();
+            string addonName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + addonName);
             using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
@@ -29,7 +31,7 @@ namespace Tests {
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 //
                 AddonModel addon = DbBaseModel.addDefault<AddonModel>(cp);
-                addon.name = cp.Utils.GetRandomInteger().ToString();
+                addon.name = addonName;
                 addon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
                 addon.remoteMethod = true;
                 addon.collectionId = baseCollection.id;
@@ -41,7 +43,7 @@ namespace Tests {
                 cp.Doc.SetProperty("test-in", testString);
                 // act
                 string doc = cp.executeRoute("/" + addon.name);
-                // assert 
+                // assert
                 Assert.AreEqual(testString, cp.Doc.GetText("test-out"));
                 Assert.IsTrue(doc.Contains(testString));
                 // no html
@@ -57,7 +59,9 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void ExecuteRoute_RemoteMethod_Html_Test() {
-            using (CPClass cp = new(testAppName)) {
+            string addonName = new Random().Next().ToString();
+            HttpContextModel httpContext = TestHttpContext.createForRoute("/" + addonName);
+            using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
@@ -67,7 +71,7 @@ namespace Tests {
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 //
                 AddonModel addon = DbBaseModel.addDefault<AddonModel>(cp);
-                addon.name = cp.Utils.GetRandomInteger().ToString();
+                addon.name = addonName;
                 addon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
                 addon.remoteMethod = true;
                 addon.collectionId = baseCollection.id;
@@ -82,7 +86,7 @@ namespace Tests {
                 // act
                 string doc = cp.executeRoute("/" + addon.name);
                 //
-                // assert 
+                // assert
                 Assert.AreEqual(testString, cp.Doc.GetText("test-out"));
                 Assert.IsTrue(doc.Contains(testString));
                 // no html

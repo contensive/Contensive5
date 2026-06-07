@@ -20,62 +20,70 @@ namespace Tests {
         public void test_NoSession() {
             using (CPClass cp = new(testAppName)) {
                 // arrange
-                cp.Site.SetProperty("allowVisitTracking", true);
-                string propText = cp.Utils.GetRandomInteger().ToString();
-                int propInt = cp.Utils.GetRandomInteger();
-                double propDouble = (double)cp.Utils.GetRandomInteger() / (double)cp.Utils.GetRandomInteger();
-                bool propBoolTrue = true;
-                bool propBoolFalse = false;
-                DateTime propDate = DateTime.MinValue.AddMinutes(cp.Utils.GetRandomInteger());
-                Contensive.Models.Db.DbBaseModel.deleteRows<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(keyid=0)and(TypeId={propertyTypeId})");
+                cp.Site.SetProperty("allowVisitTracking", false);
+            }
+            try {
+                using (CPClass cp = new(testAppName)) {
+                    string propText = cp.Utils.GetRandomInteger().ToString();
+                    int propInt = cp.Utils.GetRandomInteger();
+                    double propDouble = (double)cp.Utils.GetRandomInteger() / (double)cp.Utils.GetRandomInteger();
+                    bool propBoolTrue = true;
+                    bool propBoolFalse = false;
+                    DateTime propDate = DateTime.MinValue.AddMinutes(cp.Utils.GetRandomInteger());
+                    Contensive.Models.Db.DbBaseModel.deleteRows<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(keyid=0)and(TypeId={propertyTypeId})");
 
-                //
-                int visitorId = cp.Visitor.Id;
-                //
-                cp.Visitor.SetProperty("propInt", propInt);
-                cp.Visitor.SetProperty("propDouble", propDouble);
-                cp.Visitor.SetProperty("propBoolTrue", propBoolTrue);
-                cp.Visitor.SetProperty("propBoolFalse", propBoolFalse);
-                cp.Visitor.SetProperty("propDate", propDate);
-                //
-                Assert.AreEqual(0, cp.Visitor.GetInteger("propInt"));
-                Assert.AreEqual(0, cp.Visitor.GetInteger("propInt",-propInt));
-                //
-                Assert.AreEqual(0.0, cp.Visitor.GetNumber("propDouble"));
-                Assert.AreEqual(0.0, cp.Visitor.GetNumber("propDouble",-propDouble));
-                //
-                Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolTrue"));
-                Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolTrue", propBoolFalse));
-                //
-                Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolFalse"));
-                Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolFalse", propBoolTrue));
-                //
-                Assert.AreEqual(DateTime.MinValue, cp.Visitor.GetDate("propDate"));
-                Assert.AreEqual(DateTime.MinValue, cp.Visitor.GetDate("propDate", propDate.AddDays(1)));
-                //
-                var properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propInt')and(keyid={visitorId})and(TypeId={propertyTypeId})");
-                Assert.AreEqual(0, properyList.Count);
-                //Assert.AreEqual(propInt, cp.Utils.EncodeInteger(properyList[0].fieldValue));
-                //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDouble')and(keyid={visitorId})and(TypeId={propertyTypeId})");
-                Assert.AreEqual(0, properyList.Count);
-                //Assert.AreEqual(propDouble, cp.Utils.EncodeNumber(properyList[0].fieldValue));
-                //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolTrue')and(keyid={visitorId})and(TypeId={propertyTypeId})");
-                Assert.AreEqual(0, properyList.Count);
-                //Assert.AreEqual(propBoolTrue, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
-                //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={visitorId})and(TypeId={propertyTypeId})");
-                Assert.AreEqual(0, properyList.Count);
-                //Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
-                //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={visitorId})and(TypeId={propertyTypeId})");
-                Assert.AreEqual(0, properyList.Count);
-                //Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
-                //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDate')and(keyid={visitorId})and(TypeId={propertyTypeId})");
-                Assert.AreEqual(0, properyList.Count);
-                //Assert.AreEqual(propDate, cp.Utils.EncodeDate(properyList[0].fieldValue));
+                    //
+                    int visitorId = cp.Visitor.Id;
+                    //
+                    cp.Visitor.SetProperty("propInt", propInt);
+                    cp.Visitor.SetProperty("propDouble", propDouble);
+                    cp.Visitor.SetProperty("propBoolTrue", propBoolTrue);
+                    cp.Visitor.SetProperty("propBoolFalse", propBoolFalse);
+                    cp.Visitor.SetProperty("propDate", propDate);
+                    //
+                    Assert.AreEqual(0, cp.Visitor.GetInteger("propInt"), "propInt 1");
+                    Assert.AreEqual(0, cp.Visitor.GetInteger("propInt", -propInt), "propInt 2");
+                    //
+                    Assert.AreEqual(0.0, cp.Visitor.GetNumber("propDouble"), "propDouble 1");
+                    Assert.AreEqual(0.0, cp.Visitor.GetNumber("propDouble", -propDouble), "propDouble 2");
+                    //
+                    Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolTrue"), "propBoolTrue 1");
+                    Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolTrue", propBoolFalse), "propBoolTrue 2");
+                    //
+                    Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolFalse"), "propBoolFalse 1");
+                    Assert.AreEqual(false, cp.Visitor.GetBoolean("propBoolFalse", propBoolTrue), "propBoolFalse 2");
+                    //
+                    Assert.AreEqual(DateTime.MinValue, cp.Visitor.GetDate("propDate"), "propDate 1");
+                    Assert.AreEqual(DateTime.MinValue, cp.Visitor.GetDate("propDate", propDate.AddDays(1)), "propDate 2");
+                    //
+                    var properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propInt')and(keyid={visitorId})and(TypeId={propertyTypeId})");
+                    Assert.AreEqual(0, properyList.Count, "propInt list count");
+                    //Assert.AreEqual(propInt, cp.Utils.EncodeInteger(properyList[0].fieldValue), "propInt value");
+                    //
+                    properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDouble')and(keyid={visitorId})and(TypeId={propertyTypeId})");
+                    Assert.AreEqual(0, properyList.Count, "propDouble list count");
+                    //Assert.AreEqual(propDouble, cp.Utils.EncodeNumber(properyList[0].fieldValue), "propDouble value");
+                    //
+                    properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolTrue')and(keyid={visitorId})and(TypeId={propertyTypeId})");
+                    Assert.AreEqual(0, properyList.Count, "propBoolTrue list count");
+                    //Assert.AreEqual(propBoolTrue, cp.Utils.EncodeBoolean(properyList[0].fieldValue), "propBoolTrue value");
+                    //
+                    properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={visitorId})and(TypeId={propertyTypeId})");
+                    Assert.AreEqual(0, properyList.Count, "propBoolFalse list count");
+                    //Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue), "propBoolFalse value");
+                    //
+                    properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={visitorId})and(TypeId={propertyTypeId})");
+                    Assert.AreEqual(0, properyList.Count, "propBoolFalse list count");
+                    //Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue), "propBoolFalse value");
+                    //
+                    properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDate')and(keyid={visitorId})and(TypeId={propertyTypeId})");
+                    Assert.AreEqual(0, properyList.Count, "propDate list count");
+                    //Assert.AreEqual(propDate, cp.Utils.EncodeDate(properyList[0].fieldValue), "propDate value");
+                }
+            } finally {
+                using (CPClass cp = new(testAppName)) {
+                    cp.Site.SetProperty("allowVisitTracking", true);
+                }
             }
         }
         //
