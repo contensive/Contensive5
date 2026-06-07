@@ -7,6 +7,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using static Tests.TestConstants;
 using Contensive.Processor.Addons.AdminSite;
+using Contensive.Processor.Models.Domain;
+using Contensive.Models.Db;
 
 namespace Tests {
     //
@@ -30,7 +32,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_SaveChildPageList_RejectsUnauthenticatedRequests() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - ensure user is NOT authenticated
                 cp.User.Logout();
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
@@ -61,7 +64,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_SaveChildPageList_RejectsUnauthorizedRequests() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - create a regular authenticated user without edit permissions
                 int testUserId = cp.core.session.user.id;
                 if (testUserId == 0 || cp.User.IsAdmin) {
@@ -101,7 +105,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_AdminHint_DoesNotLeakInfoToUnauthenticated() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - ensure user is NOT authenticated
                 cp.User.Logout();
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
@@ -123,21 +128,35 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_AdminHint_ShowsHintsToAuthenticatedAdmins() {
-            using (CPClass cp = new(testAppName)) {
-                // arrange - ensure user is authenticated and is an admin
-                if (!cp.User.IsAuthenticated || !cp.User.IsAdmin) {
-                    Assert.Inconclusive("Test requires an authenticated admin user");
-                    return;
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
+                PersonModel testUser = null;
+                try {
+                    // arrange - create a new user and make them an admin
+                    testUser = DbBaseModel.addDefault<PersonModel>(cp);
+                    testUser.name = "TestAdminUser";
+                    testUser.admin = true;
+                    testUser.save(cp);
+                    // authenticate the session with the new admin user
+                    bool loginResult = cp.User.LoginByID(testUser.id);
+                    Assert.IsTrue(loginResult, "LoginByID should succeed");
+                    Assert.IsTrue(cp.User.IsAuthenticated, "User should be authenticated after LoginByID");
+                    Assert.IsTrue(cp.User.IsAdmin, "User should be an admin");
+
+                    // act - call adminHint with authenticated admin
+                    string hintText = "Test admin hint";
+                    string result = HtmlController.adminHint(cp.core, hintText);
+
+                    // assert - should return admin hint HTML
+                    Assert.IsTrue(!string.IsNullOrEmpty(result), "adminHint should return content for authenticated admins");
+                    Assert.IsTrue(result.Contains("ccHintWrapper"), "Result should contain hint wrapper div");
+                    Assert.IsTrue(result.Contains(hintText), "Result should contain the hint text");
+                } finally {
+                    // cleanup - delete the test user
+                    if (testUser != null && testUser.id > 0) {
+                        DbBaseModel.delete<PersonModel>(cp, testUser.id);
+                    }
                 }
-
-                // act - call adminHint with authenticated admin
-                string hintText = "Test admin hint";
-                string result = HtmlController.adminHint(cp.core, hintText);
-
-                // assert - should return admin hint HTML
-                Assert.IsTrue(!string.IsNullOrEmpty(result), "adminHint should return content for authenticated admins");
-                Assert.IsTrue(result.Contains("ccHintWrapper"), "Result should contain hint wrapper div");
-                Assert.IsTrue(result.Contains(hintText), "Result should contain the hint text");
             }
         }
 
@@ -151,7 +170,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_IsAdvancedEditing_RequiresAuthentication() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - ensure user is NOT authenticated
                 cp.User.Logout();
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
@@ -174,7 +194,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_IsVisibleUserField_RequiresAuthentication() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - ensure user is NOT authenticated
                 cp.User.Logout();
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
@@ -204,7 +225,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_IsVisibleUserField_EditModal_RequiresAuthentication() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - ensure user is NOT authenticated
                 cp.User.Logout();
                 Assert.IsFalse(cp.User.IsAuthenticated, "User should not be authenticated for this test");
@@ -236,7 +258,8 @@ namespace Tests {
         //
         [TestMethod]
         public void Security_RecognizedButNotAuthenticated_CannotAccessSensitiveOperations() {
-            using (CPClass cp = new(testAppName)) {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 // arrange - simulate a recognized but not authenticated user
                 // This scenario occurs when allowAutoRecognize is enabled
                 cp.User.Logout();
