@@ -104,7 +104,7 @@ namespace Contensive.Processor.Controllers {
                     session.user.autoLogin = false;
                     session.user.save(core.cpParent);
                 }
-                if (!core.siteProperties.allowVisitTracking) {
+                if (session.visit == null || session.visit.id == 0) {
                     session.visit = new VisitModel();
                     session.visitor = new VisitorModel();
                     session.user = new PersonModel();

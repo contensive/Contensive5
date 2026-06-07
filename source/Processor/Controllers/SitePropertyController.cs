@@ -488,15 +488,15 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// If disabled, do not automatically track user visits. Initialize user tracking if cp.user.id is referenced.
+        /// If true, do not read or write internal visit/visitor session cookies.
+        /// Does not affect addon API cookie methods (cp.Response.SetCookie, cp.Request.Cookie).
         /// </summary>
-        public bool allowVisitTracking {
+        public bool disableSessionCookies {
             get {
-                // todo, new site with visit tracking false blocked sessions. when fixed, make default false
-                return getPropertyBase("allowVisitTracking", true, ref _allowVisitTracking);
+                return getPropertyBase("disableSessionCookies", false, ref _disableSessionCookies);
             }
         }
-        private bool? _allowVisitTracking;
+        private bool? _disableSessionCookies;
         //
         //====================================================================================================
         //

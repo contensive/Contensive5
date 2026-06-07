@@ -169,8 +169,14 @@ namespace Contensive.Processor.Controllers {
                 }
                 if (core.appConfig == null) {
                     //
-                    // -- no application, this is a server-only call not related to a 
+                    // -- no application, this is a server-only call not related to a
                     logger.Trace($"{core.logCommonMessage},app.config null, create server session");
+                    return;
+                }
+                if (!trackVisits) {
+                    //
+                    // -- tracking disabled, leave visit/visitor/user as empty default models (id=0)
+                    // -- on-demand initialization via verifyUser() when cp.User.Id or cp.Visit.Id is accessed
                     return;
                 }
                 //
@@ -245,7 +251,7 @@ namespace Contensive.Processor.Controllers {
                     //    This groups bot hits from the same IP+UserAgent into a single visitor/visit,
                     //    preventing database pollution from crawlers and background processes.
                     //
-                    if (earlyResolvedUser == null && (visitor == null || visitor.id == 0)) {
+                    if (earlyResolvedUser == null && (visitor == null || visitor.id == 0) && !string.IsNullOrEmpty(core.webServer.requestRemoteIP)) {
                         string userAgent = core.webServer.requestBrowser ?? "";
                         string remoteIP = core.webServer.requestRemoteIP ?? "";
                         //
@@ -603,6 +609,7 @@ namespace Contensive.Processor.Controllers {
             //
             logger.Trace($"{core.logCommonMessage},SessionController.getVisitCookie, enter");
             //
+            if (core.siteProperties.disableSessionCookies) { return ""; }
             return core.webServer.requestCookie(cookiePrefix + cookieNameVisit);
         }
         //
@@ -615,6 +622,7 @@ namespace Contensive.Processor.Controllers {
             //
             logger.Trace($"{core.logCommonMessage},SessionController.getVisitorCookie, enter");
             //
+            if (core.siteProperties.disableSessionCookies) { return ""; }
             return core.webServer.requestCookie(cookiePrefix + cookieNameVisitor);
         }
         //
@@ -628,6 +636,7 @@ namespace Contensive.Processor.Controllers {
             //
             logger.Trace($"{core.logCommonMessage},SessionController.setVisitCookie, enter");
             //
+            if (core.siteProperties.disableSessionCookies) { return; }
             if (sessionContext.visit.id.Equals(0)) { return; }
             DateTime expirationDate = getDate(sessionContext.visit.startTime).AddMinutes(60);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visit.id, expirationDate);
@@ -645,6 +654,7 @@ namespace Contensive.Processor.Controllers {
             //
             logger.Trace($"{core.logCommonMessage},SessionController.setVisitorCookie, enter");
             //
+            if (core.siteProperties.disableSessionCookies) { return; }
             if (sessionContext.visitor.id.Equals(0)) { return; }
             DateTime expirationDate = getDate(sessionContext.visit.startTime).AddYears(1);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visitor.id, expirationDate);

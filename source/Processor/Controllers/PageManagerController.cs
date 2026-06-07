@@ -167,7 +167,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // todo move cookie test to htmlDoc controller
                 // -- Add cookie test
-                bool AllowCookieTest = core.siteProperties.allowVisitTracking && (core.session.visit.pageVisits == 1);
+                bool AllowCookieTest = !core.siteProperties.disableSessionCookies && (core.session.visit.pageVisits == 1);
                 if (AllowCookieTest) {
                     core.html.addScriptCode_onLoad("if (document.cookie && document.cookie != null){cj.ajax.qs('" + rnCookieDetect + "=" + SecurityController.encodeToken(core, core.session.visit.id, core.doc.profileStartTime.AddSeconds(30)) + "')};", "Cookie Test");
                 }
