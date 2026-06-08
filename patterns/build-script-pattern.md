@@ -15,10 +15,12 @@ Each addon repo contains two files in its `scripts/` folder:
 All build step logic lives in the shared PowerShell module:
 
 ```
-C:\Git\Contensive5\scripts\contensive-build.psm1
+C:\Git\Contensive5\scripts\build-addon-collection.psm1
 ```
 
 To change the build process for every repo, edit that module. No per-repo changes are needed.
+
+> **Note:** The module was previously named `contensive-build.psm1`. That file now exists only as a deprecation stub that aborts with an error message directing callers to update their import to `build-addon-collection.psm1`.
 
 ---
 
@@ -196,7 +198,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 
-Import-Module (Join-Path $PSScriptRoot '..\..\Contensive5\scripts\contensive-build.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot '..\..\Contensive5\scripts\build-addon-collection.psm1') -Force
 
 $projectRoot = (Resolve-Path "$PSScriptRoot\..").Path
 

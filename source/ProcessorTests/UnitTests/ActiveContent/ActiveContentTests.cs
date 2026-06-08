@@ -1,41 +1,40 @@
-﻿
+
 using Contensive.BaseClasses;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using static Tests.TestConstants;
+using static Contensive.Processor.Tests.TestConstants;
 
-namespace Tests {
+namespace Contensive.Processor.Tests.UnitTests.ActiveContent;
+//
+//====================================================================================================
+//
+[TestClass()]
+public class AddonControllerTest {
     //
     //====================================================================================================
     //
-    [TestClass()]
-    public class AddonControllerTest {
-        //
-        //====================================================================================================
-        //
-        [TestMethod]
-        public void controllers_ActiveContent_Content()  {
-            using (CPClass cp = new(testAppName)) {
-                // arrange
-                string source = "<ac Type=\"content\">";
-                // act
-                DateTime dateBefore = cp.core.dateTimeNowMockable.AddSeconds(-1);
-                string resultString = ContentRenderController.renderHtmlForWeb(
-                    core: cp.core,
-                    source: source,
-                    contextContentName: "",
-                    ContextRecordId: 0,
-                    deprecated_ContextContactPeopleId: 0,
-                    ProtocolHostString: "",
-                    ignoreInt: 0,
-                    addonContext: CPUtilsBaseClass.addonContext.ContextPage
-                );
-                // assert
-                Assert.AreEqual(Constants.fpoContentBox,resultString, "The result string was not the content fpo guid [" + resultString + "]");
-            }
+    [TestMethod]
+    public void controllers_ActiveContent_Content()  {
+        using (CPClass cp = new(testAppName)) {
+            // arrange
+            string source = "<ac Type=\"content\">";
+            // act
+            DateTime dateBefore = cp.core.dateTimeNowMockable.AddSeconds(-1);
+            string resultString = ContentRenderController.renderHtmlForWeb(
+                core: cp.core,
+                source: source,
+                contextContentName: "",
+                ContextRecordId: 0,
+                deprecated_ContextContactPeopleId: 0,
+                ProtocolHostString: "",
+                ignoreInt: 0,
+                addonContext: CPUtilsBaseClass.addonContext.ContextPage
+            );
+            // assert
+            Assert.AreEqual(Constants.fpoContentBox,resultString, "The result string was not the content fpo guid [" + resultString + "]");
         }
-
     }
+
 }

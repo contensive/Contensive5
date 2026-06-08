@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <RootNamespace>Contensive.Models.Tests</RootNamespace>
 	  <TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
 	  <LangVersion>latest</LangVersion>
 	  <ImplicitUsings>enable</ImplicitUsings>

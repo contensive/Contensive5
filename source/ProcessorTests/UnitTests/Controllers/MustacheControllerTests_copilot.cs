@@ -1,20 +1,20 @@
 using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests {
-    [TestClass]
-    public class MustacheControllerTests {
-        [TestMethod]
-        public void renderStringToString_ShouldRenderTemplateWithDataSet() {
-            // Arrange
-            string template = "Hello, {{name}}!";
-            var dataSet = new { name = "John" };
+namespace Contensive.Processor.Tests.UnitTests.Controllers;
 
-            // Act
-            string result = MustacheController.renderStringToString(template, dataSet);
+[TestClass]
+public class MustacheControllerTests {
+    [TestMethod]
+    public void renderStringToString_ShouldRenderTemplateWithDataSet() {
+        // Arrange
+        string template = "Hello, {{name}}!";
+        var dataSet = new { name = "John" };
 
-            // Assert
-            Assert.AreEqual("Hello, John!", result);
-        }
+        // Act
+        string result = MustacheController.renderStringToString(template, dataSet);
+
+        // Assert
+        Assert.AreEqual("Hello, John!", result);
     }
 }

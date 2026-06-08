@@ -1,30 +1,29 @@
-﻿using Contensive.Processor;
+using Contensive.Processor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static Tests.TestConstants;
+using static Contensive.Processor.Tests.TestConstants;
 
-namespace Tests {
+namespace Contensive.Processor.Tests.UnitTests.CollectionExport;
+//
+//====================================================================================================
+//
+[TestClass()]
+public class ExportControllerTests {
+    //
+    private bool localPropertyToFoolCodacyStaticMethodRequirement;
     //
     //====================================================================================================
     //
-    [TestClass()]
-    public class ExportControllerTests {
+    [TestMethod]
+    public void teamplatePlaceHolder()  {
+        using CPClass cp = new(testAppName);
         //
-        private bool localPropertyToFoolCodacyStaticMethodRequirement;
+        // -- arrange
         //
-        //====================================================================================================
+        // -- act
         //
-        [TestMethod]
-        public void teamplatePlaceHolder()  {
-            using CPClass cp = new(testAppName);
-            //
-            // -- arrange
-            //
-            // -- act
-            //
-            // -- assert
-            Assert.AreEqual("", string.Empty);
-            //
-            localPropertyToFoolCodacyStaticMethodRequirement = !localPropertyToFoolCodacyStaticMethodRequirement;
-        }
+        // -- assert
+        Assert.AreEqual("", string.Empty);
+        //
+        localPropertyToFoolCodacyStaticMethodRequirement = !localPropertyToFoolCodacyStaticMethodRequirement;
     }
 }

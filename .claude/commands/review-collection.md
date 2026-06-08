@@ -77,6 +77,7 @@ Check against `build-script-pattern.md`:
 
 - `scripts/build.cmd` is not the thin wrapper pattern (should only call `build.ps1` via PowerShell)
 - `scripts/build.ps1` contains build step logic instead of only configuration and a single `Invoke-ContensiveBuild` call
+- `scripts/build.ps1` imports the old `contensive-build.psm1` instead of the current `build-addon-collection.psm1` — the old module name is deprecated and will abort the build
 - `CollectionDlls` list in `build.ps1` does not match the DLLs actually produced by the solution
 - `DeploymentRoot` path does not follow the `C:\deployments\{name}` convention
 - `CleanFolders` missing project `bin\` or `obj\` directories
