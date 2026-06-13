@@ -1,7 +1,9 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Text.RegularExpressions;
 using Contensive.Exceptions;
 //
 namespace Contensive.Processor.Controllers {
@@ -78,7 +80,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="catalogName"></param>
         public void createCatalog(string catalogName) {
             try {
-                executeQuery("create database " + catalogName);
+                verifyCatalogName(catalogName);
+                executeQuery($"create database [{catalogName}]");
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -92,10 +95,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="catalogName"></param>
         public void deleteCatalog(string catalogName) {
             try {
-                //
-                // -- try a simple drop
-                executeQuery("ALTER DATABASE " + catalogName + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE;");
-                executeQuery("DROP DATABASE " + catalogName);
+                verifyCatalogName(catalogName);
+                executeQuery($"ALTER DATABASE [{catalogName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;");
+                executeQuery($"DROP DATABASE [{catalogName}]");
                 return;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -112,11 +114,9 @@ namespace Contensive.Processor.Controllers {
         public bool checkCatalogExists(string catalog) {
             bool returnOk = false;
             try {
-                string sql = null;
-                DataTable dt = null;
-                //
-                sql = string.Format("SELECT database_id FROM sys.databases WHERE Name = '{0}'", catalog);
-                dt = executeQuery(sql);
+                string sql = "SELECT database_id FROM sys.databases WHERE Name = @catalogName";
+                var parameters = new Dictionary<string, object> { { "@catalogName", catalog } };
+                DataTable dt = executeQuery(sql, parameters);
                 returnOk = (dt.Rows.Count > 0);
                 dt.Dispose();
             } catch (Exception ex) {
@@ -148,6 +148,14 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sql"></param>
         /// <returns></returns>
         private DataTable executeQuery(string sql) {
+            return executeQuery(sql, null);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute a parameterized query and return a dataTable
+        /// </summary>
+        private DataTable executeQuery(string sql, Dictionary<string, object> parameters) {
             DataTable returnData = new DataTable();
             try {
                 using SqlConnection connSQL = new SqlConnection(getConnectionStringADONET());
@@ -157,13 +165,29 @@ namespace Contensive.Processor.Controllers {
                     CommandText = sql,
                     Connection = connSQL
                 };
+                if (parameters != null) {
+                    foreach (var kvp in parameters) {
+                        cmdSQL.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
+                    }
+                }
                 using dynamic adptSQL = new System.Data.SqlClient.SqlDataAdapter(cmdSQL);
                 adptSQL.Fill(returnData);
             } catch (Exception ex) {
-                var newEx = new GenericException("Exception [" + ex.Message + "] executing master sql [" + sql + "]", ex);
+                var newEx = new GenericException($"Exception [{ex.Message}] executing master sql [{sql}]", ex);
                 logger.Error($"{core.logCommonMessage}", newEx);
             }
             return returnData;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Validate that a catalog name contains only safe characters to prevent SQL injection in DDL statements.
+        /// DDL statements do not support parameterized database names.
+        /// </summary>
+        private static void verifyCatalogName(string catalogName) {
+            if (string.IsNullOrWhiteSpace(catalogName) || !Regex.IsMatch(catalogName, @"^[a-zA-Z0-9_\-]+$")) {
+                throw new ArgumentException($"Invalid catalog name: [{catalogName}]. Only alphanumeric characters, underscores, and hyphens are allowed.");
+            }
         }
         //
         //====================================================================================================

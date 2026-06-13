@@ -22,6 +22,11 @@ namespace Contensive.Processor.Addons {
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
                 CoreController core = ((CPClass)cp).core;
+                //
+                // -- authorization
+                if (!core.session.isAuthenticated || !core.session.isAuthenticatedContentManager()) {
+                    return AjaxResponse.getResponseNotAuthorized(cp);
+                }
                 string requestJson = cp.Request.Body;
                 if (string.IsNullOrEmpty(requestJson)) { return AjaxResponse.getResponseArgumentInvalid(cp, $"Empty request"); };
                 GetEditModalRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<GetEditModalRequest>(requestJson);

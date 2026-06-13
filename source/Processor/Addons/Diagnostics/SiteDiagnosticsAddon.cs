@@ -71,10 +71,10 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 }
                 result.AppendLine("ok, SMS provider configured.");
                 //
-                // -- verify the default username=root, password=contensive is not present
-                var rootUserList = PersonModel.createList<PersonModel>(cp, "((username='root')and(password='contensive')and(active>0))");
+                // -- verify the default root user does not exist with a well-known password or no expiration
+                var rootUserList = PersonModel.createList<PersonModel>(cp, $"((username='root')and(password='{Constants.defaultRootUserPassword_deprecated}')and(active>0))");
                 if (rootUserList.Count > 0) {
-                    return "ERROR, delete or inactive default user root/contensive.";
+                    return "ERROR, active root user found with default password. Change the root user password or deactivate the account.";
                 }
                 //
                 // -- meta data test- lookup field without lookup set

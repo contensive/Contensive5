@@ -54,7 +54,8 @@
       "Bash(npx playwright test)",
       "Bash(npm install:*)",
       "Bash(npx playwright:*)",
-      "Bash(scripts/build.cmd:*)"
+      "Bash(scripts/build.cmd:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

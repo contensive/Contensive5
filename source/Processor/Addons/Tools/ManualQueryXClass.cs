@@ -110,8 +110,8 @@ namespace Contensive.Processor.Addons.Tools {
                         } catch (Exception ex) {
                             //
                             // ----- error
-                            Stream.add("<br>" + core.dateTimeNowMockable + " SQL execution returned the following error");
-                            Stream.add("<br>" + ex.Message);
+                            Stream.add("<br>" + core.dateTimeNowMockable + " SQL execution returned an error. Check the error log for details.");
+                            logger.Error(ex, $"{core.logCommonMessage}");
                         }
                         string errSql = ErrorController.getDocExceptionHtmlList(core);
                         if (!string.IsNullOrWhiteSpace(errSql)) {

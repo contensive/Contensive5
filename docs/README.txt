@@ -92,7 +92,93 @@ VERIFICATION:
 NOTE: One scheduled task handles ALL applications on the server.
 
 --------------------------------------------------------------------------------
-4. VERIFY INSTALLATION
+4. SETUP SCHEDULED TASK (Task Service Daily Restart)
+--------------------------------------------------------------------------------
+
+The Contensive Task Service may accumulate memory over time. A daily restart
+releases resources and keeps the service running reliably.
+
+FIND YOUR SERVICE NAME:
+  The registered service name may vary by installation. Run this to find it:
+
+  Get-Service *contensive*, *taskservice* | Format-Table Name, DisplayName, Status
+
+  Use the value from the "Name" column below. Common names are
+  "Contensive Task Service" or "TaskService".
+
+POWERSHELL INSTALLATION (Recommended):
+  1. Open PowerShell as Administrator
+  2. Set the service name variable to match your installation:
+
+  $serviceName = "Contensive Task Service"
+
+  3. Run the following to create the stop task:
+
+  $stopAction = New-ScheduledTaskAction `
+      -Execute "sc.exe" `
+      -Argument "stop `"$serviceName`""
+
+  $stopTrigger = New-ScheduledTaskTrigger -Daily -At 3:00AM
+
+  $stopPrincipal = New-ScheduledTaskPrincipal `
+      -UserId "SYSTEM" `
+      -LogonType ServiceAccount `
+      -RunLevel Highest
+
+  Register-ScheduledTask `
+      -TaskName "Contensive Task Service - Daily Stop" `
+      -Action $stopAction `
+      -Trigger $stopTrigger `
+      -Principal $stopPrincipal `
+      -Description "Stops the Contensive Task Service for daily restart"
+
+  4. Run the following to create the start task (1-minute delay for graceful
+     shutdown):
+
+  $startAction = New-ScheduledTaskAction `
+      -Execute "sc.exe" `
+      -Argument "start `"$serviceName`""
+
+  $startTrigger = New-ScheduledTaskTrigger -Daily -At 3:01AM
+
+  $startPrincipal = New-ScheduledTaskPrincipal `
+      -UserId "SYSTEM" `
+      -LogonType ServiceAccount `
+      -RunLevel Highest
+
+  Register-ScheduledTask `
+      -TaskName "Contensive Task Service - Daily Start" `
+      -Action $startAction `
+      -Trigger $startTrigger `
+      -Principal $startPrincipal `
+      -Description "Starts the Contensive Task Service after daily restart"
+
+  5. Configure the service to auto-restart on unexpected failures:
+
+  sc.exe failure $serviceName reset=86400 actions=restart/60000/restart/60000/restart/60000
+
+  This restarts the service after 60 seconds on failure (up to 3 times),
+  then resets the failure count after 24 hours.
+
+VERIFICATION:
+  - Open Task Scheduler (taskschd.msc)
+  - Verify both "Contensive Task Service - Daily Stop" and
+    "Contensive Task Service - Daily Start" tasks exist
+  - Right-click each task -> Run to test manually
+  - Confirm the service restarts: sc query $serviceName
+
+REMOVAL:
+  To remove the scheduled tasks later, run in PowerShell as Administrator:
+
+  Unregister-ScheduledTask -TaskName "Contensive Task Service - Daily Stop" -Confirm:$false
+  Unregister-ScheduledTask -TaskName "Contensive Task Service - Daily Start" -Confirm:$false
+
+NOTE: Adjust the 3:00 AM time to a low-traffic window appropriate for your
+environment. The server diagnostics task (section 3) runs at 2:00 AM by
+default, so stagger accordingly.
+
+--------------------------------------------------------------------------------
+5. VERIFY INSTALLATION
 --------------------------------------------------------------------------------
 
   cc --version                       Show version
@@ -100,7 +186,7 @@ NOTE: One scheduled task handles ALL applications on the server.
   cc -a appName --status             Check a specific application
 
 --------------------------------------------------------------------------------
-5. UPGRADE EXISTING INSTALLATION
+6. UPGRADE EXISTING INSTALLATION
 --------------------------------------------------------------------------------
 
 To upgrade an existing server to a new build:
@@ -121,7 +207,7 @@ To upgrade an existing server to a new build:
        sc query "Contensive Task Service"
 
 --------------------------------------------------------------------------------
-6. UNINSTALL
+7. UNINSTALL
 --------------------------------------------------------------------------------
 
 Run uninstall.cmd as Administrator. This will:

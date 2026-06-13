@@ -58,7 +58,7 @@ app.Use(async (context, next) => {
         request.Method, request.Path, request.QueryString, context.Connection.RemoteIpAddress);
     foreach (var header in request.Headers) {
         string value = header.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase)
-            ? $"Bearer ***{header.Value.ToString().Substring(Math.Max(0, header.Value.ToString().Length - 8))}"
+            ? "Bearer ***REDACTED***"
             : header.Value.ToString();
         logger.LogDebug("  Header: {Key}: {Value}", header.Key, value);
     }

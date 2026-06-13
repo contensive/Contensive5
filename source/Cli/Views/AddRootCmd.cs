@@ -37,10 +37,9 @@ namespace Contensive.CLI {
                 string username = "root";
                 //
                 // -- setup password
-                if (string.IsNullOrEmpty(password)) { 
-                    password = "C0ntensive!";
-                    int minLength = cp.core.siteProperties.passwordMinLength;
-                    if (password.Length < minLength) { password += new string('0', minLength - password.Length); }
+                if (string.IsNullOrEmpty(password)) {
+                    int minLength = Math.Max(cp.core.siteProperties.passwordMinLength, 16);
+                    password = cp.Utils.GetRandomString(minLength);
                 }
                 //
                 // -- delete current root

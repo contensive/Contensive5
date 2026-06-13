@@ -2018,7 +2018,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // ----- Read in and save the Member profile values from the tools panel
                 //
-                if (core.session.user.id > 0) {
+                if (core.session.isAuthenticated) {
                     if (core.doc.userErrorList.Count.Equals(0)) {
                         string legacyFormSn = core.docProperties.getText("ccformsn").Trim();
                         string Button = core.docProperties.getText(legacyFormSn + "mb").Trim();

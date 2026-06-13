@@ -48,19 +48,25 @@ namespace Contensive.Processor.Addons.Tools {
                 string uploadPathFilename = uploadPath + uploadedFilename;
                 //
                 // Check if user has uploaded too many files recently
-                int recentUploads = cp.Db.ExecuteScalar($"SELECT COUNT(*) FROM ccActivityLog WHERE MemberId={cp.User.Id} AND TypeId=11 AND DateAdded > DATEADD(minute, -5, GETDATE())");
+                int recentUploads = cp.Db.ExecuteScalar(
+                    "SELECT COUNT(*) FROM ccActivityLog WHERE MemberId=@memberId AND TypeId=11 AND DateAdded > DATEADD(minute, -5, GETDATE())",
+                    new Dictionary<string, object> { { "@memberId", cp.User.Id } }
+                );
                 if (recentUploads > 10) {
                     cp.TempFiles.DeleteFile(uploadPathFilename);
                     return createJsonResponse(false, tooManyUploadsMessage, null);
                 }
                 //
                 // After successful upload
-                cp.Db.ExecuteNonQuery($@"
-                    INSERT INTO ccActivityLog
-                        (Name, MemberId, TypeId, Message, DateAdded)
-                    VALUES
-                        ('Layout Upload', {cp.User.Id}, 11, {cp.Db.EncodeSQLText($"Uploaded: {uploadedFilename}")}, GETDATE())
-                    ");
+                cp.Db.ExecuteNonQuery(
+                    "INSERT INTO ccActivityLog (Name, MemberId, TypeId, Message, DateAdded) VALUES (@name, @memberId, @typeId, @message, GETDATE())",
+                    new Dictionary<string, object> {
+                        { "@name", "Layout Upload" },
+                        { "@memberId", cp.User.Id },
+                        { "@typeId", 11 },
+                        { "@message", $"Uploaded: {uploadedFilename}" }
+                    }
+                );
                 //
                 // -- verify file extension
                 string extension = Path.GetExtension(uploadedFilename).ToLowerInvariant();

@@ -71,11 +71,12 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         int deleteRecordId = adminData.editRecord.id;
-                                        using (DataTable dt = cp.Db.ExecuteQuery($"select contentcontrolid from {adminContent.tableName} where id={deleteRecordId}")) {
+                                        var deleteParams = new Dictionary<string, object> { { "@id", deleteRecordId } };
+                                        using (DataTable dt = cp.Db.ExecuteQuery($"select contentcontrolid from {adminContent.tableName} where id=@id", deleteParams)) {
                                             if (dt?.Rows != null && dt.Rows.Count > 0) {
                                                 string contentName = cp.Content.GetName(getInteger(dt.Rows[0][0]));
                                                 cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
-                                                cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
+                                                cp.Db.ExecuteNonQuery($"delete from {adminContent.tableName} where id=@id", deleteParams);
                                                 cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
                                                 ContentController.processAfterSave(cp.core, true, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
                                                 //
@@ -183,7 +184,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     //
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
                                                     adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
-                                                    db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                    db.executeNonQuery("update ccemail Set lastsendtestdate=@sendDate where id=@id", new Dictionary<string, object> { { "@sendDate", cp.core.doc.profileStartTime }, { "@id", adminData.editRecord.id } });
                                                     //
                                                     // -- force a sent task process
                                                     AddonModel.setRunNow(cp, addonGuidEmailSendTask);
@@ -231,7 +232,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     //
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
                                                     adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
-                                                    db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                    db.executeNonQuery("update ccGroupTextMessages Set lastsendtestdate=@sendDate where id=@id", new Dictionary<string, object> { { "@sendDate", cp.core.doc.profileStartTime }, { "@id", adminData.editRecord.id } });
                                                     //
                                                     // -- force a send task process (doc environment not necessary)
                                                     AddonModel.setRunNow(cp, addonGuidTextMessageSendTask);
@@ -624,7 +625,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                         // ----- Update Record
                         //
                         using (var csData = new CsModel(cp.core)) {
-                            csData.open("Member Rules", "(MemberID=" + PeopleID + ")and(GroupID=" + GroupId + ")", "", false, 0);
+                            csData.open("Member Rules", $"(MemberID={DbController.encodeSQLNumber(PeopleID)})and(GroupID={DbController.encodeSQLNumber(GroupId)})", "", false, 0);
                             if (!csData.ok()) {
                                 //
                                 // No record exists
@@ -697,7 +698,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     //
                     // --- Create Group Rules for all child content
                     using (var csData = new CsModel(cp.core)) {
-                        csData.open("Content", "ParentID=" + ContentID);
+                        csData.open("Content", $"ParentID={DbController.encodeSQLNumber(ContentID)}");
                         while (csData.ok()) {
                             LoadAndSaveGroupRules_ForContentAndChildren(cp, csData.getInteger("id"), MyParentIDString);
                             csData.goNext();
@@ -737,7 +738,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                 //
                 bool recordChanged = false;
                 using (var csData = new CsModel(cp.core)) {
-                    csData.open("Group Rules", "ContentID=" + ContentID, "GroupID,ID", true);
+                    csData.open("Group Rules", $"ContentID={DbController.encodeSQLNumber(ContentID)}", "GroupID,ID", true);
                     //
                     int GroupCount = cp.core.docProperties.getInteger("GroupCount");
                     if (GroupCount > 0) {
@@ -862,7 +863,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                 // --- create GroupRule records for all selected
                 //
                 using (var csData = new CsModel(cp.core)) {
-                    csData.open("Group Rules", "GroupID=" + GroupID, "ContentID, ID", true);
+                    csData.open("Group Rules", $"GroupID={DbController.encodeSQLNumber(GroupID)}", "ContentID, ID", true);
                     int ContentCount = cp.core.docProperties.getInteger("ContentCount");
                     if (ContentCount > 0) {
                         int ContentPointer = 0;

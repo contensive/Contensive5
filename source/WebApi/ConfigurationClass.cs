@@ -102,7 +102,9 @@ namespace Contensive.WebApi {
                         }
                         // 
                         // -- transfer upload files
+                        const long maxUploadSize = 100 * 1024 * 1024; // 100MB
                         foreach (var formFile in httpContext.Request.Form.Files) {
+                            if (formFile.Length > maxUploadSize) { continue; }
                             if (formFile.Length > 0) {
                                 string tmpFullPathFilename = WindowsTempFileController.createTmpFile(); 
                                 using (var inputStream = new FileStream(tmpFullPathFilename, FileMode.Create)) {

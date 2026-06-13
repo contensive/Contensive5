@@ -110,12 +110,13 @@ namespace Contensive.Processor.Controllers.Build {
                             }
                         }
                         if (root == null) {
-                            logger.Info($"{core.logCommonMessage},{logPrefix}, root user not found, adding root/contensive");
+                            string generatedPassword = GenericController.getRandomString(16);
+                            logger.Info($"{core.logCommonMessage},{logPrefix}, root user not found, adding root user with generated password");
                             root = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
                             root.name = defaultRootUserName;
                             root.firstName = defaultRootUserName;
                             root.username = defaultRootUserUsername;
-                            root.password = defaultRootUserPassword;
+                            root.password = generatedPassword;
                             root.developer = true;
                             root.contentControlId = ContentMetadataModel.getContentId(core, "people");
                             try {

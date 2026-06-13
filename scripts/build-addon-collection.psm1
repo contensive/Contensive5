@@ -614,7 +614,64 @@ function Invoke-ContensiveDeploy {
     }
 }
 
+# ===========================================================================
+# Get-ContensiveRemoteDeployTarget — prompt for remote domain with saved default
+# ===========================================================================
+function Get-ContensiveRemoteDeployTarget {
+<#
+.SYNOPSIS
+    Prompts the user for a remote domain name, saves the default for reuse
+    across all addon repos, and returns a hashtable suitable for
+    -RemoteDeployTarget.
+
+.DESCRIPTION
+    The last-used domain is persisted to
+    %LOCALAPPDATA%\contensive\remote-deploy-domain.txt so every addon repo
+    on the machine shares the same default.
+
+.OUTPUTS
+    Hashtable with Url and SiteName keys, e.g.:
+    @{ Url = 'https://sprint11.sitefpo.com/installCollection'; SiteName = 'sprint11' }
+#>
+    $defaultsFile = Join-Path $env:LOCALAPPDATA 'contensive\remote-deploy-domain.txt'
+    $savedDomain  = ''
+
+    if (Test-Path $defaultsFile) {
+        $savedDomain = (Get-Content $defaultsFile -Raw).Trim()
+    }
+
+    if ($savedDomain) {
+        $domain = Read-Host "Enter remote domain [$savedDomain]"
+    } else {
+        $domain = Read-Host "Enter remote domain (e.g. sprint11.sitefpo.com)"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($domain)) {
+        if ($savedDomain) {
+            $domain = $savedDomain
+        } else {
+            throw "No domain entered."
+        }
+    }
+
+    # Save for next time
+    $parentDir = Split-Path $defaultsFile -Parent
+    if (-not (Test-Path $parentDir)) {
+        New-Item -ItemType Directory -Path $parentDir | Out-Null
+    }
+    Set-Content -Path $defaultsFile -Value $domain -NoNewline
+
+    # Derive site name from first segment of domain
+    $siteName = ($domain -split '\.')[0]
+
+    return @{
+        Url      = "https://$domain/installCollection"
+        SiteName = $siteName
+    }
+}
+
 Export-ModuleMember -Function Invoke-ContensiveBuild, Invoke-ContensiveDeploy, `
                                Get-ContensiveVersion, Find-MSBuild, `
                                New-DeploymentFolder,  Invoke-ZipFolder, `
-                               Invoke-MSBuildSolution, Invoke-DotnetBuildSolution
+                               Invoke-MSBuildSolution, Invoke-DotnetBuildSolution, `
+                               Get-ContensiveRemoteDeployTarget

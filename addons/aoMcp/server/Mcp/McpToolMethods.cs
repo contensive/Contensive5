@@ -128,7 +128,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, serializeTree(roots));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -215,7 +215,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, result);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -354,7 +354,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, new { pageId = page.id, url = newUrl }, "Page created.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -404,7 +404,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, new { pageId = page.id, url = context.linkAliasName }, "Page updated.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -496,7 +496,7 @@ namespace Contensive.Addons.Mcp {
                 }
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -517,7 +517,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, result);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -567,7 +567,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, new { instanceGuid = newItem.instanceGuid }, "Widget added.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -609,7 +609,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, null, "Widget removed.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -661,7 +661,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, null, "Widgets reordered.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -749,7 +749,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, new { updated = true }, "Widget instance updated.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -830,7 +830,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, result);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -858,6 +858,11 @@ namespace Contensive.Addons.Mcp {
                     return errorResponse(cp, "Invalid base64Content.");
                 }
                 //
+                // -- sanitize filename to prevent path traversal
+                filename = Path.GetFileName(filename);
+                if (string.IsNullOrWhiteSpace(filename)) {
+                    return errorResponse(cp, "Invalid filename.");
+                }
                 string ext = Path.GetExtension(filename).TrimStart('.').ToLowerInvariant();
                 int fileTypeId = 0;
                 string fileTypeName = "";
@@ -909,7 +914,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, result, "Resource uploaded.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -955,7 +960,7 @@ namespace Contensive.Addons.Mcp {
                 }, "Resource updated.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -1029,7 +1034,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, result);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
         //
@@ -1160,7 +1165,7 @@ namespace Contensive.Addons.Mcp {
                 return successResponse(cp, new { undoId, contentName, recordId, recordGuid }, "Undo applied successfully.");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return errorResponse(cp, $"Error: {ex.Message}");
+                return errorResponse(cp, "An error occurred.");
             }
         }
     }

@@ -43,7 +43,7 @@ namespace Contensive.CLI {
                 Console.WriteLine("    isLocal: " + cpServer.core.serverConfig.isLocalFileSystem.ToString());
                 Console.WriteLine("    awsBucketRegionName: " + cpServer.core.serverConfig.awsRegionName);
                 Console.WriteLine("    awsBucketName: " + cpServer.core.serverConfig.awsBucketName);
-                Console.WriteLine("    awsAccessKey: " + cpServer.core.secrets.awsAccessKey);
+                Console.WriteLine("    awsAccessKey: " + maskSecret(cpServer.core.secrets.awsAccessKey));
                 Console.WriteLine("Database:");
                 Console.WriteLine("    defaultDataSourceAddress: " + cpServer.core.secrets.defaultDataSourceAddress.ToString());
                 Console.WriteLine("    defaultDataSourceUsername: " + cpServer.core.secrets.defaultDataSourceUsername.ToString());
@@ -82,6 +82,15 @@ namespace Contensive.CLI {
                     }
                 }
             }
+        }
+        //
+        /// <summary>
+        /// Mask a secret value, showing only the last 4 characters
+        /// </summary>
+        private static string maskSecret(string value) {
+            if (string.IsNullOrEmpty(value)) { return "(not set)"; }
+            if (value.Length <= 4) { return "****"; }
+            return $"***{value.Substring(value.Length - 4)}";
         }
     }
 }

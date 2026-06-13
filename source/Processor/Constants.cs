@@ -327,7 +327,11 @@ namespace Contensive.Processor {
         //
         internal const string defaultRootUserName = "Root User";
         internal const string defaultRootUserUsername = "root";
-        internal const string defaultRootUserPassword = "contensive";
+        /// <summary>
+        /// Deprecated hardcoded password — retained only for the diagnostics check that warns sites still using it.
+        /// New root accounts use a randomly generated password.
+        /// </summary>
+        internal const string defaultRootUserPassword_deprecated = "contensive";
         internal const string defaultRootUserGuid = "{4445cd14-904f-480f-a7b7-29d70d0c22ca}";
         //
         // -- Default site manage group

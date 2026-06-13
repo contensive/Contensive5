@@ -22,6 +22,12 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         /// <returns></returns>
         public override object Execute(CPBaseClass cp) {
             try {
+                //
+                // -- authorization
+                if (!cp.User.IsAuthenticated) {
+                    cp.Response.SetStatus("401 Unauthorized");
+                    return "";
+                }
                 string requestJson = cp.Request.Body;
                 WDS_Request request = cp.JSON.Deserialize<WDS_Request>(requestJson);
                 if (request == null) { return ""; }

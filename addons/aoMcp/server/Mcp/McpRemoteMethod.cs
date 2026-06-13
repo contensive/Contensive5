@@ -75,7 +75,7 @@ namespace Contensive.Addons.Mcp {
                 }
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return jsonRpcError(null, -32603, $"Internal error: {ex.Message}");
+                return jsonRpcError(null, -32603, "Internal error.");
             }
         }
         //
