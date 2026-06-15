@@ -505,8 +505,27 @@ namespace Contensive.Processor.Controllers {
                         string dataSetJson = core.addon.execute(core.doc.pageController.template.mustacheDataSetAddonId, new CPUtilsBaseClass.addonExecuteContext {
                             addonType = CPUtilsBaseClass.addonContext.ContextTemplate
                         });
-                        object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
-                        templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                        if (!string.IsNullOrWhiteSpace(dataSetJson)) {
+                            try {
+                                object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
+                                if (dataSet != null) {
+                                    templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                                }
+                            } catch (Newtonsoft.Json.JsonException) {
+                                //
+                                // -- addon returned non-JSON content, skip Mustache rendering and log a descriptive error
+                                int addonId = core.doc.pageController.template.mustacheDataSetAddonId;
+                                string addonName = core.cpParent.Content.GetRecordName("add-ons", addonId);
+                                int pageId = core.doc.pageController.page.id;
+                                string pageName = core.doc.pageController.page.name;
+                                int templateId = core.doc.pageController.template.id;
+                                core.cpParent.Site.ErrorReport(
+                                    $"Template \"{templateName}\" (id:{templateId}) is selected by page \"{pageName}\" (id:{pageId}), "
+                                    + $"and this template has addon \"{addonName}\" (id:{addonId}) selected as its Mustache Data Set addon. "
+                                    + $"This addon must return valid JSON but it returned an invalid response. "
+                                    + $"Verify the addon returns a JSON object, not HTML or plain text.");
+                            }
+                        }
                     }
                     //
                     // -- Encode Template

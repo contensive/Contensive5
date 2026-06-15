@@ -266,8 +266,8 @@ namespace Contensive.Processor.Controllers {
                         //    A static IF COL_LENGTH check does not work because SQL Server validates
                         //    column references in both branches at parse time.
                         {
-                            string fingerprintSql = $"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC('select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint=''{fingerprintHash.Replace("'", "''")}'') order by id desc')";
-                            using var dt = core.db.executeQuery(fingerprintSql);
+                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors where (fingerprint=@fp) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
+                            using var dt = core.db.executeQuery(fingerprintSql, new Dictionary<string, object> { { "@fingerprintParam", fingerprintHash } });
                             if (dt?.Rows.Count > 0) {
                                 int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
                                 if (existingVisitorId > 0) {

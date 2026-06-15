@@ -44,7 +44,7 @@ namespace Contensive.Models.Db {
         /// <param name="recordId"></param>
         public static void setSubmitted(CPBaseClass cp, int recordId) {
             try {
-                cp.Db.ExecuteQuery("update ccGroupTextMessages set submitted=1 where id=" + recordId);
+                cp.Db.ExecuteNonQuery("update ccGroupTextMessages set submitted=1 where id=@id", new Dictionary<string, object> { { "@id", recordId } });
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

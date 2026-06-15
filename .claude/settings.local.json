@@ -55,7 +55,9 @@
       "Bash(npm install:*)",
       "Bash(npx playwright:*)",
       "Bash(scripts/build.cmd:*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git stash:*)",
+      "Bash(dotnet test:*)"
     ]
   }
 }

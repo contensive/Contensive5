@@ -681,16 +681,16 @@ namespace Contensive.Processor.Controllers {
                         ContentFieldMetadataModel workingField = fieldKeyValuePair.Value;
                         if (workingField.helpChanged) {
                             int fieldId = 0;
-                            using (var rs = core.db.executeQuery("select f.id from ccfields f left join cccontent c on c.id=f.contentid where (f.name=" + DbController.encodeSQLText(workingField.nameLc) + ")and(c.name=" + DbController.encodeSQLText(workingMetaData.name) + ") order by f.id")) {
+                            using (var rs = core.db.executeQuery("select f.id from ccfields f left join cccontent c on c.id=f.contentid where (f.name=@fieldName)and(c.name=@contentName) order by f.id", new Dictionary<string, object> { { "@fieldName", workingField.nameLc }, { "@contentName", workingMetaData.name } })) {
                                 if (DbController.isDataTableOk(rs)) {
                                     fieldId = GenericController.getInteger(DbController.getDataRowFieldText(rs.Rows[0], "id"));
                                 }
                             }
                             if (fieldId == 0) {
-                                logger.Warn($"{core.logCommonMessage}, Field help specified for a field that cannot be found, field [" + workingField.nameLc + "], content [" + workingMetaData.name + "]");
+                                logger.Warn($"{core.logCommonMessage}, Field help specified for a field that cannot be found, field [{workingField.nameLc}], content [{workingMetaData.name}]");
                             } else {
                                 int FieldHelpId = 0;
-                                using (var rs = core.db.executeQuery("select id from ccfieldhelp where fieldid=" + fieldId + " order by id")) {
+                                using (var rs = core.db.executeQuery("select id from ccfieldhelp where fieldid=@fieldId order by id", new Dictionary<string, object> { { "@fieldId", fieldId } })) {
                                     if (DbController.isDataTableOk(rs)) {
                                         FieldHelpId = GenericController.getInteger(rs.Rows[0]["id"]);
                                     } else {
@@ -700,7 +700,7 @@ namespace Contensive.Processor.Controllers {
                                 if (FieldHelpId != 0) {
                                     string Copy = workingField.helpCustom;
                                     if (string.IsNullOrEmpty(Copy)) { Copy = workingField.helpDefault; }
-                                    core.db.executeNonQuery("update ccfieldhelp set active=1,contentcontrolid=" + FieldHelpCId + ",fieldid=" + fieldId + ",helpdefault=" + DbController.encodeSQLText(Copy) + " where id=" + FieldHelpId);
+                                    core.db.executeNonQuery("update ccfieldhelp set active=1,contentcontrolid=@contentControlId,fieldid=@fieldId,helpdefault=@helpDefault where id=@id", new Dictionary<string, object> { { "@contentControlId", FieldHelpCId }, { "@fieldId", fieldId }, { "@helpDefault", Copy }, { "@id", FieldHelpId } });
                                 }
                             }
                         }

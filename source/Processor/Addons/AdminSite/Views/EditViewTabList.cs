@@ -108,16 +108,22 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static void addContentTabs(CoreController core, AdminDataModel adminData, EditTabModel editTabs, EditorEnvironmentModel editorEnv) {
             try {
                 // todo
-                string IDList = "";
+                var fieldIds = new List<int>();
                 foreach (KeyValuePair<string, ContentFieldMetadataModel> keyValuePair in adminData.adminContent.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
-                    IDList = IDList + "," + field.id;
+                    fieldIds.Add(field.id);
                 }
-                if (!string.IsNullOrEmpty(IDList)) {
-                    IDList = IDList.Substring(1);
-                }
+                if (fieldIds.Count == 0) { return; }
                 //
-                DataTable dt = core.db.executeQuery("select fieldid,helpdefault,helpcustom from ccfieldhelp where fieldid in (" + IDList + ") order by fieldid,id");
+                var paramDict = new Dictionary<string, object>();
+                var paramNames = new List<string>();
+                for (int i = 0; i < fieldIds.Count; i++) {
+                    string paramName = $"@p{i}";
+                    paramNames.Add(paramName);
+                    paramDict.Add(paramName, fieldIds[i]);
+                }
+                string inClause = string.Join(",", paramNames);
+                DataTable dt = core.db.executeQuery($"select fieldid,helpdefault,helpcustom from ccfieldhelp where fieldid in ({inClause}) order by fieldid,id", paramDict);
                 string[,] fieldHelpArray = core.db.convertDataTabletoArray(dt);
                 int HelpCnt = 0;
                 int[] HelpIDCache = [];

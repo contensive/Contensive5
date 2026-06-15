@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     logger.Trace($"{core.logCommonMessage},addLinkAlias, another Page URL matches this pageId and QS. Move this to the top position");
                                     //
-                                    core.db.executeNonQuery("delete from ccLinkAliases where id=" + CurrentLinkAliasId);
+                                    core.db.executeNonQuery("delete from ccLinkAliases where id=@id", new Dictionary<string, object> { { "@id", CurrentLinkAliasId } });
                                     using (var CS3 = new CsModel(core)) {
                                         CS3.insert("Link Aliases");
                                         if (CS3.ok()) {

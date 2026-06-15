@@ -203,7 +203,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // Delete Link Alias entries with this PageID
-                        core.db.executeNonQuery("delete from cclinkAliases where PageID=" + recordId);
+                        core.db.executeNonQuery("delete from cclinkAliases where PageID=@pageId", new Dictionary<string, object> { { "@pageId", recordId } });
                         DbBaseModel.invalidateCacheOfTable<LinkAliasModel>(core.cpParent);
                     } else {
                         //
@@ -211,7 +211,7 @@ namespace Contensive.Processor.Controllers {
                         if (recordParentID > 0) {
                             //
                             // -- set ChildPagesFound true for parent page
-                            core.db.executeNonQuery("update ccpagecontent set ChildPagesfound=1 where ID=" + recordParentID);
+                            core.db.executeNonQuery("update ccpagecontent set ChildPagesfound=1 where ID=@parentId", new Dictionary<string, object> { { "@parentId", recordParentID } });
                         }
                         //
                         // -- if new page and no linkAlias set, use page name.

@@ -221,14 +221,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         private static string getScriptEngineExceptionMessage(Microsoft.ClearScript.ScriptEngineException ex,string scopeDescription) {
             string errorMsg = "Clearscript exception, " + scopeDescription;
-            errorMsg += "\nex [" + ex.Message + "]";
-            if (ex.Data.Count > 0) {
-                foreach (DictionaryEntry de in ex.Data) {
-                    errorMsg += "\nkey [" + de.Key + "] = [" + de.Value + "]";
-                }
-            }
-            if (ex.ErrorDetails != null) { errorMsg += "\n" + ex.ErrorDetails; }
-            if (ex.InnerException != null) { errorMsg += "\nInner Exception: " + ex.InnerException.ToString(); }
+            errorMsg += "\nAn internal error occurred.";
             return errorMsg;
         }
         //

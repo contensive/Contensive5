@@ -306,14 +306,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                     loaded = false
                 };
                 if (userAllowContentEdit && !adminContent.id.Equals(0)) {
-                    string criteria = "";
+                    // -- tableName is a metadata identifier, not user input; bracket-quote it for safety
+                    string sql = "";
+                    var paramDict = new Dictionary<string, object>();
                     if (request.id != 0) {
-                        criteria = $"id={request.id}";
+                        sql = $"select top 1 id,contentControlId from [{adminContent.tableName}] where id=@id";
+                        paramDict.Add("@id", request.id);
                     } else if (!string.IsNullOrEmpty(request.guid)) {
-                        criteria = $"ccguid={DbController.encodeSQLText(request.guid)}";
+                        sql = $"select top 1 id,contentControlId from [{adminContent.tableName}] where ccguid=@guid";
+                        paramDict.Add("@guid", request.guid);
                     }
-                    if (!string.IsNullOrEmpty(criteria)) {
-                        using (DataTable dt = core.db.executeQuery("select top 1 id,contentControlId from " + adminContent.tableName + " where " + criteria)) {
+                    if (!string.IsNullOrEmpty(sql)) {
+                        using (DataTable dt = core.db.executeQuery(sql, paramDict)) {
                             if (dt?.Rows != null && dt.Rows.Count > 0) {
                                 editRecord.id = getInteger(dt.Rows[0]["id"]);
                                 //

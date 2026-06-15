@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Data;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
@@ -81,7 +82,7 @@ namespace Contensive.Processor.Models.Domain {
             setProperty(key, string.Empty);
             //
             // -- remove from db 
-            core.db.executeNonQuery("Delete from ccProperties where (TypeID=" + (int)propertyType + ")and(KeyID=" + propertyKeyId + ")and(name=" + DbController.encodeSQLText(key) + ")");
+            core.db.executeNonQuery("Delete from ccProperties where (TypeID=@typeId)and(KeyID=@keyId)and(name=@name)", new Dictionary<string, object> { { "@typeId", (int)propertyType }, { "@keyId", propertyKeyId }, { "@name", key } });
         }
         //
         //====================================================================================================
@@ -188,8 +189,7 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // -- save to db
                 int RecordId = GenericController.getInteger(localCache[2, Ptr]);
-                string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
-                core.db.executeNonQuery("update ccProperties set FieldValue=" + DbController.encodeSQLText(propertyValue) + ",ModifiedDate=" + SQLNow + " where id=" + RecordId);
+                core.db.executeNonQuery("update ccProperties set FieldValue=@fieldValue,ModifiedDate=@modifiedDate where id=@id", new Dictionary<string, object> { { "@fieldValue", propertyValue }, { "@modifiedDate", core.dateTimeNowMockable }, { "@id", RecordId } });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -347,7 +347,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId"></param>
         public void deleteAll(int keyId) {
             if (keyId <= 0) { return; }
-            core.db.executeNonQuery("Delete from ccProperties where (TypeID=" + (int)propertyType + ")and(KeyID=" + keyId + ")");
+            core.db.executeNonQuery("Delete from ccProperties where (TypeID=@typeId)and(KeyID=@keyId)", new Dictionary<string, object> { { "@typeId", (int)propertyType }, { "@keyId", keyId } });
         }
         //
         //====================================================================================================

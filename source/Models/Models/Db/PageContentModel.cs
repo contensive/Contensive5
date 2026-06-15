@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Contensive.Models.Db {
@@ -187,7 +188,7 @@ namespace Contensive.Models.Db {
                     //
                     // -- there is another page record with the same alias
                     if (overrideDuplicates) {
-                        cp.Db.ExecuteQuery($"update ccpagecontent set linkalias=null where ( linkalias={cp.Db.EncodeSQLText(linkAlias)}) and (id<>{recordId})");
+                        cp.Db.ExecuteNonQuery("update ccpagecontent set linkalias=null where (linkalias=@linkAlias) and (id<>@recordId)", new Dictionary<string, object> { { "@linkAlias", linkAlias }, { "@recordId", recordId } });
                     } else {
                         cp.Site.ErrorReport("The Page URL you entered can not be used because another record uses this value [" + linkAlias + "]. Enter a different Page URL, or check the Override Duplicates checkbox in the Page URL tab.");
                         return linkAliasNormalized;

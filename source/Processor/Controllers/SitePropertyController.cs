@@ -591,14 +591,15 @@ namespace Contensive.Processor.Controllers {
                         } else {
                             //
                             // -- set value in Db
-                            string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
-                            string SQL = "UPDATE ccSetup Set FieldValue=" + DbController.encodeSQLText(Value) + ",ModifiedDate=" + SQLNow + " WHERE name=" + DbController.encodeSQLText(propertyName);
                             int recordsAffected = 0;
-                            core.db.executeNonQuery(SQL, ref recordsAffected);
+                            core.db.executeNonQuery(
+                                "UPDATE ccSetup SET FieldValue=@fieldValue, ModifiedDate=@modifiedDate WHERE name=@propertyName",
+                                new Dictionary<string, object> { { "@fieldValue", Value }, { "@modifiedDate", core.dateTimeNowMockable }, { "@propertyName", propertyName } },
+                                ref recordsAffected);
                             if (recordsAffected == 0) {
-                                SQL = "INSERT INTO ccSetup (ACTIVE,CONTENTCONTROLID,NAME,FIELDVALUE,ModifiedDate,DateAdded)VALUES("
-                            + "1,0," + DbController.encodeSQLText(propertyName.ToUpper()) + "," + DbController.encodeSQLText(Value) + "," + SQLNow + "," + SQLNow + ");";
-                                core.db.executeNonQuery(SQL);
+                                core.db.executeNonQuery(
+                                    "INSERT INTO ccSetup (ACTIVE,CONTENTCONTROLID,NAME,FIELDVALUE,ModifiedDate,DateAdded) VALUES (1,0,@propertyName,@fieldValue,@modifiedDate,@dateAdded)",
+                                    new Dictionary<string, object> { { "@propertyName", propertyName.ToUpper() }, { "@fieldValue", Value }, { "@modifiedDate", core.dateTimeNowMockable }, { "@dateAdded", core.dateTimeNowMockable } });
                             }
                             //
                             // -- set simple lazy cache

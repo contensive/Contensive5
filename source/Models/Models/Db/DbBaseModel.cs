@@ -827,7 +827,7 @@ namespace Contensive.Models.Db {
             Type instanceType = this.GetType();
             string tableName = derivedTableName(instanceType);
             string datasourceName = derivedDataSourceName(instanceType);
-            using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 * from {tableName} where id={id}")) {
+            using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 * from {tableName} where id=@id", new Dictionary<string, object> { { "@id", id } })) {
                 //
                 // -- get derived class tablename and data ssource
 
@@ -1716,7 +1716,7 @@ namespace Contensive.Models.Db {
             if (parentRecordId == childRecordId) { return true; }
             if (!containsField<T>("parentid")) { return false; }
             if (childIdList.Contains(childRecordId)) { return false; }
-            using DataTable dt = cp.Db.ExecuteQuery("select parentId from " + derivedTableName(typeof(T)) + " where id=" + childRecordId);
+            using DataTable dt = cp.Db.ExecuteQuery($"select parentId from {derivedTableName(typeof(T))} where id=@childRecordId", new Dictionary<string, object> { { "@childRecordId", childRecordId } });
             if (dt != null) {
                 if (dt.Rows.Count > 0) {
                     childIdList.Add(parentRecordId);
@@ -1752,7 +1752,7 @@ namespace Contensive.Models.Db {
             if ((childRecordId < 1) || (parentRecordId < 1)) { return false; }
             if (parentIdList.Contains(childRecordId)) { return false; }
             if (parentRecordId == childRecordId) { return true; }
-            using DataTable dt = cp.Db.ExecuteQuery("select id from " + derivedTableName(typeof(T)) + " where parentId=" + parentRecordId);
+            using DataTable dt = cp.Db.ExecuteQuery($"select id from {derivedTableName(typeof(T))} where parentId=@parentRecordId", new Dictionary<string, object> { { "@parentRecordId", parentRecordId } });
             if (dt != null) {
                 if (dt.Rows.Count > 0) {
                     parentIdList.Add(parentRecordId);

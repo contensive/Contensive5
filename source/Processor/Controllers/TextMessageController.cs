@@ -56,7 +56,7 @@ namespace Contensive.Processor.Controllers {
                 foreach (var groupTextMessage in DbBaseModel.createList<GroupTextMessageModel>(core.cpParent, "((sent is null)or(sent=0))and(submitted<>0)")) {
                     //
                     // -- mark it sent
-                    core.db.executeNonQuery("update ccGroupTextMessages set sent=1 where id=" + groupTextMessage.id);
+                    core.db.executeNonQuery("update ccGroupTextMessages set sent=1 where id=@id", new Dictionary<string, object> { { "@id", groupTextMessage.id } });
                     //
                     // -- send it to every in the groups and topics
                     List<string> recipientList = new();
@@ -66,14 +66,14 @@ namespace Contensive.Processor.Controllers {
                         + " left join ccGroups on ccGroups.Id = ccGroupTextMessageGroupRules.GroupID)"
                         + " left join ccMemberRules on ccMemberRules.GroupID=ccGroups.Id)"
                         + " left join ccMembers on ccMembers.Id = ccMemberRules.memberId)"
-                        + " Where (ccGroupTextMessages.ID=" + groupTextMessage.id + ")"
+                        + " Where (ccGroupTextMessages.ID=@groupTextMessageId)"
                         + " and (ccGroups.active<>0)"
                         + " and (ccMembers.active<>0)"
                         + " and ((ccMembers.blockTextMessage=0)or(ccMembers.blockTextMessage is null))"
                         + " and (ccMembers.cellPhone<>'')"
-                        + " and ((ccMemberRules.DateExpires is null)or(ccMemberRules.DateExpires>" + core.sqlDateTimeMockable + "))"
+                        + " and ((ccMemberRules.DateExpires is null)or(ccMemberRules.DateExpires>@dateNow))"
                         + " order by ccMembers.cellPhone,ccMembers.id";
-                    using (DataTable dt = core.db.executeQuery(sql)) {
+                    using (DataTable dt = core.db.executeQuery(sql, new Dictionary<string, object> { { "@groupTextMessageId", groupTextMessage.id }, { "@dateNow", core.dateTimeNowMockable } })) {
                         if ((dt?.Rows != null) && (dt.Rows.Count > 0)) {
                             foreach (DataRow row in dt.Rows) {
                                 string recipientName = core.cpParent.Utils.EncodeText(row[2]);
@@ -418,7 +418,7 @@ namespace Contensive.Processor.Controllers {
                 core.db.executeNonQuery("delete from ccTextMessageQueue where (attempts>=3)");
                 //
                 // -- mark the next 100 texts with this processes serial number. Then select them back to verify no other process tries to send them
-                core.db.executeNonQuery("update ccTextMessageQueue set sendSerialNumber=" + DbController.encodeSQLText(sendSerialNumber) + " where id in (select top 100 id from ccTextMessageQueue where (sendSerialNumber is null) order by immediate,id)");
+                core.db.executeNonQuery("update ccTextMessageQueue set sendSerialNumber=@serialNumber where id in (select top 100 id from ccTextMessageQueue where (sendSerialNumber is null) order by immediate,id)", new Dictionary<string, object> { { "@serialNumber", sendSerialNumber } });
                 //
                 foreach (TextMessageQueueModel textMessage in DbBaseModel.createList<TextMessageQueueModel>(core.cpParent, "sendSerialNumber=" + DbController.encodeSQLText(sendSerialNumber), "immediate,id")) {
                     TextMessageSendRequest request = DeserializeObject<TextMessageSendRequest>(textMessage.content);
@@ -426,7 +426,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- bugfix, if data does not deserialize, skip message
                         logger.Error($"{core.logCommonMessage}", new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"));
-                        core.db.executeNonQuery("delete from ccTextMessageQueue where (id=" + textMessage.id + ")");
+                        core.db.executeNonQuery("delete from ccTextMessageQueue where (id=@id)", new Dictionary<string, object> { { "@id", textMessage.id } });
                         logTextMessage(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]", "Failed, message error");
                         continue;
                     }
@@ -434,19 +434,19 @@ namespace Contensive.Processor.Controllers {
                     if (SmsController.sendMessage(core, request, ref userError)) {
                         //
                         // -- successful send
-                        core.db.executeNonQuery("delete from ccTextMessageQueue where ccguid=" + DbController.encodeSQLText(textMessage.ccguid) + "");
+                        core.db.executeNonQuery("delete from ccTextMessageQueue where ccguid=@ccguid", new Dictionary<string, object> { { "@ccguid", textMessage.ccguid } });
                         logTextMessage(core, request, true, userError, "Sent to " + core.cpParent.Content.GetRecordName("people",request.toMemberId) + " " + request.toPhone);
                         continue;
                     }
                     //
                     // -- setup retry
                     logTextMessage(core, request, false, userError, "Failed " + core.cpParent.Content.GetRecordName("people", request.toMemberId) + " " + request.toPhone);
-                    core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=" + DbController.encodeSQLText(textMessage.ccguid) + "");
+                    core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=@ccguid", new Dictionary<string, object> { { "@ccguid", textMessage.ccguid } });
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             } finally {
-                core.db.executeNonQuery($"update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null where sendSerialNumber={DbController.encodeSQLText(sendSerialNumber)}");
+                core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null where sendSerialNumber=@serialNumber", new Dictionary<string, object> { { "@serialNumber", sendSerialNumber } });
             }
         }
         //

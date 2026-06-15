@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Contensive.Processor.Controllers.Build {
     //
@@ -339,19 +340,20 @@ namespace Contensive.Processor.Controllers.Build {
                         foreach (TableModel table in DbBaseModel.createList<TableModel>(cp)) {
                             string tableName = table.name;
                             if (string.IsNullOrEmpty(tableName)) { continue; }
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ID] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "Name] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "Active] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ccGuid] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ContentControlID] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "CreateKey] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "SortOrder] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "DateAdded] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ModifiedDate] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "CreatedBy] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ModifiedBy] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ContentCategoryID] ON [" + tableName + "]");
-                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "EditsourceID] ON [" + tableName + "]");
+                            if (!Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$")) { continue; }
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ID] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}Name] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}Active] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ccGuid] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ContentControlID] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}CreateKey] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}SortOrder] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}DateAdded] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ModifiedDate] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}CreatedBy] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ModifiedBy] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ContentCategoryID] ON [{tableName}]");
+                            cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}EditsourceID] ON [{tableName}]");
                         }
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "22.8.12.1")) {

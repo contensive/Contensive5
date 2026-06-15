@@ -96,8 +96,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 SecurityController.TokenData visitToken = SecurityController.decodeToken(core, CookieDetectKey);
                 if (visitToken.id != 0) {
-                    string sql = "update ccvisits set CookieSupport=1 where id=" + visitToken.id;
-                    core.db.executeNonQuery(sql);
+                    core.db.executeNonQuery("update ccvisits set CookieSupport=1 where id=@id", new Dictionary<string, object> { { "@id", visitToken.id } });
                     core.doc.continueProcessing = false;
                     return;
                 }
@@ -137,7 +136,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // set visited true
                 //
-                core.db.executeNonQuery("update ccdomains set visited=1 where id=" + core.domain.id);
+                core.db.executeNonQuery("update ccdomains set visited=1 where id=@id", new Dictionary<string, object> { { "@id", core.domain.id } });
                 core.cache.invalidate("domainContentList");
             }
             if (core.domain.typeId == 1) {
@@ -789,8 +788,7 @@ namespace Contensive.Processor.Controllers {
                 if (isPageNotFound) {
                     // -- Do a PageNotFound then redirect
                     if (!string.IsNullOrEmpty(rootRelativeUrl)) {
-                        string sql = $"Update ccContentWatch set link=null where link={DbController.encodeSQLText(rootRelativeUrl)}";
-                        core.db.executeNonQuery(sql);
+                        core.db.executeNonQuery("Update ccContentWatch set link=null where link=@link", new Dictionary<string, object> { { "@link", rootRelativeUrl } });
                     }
 
                     if (allowDebugMessage && core.doc.visitPropertyAllowDebugging) {

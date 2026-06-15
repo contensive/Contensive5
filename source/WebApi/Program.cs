@@ -72,7 +72,7 @@ namespace Contensive.WebApi {
                         Domain = cookie.Value.domain,
                         Expires = cookie.Value.expires.Equals(new DateTime(1, 1, 1, 0, 0, 0)) ? null : cookie.Value.expires,
                         HttpOnly = cookie.Value.httpOnly,
-                        SameSite = SameSiteMode.Lax,
+                        SameSite = SameSiteMode.Strict,
                         Secure = cookie.Value.secure
                     };
                     response.Cookies.Append(cookie.Key, cookie.Value.value, responseCookie);

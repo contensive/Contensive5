@@ -240,14 +240,14 @@ namespace Contensive.Models.Db {
                     + " left join ccEmailGroups r on r.groupid=g.id)"
                     + " "
                     + " where "
-                    + " (r.EmailID=" + emailId + ")"
+                    + " (r.EmailID=@emailId)"
                     + " and(r.Active<>0)"
                     + " and(g.Active<>0)"
                     + " and(g.AllowBulkEmail<>0)"
                     + " and(mr.Active<>0)"
                     + " and(u.Active<>0)"
                     + " and(u.AllowBulkEmail<>0)"
-                    + " and((mr.DateExpires is null)OR(mr.DateExpires>" + cp.Db.EncodeSQLDate(DateTime.Now) + ")) "
+                    + " and((mr.DateExpires is null)OR(mr.DateExpires>@dateNow)) "
                     + " "
                     + " group by "
                     + " u.ID, u.Name, u.Email "
@@ -256,7 +256,7 @@ namespace Contensive.Models.Db {
                     + " "
                     + " order by u.Email,u.ID"
                     + " ";
-            using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
+            using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria, new Dictionary<string, object> { { "@emailId", emailId }, { "@dateNow", DateTime.Now } })) {
                 foreach (DataRow row in dt.Rows) {
                     result.Add(cp.Utils.EncodeInteger(row["id"]));
                 }
@@ -280,13 +280,13 @@ namespace Contensive.Models.Db {
                     + " left join ccSystemTextMessageGroupRules r on r.groupid=g.id)"
                     + " "
                     + " where "
-                    + " (r.systemTextMessageId=" + textMessageId + ")"
+                    + " (r.systemTextMessageId=@textMessageId)"
                     + " and(r.Active<>0)"
                     + " and(g.Active<>0)"
                     + " and(mr.Active<>0)"
                     + " and(u.Active<>0)"
                     + " and((u.blockTextMessage is null)or(u.blockTextMessage=0))"
-                    + " and((mr.DateExpires is null)OR(mr.DateExpires>" + cp.Db.EncodeSQLDate(DateTime.Now) + ")) "
+                    + " and((mr.DateExpires is null)OR(mr.DateExpires>@dateNow)) "
                     + " "
                     + " group by "
                     + " u.ID, u.Name, u.cellPhone "
@@ -295,7 +295,7 @@ namespace Contensive.Models.Db {
                     + " "
                     + " order by u.cellPhone,u.ID"
                     + " ";
-            using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
+            using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria, new Dictionary<string, object> { { "@textMessageId", textMessageId }, { "@dateNow", DateTime.Now } })) {
                 foreach (DataRow row in dt.Rows) {
                     result.Add(cp.Utils.EncodeInteger(row["id"]));
                 }
@@ -316,7 +316,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static string getCellPhone(CPBaseClass cp, int userId) {
             if (userId == 0) { return ""; }
-            using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 cellPhone from ccMembers where id={userId} and active<>0")) {
+            using (DataTable dt = cp.Db.ExecuteQuery("select top 1 cellPhone from ccMembers where id=@userId and active<>0", new Dictionary<string, object> { { "@userId", userId } })) {
                 if (dt.Rows.Count == 0) { return ""; }
                 return cp.Utils.EncodeText(dt.Rows[0]["cellPhone"]);
             }

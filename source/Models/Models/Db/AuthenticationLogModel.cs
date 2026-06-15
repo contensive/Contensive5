@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Contensive.Models.Db {
@@ -40,7 +41,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static bool allowLoginForLockoutPolicy(CPBaseClass cp, int userId) {
             int accountLockoutPolicyDuration = 15;
-            DataTable dt = cp.Db.ExecuteQuery($"select top 3 success from ccAuthenticationLog where memberid={userId} and dateadded>{cp.Db.EncodeSQLDate(DateTime.Now.AddMinutes(accountLockoutPolicyDuration))} order by id desc");
+            DataTable dt = cp.Db.ExecuteQuery("select top 3 success from ccAuthenticationLog where memberid=@userId and dateadded>@lockoutDate order by id desc", new Dictionary<string, object> { { "@userId", userId }, { "@lockoutDate", DateTime.Now.AddMinutes(accountLockoutPolicyDuration) } });
             if (dt == null || dt.Rows.Count == 0) return true;
             // return false if 3 false in a row
             int failCnt = 0;

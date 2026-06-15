@@ -899,7 +899,7 @@ namespace Contensive.Processor.Controllers.Build {
                     core.db.createSQLTableField("ccFieldHelp", "HelpCustom", CPContentBaseClass.FieldTypeIdEnum.LongText);
                     //
                     core.db.createSQLTable("ccSetup");
-                    core.db.createSQLTableField("ccSetup", "FieldValue", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccSetup", "FieldValue", CPContentBaseClass.FieldTypeIdEnum.LongText);
                     core.db.createSQLTableField("ccSetup", "DeveloperOnly", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     //
                     core.db.createSQLTable("ccSortMethods");

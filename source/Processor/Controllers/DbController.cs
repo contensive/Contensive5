@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
@@ -1107,7 +1108,9 @@ namespace Contensive.Processor.Controllers {
                         logger.Info($"{core.logCommonMessage},deleteTableField, dropping field");
                         //
                         try {
-                            executeNonQuery("ALTER TABLE " + tableName + " DROP COLUMN " + fieldName + ";");
+                            if (!Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {tableName}"); }
+                            if (!Regex.IsMatch(fieldName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {fieldName}"); }
+                            executeNonQuery($"ALTER TABLE [{tableName}] DROP COLUMN [{fieldName}];");
                         } catch (Exception exDrop) {
                             logger.Warn(exDrop, $"{core.logCommonMessage},deleteTableField, error dropping field");
                         }
@@ -1141,7 +1144,12 @@ namespace Contensive.Processor.Controllers {
                 if (null != ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) { return; }
                 //
                 // -- index not found, create index
-                executeNonQuery("CREATE INDEX [" + IndexName + "] ON [" + TableName + "]( " + FieldNames + " );");
+                if (!Regex.IsMatch(IndexName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {IndexName}"); }
+                if (!Regex.IsMatch(TableName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {TableName}"); }
+                foreach (string fieldPart in FieldNames.Split(',')) {
+                    if (!Regex.IsMatch(fieldPart.Trim(), @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier in FieldNames: {fieldPart.Trim()}"); }
+                }
+                executeNonQuery($"CREATE INDEX [{IndexName}] ON [{TableName}]( {FieldNames} );");
                 //
                 // -- clear cache
                 if (!clearMetaCache) { return; }
@@ -1312,7 +1320,9 @@ namespace Contensive.Processor.Controllers {
                 TableSchemaModel ts = TableSchemaModel.getTableSchema(core, TableName, dataSourceName);
                 if (ts == null) { return; }
                 if (null == ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) { return; }
-                executeNonQuery("DROP INDEX [" + TableName + "].[" + IndexName + "];");
+                if (!Regex.IsMatch(TableName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {TableName}"); }
+                if (!Regex.IsMatch(IndexName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {IndexName}"); }
+                executeNonQuery($"DROP INDEX [{TableName}].[{IndexName}];");
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {

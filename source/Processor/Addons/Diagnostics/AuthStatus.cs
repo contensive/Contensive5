@@ -20,6 +20,10 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
+                if (!cp.User.IsAdmin) {
+                    cp.Response.SetStatus("401 Unauthorized");
+                    return "Authentication required.";
+                }
                 var resultList = new StringBuilder();
                 var core = ((CPClass)(cp)).core;
                 string pauseHint = " To pause alarm " + ((cp.User.IsAdmin) ? "set site property 'Diagnostics Pause Until Date' or [/status?pauseUntil=" + core.dateTimeNowMockable.AddHours(1) + "]." : "login as administrator.");
@@ -35,12 +39,10 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 resultList.Append(Environment.NewLine + "IsGuest: " + cp.User.IsGuest.ToString());
                 resultList.Append(Environment.NewLine + "IsInGroup(\"Staff\": " + cp.User.IsInGroup("Staff").ToString());
                 resultList.Append(Environment.NewLine + "IsNew:" + cp.User.IsNew.ToString());
-                resultList.Append(Environment.NewLine + "cp.User.IsNewLoginOK(\"root\",\"contensive\"):" + cp.User.IsNewLoginOK("root", "contensive").ToString());
                 resultList.Append(Environment.NewLine + "cp.User.IsPageBuilderEditing:" + cp.User.IsPageBuilderEditing.ToString());
                 resultList.Append(Environment.NewLine + "cp.User.IsQuickEditing(\"page content\"):" + cp.User.IsQuickEditing("page content"));
                 resultList.Append(Environment.NewLine + "cp.User.IsRecognized:" + cp.User.IsRecognized);
                 resultList.Append(Environment.NewLine + "cp.User.IsTemplateEditing:" + cp.User.IsTemplateEditing);
-                resultList.Append(Environment.NewLine + "cp.User.LoginIsOK(\"root\",\"contensive\"):" + cp.User.LoginIsOK("root", "contensive"));
                 return resultList.ToString();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

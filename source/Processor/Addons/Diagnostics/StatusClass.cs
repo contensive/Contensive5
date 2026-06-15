@@ -33,22 +33,29 @@ namespace Contensive.Processor.Addons.Diagnostics {
             try {
                 var resultList = new StringBuilder();
                 var core = ((CPClass)(cp)).core;
+                bool showDetail = cp.Site.GetBoolean("Status Endpoint Detail", true);
                 hint = 10;
                 if (cp.Site.GetDate("Diagnostics pause until date") > core.dateTimeNowMockable) {
-                    string pausedMessage = $"ok, diagnostics paused until {cp.Site.GetDate("Diagnostics pause until date")}.{Environment.NewLine}{resultList}";
-                    return BuildResponse(cp, core, "ok", pausedMessage);
+                    string pausedMessage = showDetail
+                        ? $"ok, diagnostics paused until {cp.Site.GetDate("Diagnostics pause until date")}.{Environment.NewLine}{resultList}"
+                        : "ok, diagnostics paused.";
+                    return BuildResponse(cp, core, "ok", pausedMessage, showDetail);
                 }
                 hint = 20;
                 foreach (var addon in DbBaseModel.createList<AddonModel>(core.cpParent, "(diagnostic>0)")) {
                     hint = 30;
                     string testResult = core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
                     if (testResult.Length < 2) {
-                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result.";
-                        return BuildResponse(cp, core, "error", errorMsg);
+                        string errorMsg = showDetail
+                            ? $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result."
+                            : "ERROR, a diagnostic check failed.";
+                        return BuildResponse(cp, core, "error", errorMsg, showDetail);
                     }
                     if (testResult.left(2).ToLower(CultureInfo.InvariantCulture) != "ok") {
-                        string errorMsg = $"ERROR, diagnostic [{addon.name}] failed, it returned [{testResult}]";
-                        return BuildResponse(cp, core, "error", errorMsg);
+                        string errorMsg = showDetail
+                            ? $"ERROR, diagnostic [{addon.name}] failed, it returned [{testResult}]"
+                            : "ERROR, a diagnostic check failed.";
+                        return BuildResponse(cp, core, "error", errorMsg, showDetail);
                     }
                     resultList.AppendLine($"{testResult}, {addon.name}");
                 }
@@ -60,15 +67,19 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 //
                 string diagnosticDetail = "";
                 if (!GetServerDiagnosticsSummary(cp, ref diagnosticDetail)) {
-                    string errorMsg = $"ERROR, {diagnosticDetail}.";
-                    return BuildResponse(cp, core, "error", errorMsg);
+                    string errorMsg = showDetail
+                        ? $"ERROR, {diagnosticDetail}."
+                        : "ERROR, server diagnostics failed.";
+                    return BuildResponse(cp, core, "error", errorMsg, showDetail);
                 }
                 hint = 60;
-                string successMessage = $"ok, all tests passed.{Environment.NewLine}{resultList}{diagnosticDetail}";
-                return BuildResponse(cp, core, "ok", successMessage);
+                string successMessage = showDetail
+                    ? $"ok, all tests passed.{Environment.NewLine}{resultList}{diagnosticDetail}"
+                    : "ok, all tests passed.";
+                return BuildResponse(cp, core, "ok", successMessage, showDetail);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
-                return $"ERROR, unexpected exception during diagnostics, hint [{hint}], [{ex.Message}]";
+                return "ERROR, unexpected exception during diagnostics.";
             }
         }
         //
@@ -137,7 +148,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 return true;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
-                diagnosticDetail += Environment.NewLine + $"ERROR: Exception while reading server diagnostics status, hint [{hint}], [{ex.Message}]";
+                diagnosticDetail += Environment.NewLine + "ERROR: Exception while reading server diagnostics status.";
                 return false;
             }
         }
@@ -146,7 +157,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// <summary>
         /// Return plain text or JSON depending on the format query parameter
         /// </summary>
-        private static string BuildResponse(Contensive.BaseClasses.CPBaseClass cp, CoreController core, string status, string message) {
+        private static string BuildResponse(Contensive.BaseClasses.CPBaseClass cp, CoreController core, string status, string message, bool showDetail) {
             string version = CoreController.codeVersion();
             string format = cp.Doc.GetText("format");
             if (!format.Equals("json", StringComparison.OrdinalIgnoreCase)) {
@@ -160,39 +171,43 @@ namespace Contensive.Processor.Addons.Diagnostics {
             //
             // -- return JSON response with performance metrics
             cp.Response.SetType("application/json");
-            var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
-            //
-            // -- include windows update status in JSON response
+            StatusResponseModel.StatusMetricsModel metricsModel = null;
             StatusResponseModel.StatusWindowsUpdatesModel windowsUpdates = null;
-            try {
-                string serverDiagJson = cp.Site.GetText("ServerDiagnosticsStatus");
-                if (!string.IsNullOrEmpty(serverDiagJson)) {
-                    var serverDiag = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(serverDiagJson);
-                    if (serverDiag != null) {
-                        windowsUpdates = new StatusResponseModel.StatusWindowsUpdatesModel {
-                            updatesAvailable = serverDiag.windowsUpdateCount > 0,
-                            updateCount = serverDiag.windowsUpdateCount,
-                            updateTitles = serverDiag.windowsUpdateTitles,
-                            lastChecked = serverDiag.lastCheckDate,
-                            checkSuccessful = serverDiag.windowsUpdateCheckSuccessful,
-                            errorMessage = serverDiag.windowsUpdateErrorMessage ?? ""
-                        };
-                    }
-                }
-            } catch (Exception) {
-                // -- if we can't read the server diagnostics, leave windowsUpdates null
-            }
-            var response = new StatusResponseModel {
-                version = version,
-                status = status,
-                message = Regex.Replace(message, @"(\r?\n){2,}", Environment.NewLine).Trim(),
-                metrics = new StatusResponseModel.StatusMetricsModel {
+            if (showDetail) {
+                var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
+                metricsModel = new StatusResponseModel.StatusMetricsModel {
                     avgResponseTimeMs = metrics.AvgResponseTimeMs,
                     avgResponseTime5MinMs = metrics.AvgResponseTime5MinMs,
                     hitCount = metrics.HitCount,
                     hitCount5Min = metrics.HitCount5Min,
                     uptimeMinutes = metrics.UptimeMinutes
-                },
+                };
+                //
+                // -- include windows update status in JSON response
+                try {
+                    string serverDiagJson = cp.Site.GetText("ServerDiagnosticsStatus");
+                    if (!string.IsNullOrEmpty(serverDiagJson)) {
+                        var serverDiag = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(serverDiagJson);
+                        if (serverDiag != null) {
+                            windowsUpdates = new StatusResponseModel.StatusWindowsUpdatesModel {
+                                updatesAvailable = serverDiag.windowsUpdateCount > 0,
+                                updateCount = serverDiag.windowsUpdateCount,
+                                updateTitles = serverDiag.windowsUpdateTitles,
+                                lastChecked = serverDiag.lastCheckDate,
+                                checkSuccessful = serverDiag.windowsUpdateCheckSuccessful,
+                                errorMessage = serverDiag.windowsUpdateErrorMessage ?? ""
+                            };
+                        }
+                    }
+                } catch (Exception) {
+                    // -- if we can't read the server diagnostics, leave windowsUpdates null
+                }
+            }
+            var response = new StatusResponseModel {
+                version = version,
+                status = status,
+                message = Regex.Replace(message, @"(\r?\n){2,}", Environment.NewLine).Trim(),
+                metrics = metricsModel,
                 windowsUpdates = windowsUpdates
             };
             return JsonConvert.SerializeObject(response);

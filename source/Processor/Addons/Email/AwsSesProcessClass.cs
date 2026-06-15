@@ -144,7 +144,7 @@ namespace Contensive.Processor.Addons {
             CPClass cp = core.cpParent;
             //
             // -- clear allowBulkEmail
-            core.db.executeNonQuery("update ccmembers set allowBulkEmail=0 where email=" + cp.Db.EncodeSQLText(emailAddress));
+            core.db.executeNonQuery("update ccmembers set allowBulkEmail=0 where email=@email", new Dictionary<string, object> { { "@email", emailAddress } });
             //
             // -- add or update email bounce list
             using (CPCSBaseClass cs = cp.CSNew()) {

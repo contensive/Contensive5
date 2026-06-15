@@ -4,6 +4,7 @@ using Contensive.Processor.Controllers;
 using NLog;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Contensive.Processor.Addons.Housekeeping {
     /// <summary>
@@ -59,7 +60,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         FieldNew = FieldContentId + FieldCaption;
                         if (FieldNew == FieldLast) {
                             FieldRecordId = csData.getInteger("ID");
-                            env.core.db.executeNonQuery("Update ccFields set active=0 where ID=" + FieldRecordId + ";");
+                            env.core.db.executeNonQuery("Update ccFields set active=0 where ID=@id", new Dictionary<string, object> { { "@id", FieldRecordId } });
                         }
                         FieldLast = FieldNew;
                         csData.goNext();
@@ -92,19 +93,20 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         string PathName = TableName + "\\" + FieldName;
                         List<CPFileSystemBaseClass.FileDetail> FileList = env.core.cdnFiles.getFileList(PathName);
                         if (FileList.Count > 0) {
-                            env.core.db.executeNonQuery("CREATE INDEX temp" + FieldName + " ON " + TableName + " (" + FieldName + ")");
+                            if (!Regex.IsMatch(FieldName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {FieldName}"); }
+                            if (!Regex.IsMatch(TableName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {TableName}"); }
+                            env.core.db.executeNonQuery($"CREATE INDEX [temp{FieldName}] ON [{TableName}] ([{FieldName}])");
                             foreach (CPFileSystemBaseClass.FileDetail file in FileList) {
                                 string Filename = file.Name;
                                 string VirtualFileName = PathName + "\\" + Filename;
                                 string VirtualLink = GenericController.strReplace(VirtualFileName, "\\", "/");
                                 long FileSize = file.Size;
                                 if (FileSize == 0) {
-                                    sql = "update " + TableName + " set " + FieldName + "=null where (" + FieldName + "=" + DbController.encodeSQLText(VirtualFileName) + ")or(" + FieldName + "=" + DbController.encodeSQLText(VirtualLink) + ")";
-                                    env.core.db.executeNonQuery(sql);
+                                    env.core.db.executeNonQuery($"update [{TableName}] set [{FieldName}]=null where ([{FieldName}]=@virtualFileName)or([{FieldName}]=@virtualLink)", new Dictionary<string, object> { { "@virtualFileName", VirtualFileName }, { "@virtualLink", VirtualLink } });
                                     env.core.cdnFiles.deleteFile(VirtualFileName);
                                 } else {
-                                    using var csTest = new CsModel(env.core); 
-                                    sql = "SELECT ID FROM " + TableName + " WHERE (" + FieldName + "=" + DbController.encodeSQLText(VirtualFileName) + ")or(" + FieldName + "=" + DbController.encodeSQLText(VirtualLink) + ")";
+                                    using var csTest = new CsModel(env.core);
+                                    sql = $"SELECT ID FROM [{TableName}] WHERE ([{FieldName}]={DbController.encodeSQLText(VirtualFileName)})or([{FieldName}]={DbController.encodeSQLText(VirtualLink)})";
                                     if (!csTest.openSql(sql)) {
                                         env.core.cdnFiles.deleteFile(VirtualFileName);
                                     }
@@ -112,13 +114,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             }
                             if (DSType == 1) {
                                 // access
-                                sql = "Drop INDEX temp" + FieldName + " ON " + TableName;
+                                sql = $"Drop INDEX [temp{FieldName}] ON [{TableName}]";
                             } else if (DSType == 2) {
                                 // sql server
-                                sql = "DROP INDEX " + TableName + ".temp" + FieldName;
+                                sql = $"DROP INDEX [{TableName}].[temp{FieldName}]";
                             } else {
                                 // mysql
-                                sql = "ALTER TABLE " + TableName + " DROP INDEX temp" + FieldName;
+                                sql = $"ALTER TABLE [{TableName}] DROP INDEX [temp{FieldName}]";
                             }
                             env.core.db.executeNonQuery(sql);
                         }

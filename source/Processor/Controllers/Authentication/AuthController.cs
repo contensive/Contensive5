@@ -150,7 +150,7 @@ namespace Contensive.Processor.Controllers {
                     // -- successful
                     LogController.addActivityCompletedVisit(core, "Login", "successful login, credential [" + requestUsername + "]", session.user.id);
                     //
-                    core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
+                    core.db.executeNonQuery("update ccmembers set autoLogin=@autoLogin where id=@id", new Dictionary<string, object> { { "@autoLogin", setUserAutoLogin ? 1 : 0 }, { "@id", userId } });
                     return true;
                 }
                 //
@@ -316,18 +316,18 @@ namespace Contensive.Processor.Controllers {
                     //
                     // todo -- consider removing content manager role
                     // -- no-password auth cannot be content manager
-                    using var csRules = new CsModel(core);
                     string SQL = ""
                         + " select ccGroupRules.ContentID"
                         + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
                         + " where (1=1)"
-                        + " and(ccMemberRules.memberId=" + record.id + ")"
+                        + " and(ccMemberRules.memberId=@memberId)"
                         + " and(ccMemberRules.active>0)"
                         + " and(ccGroupRules.active>0)"
                         + " and(ccGroupRules.ContentID Is not Null)"
-                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
+                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>@dateExpires))"
                         + ");";
-                    if (!csRules.openSql(SQL)) {
+                    using var dtRules = core.db.executeQuery(SQL, new Dictionary<string, object> { { "@memberId", record.id }, { "@dateExpires", core.doc.profileStartTime } });
+                    if (dtRules.Rows.Count == 0) {
                         //
                         // -- success, match is not content manager
                         logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, no-pw mode did not match content manager");

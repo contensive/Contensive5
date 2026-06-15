@@ -15,6 +15,7 @@ namespace Contensive.Processor.Addons.Primitives {
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
+                if (!cp.User.IsAuthenticated) { return ""; }
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- Active Download hook
