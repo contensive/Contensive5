@@ -974,8 +974,34 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// Return the CSRF token for the current visit. If one does not exist, generate and store it.
+        /// </summary>
+        public static string getCsrfToken(CoreController core) {
+            string token = core.visitProperty.getText("csrfToken");
+            if (string.IsNullOrEmpty(token)) {
+                token = GenericController.getRandomString(32);
+                core.visitProperty.setProperty("csrfToken", token);
+            }
+            return token;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Verify the CSRF token submitted in the form matches the token stored in the visit property.
+        /// </summary>
+        public static bool verifyCsrfToken(CoreController core) {
+            string formToken = core.docProperties.getText("csrfToken");
+            string sessionToken = core.visitProperty.getText("csrfToken");
+            if (string.IsNullOrEmpty(sessionToken) || string.IsNullOrEmpty(formToken)) { return false; }
+            return string.Equals(formToken, sessionToken, StringComparison.Ordinal);
+        }
+        //
+        //====================================================================================================
         //
         public static string form(CoreController core, string innerHtml, HtmlAttributesForm attributes) {
+            string csrfHidden = inputHidden("csrfToken", getCsrfToken(core));
+            innerHtml = csrfHidden + innerHtml;
             StringBuilder result = new("<form");
             result.Append((string.IsNullOrWhiteSpace(attributes.acceptcharset)) ? "" : $" accept-charset=\"{attributes.acceptcharset}\"");
             result.Append($" action=\"{(string.IsNullOrWhiteSpace(attributes.action) ? "?" + core.doc.refreshQueryString : attributes.action)}\"");

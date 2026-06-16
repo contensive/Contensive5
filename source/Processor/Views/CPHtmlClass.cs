@@ -100,6 +100,10 @@ namespace Contensive.Processor {
         //
         // ==========================================================================================
         //
+        public override bool VerifyFormCsrf() => HtmlController.verifyCsrfToken(cp.core);
+        //
+        // ==========================================================================================
+        //
         public override string h1(string innerHtml, string htmlName, string htmlClass, string htmlId) => HtmlController.h1(innerHtml, htmlClass, htmlId);
         //
         public override string h1(string innerHtml, string htmlName, string htmlClass) => HtmlController.h1(innerHtml, htmlClass);

@@ -103,6 +103,39 @@ document.querySelector(".js-submit-form").addEventListener("click", handleSubmit
 .js-submit-form { background-color: #007bff; }
 ```
 
+## CSRF Protection on HTML Forms
+
+All HTML forms generated with `cp.Html.Form()` automatically include a CSRF token as a hidden field. When processing a form submission, always call `cp.Html.VerifyFormCsrf()` before acting on the posted data. If verification fails, reject the request.
+
+```csharp
+public override object Execute(CPBaseClass cp) {
+    try {
+        // -- check for form submission
+        if (!string.IsNullOrEmpty(cp.Doc.GetText("button"))) {
+            // -- verify CSRF token before processing
+            if (!cp.Html.VerifyFormCsrf()) {
+                return "Invalid form submission.";
+            }
+            // -- process the form
+            string name = cp.Doc.GetText("name");
+            // ...
+        }
+        // -- render the form (CSRF hidden field is injected automatically)
+        string innerHtml = ""
+            + cp.Html.InputText("name")
+            + cp.Html.Button("button", "Submit");
+        return cp.Html.Form(innerHtml);
+    } catch (Exception ex) {
+        cp.Site.ErrorReport(ex);
+        return "There was an error executing this addon.";
+    }
+}
+```
+
+- `cp.Html.Form()` automatically injects a hidden `csrfToken` field — no manual step is required when rendering.
+- `cp.Html.VerifyFormCsrf()` compares the submitted token against the token stored in the visit session. It returns `true` if they match, `false` otherwise.
+- Always verify before performing any state-changing operation (saves, deletes, updates).
+
 ## Summary
 
 | Method Type | Catch Behavior |

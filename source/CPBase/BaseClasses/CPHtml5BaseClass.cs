@@ -93,6 +93,13 @@ namespace Contensive.BaseClasses {
         //
         // ====================================================================================================
         /// <summary>
+        /// Verify the CSRF token submitted in the form matches the token stored in the visit session.
+        /// Call this method when processing a form post to protect against cross-site request forgery.
+        /// </summary>
+        public abstract bool VerifyFormCsrf();
+        //
+        // ====================================================================================================
+        /// <summary>
         /// Anchore tag
         /// </summary>
         /// <param name="innerHtml"></param>
