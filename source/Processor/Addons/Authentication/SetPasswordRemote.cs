@@ -48,6 +48,13 @@ namespace Contensive.Processor.Addons {
                         passwordTokenKey = passwordTokenKey
                     }));
                 }
+                if (!HtmlController.verifyCsrfToken(core)) {
+                    hint = 25;
+                    return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
+                        userErrorHtml = "Invalid form submission.",
+                        passwordTokenKey = passwordTokenKey
+                    }));
+                }
                 hint = 30;
                 //
                 // -- handle set password

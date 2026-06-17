@@ -16,6 +16,10 @@ namespace Contensive.Processor.Addons.Primitives {
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
+                if (!HtmlController.verifyCsrfToken(((CPClass)cp).core)) {
+                    cp.UserError.Add("Invalid form submission.");
+                    return "";
+                }
                 string requestUsername = cp.Doc.GetText("username");
                 string requestPassword = cp.Doc.GetText("password");
                 bool passwordRequestValid = cp.Doc.IsProperty("password");

@@ -24,6 +24,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         public static void processRegisterForm(CoreController core) {
             try {
+                if (!HtmlController.verifyCsrfToken(core)) {
+                    ErrorController.addUserError(core, "Invalid form submission.");
+                    return;
+                }
                 if (!core.siteProperties.getBoolean("AllowMemberJoin", false)) {
                     //
                     // -- public registration not allowed

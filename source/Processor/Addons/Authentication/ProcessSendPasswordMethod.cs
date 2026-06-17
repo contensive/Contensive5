@@ -19,6 +19,9 @@ namespace Contensive.Processor.Addons.Primitives {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
+                if (!HtmlController.verifyCsrfToken(core)) {
+                    return "<div style=\"width:300px;margin:100px auto 0 auto;\"><p>Invalid form submission.</p></div>";
+                }
                 core.doc.continueProcessing = false;
                 string userErrorMessage = "";
                 string userEmail = core.docProperties.getText("email");

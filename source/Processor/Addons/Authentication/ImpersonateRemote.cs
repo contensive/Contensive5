@@ -35,8 +35,10 @@ namespace Contensive.Processor.Addons {
                     }
                 }
                 //
-                // -- attempt impersonation if username provided. ignore button so this can be hit as a remote method
-                if (cp.Doc.IsProperty("username")) {
+                // -- verify CSRF token before processing
+                if (cp.Doc.IsProperty("username") && !HtmlController.verifyCsrfToken(core)) {
+                    cp.UserError.Add("Invalid form submission.");
+                } else if (cp.Doc.IsProperty("username")) {
                     string userError = "";
                     if (ImpersonationController.tryImpersonate(core, cp.Doc.GetText("username"), ref userError)) {
                         string dstUrl = "/";

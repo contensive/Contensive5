@@ -81,6 +81,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 string userErrorMessage = "";
                 string processFormType = core.docProperties.getText("type");
+                if (!string.IsNullOrEmpty(processFormType) && !HtmlController.verifyCsrfToken(core)) {
+                    userErrorMessage = "Invalid form submission.";
+                    processFormType = "";
+                }
                 if (processFormType == FormTypeLogin) {
                     //
                     // -- process a previous login for instance, and return blank if it is successful (legacy workflow)
