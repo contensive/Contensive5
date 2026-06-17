@@ -136,6 +136,25 @@ public override object Execute(CPBaseClass cp) {
 - `cp.Html.VerifyFormCsrf()` compares the submitted token against the token stored in the visit session. It returns `true` if they match, `false` otherwise.
 - Always verify before performing any state-changing operation (saves, deletes, updates).
 
+## Collection Settings Addon
+
+Every collection should include a settings addon that consolidates all site settings and copy content records an admin would want to view or modify into a single admin settings location. This gives administrators one place to control the collection's behavior without hunting through multiple records or site properties.
+
+## Addon Naming Conventions
+
+Addon names, filenames, and class names should include a suffix that describes the type of addon. Do not use the generic word "Class" as a suffix — use a type-specific suffix instead.
+
+| Addon Type | Suffix | Condition |
+|---|---|---|
+| Setting | `Setting` | `navTypeId` is Setting (3) |
+| Page Widget | `PageWidget` | `content=yes` and/or `template=yes` |
+| Remote Method | `Remote` | `remoteMethod=yes` |
+| Task | `Task` | `processInterval` is set |
+| Event | `Event` | The addon's GUID matches the `addonId` element of an Addon Event Catcher record |
+| General Purpose | `Addon` | None of the above conditions apply |
+
+For example, an addon that manages site configuration should be named `SiteConfigSetting` with a class `SiteConfigSetting`, not `SiteConfigClass`. A page widget that displays a hero banner should be `HeroBannerPageWidget`, a remote method that returns search results should be `SearchResultsRemote`, and a background task that sends digest emails should be `DigestEmailTask`.
+
 ## Summary
 
 | Method Type | Catch Behavior |
