@@ -6,6 +6,8 @@
   href: control-panel-pattern.md
 - name: Dashboard Widget Pattern
   href: dashboard-widget-pattern.md
+- name: Addon Pattern
+  href: addon-pattern.md
 - name: Addon Collection Pattern
   href: addon-collection-pattern.md
 - name: Database Management Pattern
@@ -21,10 +23,10 @@
 - name: Page Template Design Pattern
   href: page-template-design-pattern.md
 - name: Page Widget Pattern
-  href: page-widget-pattern.md
+  href: addon-page-widget-pattern.md
 - name: Portal Pattern
   href: portal-pattern.md
-- name: Process Addon Pattern
-  href: process-addon-pattern.md
+- name: Task Addon Pattern
+  href: addon-task-pattern.md
 - name: Remote Method Pattern
-  href: remote-method-pattern.md
+  href: addon-remote-method-pattern.md

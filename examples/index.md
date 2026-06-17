@@ -34,7 +34,7 @@ Form-based UI with name-value pair layout built with `cp.AdminUI.CreateLayoutBui
 
 Page widget with database-backed settings, view model, and Mustache template rendering. Demonstrates `SettingsBaseModel` inheritance, image handling with aspect ratio management, Bootstrap 5 styling, and `DesignBlockController.renderWidget<>()`.
 
-**Pattern:** [Page Widget Pattern](../patterns/page-widget-pattern.md), [Layout Design Pattern](../patterns/layout-design-pattern.md)
+**Pattern:** [Page Widget Pattern](../patterns/addon-page-widget-pattern.md), [Layout Design Pattern](../patterns/layout-design-pattern.md)
 
 ## Key APIs Demonstrated
 

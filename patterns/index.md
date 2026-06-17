@@ -22,11 +22,12 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 
 ## Addon Patterns
 
+- [Addon Pattern](addon-pattern.md) — addon architecture, types, and field reference
 - [Addon Collection Pattern](addon-collection-pattern.md) — packaging addons into installable collections
-- [Page Widget Pattern](page-widget-pattern.md) — addons that render content on a page
+- [Page Widget Pattern](addon-page-widget-pattern.md) — addons that render content on a page
 - [Dashboard Widget Pattern](dashboard-widget-pattern.md) — addons that render dashboard widgets
-- [Remote Method Pattern](remote-method-pattern.md) — addons called via AJAX/API endpoints
-- [Process Addon Pattern](process-addon-pattern.md) — background process addons
+- [Remote Method Pattern](addon-remote-method-pattern.md) — addons called via AJAX/API endpoints
+- [Task Addon Pattern](addon-task-pattern.md) — background task addons
 - [Diagnostic Addon Pattern](diagnostic-addon-pattern.md) — diagnostic/health-check addons
 - [Portal Pattern](portal-pattern.md) — building portal-style admin interfaces
 - [Control Panel Pattern](control-panel-pattern.md) — control panel addons
