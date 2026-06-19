@@ -51,6 +51,13 @@ namespace Contensive.BaseModels {
         /// </summary>
         public abstract string localTempPath { get; set; }
         /// <summary>
+        /// Local abs path to application binaries (WebApi.dll, web.config, etc.).
+        /// Paths end in slash. (i.e. d:\inetpub\myApp\app\)
+        /// If empty, falls back to localWwwPath for backward compatibility with
+        /// Framework apps where binaries and static files share the same folder.
+        /// </summary>
+        public abstract string localAppPath { get; set; }
+        /// <summary>
         /// path within AWS S3 bucket where www files are stored
         /// </summary>
         public abstract string remoteWwwPath { get; set; }

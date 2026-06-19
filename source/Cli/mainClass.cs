@@ -380,6 +380,17 @@ namespace Contensive.CLI {
                                     AddRootCmd.execute(cpServer, appName, password);
                                     break;
                                 }
+                            case "--migratewebroot":
+                                //
+                                // -- require elevated permissions
+                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                    Console.WriteLine("The --migratewebroot command requires elevated permissions (run as administrator).");
+                                    return;
+                                }
+                                //
+                                // -- migrate Core app to separate app/www folders
+                                MigrateWebrootCmd.execute(cpServer, appName);
+                                break;
 
                             case "":
                                 //

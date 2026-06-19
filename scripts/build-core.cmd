@@ -103,6 +103,19 @@ cd "C:\Git\Contensive5\scripts"
 
 rem ==============================================================
 rem
+rem copy baseassets into WebApi webroot for static file serving
+rem
+
+robocopy "C:\Git\Contensive5\ui\baseassets\BaseAssets" "C:\Git\Contensive5\source\WebApi\webroot\baseassets" /MIR /NJH /NJS /NDL /NP
+if errorlevel 8 (
+   echo.
+   echo FAILURE copying baseassets to WebApi webroot
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+rem ==============================================================
+rem
 rem build and pack NuGet packages (CPBase + Models + Processor)
 rem CPBase and Models target netstandard2.0 for framework + core compatibility
 rem Processor targets net48 (for framework NuGet consumers) and net9.0-windows (for core)

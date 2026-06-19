@@ -1,13 +1,20 @@
 
 
+using Microsoft.Extensions.FileProviders;
 using Contensive.Processor.Models.Domain;
 
 namespace Contensive.WebApi {
     internal class Program {
         private static void Main(string[] args) {
+            //
+            // -- WebRootPath: when localAppPath is set (separated mode), appsettings.json
+            // -- contains the absolute path to localWwwPath. For legacy/unmigrated apps
+            // -- where binaries and static files share the same folder, defaults to "webroot".
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true).Build();
+            string webRootPath = config["Contensive:WebRootPath"] ?? "webroot";
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
                 Args = args,
-                WebRootPath = "webroot"
+                WebRootPath = webRootPath
             });
             //
             // -- when running standalone (dotnet run, Kestrel), set the listen url from config.

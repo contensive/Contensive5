@@ -58,6 +58,16 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public override string localTempPath { get; set; } // = "";
         /// <summary>
+        /// Local abs path to application binaries (WebApi.dll, web.config, etc.).
+        /// Paths end in slash. If empty, falls back to localWwwPath for backward compatibility.
+        /// </summary>
+        public override string localAppPath { get; set; } // = "";
+        /// <summary>
+        /// Returns localAppPath if set, otherwise falls back to localWwwPath.
+        /// Use this everywhere the application binary folder is needed.
+        /// </summary>
+        public string effectiveAppPath => string.IsNullOrEmpty(localAppPath) ? localWwwPath : localAppPath;
+        /// <summary>
         /// path within AWS S3 bucket where www files are stored
         /// </summary>
         public override string remoteWwwPath { get; set; } // = "";

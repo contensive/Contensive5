@@ -49,7 +49,7 @@ namespace Contensive.WebApi {
                 string uriString = httpContext.Request.Headers["Referer"].ToString();
                 context.Request.UrlReferrer = string.IsNullOrEmpty(uriString) ? null : new Uri(uriString);
                 // 
-                context.Request.RawUrl = httpContext.Request.GetEncodedUrl();
+                context.Request.RawUrl = $"{httpContext.Request.Path}{httpContext.Request.QueryString}";
                 //
                 // todo - map these to their own request arguments, remove servervariables
                 //

@@ -183,6 +183,7 @@ namespace Contensive.CLI {
                         if (cp.core.serverConfig.isLocalFileSystem) {
                             //
                             // -- no prompts, local file system
+                            appConfig.localAppPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\app\\";
                             appConfig.localWwwPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\www\\";
                             appConfig.localFilesPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\";
                             appConfig.localPrivatePath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\";
@@ -194,6 +195,7 @@ namespace Contensive.CLI {
                         } else {
                             //
                             // -- no prompts, remote file system
+                            appConfig.localAppPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\app\\";
                             appConfig.localWwwPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\www\\";
                             appConfig.localFilesPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\";
                             appConfig.localPrivatePath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\";
@@ -209,7 +211,8 @@ namespace Contensive.CLI {
                             // Server is local file Mode, compatible with v4.1, cdn in appRoot folder as /" + appConfig.name + "/files/
                             //
                             Console.Write("\nThe Server Group is configured for a local filesystem (Local Mode, scale-up architecture. Files are stored and accessed on the local server.)");
-                            appConfig.localWwwPath = GenericController.promptForReply("\napp files", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\www\\");
+                            appConfig.localAppPath = GenericController.promptForReply("\napp binaries", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\app\\");
+                            appConfig.localWwwPath = GenericController.promptForReply("static files (webroot)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\www\\");
                             appConfig.localFilesPath = GenericController.promptForReply("cdn files", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\");
                             appConfig.localPrivatePath = GenericController.promptForReply("private files", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\");
                             appConfig.localTempPath = GenericController.promptForReply("temp files (ephemeral storage)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\temp\\");
@@ -222,7 +225,8 @@ namespace Contensive.CLI {
                             // Server is remote file mode
                             //
                             Console.Write("\nThe Server Group is configured for a remote filesystem.");
-                            appConfig.localWwwPath = GenericController.promptForReply("\napp files (local mirror)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\www\\");
+                            appConfig.localAppPath = GenericController.promptForReply("\napp binaries", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\app\\");
+                            appConfig.localWwwPath = GenericController.promptForReply("static files (local mirror)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\www\\");
                             appConfig.localFilesPath = GenericController.promptForReply("cdn files (local mirror)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\");
                             appConfig.localPrivatePath = GenericController.promptForReply("private files (local mirror)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\");
                             appConfig.localTempPath = GenericController.promptForReply("temp files (local only storage)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\temp\\");
@@ -235,6 +239,9 @@ namespace Contensive.CLI {
                     //
                     // -- configure local folders
                     logger.Info($"{cp.core.logCommonMessage},Create local folders.");
+                    if (!string.IsNullOrEmpty(appConfig.localAppPath)) {
+                        setupDirectory(appConfig.localAppPath);
+                    }
                     setupDirectory(appConfig.localWwwPath);
                     setupDirectory(appConfig.localFilesPath);
                     setupDirectory(appConfig.localPrivatePath);
@@ -335,27 +342,57 @@ namespace Contensive.CLI {
                 //
                 using (CPClass cp = new(appName)) {
                     logger.Info($"{cp.core.logCommonMessage},Verify website.");
-                    cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath);
+                    cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.effectiveAppPath);
                     //
                     //
-                    // -- deploy WebApi files to the app's www folder
+                    // -- deploy WebApi files to the app's application folder
                     bool webApiInstalled = false;
-                    logger.Info($"{cp.core.logCommonMessage},Deploy WebApi to www folder.");
+                    string appDeployPath = cp.core.appConfig.effectiveAppPath;
+                    logger.Info($"{cp.core.logCommonMessage},Deploy WebApi to app folder [{appDeployPath}].");
                     string webApiSourcePath = Path.Combine(Path.GetDirectoryName(cp.core.serverConfig.programFilesPath), "WebApi");
                     if (!Directory.Exists(webApiSourcePath)) {
-                        Console.WriteLine($"WebApi package not found at [{webApiSourcePath}]. Copy WebApi files manually to [{cp.core.appConfig.localWwwPath}].");
+                        Console.WriteLine($"WebApi package not found at [{webApiSourcePath}]. Copy WebApi files manually to [{appDeployPath}].");
                     } else {
                         //
-                        // -- copy WebApi files to the app's www folder
-                        CopyDirectory(webApiSourcePath, cp.core.appConfig.localWwwPath);
+                        // -- copy WebApi files to the app's application folder
+                        CopyDirectory(webApiSourcePath, appDeployPath);
                         webApiInstalled = true;
                         //
                         // -- create logs folder for IIS stdout logging
-                        string logsPath = Path.Combine(cp.core.appConfig.localWwwPath, "logs");
+                        string logsPath = Path.Combine(appDeployPath, "logs");
                         if (!Directory.Exists(logsPath)) {
                             Directory.CreateDirectory(logsPath);
                         }
-                        Console.WriteLine($"  WebApi deployed to [{cp.core.appConfig.localWwwPath}]");
+                        //
+                        // -- update appsettings.json with the WebRootPath pointing to localWwwPath
+                        if (!string.IsNullOrEmpty(cp.core.appConfig.localAppPath)) {
+                            string appSettingsPath = Path.Combine(appDeployPath, "appsettings.json");
+                            if (File.Exists(appSettingsPath)) {
+                                string json = File.ReadAllText(appSettingsPath);
+                                var settings = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(json);
+                                using var stream = new MemoryStream();
+                                using (var writer = new System.Text.Json.Utf8JsonWriter(stream, new System.Text.Json.JsonWriterOptions { Indented = true })) {
+                                    writer.WriteStartObject();
+                                    foreach (var prop in settings.EnumerateObject()) {
+                                        if (prop.Name == "Contensive") {
+                                            writer.WriteStartObject("Contensive");
+                                            foreach (var cprop in prop.Value.EnumerateObject()) {
+                                                if (cprop.Name != "WebRootPath") {
+                                                    cprop.WriteTo(writer);
+                                                }
+                                            }
+                                            writer.WriteString("WebRootPath", cp.core.appConfig.localWwwPath);
+                                            writer.WriteEndObject();
+                                        } else {
+                                            prop.WriteTo(writer);
+                                        }
+                                    }
+                                    writer.WriteEndObject();
+                                }
+                                File.WriteAllText(appSettingsPath, System.Text.Encoding.UTF8.GetString(stream.ToArray()));
+                            }
+                        }
+                        Console.WriteLine($"  WebApi deployed to [{appDeployPath}]");
                     }
                     //
                     // -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
