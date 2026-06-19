@@ -44,6 +44,10 @@ namespace Contensive.Processor.Controllers {
                 if (people.Count == 0) { return false; }
                 if (people.Count > 1) { return false; }
                 PersonModel person = people.First();
+                if (person.admin || person.developer) {
+                    userError = "Impersonation failed because the target user is an admin or developer.";
+                    return false;
+                }
                 //
                 int userIdToRestore = core.session.user.id;
                 if (!AuthController.authenticateById(core, core.session, person.id)) {

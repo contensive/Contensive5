@@ -357,6 +357,40 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// Impersonate another user by their user id. The current user must be an admin or developer.
+        /// The target user must not be an admin or developer.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public override bool Impersonate(int userId) {
+            string userError = "";
+            return ImpersonationController.tryImpersonate(cp.core, userId.ToString(), ref userError);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Impersonate another user by their username. The current user must be an admin or developer.
+        /// The target user must not be an admin or developer.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns></returns>
+        public override bool Impersonate(string username) {
+            string userError = "";
+            return ImpersonationController.tryImpersonate(cp.core, username, ref userError);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Restore the original admin/developer identity after impersonating another user.
+        /// </summary>
+        /// <returns></returns>
+        public override bool Unimpersonate() {
+            string userError = "";
+            return ImpersonationController.tryRestore(cp.core, ref userError);
+        }
+        //
+        //====================================================================================================
         //
         public override string Name {
             get {

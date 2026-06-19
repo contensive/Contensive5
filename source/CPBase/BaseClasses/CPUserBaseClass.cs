@@ -226,6 +226,34 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Impersonate another user by their user id. The current user must be an admin or developer.
+        /// The target user must not be an admin or developer.
+        /// Returns true if impersonation was successful.
+        /// </summary>
+        /// <param name="userId">The id of the user to impersonate</param>
+        /// <returns></returns>
+        public abstract bool Impersonate(int userId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Impersonate another user by their username. The current user must be an admin or developer.
+        /// The target user must not be an admin or developer.
+        /// Returns true if impersonation was successful.
+        /// </summary>
+        /// <param name="username">The username of the user to impersonate</param>
+        /// <returns></returns>
+        public abstract bool Impersonate(string username);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Restore the original admin/developer identity after impersonating another user.
+        /// Returns true if the restore was successful.
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool Unimpersonate();
+        //
+        //====================================================================================================
+        /// <summary>
         /// returns true if the credentials are valid, and not currently in user (the current user can use them)
         /// </summary>
         /// <param name="username"></param>
