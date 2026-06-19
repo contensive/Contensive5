@@ -148,6 +148,17 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// Create or update the page template record from the template file (privateFiles first, cdnFiles fallback).
+        /// </summary>
+        /// <param name="templateGuid">The guid that uniquely identifies the page template record.</param>
+        /// <param name="defaultTemplateName">The name to assign to the page template record if it must be created.</param>
+        /// <param name="defaultTemplateFilename">The filename (may include a path) of the default html template file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public override void updatePageTemplate(string templateGuid, string defaultTemplateName, string defaultTemplateFilename) {
+            _ = PageTemplateController.updatePageTemplate(cp, templateGuid, defaultTemplateName, defaultTemplateFilename);
+        }
+        //
+        //====================================================================================================
         //
         public override bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
             try {

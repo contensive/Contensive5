@@ -171,6 +171,16 @@ namespace Contensive.BaseClasses {
         public abstract bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList, int layoutFrameworkId);
         //
         //====================================================================================================
+        /// <summary>
+        /// The page template record is created or updated with the default name and body html from the layout file.
+        /// Layout files are read from privateFiles first; if not found there, cdnFiles is used as a fallback.
+        /// </summary>
+        /// <param name="templateGuid">The guid that uniquely identifies the page template record.</param>
+        /// <param name="defaultTemplateName">The name to assign to the page template record if it must be created.</param>
+        /// <param name="defaultTemplateFilename">The filename (may include a path) of the default html template file. The filename-only portion is used to read from privateFiles; the full value is used to read from cdnFiles as fallback.</param>
+        public abstract void updatePageTemplate(string templateGuid, string defaultTemplateName, string defaultTemplateFilename);
+        //
+        //====================================================================================================
         //
         // -- import types
         public enum ImporttypeEnum {
