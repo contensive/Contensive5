@@ -37,12 +37,14 @@ namespace Contensive.CLI {
                         switch (cmd.ToLowerInvariant()) {
                             case "--enable":
                                 //
-                                // -- disable
+                                // -- enable
+                                writeCommandLine("--enable", appName);
                                 EnableCmd.execute(cpServer, appName);
                                 break;
                             case "--disable":
                                 //
                                 // -- disable
+                                writeCommandLine("--disable", appName);
                                 DisableCmd.execute(cpServer, appName);
                                 break;
                             case "--domain":
@@ -56,6 +58,7 @@ namespace Contensive.CLI {
                                 // -- set an applications primary domain
                                 string primaryDomain = getNextCmdArg(args, ref argPtr);
                                 if (isAppDisabled(cpServer, appName, "--domain")) { break; }
+                                writeCommandLine("--domain", appName);
                                 DomainCmd.execute(cpServer, appName, primaryDomain);
                                 break;
                             case "--iisrecycle":
@@ -68,6 +71,7 @@ namespace Contensive.CLI {
                                 if (isAppDisabled(cpServer, appName, "--iisrecycle")) { break; }
                                 //
                                 // -- recycle the application pool
+                                writeCommandLine("--iisrecycle", appName);
                                 IisRecycleCmd.execute(cpServer, appName);
                                 break;
                             case "--iisreset":
@@ -78,7 +82,8 @@ namespace Contensive.CLI {
                                     return;
                                 }
                                 //
-                                // -- set an applications primary domain
+                                // -- reset IIS
+                                writeCommandLine("--iisreset", "");
                                 IisResetCmd.execute(cpServer);
                                 break;
                             case "--serverdiagnostic":
@@ -92,6 +97,7 @@ namespace Contensive.CLI {
                                 }
                                 //
                                 // -- run server diagnostics for all applications
+                                writeCommandLine("--serverdiagnostics", "");
                                 ServerDiagnosticCmd.execute(cpServer);
                                 break;
                             case "--pause":
@@ -133,17 +139,20 @@ namespace Contensive.CLI {
                                     if (!System.IO.File.Exists(currentPathfilename)) {
                                         Console.WriteLine("The file could not be found [" + currentPathfilename + "].");
                                     }
+                                    writeCommandLine("--addfile", appName);
                                     AddFileCmd.execute(cpServer, appName, collectionName, currentPathfilename, false);
                                     break;
                                 }
                             case "--flushcache": {
                                     if (isAppDisabled(cpServer, appName, "--flushcache")) { break; }
+                                    writeCommandLine("--flushcache", appName);
                                     FlushCacheCmd.execute(cpServer, appName);
                                     break;
                                 }
                             case "--getcache": {
                                     string key = getNextCmdArg(args, ref argPtr);
                                     if (isAppDisabled(cpServer, appName, "--getcache")) { break; }
+                                    writeCommandLine("--getcache", appName);
                                     GetCacheCmd.execute(cpServer, appName, key);
                                     break;
                                 }
@@ -151,12 +160,14 @@ namespace Contensive.CLI {
                             case "--install":
                                 //
                                 // -- install collection to one or all applications
+                                writeCommandLine("--install", appName);
                                 InstallCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr), false);
                                 break;
                             case "-iq":
                             case "--installquick":
                                 //
                                 // -- install collection to one or all applications
+                                writeCommandLine("--installquick", appName);
                                 InstallCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr), true);
                                 break;
                             case "--installfile": {
@@ -176,6 +187,7 @@ namespace Contensive.CLI {
                                         }
                                         argumentFilename = testFilename;
                                     }
+                                    writeCommandLine("--installfile", appName);
                                     InstallFileCmd.execute(cpServer, appName, argumentFilename, false);
                                     break;
                                 }
@@ -197,18 +209,21 @@ namespace Contensive.CLI {
                                         }
                                         argumentFilename = testFilename;
                                     }
+                                    writeCommandLine("--installfilequick", appName);
                                     InstallFileCmd.execute(cpServer, appName, argumentFilename, true);
                                     break;
                                 }
                             case "-h":
                             case "--housekeep":
                                 if (isAppDisabled(cpServer, appName, "--housekeep")) { break; }
+                                writeCommandLine("--housekeep", appName);
                                 HousekeepCmd.execute(cpServer, appName);
                                 break;
                             case "--version":
                             case "-v":
                                 //
                                 // display core version
+                                writeCommandLine("--version", "");
                                 VersionCmd.execute(cpServer);
                                 break;
                             case "--newapp":
@@ -223,6 +238,7 @@ namespace Contensive.CLI {
                                 // -- start the new app wizard
                                 appName = getNextCmdArg(args, ref argPtr);
                                 string domainName = getNextCmdArg(args, ref argPtr);
+                                writeCommandLine("--newapp", appName);
                                 await NewAppCmd.executeAsync(appName, domainName);
                                 break;
                             case "--newappframework":
@@ -237,30 +253,34 @@ namespace Contensive.CLI {
                                 // -- start the new framework app wizard
                                 appName = getNextCmdArg(args, ref argPtr);
                                 string fwDomainName = getNextCmdArg(args, ref argPtr);
+                                writeCommandLine("--newappframework", appName);
                                 await NewAppFrameworkCmd.executeAsync(appName, fwDomainName);
                                 break;
                             case "--status":
                             case "-s":
                                 //
-
+                                writeCommandLine("--status", "");
                                 StatusCmd.execute(cpServer);
                                 break;
                             case "--repair":
                             case "-r":
                                 //
                                 // -- repair one or more apps
+                                writeCommandLine("--repair", appName);
                                 RepairCmd.execute(cpServer, appName);
                                 break;
                             case "--compatibility":
                             case "-c":
                                 //
                                 // -- scan addon DLLs for .NET Core compatibility
+                                writeCommandLine("--compatibility", appName);
                                 CompatibilityCmd.execute(cpServer, appName);
                                 break;
                             case "--upgrade":
                             case "-u":
                                 //
                                 // -- upgrade one or more apps
+                                writeCommandLine("--upgrade", appName);
                                 UpgradeCmd.execute(cpServer, appName, false);
                                 break;
                             case "--taskscheduler": {
@@ -268,6 +288,7 @@ namespace Contensive.CLI {
                                     if (isAppDisabled(cpServer, appName, "--taskscheduler")) { break; }
                                     //
                                     // -- manage the task scheduler
+                                    writeCommandLine("--taskscheduler", appName);
                                     TaskSchedulerCmd.execute(cpServer, appName, taskArg);
                                     break;
                                 }
@@ -276,6 +297,7 @@ namespace Contensive.CLI {
                                     if (isAppDisabled(cpServer, appName, "--taskrunner")) { break; }
                                     //
                                     // -- manage the task runner
+                                    writeCommandLine("--taskrunner", appName);
                                     TaskRunnerCmd.execute(cpServer, appName, taskArg);
                                     break;
                                 }
@@ -284,6 +306,7 @@ namespace Contensive.CLI {
                                     if (isAppDisabled(cpServer, appName, "--tasks")) { break; }
                                     //
                                     // -- turn on, off or run both services together
+                                    writeCommandLine("--tasks", appName);
                                     TasksCmd.execute(cpServer, appName, taskArg);
                                     break;
                                 }
@@ -292,12 +315,14 @@ namespace Contensive.CLI {
                                     if (isAppDisabled(cpServer, appName, "--execute")) { break; }
                                     //
                                     // -- execute an addon
+                                    writeCommandLine("--execute", appName);
                                     ExecuteAddonCmd.execute(cpServer, appName, addonArg);
                                     break;
                                 }
                             case "--deleteprotection":
                                 //
                                 // turn off delete protection
+                                writeCommandLine("--deleteprotection", appName);
                                 DeleteProtectionCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
                                 break;
                             case "--delete":
@@ -309,6 +334,7 @@ namespace Contensive.CLI {
                                 }
                                 //
                                 // delete
+                                writeCommandLine("--delete", appName);
                                 await DeleteAppCmd.deleteAppAsync(cpServer, appName);
                                 break;
                             case "--fileupload": {
@@ -320,6 +346,7 @@ namespace Contensive.CLI {
                                         getNextCmdArg(args, ref argPtr)
                                     };
                                     if (isAppDisabled(cpServer, appName, "--fileupload")) { break; }
+                                    writeCommandLine("--fileupload", appName);
                                     FileUploadCmd.execute(cpServer, appName, fileArgs);
                                     break;
                                 }
@@ -332,12 +359,14 @@ namespace Contensive.CLI {
                                         getNextCmdArg(args, ref argPtr)
                                     };
                                     if (isAppDisabled(cpServer, appName, "--filedownload")) { break; }
+                                    writeCommandLine("--filedownload", appName);
                                     FileDownloadCmd.execute(cpServer, appName, fileArgs);
                                     break;
                                 }
                             case "--fixtablefoldercase":
                                 //
                                 // -- fix folder case from older version
+                                writeCommandLine("--fixtablefoldercase", appName);
                                 FixTableFolderCaseCmd.execute(cpServer, appName);
                                 break;
                             case "--help":
@@ -350,6 +379,7 @@ namespace Contensive.CLI {
                                     if (isAppDisabled(cpServer, appName, "--runtask")) { break; }
                                     //
                                     // -- run a task
+                                    writeCommandLine("--runtask", appName);
                                     RunTaskCmd.execute(cpServer, appName, taskArg);
                                     return;
                                 }
@@ -361,6 +391,7 @@ namespace Contensive.CLI {
                                     return;
                                 }
                                 if (isAppDisabled(cpServer, appName, "--verifybasicwebsite")) { break; }
+                                writeCommandLine("--verifybasicwebsite", appName);
                                 VerifyBasicWebsiteCmd.execute(cpServer, appName);
                                 return;
                             case "--addadmin": {
@@ -369,6 +400,7 @@ namespace Contensive.CLI {
                                     string adminUser = getNextCmdArg(args, ref argPtr);
                                     string adminPass = getNextCmdArg(args, ref argPtr);
                                     if (isAppDisabled(cpServer, appName, "--addadmin")) { break; }
+                                    writeCommandLine("--addadmin", appName);
                                     AddAdminCmd.execute(cpServer, appName, adminUser, adminPass);
                                     break;
                                 }
@@ -377,6 +409,7 @@ namespace Contensive.CLI {
                                     // -- add root developer
                                     string password = getNextCmdArg(args, ref argPtr);
                                     if (isAppDisabled(cpServer, appName, "--addroot")) { break; }
+                                    writeCommandLine("--addroot", appName);
                                     AddRootCmd.execute(cpServer, appName, password);
                                     break;
                                 }
@@ -389,6 +422,7 @@ namespace Contensive.CLI {
                                 }
                                 //
                                 // -- migrate Core app to separate app/www folders
+                                writeCommandLine("--migratewebroot", appName);
                                 MigrateWebrootCmd.execute(cpServer, appName);
                                 break;
 
@@ -411,6 +445,16 @@ namespace Contensive.CLI {
                 }
             } catch (Exception ex) {
                 Console.WriteLine("There was an error that forced the program to close. Details follow.\n\n" + ex);
+            }
+        }
+        /// <summary>
+        /// Write a line to the console showing the command being run and optionally the application name
+        /// </summary>
+        private static void writeCommandLine(string cmdName, string appName) {
+            if (string.IsNullOrEmpty(appName)) {
+                Console.WriteLine($"Running {cmdName}");
+            } else {
+                Console.WriteLine($"Running {cmdName} for application [{appName}]");
             }
         }
         /// <summary>

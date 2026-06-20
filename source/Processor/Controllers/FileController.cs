@@ -56,7 +56,7 @@ namespace Contensive.Processor.Controllers {
         internal AmazonS3Client s3Client {
             get {
                 if (local_s3Client == null) {
-                    logger.Info($"{core.logCommonMessage},construct Amazon S3 client");
+                    logger.Trace($"{core.logCommonMessage},construct Amazon S3 client");
 
                     local_s3Client = new AmazonS3Client(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.getAwsRegion());
                 };
