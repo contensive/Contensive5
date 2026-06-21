@@ -4,7 +4,6 @@ using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Models.View;
 using System;
 using System.Collections.Generic;
-using System.Windows.Documents;
 
 namespace Contensive.Processor.Controllers {
     internal class DashboardWidgetRenderController {

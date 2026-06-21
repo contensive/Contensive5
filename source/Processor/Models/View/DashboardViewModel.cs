@@ -1,13 +1,9 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
-using Microsoft.Web.Administration;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Data;
-using System.Text.RegularExpressions;
-using System.Windows.Media.TextFormatting;
 
 namespace Contensive.Processor.Models.View {
     /// <summary>
