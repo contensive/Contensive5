@@ -1,17 +1,93 @@
 
 
+using System.IO;
 using Microsoft.Extensions.FileProviders;
 using Contensive.Processor.Models.Domain;
 
 namespace Contensive.WebApi {
     internal class Program {
+        /// <summary>
+        /// Resolve the Contensive app name from available sources (no HttpContext required).
+        /// Priority: appsettings.json → APP_POOL_ID env var → CONTENSIVE_APPNAME env var
+        /// </summary>
+        private static string resolveAppNameAtStartup(IConfiguration configuration) {
+            string appName = configuration["Contensive:AppName"] ?? "";
+            if (string.IsNullOrEmpty(appName)) {
+                appName = Environment.GetEnvironmentVariable("APP_POOL_ID") ?? "";
+            }
+            if (string.IsNullOrEmpty(appName)) {
+                appName = Environment.GetEnvironmentVariable("CONTENSIVE_APPNAME") ?? "";
+            }
+            return appName;
+        }
+        /// <summary>
+        /// Resolve the Contensive app name from available sources (with HttpContext).
+        /// Priority: appsettings.json → APP_POOL_ID server var → SERVER_NAME → CONTENSIVE_APPNAME env var
+        /// </summary>
+        private static string resolveAppName(IConfiguration configuration, HttpContext iisContext) {
+            string appName = configuration["Contensive:AppName"] ?? "";
+            if (string.IsNullOrEmpty(appName)) {
+                appName = iisContext.GetServerVariable("APP_POOL_ID") ?? "";
+            }
+            if (string.IsNullOrEmpty(appName)) {
+                appName = iisContext.GetServerVariable("SERVER_NAME") ?? "";
+            }
+            if (string.IsNullOrEmpty(appName)) {
+                appName = Environment.GetEnvironmentVariable("CONTENSIVE_APPNAME") ?? "";
+            }
+            return appName;
+        }
         private static void Main(string[] args) {
             //
-            // -- WebRootPath: when localAppPath is set (separated mode), appsettings.json
-            // -- contains the absolute path to localWwwPath. For legacy/unmigrated apps
-            // -- where binaries and static files share the same folder, defaults to "webroot".
+            // -- read appsettings early to resolve app name and Contensive config
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true).Build();
-            string webRootPath = config["Contensive:WebRootPath"] ?? "webroot";
+            string startupAppName = resolveAppNameAtStartup(config);
+            Console.WriteLine($"[Contensive] startup appName resolved to: [{startupAppName}]");
+            //
+            // -- resolve WebRootPath from Contensive config (localWwwPath).
+            // -- For converted ASPX sites, this is the www folder (e.g., D:\inetpub\sprint10\www\).
+            // -- appsettings.json Contensive:WebRootPath overrides if set explicitly.
+            string webRootPath = config["Contensive:WebRootPath"] ?? "";
+            string cdnRequestPath = "";
+            string cdnPhysicalPath = "";
+            bool configureCdn = false;
+            if (!string.IsNullOrEmpty(startupAppName)) {
+                try {
+                    using (var cp = new Contensive.Processor.CPClass(startupAppName)) {
+                        var serverConfig = cp.ServerConfig;
+                        var appConfig = cp.GetAppConfig();
+                        if (serverConfig != null && appConfig != null) {
+                            //
+                            // -- use localWwwPath as WebRootPath if not overridden in appsettings
+                            if (string.IsNullOrEmpty(webRootPath)) {
+                                webRootPath = appConfig.localWwwPath ?? "";
+                                Console.WriteLine($"[Contensive] WebRootPath from config: [{webRootPath}]");
+                            }
+                            //
+                            // -- prepare CDN file serving config
+                            if (serverConfig.isLocalFileSystem) {
+                                cdnRequestPath = appConfig.cdnFileUrl ?? "";
+                                cdnPhysicalPath = appConfig.localFilesPath ?? "";
+                                Console.WriteLine($"[Contensive] CDN config: requestPath=[{cdnRequestPath}], physicalPath=[{cdnPhysicalPath}], exists=[{Directory.Exists(cdnPhysicalPath)}]");
+                                if (!string.IsNullOrEmpty(cdnRequestPath) && !string.IsNullOrEmpty(cdnPhysicalPath) && Directory.Exists(cdnPhysicalPath)) {
+                                    if (!cdnRequestPath.StartsWith("/")) { cdnRequestPath = $"/{cdnRequestPath}"; }
+                                    cdnRequestPath = cdnRequestPath.TrimEnd('/');
+                                    configureCdn = true;
+                                }
+                            } else {
+                                Console.WriteLine($"[Contensive] CDN static files NOT configured: isLocalFileSystem=[{serverConfig.isLocalFileSystem}]");
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    Console.Error.WriteLine($"Warning: could not read Contensive config for app [{startupAppName}]: {ex.Message}");
+                }
+            }
+            //
+            // -- fall back to "." if no WebRootPath resolved (binary folder = www folder)
+            if (string.IsNullOrEmpty(webRootPath)) { webRootPath = "."; }
+            Console.WriteLine($"[Contensive] WebRootPath: [{webRootPath}]");
+            //
             var builder = WebApplication.CreateBuilder(new WebApplicationOptions {
                 Args = args,
                 WebRootPath = webRootPath
@@ -24,7 +100,23 @@ namespace Contensive.WebApi {
                 builder.WebHost.UseUrls(urls);
             }
             var app = builder.Build();
+            //
+            // -- serve static files from WebRootPath (baseassets, designblocks, toolpanel, etc.)
             app.UseStaticFiles();
+            //
+            // -- serve CDN files from localFilesPath, replacing the IIS virtual directory
+            if (configureCdn) {
+                Console.WriteLine($"[Contensive] CDN static files configured: [{cdnRequestPath}] -> [{cdnPhysicalPath}]");
+                var cdnFileProvider = new PhysicalFileProvider(cdnPhysicalPath);
+                app.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = cdnFileProvider,
+                    RequestPath = cdnRequestPath,
+                    ServeUnknownFileTypes = true,
+                    OnPrepareResponse = ctx => {
+                        Console.WriteLine($"[Contensive] CDN serving: [{ctx.Context.Request.Path}]");
+                    }
+                });
+            }
             //
             // -- all dynamic routes handled by Contensive processor
             app.MapFallback((HttpRequest request, HttpResponse response, HttpContext iisContext) => {
@@ -34,17 +126,14 @@ namespace Contensive.WebApi {
         }
         public static IResult executeManagedRoute(IConfiguration configuration, HttpRequest request, HttpResponse response, HttpContext iisContext) {
             //
-            // -- resolve appName: config override, then IIS server variables, then env var
-            string appName = configuration["Contensive:AppName"] ?? "";
-            if (string.IsNullOrEmpty(appName)) {
-                appName = iisContext.GetServerVariable("SERVER_NAME") ?? "";
+            // -- diagnostic: log requests that should have been served as static files
+            string requestPath = request.Path.Value ?? "";
+            if (requestPath.Contains("/files/") || requestPath.Contains("/baseassets/")) {
+                Console.WriteLine($"[Contensive] WARNING: static file request fell through to route handler: [{requestPath}]");
             }
-            if (string.IsNullOrEmpty(appName)) {
-                appName = iisContext.GetServerVariable("APP_POOL_ID") ?? "";
-            }
-            if (string.IsNullOrEmpty(appName)) {
-                appName = Environment.GetEnvironmentVariable("CONTENSIVE_APPNAME") ?? "";
-            }
+            //
+            // -- resolve appName using request context (includes SERVER_NAME fallback)
+            string appName = resolveAppName(configuration, iisContext);
             if (string.IsNullOrEmpty(appName)) {
                 string errorMessage = "appName is not valid. Set Contensive:AppName in appsettings.json, configure the IIS site name, or set the CONTENSIVE_APPNAME environment variable.";
                 Console.Error.WriteLine(errorMessage);

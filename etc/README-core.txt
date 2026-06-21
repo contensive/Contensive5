@@ -17,15 +17,26 @@ PREREQUISITES
 
 1. Windows Server 2019 or later (or Windows 10/11 for development)
 
-2. .NET 9.0 Hosting Bundle
+2. .NET 9.0 Hosting Bundle (provides ASP.NET Core runtime + IIS module)
    Download: https://dotnet.microsoft.com/download/dotnet/9.0
    Get the "Hosting Bundle" under the Windows section.
    After installing, restart IIS: iisreset
 
-3. IIS with ASP.NET Core Module (for core WebApi apps)
+3. .NET 9.0 Desktop Runtime (provides WindowsBase for VBScript support)
+   Download: https://dotnet.microsoft.com/download/dotnet/9.0
+   Get the ".NET Desktop Runtime" (x64) under the Windows section.
+   This is required for addons that use VBScript via ClearScript.
+
+4. IIS with ASP.NET Core Module (for core WebApi apps)
    Verify: %windir%\system32\inetsrv\appcmd list modules | findstr AspNetCoreModuleV2
 
-4. SQL Server (local or remote) for application databases
+5. IIS Application Pool settings for core WebApi apps:
+   - Open IIS Manager → Application Pools → select the app pool
+   - Click "Advanced Settings" on the right panel
+   - Set ".NET CLR Version" to "No Managed Code"
+   - Set "Enable 32-Bit Applications" to "False"
+
+6. SQL Server (local or remote) for application databases
 
 ============================================================
 NEW INSTALL
@@ -108,6 +119,47 @@ UPGRADE
      sc query "Contensive Task Service"
    If not started:
      sc start "Contensive Task Service"
+
+============================================================
+CONVERTING AN ASPX SITE TO WEBAPI
+============================================================
+
+To convert an existing .NET Framework ASPX site to .NET Core WebApi:
+
+1. Set the App Pool to "No Managed Code" and disable 32-bit:
+   - Open IIS Manager → Application Pools → select the app pool
+   - Click "Advanced Settings" on the right panel
+   - Set ".NET CLR Version" to "No Managed Code"
+   - Set "Enable 32-Bit Applications" to "False"
+
+2. Stop the IIS site.
+
+3. Copy the published WebApi files into the site's www folder,
+   replacing the existing ASPX binaries.
+
+4. Remove the CDN virtual directory. ASPX sites use an IIS
+   virtual directory (e.g., /appname/files) to serve CDN files.
+   ASP.NET Core in-process hosting intercepts all requests before
+   IIS virtual directories can serve them, so this must be removed.
+
+   List virtual directories for the site:
+     %windir%\system32\inetsrv\appcmd list vdir /app.name:"appName/"
+
+   Remove the CDN virtual directory:
+     %windir%\system32\inetsrv\appcmd delete vdir /vdir.name:"appName/appName/files"
+
+   Replace "appName" with the actual IIS site name (e.g., sprint10).
+   The WebApi CDN middleware now serves these files directly.
+
+5. Start the site and run iisreset.
+
+6. Upgrade the database:
+     cc -a appName -u
+
+7. Verify in browser:
+   - Page renders correctly
+   - /baseassets/ files load (200 in network tab)
+   - /appname/files/ CDN files load (200 in network tab)
 
 ============================================================
 UNINSTALL

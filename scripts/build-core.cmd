@@ -320,6 +320,7 @@ echo ^<?xml version="1.0" encoding="utf-8"?^>
 echo ^<configuration^>
 echo   ^<system.webServer^>
 echo     ^<handlers^>
+echo       ^<remove name="aspNetCore" /^>
 echo       ^<add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" /^>
 echo     ^</handlers^>
 echo     ^<aspNetCore processPath="dotnet"
