@@ -3,7 +3,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-	<UseWPF>true</UseWPF>
 	<TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
 	<RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
