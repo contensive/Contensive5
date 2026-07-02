@@ -47,20 +47,34 @@ namespace Contensive.Processor.Controllers {
         public static string getLayout(CPClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutFilename, string platform5LayoutFilename) {
             try {
                 if (string.IsNullOrEmpty(layoutGuid)) { return ""; }
-                // 
+                //
                 // -- load the layout from the catalog settings selection
                 LayoutModel layout;
                 if (cp.core.cacheRuntime.layoutGuidDict.ContainsKey(layoutGuid)) {
                     //
-                    // --most common cases
+                    // --most common cases, layout found in runtime cache
                     layout = cp.core.cacheRuntime.layoutGuidDict[layoutGuid];
                     if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) {
-                        return layout.layoutPlatform5.content; 
+                        return layout.layoutPlatform5.content;
                     }
                     if (!string.IsNullOrEmpty(layout.layout.content)) {
-                        return layout.layout.content; 
+                        return layout.layout.content;
                     }
                 }
+                //
+                // -- cache miss: try loading from DB (read-only) before calling updateLayout.
+                // This avoids concurrent file writes when multiple requests miss the cache simultaneously.
+                layout = DbBaseModel.create<LayoutModel>(cp, layoutGuid);
+                if (layout != null) {
+                    if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) {
+                        return layout.layoutPlatform5.content;
+                    }
+                    if (!string.IsNullOrEmpty(layout.layout.content)) {
+                        return layout.layout.content;
+                    }
+                }
+                //
+                // -- layout record does not exist or has empty content, create/update from default files
                 return updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutFilename, platform5LayoutFilename);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

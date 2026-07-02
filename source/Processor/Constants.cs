@@ -466,6 +466,7 @@ namespace Contensive.Processor {
         internal const string HardCodedPageStatus = "status";
         internal const string HardCodedPageRedirect = "redirect";
         internal const string HardCodedPageExportAscii = "exportascii";
+        internal const string HardCodedPageLoginByEmailOtp = "loginbyemailotp";
         //
         // --------------------------------------------------------------------------------------------------------------------------
         //   Option values

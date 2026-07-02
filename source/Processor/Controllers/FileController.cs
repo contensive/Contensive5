@@ -282,15 +282,28 @@ namespace Contensive.Processor.Controllers {
                 string filename = "";
                 splitDosPathFilename(pathFilename, ref path, ref filename);
                 verifyPath(path, isLocalFileSystem);
-                try {
-                    if (isBinary) {
-                        File.WriteAllBytes(convertRelativeToLocalAbsPath(pathFilename), binaryContent);
-                    } else {
-                        File.WriteAllText(convertRelativeToLocalAbsPath(pathFilename), textContent);
+                //
+                // -- retry loop to handle file contention from concurrent requests
+                string absPath = convertRelativeToLocalAbsPath(pathFilename);
+                int retryCount = 0;
+                const int maxRetries = 5;
+                const int retryDelayMs = 50;
+                while (true) {
+                    try {
+                        if (isBinary) {
+                            File.WriteAllBytes(absPath, binaryContent);
+                        } else {
+                            File.WriteAllText(absPath, textContent);
+                        }
+                        break;
+                    } catch (IOException) when (retryCount < maxRetries) {
+                        retryCount++;
+                        logger.Trace($"{core.logCommonMessage},FileController.saveFile_TextBinary, file contention on [{absPath}], retry {retryCount} of {maxRetries}");
+                        Thread.Sleep(retryDelayMs * retryCount);
+                    } catch (Exception ex) {
+                        logger.Error(ex, $"{core.logCommonMessage}");
+                        throw;
                     }
-                } catch (Exception ex) {
-                    logger.Error(ex, $"{core.logCommonMessage}");
-                    throw;
                 }
                 if (!isLocalFileSystem) {
                     // copy to remote

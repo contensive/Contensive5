@@ -863,7 +863,7 @@ namespace Contensive.Processor.Controllers {
                         emailId = email.id,
                         toMemberId = 0
                     };
-                    AddEmailLog(core, sendRequest, false, "No email sent because no people are in the group(s): " + sendRequest.emailContextMessage);
+                    AddEmailLog(core, sendRequest, true, $"No group members to email for: {sendRequest.emailContextMessage}");
                     //
                     // -- do not return, let the confirmation message be sent to the admin
                 }

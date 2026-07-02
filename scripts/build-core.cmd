@@ -31,8 +31,6 @@ md "%deploymentFolderRoot%%versionNumber%"
 @echo Deploy to: %deploymentFolderRoot%%versionNumber%
 @echo.
 
-pause
-
 rem ==============================================================
 rem
 rem clean build folders

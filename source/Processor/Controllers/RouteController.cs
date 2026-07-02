@@ -441,6 +441,28 @@ namespace Contensive.Processor.Controllers {
                             });
                             return true;
                         }
+                    case HardCodedPageLoginByEmailOtp: {
+                            //
+                            if (core.session.isAuthenticated) {
+                                //
+                                // -- if authenticated, redirect to the route without the method
+                                string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
+                                core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because user is already authenticated.");
+                                returnResult = string.Empty;
+                            }
+                            //
+                            // -- process the login-by-email-otp method, or return the otp email form
+                            core.doc.continueProcessing = false;
+                            returnResult = core.addon.execute(core.cacheRuntime.addonCache.create(addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
+                                addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                                argumentKeyValuePairs = new Dictionary<string, string> {
+                                            { "Force Default Login", "false" }
+                                        },
+                                forceHtmlDocument = true,
+                                errorContextMessage = "executing method=loginbyemailotp"
+                            });
+                            return true;
+                        }
                     case HardCodedPageLogoutLogin: {
                             //
                             returnResult = (new Contensive.Processor.Addons.Primitives.ProcessLogoutLoginMethodClass()).Execute(core.cpParent).ToString();

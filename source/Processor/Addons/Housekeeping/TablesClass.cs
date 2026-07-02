@@ -52,7 +52,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             if (string.IsNullOrEmpty(tableName)) {
                                 string msg = $"Housekeep, TablesClass, ERROR, cctables record with empty name, id [{tableId}]. Delete this cctables record and all ccFields with contentid [{tableId}].";
                                 env.log(msg);
-                                logger.Error(msg);
+                                logger.Error($"{env.core.logCommonMessage}, {msg}");
                                 continue;
                             }
                             //
@@ -63,7 +63,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             if (!env.core.db.isSQLTable(tableName)) {
                                 string msg = $"Housekeep, TablesClass, ERROR, ccTable record [{tableName}] but Db catalog [{env.core.appConfig.name}] does not include this table. Create this table in the database and all ccfields records assocated to it.";
                                 env.log(msg);
-                                logger.Error(msg);
+                                logger.Error($"{env.core.logCommonMessage}, {msg}");
                                 continue;
                             }
                             //
@@ -74,7 +74,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             if (recordsAffected > 0) {
                                 string msg = $"Housekeep, TablesClass, ERROR, [{recordsAffected}] records with blank ccguid found and fixed in table[{tableName}]. Find and fix the the process that creates records with blank ccguid";
                                 env.log(msg);
-                                logger.Error(msg);
+                                logger.Error($"{env.core.logCommonMessage}, {msg}");
                                 continue;
                             }
                             //
@@ -85,7 +85,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             if (recordsAffected > 0) {
                                 string msg = $"Housekeep, TablesClass, ERROR, [{recordsAffected}] records with duplicate ccguids found and fixed in table[{tableName}]. Find and fix the the process that creates records with dup ccguid";
                                 env.log(msg);
-                                logger.Error(msg);
+                                logger.Error($"{env.core.logCommonMessage}, {msg}");
                                 continue;
                             }
                         } catch (Exception ex) {

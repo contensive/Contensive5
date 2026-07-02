@@ -697,7 +697,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 result = string.IsNullOrWhiteSpace(CustomBlockMessageFilename) ? "" : core.cdnFiles.readFileText(CustomBlockMessageFilename);
                                 result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
-                                result = HtmlController.getSiteWarningMessageWrapper(core, "This content is blocked", result, "");
+                                result = HtmlController.getSiteWarningMessageWrapper(core, "This Content Is Blocked", result, "");
                                 break;
                             }
                         case ContentBlockWithLogin: {
@@ -762,7 +762,7 @@ namespace Contensive.Processor.Controllers {
                                         result = ""
                                             + "<p>You are currently logged in as \"<b>" + core.session.user.name + "</b>\". If this is not you, please <a href=\"?" + core.doc.refreshQueryString + "&method=logout\" rel=\"nofollow\">click Here</a>.</p>"
                                             + "<p>This account does not have access to this content.</p>";
-                                        result = HtmlController.getSiteWarningMessageWrapper(core, "This content is blocked", ErrorController.getUserError(core) + result, "");
+                                        result = HtmlController.getSiteWarningMessageWrapper(core, "This Content Is Blocked", ErrorController.getUserError(core) + result, "");
                                         break;
                                     }
                                     //
