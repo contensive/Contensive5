@@ -581,6 +581,12 @@ namespace Contensive.Processor.Controllers.Build {
                             }
                         }
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.7.8.1")) {
+                        //
+                        // -- one-time upgrade: reinstall common addon collections from the library
+                        //    because the dotnet framework changed, these collections need to be updated
+                        upgradeCommonCollectionsFromLibrary(core, cp, logPrefix);
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();
@@ -624,6 +630,65 @@ namespace Contensive.Processor.Controllers.Build {
             // -- set defaultAddonList.json into page.addonList
             string addonList = Resources.defaultAddonListJson.replace("{textBlockInstanceGuid}", textBlockInstanceGuid, StringComparison.InvariantCulture).replace("{childListInstanceGuid}", childListInstanceGuid, StringComparison.InvariantCulture);
             core.cpParent.Db.ExecuteNonQuery("update ccpagecontent set addonList=" + core.cpParent.Db.EncodeSQLText(addonList) + " where (id=" + page.id + ")");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// One-time upgrade: for each common addon collection, check if it is installed on the site.
+        /// If installed, reinstall it from the addon collection library so the site gets the version
+        /// built for the current dotnet framework.
+        /// </summary>
+        private static void upgradeCommonCollectionsFromLibrary(CoreController core, CPClass cp, string logPrefix) {
+            string[] collectionNames = [
+                "Personalization",
+                "Contact Manager",
+                "Resource Library",
+                "Import Wizard",
+                "Redactor Html Editor",
+                "Ecommerce",
+                "Membership Manager",
+                "Meeting Manager",
+                "Help Center"
+            ];
+            //
+            // -- fetch the collection library list once
+            var libraryList = CollectionLibraryModel.getCollectionLibraryList(core);
+            if (libraryList == null) {
+                logger.Warn($"{core.logCommonMessage},{logPrefix}, upgradeCommonCollectionsFromLibrary, collection library server did not respond, skipping");
+                return;
+            }
+            //
+            // -- build a case-insensitive lookup from library name to guid
+            var libraryGuidLookup = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            foreach (var libCollection in libraryList) {
+                if (!string.IsNullOrWhiteSpace(libCollection.name) && !string.IsNullOrWhiteSpace(libCollection.guid)) {
+                    if (!libraryGuidLookup.ContainsKey(libCollection.name)) {
+                        libraryGuidLookup[libCollection.name] = libCollection.guid;
+                    }
+                }
+            }
+            //
+            // -- for each collection name, check if installed and reinstall from library
+            foreach (string collectionName in collectionNames) {
+                try {
+                    var installed = DbBaseModel.createByUniqueName<AddonCollectionModel>(cp, collectionName);
+                    if (installed == null) { continue; }
+                    //
+                    // -- collection is installed, find its guid from the library
+                    if (!libraryGuidLookup.TryGetValue(collectionName, out string collectionGuid)) {
+                        logger.Warn($"{core.logCommonMessage},{logPrefix}, upgradeCommonCollectionsFromLibrary, collection [{collectionName}] installed but not found in library, skipping");
+                        continue;
+                    }
+                    //
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, upgradeCommonCollectionsFromLibrary, reinstalling [{collectionName}] guid [{collectionGuid}]");
+                    string returnErrorMessage = "";
+                    if (!cp.Addon.InstallCollectionFromLibrary(collectionGuid, ref returnErrorMessage)) {
+                        logger.Warn($"{core.logCommonMessage},{logPrefix}, upgradeCommonCollectionsFromLibrary, error reinstalling [{collectionName}]: {returnErrorMessage}");
+                    }
+                } catch (Exception ex) {
+                    logger.Warn(ex, $"{core.logCommonMessage},{logPrefix}, upgradeCommonCollectionsFromLibrary, exception reinstalling [{collectionName}]");
+                }
+            }
         }
         //
         //====================================================================================================

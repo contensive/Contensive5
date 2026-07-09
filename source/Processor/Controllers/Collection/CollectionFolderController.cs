@@ -93,10 +93,13 @@ namespace Contensive.Processor.Controllers {
                 // -- use try-finally to delete temp folder
                 string tmpInstallPath = "tmpInstallCollection" + GenericController.getGUIDNaked() + "\\";
                 try {
-                    core.tempFiles.copyFile(sourceTempFolderPathFilename, tmpInstallPath + collectionFilename);
+                    //
+                    // -- copy with a temp name to avoid conflict when the zip contains a file with the same name
+                    string tempZipFilename = $"_tmpExtract_{GenericController.getGUIDNaked()}.zip";
+                    core.tempFiles.copyFile(sourceTempFolderPathFilename, tmpInstallPath + tempZipFilename);
                     if (collectionFilename.ToLowerInvariant().Substring(collectionFilename.Length - 4) == ".zip") {
-                        core.tempFiles.unzipFile(tmpInstallPath + collectionFilename);
-                        core.tempFiles.deleteFile(tmpInstallPath + collectionFilename);
+                        core.tempFiles.unzipFile(tmpInstallPath + tempZipFilename);
+                        core.tempFiles.deleteFile(tmpInstallPath + tempZipFilename);
                     }
                     //
                     // -- find xml file in temp folder and process it

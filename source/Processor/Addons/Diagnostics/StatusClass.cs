@@ -173,7 +173,12 @@ namespace Contensive.Processor.Addons.Diagnostics {
             cp.Response.SetType("application/json");
             StatusResponseModel.StatusMetricsModel metricsModel = null;
             StatusResponseModel.StatusWindowsUpdatesModel windowsUpdates = null;
+            StatusResponseModel.StatusSecurityModel security = null;
             if (showDetail) {
+                //
+                // -- security/update-hygiene info (Site Monitor roadmap Phase 1). Informational only --
+                // does not affect status/statusOk above, which stays reserved for uptime.
+                security = SecurityDiagnosticsController.GetSecurityInfo(cp);
                 var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
                 metricsModel = new StatusResponseModel.StatusMetricsModel {
                     avgResponseTimeMs = metrics.AvgResponseTimeMs,
@@ -208,7 +213,8 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 status = status,
                 message = Regex.Replace(message, @"(\r?\n){2,}", Environment.NewLine).Trim(),
                 metrics = metricsModel,
-                windowsUpdates = windowsUpdates
+                windowsUpdates = windowsUpdates,
+                security = security
             };
             return JsonConvert.SerializeObject(response);
         }

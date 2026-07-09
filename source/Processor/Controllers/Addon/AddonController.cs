@@ -1624,23 +1624,45 @@ namespace Contensive.Processor.Controllers {
             // AssemblyLoadContext does not exist in net48. Use the AppDomain resolve handler
             // with "already loaded" checks to avoid version conflicts.
             //
+            //
+            // -- assemblies that must always come from the host to avoid type identity
+            // -- mismatches (e.g. AddonBaseClass cast failures). These are never loaded
+            // -- from addon folders even if a copy exists there.
+            string[] hostAssemblyNames = { "CPBase", "Processor", "ContensiveDbModels" };
             ResolveEventHandler assemblyResolveHandler = (sender, args) => {
                 try {
                     var assemblyName = new AssemblyName(args.Name);
                     //
-                    // -- if an assembly with this name is already loaded in the AppDomain, return it
-                    // -- addon folders often contain dependency DLLs (AWSSDK, Microsoft.*, System.*, etc.)
-                    // -- at different versions than what the host process has loaded, causing FileLoadException
-                    Assembly alreadyLoaded = Array.Find(
-                        AppDomain.CurrentDomain.GetAssemblies(),
-                        a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)
-                    );
-                    if (alreadyLoaded != null) {
-                        return alreadyLoaded;
+                    // -- host/shared assemblies must always use the already-loaded copy.
+                    // -- loading a second copy via LoadFile would create duplicate types
+                    // -- that cannot be cast to the host's types (e.g. AddonBaseClass).
+                    bool isHostAssembly = Array.Exists(hostAssemblyNames, n => string.Equals(n, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
+                    if (isHostAssembly) {
+                        Assembly alreadyLoaded = Array.Find(
+                            AppDomain.CurrentDomain.GetAssemblies(),
+                            a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)
+                        );
+                        if (alreadyLoaded != null) { return alreadyLoaded; }
                     }
+                    //
+                    // -- for non-host assemblies, prefer the addon's own folder copy.
+                    // -- each addon may ship its own version of a dependency assembly
+                    // -- (e.g. EcommerceApiV1) and must use its own copy to match the
+                    // -- version it was compiled against.
                     string candidatePath = Path.Combine(addonDirectory, assemblyName.Name + ".dll");
                     if (File.Exists(candidatePath)) {
                         return Assembly.LoadFile(candidatePath);
+                    }
+                    //
+                    // -- no local copy; fall back to an already-loaded assembly with the same name.
+                    // -- this handles host-provided assemblies (AWSSDK, Microsoft.*, System.*, etc.)
+                    // -- where the addon folder does not include its own copy.
+                    Assembly alreadyLoadedFallback = Array.Find(
+                        AppDomain.CurrentDomain.GetAssemblies(),
+                        a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)
+                    );
+                    if (alreadyLoadedFallback != null) {
+                        return alreadyLoadedFallback;
                     }
                 } catch (Exception ex) {
                     logger.Trace($"{core.logCommonMessage},AssemblyResolve handler, failed to resolve [{args.Name}], exception [{ex.Message}]");
@@ -1669,6 +1691,12 @@ namespace Contensive.Processor.Controllers {
                     }
                     return "";
                 }
+                if (assemblyFilename.substringSafe(0, 7).ToLowerInvariant().Equals("awssdk.")) {
+                    if (!core.assemblyList_NonAddonsInstalled.Contains(assemblyPrivateAbsPathFilename.ToLowerInvariant())) {
+                        core.assemblyList_NonAddonsInstalled.Add(assemblyPrivateAbsPathFilename.ToLowerInvariant());
+                    }
+                    return "";
+                }
                 try {
                     //
                     // -- check if this assembly is already loaded (e.g. Processor.dll loaded by the host)
@@ -1692,6 +1720,27 @@ namespace Contensive.Processor.Controllers {
                     return string.Empty;
                 } catch (Exception ex) {
                     logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly, 2, [{assemblyPrivateAbsPathFilename}]");
+                    addonFound = false;
+                    return string.Empty;
+                }
+                //
+                // -- verify this assembly references CPBase before scanning types.
+                // -- non-addon dependency DLLs (e.g. AWSSDK.EC2, Newtonsoft.Json) cannot contain
+                // -- addon classes. Calling GetTypes() on them can throw ReflectionTypeLoadException
+                // -- if their dependencies don't match the host's loaded versions.
+                bool referencesCPBase = false;
+                try {
+                    foreach (var refAsm in testAssembly.GetReferencedAssemblies()) {
+                        if (string.Equals(refAsm.Name, "CPBase", StringComparison.OrdinalIgnoreCase)) {
+                            referencesCPBase = true;
+                            break;
+                        }
+                    }
+                } catch (Exception ex) {
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, error checking references [{assemblyPrivateAbsPathFilename}], [{ex.Message}]");
+                }
+                if (!referencesCPBase) {
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, skipping [{assemblyPrivateAbsPathFilename}] - does not reference CPBase");
                     addonFound = false;
                     return string.Empty;
                 }

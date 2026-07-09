@@ -482,13 +482,13 @@ namespace Contensive.Processor {
         /// <param name="accountId"></param>
         /// <returns></returns>
         public override string RedirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend) {
-            // 
+            //
             // -- setup redirect and return blank, the flag for return to parent Addon
             linkAppend = string.IsNullOrEmpty(linkAppend) ? "" : linkAppend.StartsWith("&") ? linkAppend : "&" + linkAppend;
-            cp.Response.Redirect(GetPortalFeatureLink( portalGuid, portalFeatureGuid) + linkAppend);
+            cp.Response.Redirect(GetPortalFeatureLink(portalGuid, portalFeatureGuid) + linkAppend + getOriginalQueryString());
             return "";
         }
-        // 
+        //
         //====================================================================================================
         /// <summary>
         /// redirect and return blank
@@ -498,8 +498,30 @@ namespace Contensive.Processor {
         /// <param name="accountId"></param>
         /// <returns></returns>
         public override string RedirectToPortalFeature(string portalGuid, string portalFeatureGuid) {
-            cp.Response.Redirect(GetPortalFeatureLink(portalGuid, portalFeatureGuid));
+            cp.Response.Redirect(GetPortalFeatureLink(portalGuid, portalFeatureGuid) + getOriginalQueryString());
             return "";
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return the querystring parameters from the original request that are not already part of the portal redirect URL.
+        /// Keys used by GetPortalFeatureLink (addonGuid, setPortalGuid, dstfeatureguid) and known portal
+        /// infrastructure keys (addonId, callbackAddonGuid) are excluded to avoid conflicts.
+        /// </summary>
+        private string getOriginalQueryString() {
+            var qsDictionary = cp.Request.QueryStringDictionary;
+            if (qsDictionary == null || qsDictionary.Count == 0) { return ""; }
+            //
+            // -- keys already set by GetPortalFeatureLink or used by portal infrastructure
+            var excludeKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+                "addonguid", "setportalguid", "dstfeatureguid", "addonid", "callbackaddonguid"
+            };
+            var result = new System.Text.StringBuilder();
+            foreach (var kvp in qsDictionary) {
+                if (excludeKeys.Contains(kvp.Key)) { continue; }
+                result.Append($"&{cp.Utils.EncodeRequestVariable(kvp.Key)}={cp.Utils.EncodeRequestVariable(kvp.Value)}");
+            }
+            return result.ToString();
         }
         // 
         // ===================================================================================

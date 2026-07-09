@@ -3857,7 +3857,19 @@
     <RemoteMethod>Yes</RemoteMethod>
     <IsInline>Yes</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>	
+    <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>
+  </Addon>
+
+  <Addon Name="SecurityAcknowledgeAdmins" Guid="{4AFC9349-A4F9-4A4D-84F6-C6567359F92B}" Type="Add-on">
+    <Category></Category>
+    <Admin>No</Admin>
+    <Content>No</Content>
+    <Template>No</Template>
+    <Email>No</Email>
+    <RemoteMethod>Yes</RemoteMethod>
+    <IsInline>Yes</IsInline>
+    <BlockEditTools>Yes</BlockEditTools>
+    <DotNetClass>Contensive.Processor.Addons.Diagnostics.SecurityAcknowledgeAdminsClass</DotNetClass>
   </Addon>
 
   <Addon Name="OnInstallBase" Guid="{86739518-9D46-470F-8C76-195D1A19CEDD}" Type="Add-on">

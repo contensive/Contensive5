@@ -101,11 +101,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 string buildVersion = cp.core.siteProperties.dataBuildVersion;
                 if (versionIsOlder(buildVersion, cp.Version)) {
-                    logger.Warn($"{cp.core.logCommonMessage}", new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
+                    logger.Warn($"{cp.core.logCommonMessage}, Application code (v{cp.Version}) is newer than database (v{buildVersion}). Upgrade the database with the command line 'cc.exe -a {cp.core.appConfig.name} -u'.");
                 }
                 //
                 if (versionIsOlder(cp.Version, buildVersion)) {
-                    logger.Warn($"{cp.core.logCommonMessage}", new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
+                    logger.Warn($"{cp.core.logCommonMessage}, Database upgrade (v{buildVersion}) is newer than the Application code (v{cp.Version}). Upgrade the website code.");
                 }
                 //
                 // Process SourceForm/Button into Action/Form, and process

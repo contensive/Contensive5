@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using Contensive.Processor;
+using Contensive.Processor.Controllers;
 using Contensive.Processor.Controllers.Build;
 using Contensive.Processor.Models.Domain;
 
@@ -59,6 +60,9 @@ namespace Contensive.CLI {
             //
             // -- run compatibility scan after upgrade
             CompatibilityCmd.execute(cp, appName);
+            //
+            // -- check for orphan collections in Collections.xml with no matching database record
+            checkOrphanCollections(cp, appName);
         }
         //
         // ====================================================================================================
@@ -95,6 +99,44 @@ namespace Contensive.CLI {
                 Console.WriteLine($"    {appConfig.localWwwPath}appsettings.json");
                 Console.WriteLine($"    \"Contensive\": {{ \"WebRootPath\": \".\" }}");
                 Console.WriteLine();
+            }
+            if (!string.IsNullOrEmpty(appName)) {
+                checkApp(appName);
+            } else {
+                foreach (var kvp in cp.core.serverConfig.apps) {
+                    checkApp(kvp.Key);
+                }
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Check for collections in the Collections.xml file that do not have a matching record
+        /// in the ccAddonCollections database table. These are orphan entries that should be removed.
+        /// </summary>
+        private static void checkOrphanCollections(CPClass cp, string appName) {
+            void checkApp(string name) {
+                try {
+                    using CPClass checkCp = new CPClass(name);
+                    if (!checkCp.GetAppConfig().enabled) { return; }
+                    var orphans = OrphanCollectionScanner.ScanForOrphans(checkCp.core);
+                    if (orphans.Count == 0) { return; }
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"  WARNING: {orphans.Count} collection(s) in Collections.xml have no matching record in the database [{name}]:");
+                    Console.ResetColor();
+                    foreach (var orphan in orphans) {
+                        Console.WriteLine($"    Collection: {orphan.CollectionName}");
+                        Console.WriteLine($"    GUID:       {orphan.CollectionGuid}");
+                        if (!string.IsNullOrEmpty(orphan.FolderPath)) {
+                            Console.WriteLine($"    Folder:     {orphan.FolderPath}");
+                        }
+                        Console.WriteLine();
+                    }
+                    Console.WriteLine("  These entries should be removed from the privateFiles\\addons\\Collections.xml file.");
+                } catch (Exception ex) {
+                    Console.WriteLine($"  Error checking orphan collections for [{name}]: {ex.Message}");
+                }
             }
             if (!string.IsNullOrEmpty(appName)) {
                 checkApp(appName);
