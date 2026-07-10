@@ -44,6 +44,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dateExpires"></param>
         public static void addUser(CoreController core, GroupModel group, PersonModel user, DateTime dateExpires) {
             try {
+                // Guard: skip if user or group is invalid
+                if (user == null || group == null || user.id <= 0 || group.id <= 0) {
+                    return;
+                }
                 var ruleList = DbBaseModel.createList<MemberRuleModel>(core.cpParent, "(MemberID=" + user.id.ToString() + ")and(GroupID=" + group.id.ToString() + ")");
                 if (ruleList.Count == 0) {
                     // -- add new rule
@@ -200,7 +204,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="group"></param>
         /// <param name="user"></param>
         public static void removeUser(CoreController core, GroupModel group, PersonModel user) {
-            if ((group != null) && (user != null)) {
+            if ((group != null) && (user != null) && (user.id > 0) && (group.id > 0)) {
                 MemberRuleModel.deleteRows<MemberRuleModel>(core.cpParent, "(MemberID=" + DbController.encodeSQLNumber(user.id) + ")AND(groupid=" + DbController.encodeSQLNumber(group.id) + ")");
             }
         }

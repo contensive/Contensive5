@@ -264,16 +264,18 @@ namespace Contensive.Processor {
         /// <param name="contentName"></param>
         /// <returns></returns>
         public bool insert(string contentName) {
+            ContentMetadataModel metaData = null;
+            NameValueCollection sqlList = null;
             try {
                 if (isOpen) { close(); }
                 if (string.IsNullOrEmpty(contentName.Trim())) { throw new ArgumentException("Cannot insert new record because Content name is blank."); }
-                var metaData = ContentMetadataModel.createByUniqueName(core, contentName);
+                metaData = ContentMetadataModel.createByUniqueName(core, contentName);
                 if (metaData == null) { throw new GenericException("Cannot insert new record because Content meta data cannot be found."); }
                 if (metaData.id <= 0) { throw new GenericException("Cannot insert new record because Content meta data is not valid."); }
                 //
                 // create default record in Live table
                 bool renameContentFields = false;
-                var sqlList = new NameValueCollection();
+                sqlList = new NameValueCollection();
                 foreach (KeyValuePair<string, Models.Domain.ContentFieldMetadataModel> keyValuePair in metaData.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
                     if (!string.IsNullOrEmpty(field.nameLc)) {
@@ -429,7 +431,20 @@ namespace Contensive.Processor {
                 }
                 return ok();
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
+                // Enhanced logging to diagnose insert issues
+                var fieldDetails = new System.Text.StringBuilder();
+                fieldDetails.AppendLine($"CsModel.insert failed for contentName [{contentName}]");
+                if (metaData != null) {
+                    fieldDetails.AppendLine($"  tableName: [{metaData.tableName}]");
+                    fieldDetails.AppendLine($"  Field values being inserted:");
+                    foreach (string key in sqlList.AllKeys) {
+                        if (!string.IsNullOrWhiteSpace(key)) {
+                            string value = sqlList[key] ?? "null";
+                            fieldDetails.AppendLine($"    [{key}] = [{value}]");
+                        }
+                    }
+                }
+                logger.Error(ex, $"{core.logCommonMessage}, {fieldDetails}");
                 throw;
             }
         }

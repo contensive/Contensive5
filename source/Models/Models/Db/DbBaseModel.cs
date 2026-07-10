@@ -75,6 +75,15 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
+        /// Snapshot of property values captured after load(). Used by save() to detect
+        /// which fields changed. Null means no snapshot exists (insert mode or new instance).
+        /// Marked NonSerialized so it is excluded from cache serialization.
+        /// </summary>
+        [NonSerialized]
+        private Dictionary<string, object> _loadedSnapshot = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// A field type that contains a pathFilename used to reference an external asset, like an image.
         /// </summary>
         public class FieldTypeFile {
@@ -1001,11 +1010,61 @@ namespace Contensive.Models.Db {
                     }
 
                 }
+                //
+                // -- capture property snapshot for dirty tracking on save()
+                captureSnapshot();
                 return;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Capture the current values of all public instance properties into _loadedSnapshot.
+        /// Called after load() to establish the baseline for dirty tracking in save().
+        /// </summary>
+        private void captureSnapshot() {
+            _loadedSnapshot = new Dictionary<string, object>();
+            foreach (PropertyInfo prop in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
+                object value = prop.GetValue(this);
+                switch (prop.PropertyType.Name) {
+                    case "FieldTypeTextFile":
+                    case "FieldTypeJavascriptFile":
+                    case "FieldTypeCSSFile":
+                    case "FieldTypeHTMLFile": {
+                            var textFile = value as FieldTypeTextFileBase;
+                            _loadedSnapshot[prop.Name] = textFile?.filename ?? "";
+                            break;
+                        }
+                    case "FieldTypeFile": {
+                            var fileField = value as FieldTypeFile;
+                            _loadedSnapshot[prop.Name] = fileField?.filename ?? "";
+                            break;
+                        }
+                    default: {
+                            _loadedSnapshot[prop.Name] = value;
+                            break;
+                        }
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Compare two property values for equality. Used by save() to detect changes from snapshot.
+        /// </summary>
+        private static bool snapshotValuesEqual(object currentValue, object snapshotValue) {
+            if (currentValue == null && snapshotValue == null) { return true; }
+            if (currentValue == null || snapshotValue == null) { return false; }
+            if (currentValue is DateTime currentDate && snapshotValue is DateTime snapshotDate) {
+                return Math.Abs((currentDate - snapshotDate).TotalMilliseconds) < 1;
+            }
+            if (currentValue is string currentStr && snapshotValue is string snapshotStr) {
+                return string.Equals(currentStr, snapshotStr, StringComparison.Ordinal);
+            }
+            return currentValue.Equals(snapshotValue);
         }
         //
         //====================================================================================================
@@ -1063,8 +1122,10 @@ namespace Contensive.Models.Db {
                 string tableName = derivedTableName(instanceType);
                 string datasourceName = derivedDataSourceName(instanceType);
                 List<string> usedFieldList = new();
+                bool isInsert = (id == 0);
+                bool hasSnapshot = (_loadedSnapshot != null) && !isInsert;
                 //
-                // -- create all the sql update pairs for every property set
+                // -- create sql update pairs, skipping unchanged fields when a snapshot exists
                 var sqlPairs = new NameValueCollection();
                 foreach (PropertyInfo instanceProperty in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                     string fieldNameNormalized = instanceProperty.Name.ToLowerInvariant();
@@ -1078,10 +1139,22 @@ namespace Contensive.Models.Db {
                             }
                         case "ccguid": {
                                 if (string.IsNullOrEmpty(ccguid)) { ccguid = cp.Utils.CreateGuid(); }
+                                if (hasSnapshot && _loadedSnapshot.ContainsKey(instanceProperty.Name) && snapshotValuesEqual(instanceProperty.GetValue(this, null), _loadedSnapshot[instanceProperty.Name])) { break; }
                                 sqlPairs.Add(instanceProperty.Name, cp.Db.EncodeSQLText(instanceProperty.GetValue(this, null).ToString()));
                                 break;
                             }
                         default: {
+                                //
+                                // -- for non-file types, skip if the value has not changed from the snapshot
+                                if (hasSnapshot && _loadedSnapshot.ContainsKey(instanceProperty.Name)) {
+                                    string typeName = instanceProperty.PropertyType.Name;
+                                    Type underlyingForCheck = Nullable.GetUnderlyingType(instanceProperty.PropertyType);
+                                    if (underlyingForCheck != null) { typeName = underlyingForCheck.Name; }
+                                    bool isPrimitive = typeName is "Int32" or "Boolean" or "DateTime" or "Double" or "String";
+                                    if (isPrimitive && snapshotValuesEqual(instanceProperty.GetValue(this), _loadedSnapshot[instanceProperty.Name])) {
+                                        break;
+                                    }
+                                }
                                 //
                                 // -- get the underlying type if this is nullable
                                 bool targetNullable = isNullable(instanceProperty.PropertyType);
@@ -1238,6 +1311,9 @@ namespace Contensive.Models.Db {
                         cp.Db.Update(tableName, "(id=" + id + ")", sqlPairs);
                     }
                 }
+                //
+                // -- recapture snapshot after save so subsequent saves track from this point
+                captureSnapshot();
                 string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
                 if (!allowRecordCaching(cp, this.GetType())) {
                     //
@@ -1892,6 +1968,11 @@ namespace Contensive.Models.Db {
                             break;
                         }
                 }
+            }
+            //
+            // -- recapture snapshot for dirty tracking (NonSerialized field is null after deserialization)
+            if (restoredInstance is DbBaseModel baseInstance) {
+                baseInstance.captureSnapshot();
             }
         }
         //

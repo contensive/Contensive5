@@ -782,8 +782,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="tableName"></param>
         /// <param name="sqlList"></param>
         public DataTable insert(string tableName, NameValueCollection sqlList, int createdByUserId) {
+            NameValueCollection sqlListWorking = null;
             try {
-                NameValueCollection sqlListWorking = verifyBaseSqlNameValueFields(sqlList, createdByUserId);
+                sqlListWorking = verifyBaseSqlNameValueFields(sqlList, createdByUserId);
                 if (sqlListWorking.Count == 0) {
                     throw new ArgumentException("Empty field list is not allowed for Db insert.");
                 }
@@ -798,10 +799,21 @@ namespace Contensive.Processor.Controllers {
                 if (nameList.Contains(",,")) {
                     throw new ArgumentException("Blank values are not allowed for Db insert.");
                 }
-                string sql = "insert into " + tableName + "(" + nameList + ") output inserted.* values(" + valueList + ")";
+                string sql = $"insert into {tableName}({nameList}) output inserted.* values({valueList})";
                 return core.db.executeQuery(sql);
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "], inserting table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
+                // Enhanced logging to diagnose insert issues
+                var fieldDetails = new System.Text.StringBuilder();
+                fieldDetails.AppendLine($"Field details for table[{tableName}]:");
+                if (sqlListWorking != null) {
+                    foreach (string key in sqlListWorking.AllKeys) {
+                        if (!string.IsNullOrWhiteSpace(key)) {
+                            string value = sqlListWorking[key] ?? "null";
+                            fieldDetails.AppendLine($"  [{key}] = [{value}]");
+                        }
+                    }
+                }
+                logger.Error($"{core.logCommonMessage}", new GenericException($"Exception[{ex.Message}], inserting table[{tableName}], dataSourceName[{dataSourceName}]\n{fieldDetails}", ex));
                 throw;
             }
         }

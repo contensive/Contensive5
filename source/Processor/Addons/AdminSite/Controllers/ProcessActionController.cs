@@ -604,6 +604,11 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         private static void SaveMemberRules(CPClass cp, int PeopleID) {
             try {
                 //
+                // Guard: skip if PeopleID is invalid
+                if (PeopleID <= 0) {
+                    return;
+                }
+                //
                 // --- create MemberRule records for all selected
                 int GroupCount = cp.core.docProperties.getInteger("MemberRules.RowCount");
                 if (GroupCount > 0) {
