@@ -50,14 +50,29 @@ namespace Contensive.Processor.Models {
         /// The filterCaption is displayed to the user.
         /// The current filterValue is passed to the addon when the addon is rendered as cp.doc.gettext("widgetFilter") when the user selects a filter
         /// If filterActive is true, it will be highlighted in the list as the current selection.
+        /// For widgets with a single filter, use this property. For multiple filters, use the filters property instead.
         /// </summary>
         public List<DashboardWidgetBaseModel_FilterOptions> filterOptions { get; set; } = [];
         /// <summary>
-        /// true if there are filter options
+        /// true if there are filter options (single-filter legacy support)
         /// </summary>
         public bool hasFilter {
             get {
                 return (filterOptions != null && filterOptions.Count > 0);
+            }
+        }
+        /// <summary>
+        /// Named filter groups for widgets that need multiple independent filters.
+        /// Each group renders as its own dropdown in the widget header.
+        /// For single-filter widgets, use filterOptions instead — it will be auto-promoted to a filter group at render time.
+        /// </summary>
+        public List<DashboardWidgetFilterGroup> filters { get; set; } = [];
+        /// <summary>
+        /// true if there are any filters (either legacy filterOptions or named filter groups)
+        /// </summary>
+        public bool hasFilters {
+            get {
+                return (filters != null && filters.Count > 0) || hasFilter;
             }
         }
 
@@ -101,6 +116,27 @@ namespace Contensive.Processor.Models {
     }
     //
     /// <summary>
+    /// A named filter group containing a label and list of options.
+    /// Each group renders as a separate dropdown in the widget header.
+    /// Addon authors create these when multiple independent filters are needed.
+    /// </summary>
+    public class DashboardWidgetFilterGroup {
+        /// <summary>
+        /// unique key identifying this filter, used as the key in filterValues dictionary
+        /// and as the suffix in cp.Doc property names (e.g., widgetFilter_{filterName})
+        /// </summary>
+        public string filterName { get; set; }
+        /// <summary>
+        /// display label shown on the dropdown button
+        /// </summary>
+        public string filterLabel { get; set; }
+        /// <summary>
+        /// the options available for this filter
+        /// </summary>
+        public List<DashboardWidgetBaseModel_FilterOptions> options { get; set; } = [];
+    }
+    //
+    /// <summary>
     /// filter options are created by the addon and passed to the dashboard widget.
     /// </summary>
     public class DashboardWidgetBaseModel_FilterOptions {
@@ -116,5 +152,10 @@ namespace Contensive.Processor.Models {
         /// the type of filter
         /// </summary>
         public bool filterActive { get; set; }
+        /// <summary>
+        /// the name of the filter group this option belongs to, propagated from the parent DashboardWidgetFilterGroup.
+        /// Used in Mustache templates to set the data-filtername attribute on each option element.
+        /// </summary>
+        public string filterName { get; set; }
     }
 }

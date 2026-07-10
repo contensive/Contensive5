@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Contensive.DashboardWidgets</RootNamespace>
     <LangVersion>latest</LangVersion>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

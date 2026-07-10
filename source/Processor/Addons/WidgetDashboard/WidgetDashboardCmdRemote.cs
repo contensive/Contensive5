@@ -85,6 +85,16 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
                         if (userDashboardConfigWidget != null) {
                             //
+                            if (!string.IsNullOrEmpty(requestWidget.widgetFilterName)) {
+                                //
+                                // -- multi-filter: update the named filter value
+                                if (userDashboardConfigWidget.filterValues == null) {
+                                    userDashboardConfigWidget.filterValues = new Dictionary<string, string>();
+                                }
+                                userDashboardConfigWidget.filterValues[requestWidget.widgetFilterName] = requestWidget.widgetFilter;
+                            }
+                            //
+                            // -- always update legacy filterValue for backward compat
                             userDashboardConfigWidget.filterValue = requestWidget.widgetFilter;
                             userDashboardConfig.save(cp, portalName);
                             //
@@ -167,6 +177,11 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         public string widgetHtmlId { get; set; }
         public string addonGuid { get; set; }
         public string widgetFilter { get; set; }
+        /// <summary>
+        /// the name of the filter group that changed, for multi-filter widgets.
+        /// Empty or null for legacy single-filter widgets.
+        /// </summary>
+        public string widgetFilterName { get; set; }
     }
     //
     public class WDS_Response {

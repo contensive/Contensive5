@@ -8,6 +8,7 @@
 	  <SignAssembly>True</SignAssembly>
 	  <AssemblyOriginatorKeyFile>CPModelKey.snk</AssemblyOriginatorKeyFile>
 	  <PackageId>Contensive.DbModels</PackageId>
+	  <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

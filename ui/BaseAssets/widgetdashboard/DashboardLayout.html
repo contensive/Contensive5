@@ -278,6 +278,31 @@
       
     }
 
+    .widget-filters {
+      margin-top: 0.25rem;
+    }
+
+    .widget-filters-toggle {
+      text-decoration: none;
+    }
+
+    .widget-filters-toggle i {
+      opacity: .5;
+      transition: opacity 0.15s;
+    }
+
+    .widget-filters-toggle:hover i {
+      opacity: 1;
+    }
+
+    .widget-filters .dropdown > a {
+      text-decoration: none;
+    }
+
+    .widget-filters .dropdown > a .fa-caret-down {
+      font-size: 0.75em;
+    }
+
     .widgetDescription {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -342,16 +367,19 @@
           el.remove();
         });
         //
+        // -- toggle filter row visibility (see toggleWidgetFilters global function)
+        //
         // -- filter
         $('#dashboard').on('click', '.widgetFilter', function (event) {
           event.preventDefault();
           console.log('widgetFilter click');
           const widgetFilter = this.dataset.filtervalue;
-          console.log('widgetFilter:' + widgetFilter);
+          const widgetFilterName = this.dataset.filtername || '';
+          console.log(`widgetFilter: ${widgetFilter}, filterName: ${widgetFilterName}`);
           const widget = this.closest('.widget');
           const widgets = [];
           widgets.push(widget);
-          widgetDashboardCmd('filter', widgets, widgetFilter);
+          widgetDashboardCmd('filter', widgets, widgetFilter, widgetFilterName);
         });
         //
         // -- add widget button
@@ -375,8 +403,8 @@
       // cmd is the command to execute
       // items is a list of html elements for widgets to save
       // filterData only valid for filter command
-      function widgetDashboardCmd(cmd, items, widgetFilter) {
-        console.log('widgetDashboardCmd, cmd ['+cmd+'], items.length ['+items.length+'], widgetFilter ['+widgetFilter+']');
+      function widgetDashboardCmd(cmd, items, widgetFilter, widgetFilterName) {
+        console.log(`widgetDashboardCmd, cmd [${cmd}], items.length [${items.length}], widgetFilter [${widgetFilter}], widgetFilterName [${widgetFilterName}]`);
         if (!Array.isArray(items)) {
           console.error("widgetDashboardCmd, items is not an array");
           return;
@@ -387,7 +415,7 @@
         postData.widgets = [];
         items.forEach(function (item) {
           console.log('widgetDashboardCmd, el.id:' + item.id);
-          postData.widgets.push({ widgetHtmlId: item.id, addonGuid: item.getAttribute('data-addonGuid'), widgetFilter: widgetFilter });
+          postData.widgets.push({ widgetHtmlId: item.id, addonGuid: item.getAttribute('data-addonGuid'), widgetFilter: widgetFilter, widgetFilterName: widgetFilterName || '' });
         });
         $.ajax({
           type: 'POST',
@@ -407,6 +435,11 @@
                       document.body.appendChild(script);
                     }
                     var targetElement = document.querySelector('#' + item.id);
+                    //
+                    // -- capture filter row visibility before replacing html
+                    var filtersRow = targetElement.querySelector('.widget-filters');
+                    var filtersWereVisible = cmd === 'filter' || (filtersRow && getComputedStyle(filtersRow).display !== 'none');
+                    //
                     let sourceElement = document.createElement("div");
                     sourceElement.style.display = "none";
                     sourceElement.innerHTML = widget.htmlContent;
@@ -415,6 +448,14 @@
                     // -- find html part of sourceElement and put in targetElement.outerHtml
                     var sourceElementHtml = sourceElement.querySelector('#' + item.id);
                     targetElement.outerHTML = sourceElementHtml.outerHTML;
+                    //
+                    // -- restore filter row visibility
+                    if (filtersWereVisible) {
+                      var newFiltersRow = document.querySelector('#' + item.id + ' .widget-filters');
+                      if (newFiltersRow) {
+                        newFiltersRow.style.setProperty('display', 'flex', 'important');
+                      }
+                    }
                     //
                     // Handle <script> tags
                     const scripts = sourceElement.querySelectorAll('script');

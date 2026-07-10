@@ -354,7 +354,12 @@ namespace Contensive.Processor {
                                                             }
                                                         }
                                                     }
-                                                    sqlList.Add(field.nameLc, DefaultValueText);
+                                                    // Lookup fields are integers (foreign keys). Preserve "null" for NULL values, encode everything else as a number
+                                                    if (DefaultValueText == "null") {
+                                                        sqlList.Add(field.nameLc, "null");
+                                                    } else {
+                                                        sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.getInteger(DefaultValueText)));
+                                                    }
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:

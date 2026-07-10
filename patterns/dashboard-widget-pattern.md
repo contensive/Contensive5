@@ -23,8 +23,94 @@ A dashboard widget is an addon that
 - executed only from within the WidgetDashboard code
 - returns an object from classes defined in nuget package Contensive.DbModels, defined withing the description of each widget type
 - includes a refresh pattern that causes the dashboard to call a dashboard ajax endpoint, which executes the widget code and automatically repaints the widget.
-- includes an optional filter options in a drop-down for users. If the dashboard widget includes options, this list should be populated with the otpions. When selected the dashboard refreshes the widget and includes the request argument "widgetFilter"
-- widget code should save the widgetFilter for future use with user properties (cp.user.setProperty(), cp.user.getInteger(), etc)
+- includes optional filter dropdowns for users (see Filters section below)
+- widget code should save filter values for future use with user properties (cp.user.setProperty(), cp.user.getInteger(), etc)
+
+### Filters
+
+Dashboard widgets support two filter patterns: a **single filter** (legacy) and **multiple filters**.
+
+#### Single Filter (legacy)
+
+For widgets with one filter dropdown, populate the `filterOptions` list on the model. The selected value is passed to the addon as `cp.Doc.GetText("widgetFilter")`.
+
+```csharp
+return new DashboardWidgetBarChartModel() {
+    widgetName = "Page Views",
+    filterOptions = [
+        new() { filterCaption = "1 Day", filterValue = "1d", filterActive = (period == "1d") },
+        new() { filterCaption = "1 Week", filterValue = "1w", filterActive = (period == "1w") },
+        new() { filterCaption = "1 Month", filterValue = "1m", filterActive = (period == "1m") }
+    ],
+    // ... chart data
+};
+```
+
+Reading the filter value in the addon:
+```csharp
+string period = cp.Doc.GetText("widgetFilter");
+```
+
+#### Multiple Filters
+
+For widgets that need multiple independent filter dropdowns (e.g., a date period filter AND a campaign filter), populate the `filters` list with `DashboardWidgetFilterGroup` entries. Each group renders as its own dropdown in the widget header.
+
+Each filter group has:
+- `filterName` — unique key used to identify this filter (used as the suffix in `cp.Doc` property names)
+- `filterLabel` — display label shown on the dropdown button (leave empty for icon-only)
+- `options` — list of `DashboardWidgetBaseModel_FilterOptions` for this filter
+
+```csharp
+public override object Execute(CPBaseClass cp) {
+    string widgetId = cp.Doc.GetText("widgetId");
+    //
+    // -- read each named filter value
+    string period = cp.Doc.GetText("widgetFilter_period");
+    if (string.IsNullOrEmpty(period)) { period = "1w"; }
+    string campaign = cp.Doc.GetText("widgetFilter_campaign");
+    if (string.IsNullOrEmpty(campaign)) { campaign = "all"; }
+    //
+    // -- build campaign options from database
+    var campaignOptions = new List<DashboardWidgetBaseModel_FilterOptions> {
+        new() { filterCaption = "All Campaigns", filterValue = "all", filterActive = (campaign == "all") }
+    };
+    using var dt = cp.Db.ExecuteQuery("select distinct utmCampaign from ccUtmLog where utmCampaign is not null order by utmCampaign");
+    foreach (System.Data.DataRow row in dt.Rows) {
+        string name = cp.Utils.EncodeText(row[0]);
+        campaignOptions.Add(new() { filterCaption = name, filterValue = name, filterActive = (campaign == name) });
+    }
+    //
+    // -- return the model with multiple filters
+    return new DashboardWidgetBarChartModel() {
+        widgetName = "UTM Traffic",
+        width = 2,
+        filters = [
+            new DashboardWidgetFilterGroup {
+                filterName = "period",
+                filterLabel = "Period",
+                options = [
+                    new() { filterCaption = "1 Day", filterValue = "1d", filterActive = (period == "1d") },
+                    new() { filterCaption = "1 Week", filterValue = "1w", filterActive = (period == "1w") },
+                    new() { filterCaption = "1 Month", filterValue = "1m", filterActive = (period == "1m") }
+                ]
+            },
+            new DashboardWidgetFilterGroup {
+                filterName = "campaign",
+                filterLabel = "Campaign",
+                options = campaignOptions
+            }
+        ],
+        dataLabels = labels,
+        dataSets = dataSets
+    };
+}
+```
+
+Key differences from single-filter:
+- Use `filters` instead of `filterOptions`
+- Read values with `cp.Doc.GetText($"widgetFilter_{filterName}")` instead of `cp.Doc.GetText("widgetFilter")`
+- Each filter group renders as a separate dropdown with its own label
+- The legacy `cp.Doc.GetText("widgetFilter")` still works and returns the most recently changed filter value, so existing single-filter widgets require no changes
 
 ### Number Widget
 - displays a single number with the widget name at the top, a subhead under the number, and a description at the bottom.

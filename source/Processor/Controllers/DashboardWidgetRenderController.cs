@@ -4,6 +4,7 @@ using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Models.View;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Contensive.Processor.Controllers {
     internal class DashboardWidgetRenderController {
@@ -106,6 +107,13 @@ namespace Contensive.Processor.Controllers {
                     // -- the result is a json string that is deserialized into the WidgetBaseModel
                     cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
                     cp.Doc.SetProperty("widgetId", userConfigWidget.widgetHtmlId);
+                    //
+                    // -- pass named filter values as widgetFilter_{filterName} for multi-filter widgets
+                    if (userConfigWidget.filterValues != null) {
+                        foreach (var kvp in userConfigWidget.filterValues) {
+                            cp.Doc.SetProperty($"widgetFilter_{kvp.Key}", kvp.Value);
+                        }
+                    }
                     widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
                     if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
                     var addonResultJObj = Newtonsoft.Json.Linq.JObject.Parse(widgetAddonResultJson);
@@ -121,6 +129,7 @@ namespace Contensive.Processor.Controllers {
                         widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
                         widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
                         widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        normalizeFilters(widgetAddonResult);
                         var layout = cp.Layout.GetLayout(Constants.dashboardWidgetHtmlContentLayoutGuid, Constants.dashboardWidgetHtmlContentLayoutName, Constants.dashboardWidgetHtmlContentLayoutPathFilename);
                         result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                     } else if (widgetType == (int)WidgetTypeEnum.number) {
@@ -130,6 +139,7 @@ namespace Contensive.Processor.Controllers {
                         widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
                         widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
                         widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        normalizeFilters(widgetAddonResult);
                         var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
                         result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                     } else if (widgetType == (int)WidgetTypeEnum.pie) {
@@ -139,6 +149,7 @@ namespace Contensive.Processor.Controllers {
                         widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
                         widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
                         widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        normalizeFilters(widgetAddonResult);
                         var layout = cp.Layout.GetLayout(Constants.dashboardWidgetPieChartLayoutGuid, Constants.dashboardWidgetPieChartLayoutName, Constants.dashboardWidgetPieChartLayoutPathFilename);
                         result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                     } else if (widgetType == (int)WidgetTypeEnum.bar) {
@@ -148,6 +159,7 @@ namespace Contensive.Processor.Controllers {
                         widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
                         widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
                         widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        normalizeFilters(widgetAddonResult);
                         var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
                         result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                     } else if (widgetType == (int)WidgetTypeEnum.line) {
@@ -157,6 +169,7 @@ namespace Contensive.Processor.Controllers {
                         widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
                         widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
                         widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        normalizeFilters(widgetAddonResult);
                         var layout = cp.Layout.GetLayout(Constants.dashboardWidgetLineChartLayoutGuid, Constants.dashboardWidgetLineChartLayoutName, Constants.dashboardWidgetLineChartLayoutPathFilename);
                         result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                     } else {
@@ -172,6 +185,43 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex0) {
                 cp.Site.ErrorReport(ex0, $"Error in buildDashboardWidgetView");
                 return result;
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Normalize filters on a widget model so that the Mustache templates can always use the filters list.
+        /// If the addon returned filterOptions but no filters, auto-promote filterOptions into a single filter group.
+        /// Also propagates filterName from each group down to its individual options for use in data-filtername attributes.
+        /// </summary>
+        private static void normalizeFilters(DashboardWidgetBaseModel model) {
+            if ((model.filters == null || model.filters.Count == 0) && model.filterOptions != null && model.filterOptions.Count > 0) {
+                //
+                // -- legacy single-filter: wrap filterOptions into a default filter group
+                foreach (var option in model.filterOptions) {
+                    option.filterName = "default";
+                }
+                model.filters = [
+                    new DashboardWidgetFilterGroup {
+                        filterName = "default",
+                        filterLabel = "Filter",
+                        options = model.filterOptions
+                    }
+                ];
+            }
+            //
+            // -- propagate filterName from group to each option (for Mustache data-filtername attribute)
+            // -- if filterLabel is blank, fall back to filterName
+            if (model.filters != null) {
+                foreach (var group in model.filters) {
+                    if (string.IsNullOrEmpty(group.filterLabel)) {
+                        group.filterLabel = group.filterName;
+                    }
+                    if (group.options == null) { continue; }
+                    foreach (var option in group.options) {
+                        option.filterName = group.filterName;
+                    }
+                }
             }
         }
         //

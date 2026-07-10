@@ -34,8 +34,14 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public int sort { get; set; }
         /// <summary>
-        /// if a filter is created by the addon during render and the user selects a filter option, this is the currently selected filter option
+        /// if a filter is created by the addon during render and the user selects a filter option, this is the currently selected filter option.
+        /// Kept for backward compatibility with single-filter widgets. For multi-filter widgets, use filterValues instead.
         /// </summary>
         public string filterValue { get; set; }
+        /// <summary>
+        /// Dictionary of filter values keyed by filter name, for widgets with multiple filters.
+        /// Each key corresponds to a DashboardWidgetFilterGroup.filterName.
+        /// </summary>
+        public Dictionary<string, string> filterValues { get; set; } = new();
     }
 }

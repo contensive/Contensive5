@@ -9,6 +9,7 @@
 	<AssemblyOriginatorKeyFile>CPBase2.snk</AssemblyOriginatorKeyFile>
 	<PackageId>Contensive.CPBaseClass</PackageId>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>1591</NoWarn>
   </PropertyGroup>
 
 </Project>
