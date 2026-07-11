@@ -66,14 +66,64 @@ public void SaveOrder(CPBaseClass cp, int orderId) {
 }
 ```
 
-## Database Changes: Collection XML First
+## Database Changes: Collection XML and Model Required
 
-When adding a new database table or field, always define it in the addon collection XML file **before** adding corresponding C# code (model properties, controller logic, etc.). The collection XML is the source of truth for database schema — the installer uses it to create and update tables and columns. A field in code without a matching `<Field>` in the collection XML will not exist in the database at runtime.
+Every database table and field used in a Contensive project has two mandatory representations:
 
-**Required workflow:**
-1. Add the `<CDef>` (new table) or `<Field>` (new column) to the collection XML
-2. Then add the C# model property and any code that references the field
-3. See [Addon Collection Pattern](addon-collection-pattern.md) for XML syntax
+1. **Collection XML** — The `<CDef>` and `<Field>` elements in the addon collection XML file are the source of truth for database schema. The installer reads this file to create and update tables and columns. A field referenced in code without a matching `<Field>` in the collection XML will not exist in the database at runtime.
+
+2. **Database Model** — A corresponding C# model class in `source/Models/Models/Db/` documents how the table and its fields are used in code. The model provides type-safe access, CRUD operations, and serves as living documentation of the table's structure and relationships.
+
+Both are required. A table or field must not exist in one without the other:
+- A `<CDef>` or `<Field>` in the collection XML without a corresponding model property means the schema exists but is undocumented and inaccessible through the model API.
+- A model property without a corresponding `<Field>` in the collection XML means the code references a column that will not exist in the database at runtime.
+
+**Required workflow for new tables:**
+1. Add the `<CDef>` with all `<Field>` elements to the collection XML — see [Addon Collection Pattern](addon-collection-pattern.md)
+2. Create the C# model class with matching `tableMetadata` and properties — see [Database Models Pattern](database-models-pattern.md)
+3. The CDef `Name` must match the model's `tableMetadata` content name, and `ContentTableName` must match the table name
+
+**Required workflow for new fields on existing tables:**
+1. Add the `<Field>` element to the existing `<CDef>` in the collection XML
+2. Add the corresponding C# property to the model class with the matching name and type
+3. Build and verify: `dotnet build source/Models/Models.csproj`
+
+### Using Tables From External Projects
+
+When a project references a database table that is defined and created by a different project (e.g., a table from a NuGet dependency or another addon collection), the project must still create its own local model for that table. This duplicates the external project's model but ensures the local project has documented, type-safe access to the table without a compile-time dependency on the external model class.
+
+```csharp
+// Local model duplicating an external project's table
+namespace MyProject.Models {
+    public class ExternalEntityModel : DbBaseModel {
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("external content", "ccexternaltable", "default", false);
+        //
+        // -- only include the fields this project actually uses
+        public string title { get; set; }
+        public int categoryId { get; set; }
+    }
+}
+```
+
+### Extending a Model From a NuGet Reference
+
+When a project needs to add fields to a table whose model is provided by a NuGet package, do not modify the NuGet model. Instead, create a local model that inherits from the referenced model and add the extension properties there. All internal code in the project should reference the local extended model, not the NuGet base model.
+
+```csharp
+// NuGet package provides PersonModel with tableMetadata("people", "ccmembers")
+// Local project extends it with additional fields defined in this project's collection XML
+
+namespace MyProject.Models {
+    public class PersonExtendedModel : Contensive.Models.Db.PersonModel {
+        //
+        // -- extended fields (must also be defined in this project's collection XML)
+        public string customField1 { get; set; }
+        public int customLookupId { get; set; }
+    }
+}
+```
+
+The extended fields must be added to the project's collection XML as `<Field>` elements on the existing `<CDef>` for that table. The NuGet base model already covers the core fields, so the local model only adds what this project needs.
 
 ## UI: HTML Selector Naming
 
