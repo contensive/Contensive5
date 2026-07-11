@@ -1115,7 +1115,10 @@ namespace Contensive.Processor {
                         }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
+                string contentName = contentMeta?.name ?? "(no metadata)";
+                int recordId = 0;
+                try { recordId = getInteger("id"); } catch { }
+                logger.Error(ex, $"{core.logCommonMessage},getText field [{fieldName}], content [{contentName}], recordId [{recordId}], ex [{ex.Message}]");
                 throw;
             }
         }
