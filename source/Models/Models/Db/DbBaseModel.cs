@@ -190,10 +190,16 @@ namespace Contensive.Models.Db {
                 }
                 get {
                     if (!contentLoaded) {
-                        // todo if internalcp is not set, throw an error
                         if ((!string.IsNullOrEmpty(filename)) && (cpInternal != null)) {
                             contentLoaded = true;
-                            local_content = cpInternal.CdnFiles.Read(filename);
+                            if (!cpInternal.CdnFiles.IsValidPathFilename(filename)) {
+                                //
+                                // -- filename is not valid, likely content stored directly in the db field instead of a filename
+                                // -- return the content directly, the save path will fix this record when it is next saved
+                                local_content = filename;
+                            } else {
+                                local_content = cpInternal.CdnFiles.Read(filename);
+                            }
                         }
                     }
                     return local_content;
@@ -1280,7 +1286,10 @@ namespace Contensive.Models.Db {
                                             } else {
                                                 //
                                                 // -- save content
-                                                if (string.IsNullOrEmpty(fileFieldFilename)) {
+                                                if (string.IsNullOrEmpty(fileFieldFilename) || !cp.CdnFiles.IsValidPathFilename(fileFieldFilename)) {
+                                                    //
+                                                    // -- filename is empty or invalid (content may have been stored directly in the db field)
+                                                    // -- generate a proper filename
                                                     fileFieldFilename = cp.Db.CreateFieldPathFilename(tableName, fieldNameNormalized, id, fieldTypeId);
                                                     fileFieldFilenameProperty.SetValue(textFileProperty, fileFieldFilename);
                                                 }

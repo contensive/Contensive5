@@ -1074,11 +1074,17 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
                             //
                             // -- file-content type
-                            // -- this code treates the rawData is a filename. If not valid file log error and continue
+                            // -- rawData should be a filename where the content is stored
                             if (string.IsNullOrWhiteSpace(rawData)) { return string.Empty; }
                             if (!core.cdnFiles.isValidPathFilename(rawData)) {
-                                logger.Error($"{core.logCommonMessage}", new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
-                                return string.Empty;
+                                //
+                                // -- rawData is not a valid filename, likely content stored directly in the db field
+                                // -- return the content directly and log a warning so the issue can be tracked
+                                // -- the save path (set_saveContentFile) will fix this record when it is next saved
+                                int recordId = 0;
+                                try { recordId = getInteger("id"); } catch { }
+                                logger.Warn($"{core.logCommonMessage},getText field [{fieldName}], content [{contentMeta?.name}], recordId [{recordId}], file-type field contains content instead of a filename, returning content directly");
+                                return rawData;
                             }
                             return core.cdnFiles.readFileText(GenericController.getText(rawData));
                         }
