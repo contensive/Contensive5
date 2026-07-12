@@ -1293,7 +1293,36 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// Verify the CDN virtual directory exists in IIS for this application.
+        /// Safe to call during upgrade — only adds the virtual directory if missing, does not modify bindings or app pool.
+        /// </summary>
+        public void verifyCdnVirtualDirectory() {
+            try {
+                string cdnFilesPrefix = core.appConfig.cdnFileUrl;
+                if (string.IsNullOrEmpty(cdnFilesPrefix)) { return; }
+                if (cdnFilesPrefix.IndexOf("://", StringComparison.InvariantCulture) >= 0) { return; }
+                //
+                using ServerManager iisManager = new ServerManager();
+                Site site = null;
+                foreach (Site siteWithinLoop in iisManager.Sites) {
+                    if (string.Equals(siteWithinLoop.Name, core.appConfig.name, StringComparison.OrdinalIgnoreCase)) {
+                        site = siteWithinLoop;
+                        break;
+                    }
+                }
+                if (site == null) { return; }
+                //
+                verifyWebsiteVirtualDirectory(site, core.appConfig.name, cdnFilesPrefix, core.appConfig.localFilesPath);
+                iisManager.CommitChanges();
+            } catch (Exception ex) {
+                logger.Error($"{core.logCommonMessage}", ex, "verifyCdnVirtualDirectory");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// verify a virtual directory exists within the site for the given virtual folder path
         /// </summary>
         /// <param name="site"></param>
         /// <param name="appName"></param>

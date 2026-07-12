@@ -89,6 +89,10 @@ namespace Contensive.Processor.Controllers.Build {
                     // -- verify site managers group
                     GroupModel SiteManagerGroup = verifyGroup(core, logPrefix, defaultSiteManagerGuid, defaultSiteManagerName);
                     //
+                    // -- verify the cdn virtual directory exists (safe for upgrades, only adds if missing)
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, verify cdn virtual directory");
+                    core.webServer.verifyCdnVirtualDirectory();
+                    //
                     // -- upgrade work only for the first build, not upgrades of version 5+
                     if (isNewBuild) {
                         //

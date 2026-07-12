@@ -3,6 +3,8 @@ using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Xml;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -61,6 +63,65 @@ namespace Contensive.Processor.Controllers {
                 // -- best-effort scan, do not let it interrupt the upgrade
             }
             return orphans;
+        }
+        //
+        /// <summary>
+        /// Remove orphan collection entries from Collections.xml and delete their folders.
+        /// </summary>
+        public static void RemoveOrphans(CoreController core, List<OrphanCollectionIssue> orphans) {
+            try {
+                if (orphans.Count == 0) { return; }
+                //
+                // -- build a set of orphan GUIDs for fast lookup
+                var orphanGuids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var orphan in orphans) {
+                    orphanGuids.Add(orphan.CollectionGuid);
+                }
+                //
+                // -- load and parse the Collections.xml file
+                XmlDocument doc = new XmlDocument();
+                try {
+                    doc.LoadXml(CollectionFolderModel.getCollectionFolderConfigXml(core));
+                } catch (Exception) {
+                    return;
+                }
+                if (!doc.DocumentElement.Name.ToLower(CultureInfo.InvariantCulture).Equals("collectionlist")) { return; }
+                //
+                // -- find and remove orphan collection nodes
+                var nodesToRemove = new List<XmlNode>();
+                foreach (XmlNode collectionNode in doc.DocumentElement.ChildNodes) {
+                    if (!collectionNode.Name.ToLower(CultureInfo.InvariantCulture).Equals("collection")) { continue; }
+                    string nodeGuid = "";
+                    foreach (XmlNode childNode in collectionNode.ChildNodes) {
+                        if (childNode.Name.ToLower(CultureInfo.InvariantCulture).Equals("guid")) {
+                            nodeGuid = childNode.InnerText;
+                            break;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(nodeGuid) && orphanGuids.Contains(nodeGuid)) {
+                        nodesToRemove.Add(collectionNode);
+                    }
+                }
+                foreach (var node in nodesToRemove) {
+                    doc.DocumentElement.RemoveChild(node);
+                }
+                //
+                // -- save the updated Collections.xml
+                string collectionFilePath = AddonController.getPrivateFilesAddonPath() + "Collections.xml";
+                core.privateFiles.saveFile(collectionFilePath, doc.OuterXml);
+                //
+                // -- delete orphan collection folders
+                foreach (var orphan in orphans) {
+                    if (string.IsNullOrEmpty(orphan.FolderPath)) { continue; }
+                    try {
+                        core.privateFiles.deleteFolder(AddonController.getPrivateFilesAddonPath() + orphan.FolderPath);
+                    } catch (Exception) {
+                        // -- best-effort folder delete, continue with remaining orphans
+                    }
+                }
+            } catch (Exception) {
+                // -- best-effort cleanup, do not let it interrupt the upgrade
+            }
         }
     }
 }

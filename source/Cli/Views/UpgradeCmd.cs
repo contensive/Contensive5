@@ -133,7 +133,10 @@ namespace Contensive.CLI {
                         }
                         Console.WriteLine();
                     }
-                    Console.WriteLine("  These entries should be removed from the privateFiles\\addons\\Collections.xml file.");
+                    //
+                    // -- remove orphan entries from Collections.xml and delete their folders
+                    OrphanCollectionScanner.RemoveOrphans(checkCp.core, orphans);
+                    Console.WriteLine($"  Removed {orphans.Count} orphan collection(s) from Collections.xml and deleted their folders.");
                 } catch (Exception ex) {
                     Console.WriteLine($"  Error checking orphan collections for [{name}]: {ex.Message}");
                 }
