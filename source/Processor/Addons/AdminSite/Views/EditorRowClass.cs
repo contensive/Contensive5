@@ -41,7 +41,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             if (!adminData.editRecord.fieldsLc.ContainsKey(field.nameLc)) {
                 //
                 // -- field not found in edit record. Report and exit with blank editor
-                logger.Error($"{core.logCommonMessage}", new GenericException("getEditorRow, field [" + field.nameLc + "] not found in editRecord collection for content [" + adminData.adminContent.name + "]"));
+                logger.Error($"{core.logCommonMessage}, getEditorRow, field [{field.nameLc}] not found in editRecord collection for content [{adminData.adminContent.name}]");
                 return "<!-- no editor row available because field not found -->";
             }
             //
@@ -76,7 +76,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // assemble the editor row
                 return AdminUIController.getEditRow(core, response.editorString, response.fieldCaption, field.helpDefault, field.required, false, response.fieldHtmlId, response.editorWrapperStyle,false, response.editorWrapperClass);
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "getEditorRow, hint[" + hint + "], field [" + hintField + "]");
+                logger.Error(ex, $"{core.logCommonMessage}, getEditorRow, hint[{hint}], field [{hintField}]");
                 throw;
             }
         }
@@ -354,7 +354,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     } else {
                                         //
                                         // -- log exception but dont throw
-                                        logger.Warn($"{core.logCommonMessage}", new GenericException("Field [" + request.contentName + "." + request.field.nameLc + "] is a Lookup field, but no LookupContent or LookupList has been configured"));
+                                        logger.Warn($"{core.logCommonMessage}, Field [{request.contentName}.{request.field.nameLc}] is a Lookup field but no LookupContent or LookupList has been configured, fieldId [{request.field.id}], fieldType [{request.field.fieldTypeId}]");
                                         response.editorString += "[Selection not configured]";
                                     }
                                     break;
@@ -541,7 +541,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     } else {
                                         //
                                         // -- log exception but dont throw
-                                        logger.Warn($"{core.logCommonMessage}", new GenericException("Field [" + request.contentName + "." + request.field.nameLc + "] is a Lookup field, but no LookupContent or LookupList has been configured"));
+                                        logger.Warn($"{core.logCommonMessage}, Field [{request.contentName}.{request.field.nameLc}] is a Lookup field but no LookupContent or LookupList has been configured, fieldId [{request.field.id}], fieldType [{request.field.fieldTypeId}]");
                                         response.editorString += "[Selection not configured]";
                                     }
                                     break;

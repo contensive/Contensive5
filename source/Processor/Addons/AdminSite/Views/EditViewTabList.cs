@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     hint = 10;
                     //
                     // There are no visible fiels, return empty
-                    logger.Error($"{core.logCommonMessage}", new GenericException("There is no metadata for this field."));
+                    logger.Error($"{core.logCommonMessage}, There is no metadata for this field, content [{adminData.adminContent.name}]");
                 } else {
                     hint = 20;
                     //
