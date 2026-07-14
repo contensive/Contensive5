@@ -1220,7 +1220,7 @@ namespace Contensive.Processor.Controllers.Build {
                         //
                         // Problem
                         //
-                        logger.Error($"{core.logCommonMessage}", new GenericException("Content Field Types content definition was not found"));
+                        logger.Error(new GenericException("Content Field Types content definition was not found"), $"{core.logCommonMessage}");
                     } else {
                         while (RowsNeeded > 0) {
                             core.db.executeNonQuery("Insert into ccFieldTypes (active,contentcontrolid)values(1," + CId + ")");

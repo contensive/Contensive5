@@ -616,7 +616,7 @@ namespace Contensive.Processor.Controllers {
                         email.subject = emailName;
                         email.fromAddress = core.siteProperties.getText("EmailAdmin", "webmaster@" + core.appConfig.domainList[0]);
                         email.save(core.cpParent);
-                        logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the name [" + emailName + "]. A new email blank was created but not sent."));
+                        logger.Error(new GenericException("No system email was found with the name [" + emailName + "]. A new email blank was created but not sent."), $"{core.logCommonMessage}");
                     }
                 }
                 return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);
@@ -681,7 +681,7 @@ namespace Contensive.Processor.Controllers {
                 AddEmailLog(core, sendRequest, false, "No email sent because the system email is not valid: " + sendRequest.emailContextMessage);
                 //
                 userErrorMessage = "The notification email could not be sent.";
-                logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the id [" + emailid + "]"));
+                logger.Error(new GenericException("No system email was found with the id [" + emailid + "]"), $"{core.logCommonMessage}");
                 return false;
             }
             //
@@ -700,7 +700,7 @@ namespace Contensive.Processor.Controllers {
                 AddEmailLog(core, sendRequest, false, "No email sent because the system email is not valid: " + sendRequest.emailContextMessage);
                 //
                 userErrorMessage = "The notification email could not be sent.";
-                logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the id [" + emailid + "]"));
+                logger.Error(new GenericException("No system email was found with the id [" + emailid + "]"), $"{core.logCommonMessage}");
                 return false;
             }
             return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);

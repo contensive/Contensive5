@@ -397,7 +397,7 @@ namespace Contensive.Processor.Controllers {
                         DropDownFieldCount = DropDownFieldCount + 1;
                     }
                     if (DropDownFieldCount == 0) {
-                        logger.Error($"{core.logCommonMessage}", new Exception("No drop down field names found for content [" + ContentName + "]."));
+                        logger.Error(new Exception($"No drop down field names found for content [{ContentName}]."), $"{core.logCommonMessage}");
                     } else {
                         int[] DropDownFieldPointer = new int[DropDownFieldCount];
                         string SelectFields = "ID";
@@ -579,7 +579,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Selection is too big
                         //
-                        logger.Error($"{core.logCommonMessage}", new Exception("While building a group members list for group [" + GroupController.getGroupName(core, GroupID) + "], too many rows were selected. [" + RowMax + "] records exceeds [" + core.siteProperties.selectFieldLimit + "], the current Site Property app.SiteProperty_SelectFieldLimit."));
+                        logger.Error(new Exception($"While building a group members list for group [{GroupController.getGroupName(core, GroupID)}], too many rows were selected. [{RowMax}] records exceeds [{core.siteProperties.selectFieldLimit}], the current Site Property app.SiteProperty_SelectFieldLimit."), $"{core.logCommonMessage}");
                         result += inputHidden(MenuNameFPO, currentValue);
                         if (currentValue != 0) {
                             using (var csData = new CsModel(core)) {
@@ -656,7 +656,7 @@ namespace Contensive.Processor.Controllers {
                             DropDownFieldCount = DropDownFieldCount + 1;
                         }
                         if (DropDownFieldCount == 0) {
-                            logger.Error($"{core.logCommonMessage}", new Exception("No drop down field names found for content [" + GroupID + "]."));
+                            logger.Error(new Exception($"No drop down field names found for content [{GroupID}]."), $"{core.logCommonMessage}");
                         } else {
                             int[] DropDownFieldPointer = new int[DropDownFieldCount];
                             string SelectFields = "P.ID";
@@ -1358,7 +1358,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 if (!fieldFound) {
-                    logger.Error($"{core.logCommonMessage}", new Exception("Field [" + fieldName + "] was not found in Content Definition [" + contentName + "]"));
+                    logger.Error(new Exception($"Field [{fieldName}] was not found in Content Definition [{contentName}]"), $"{core.logCommonMessage}");
                 } else {
                     //
                     // main_Get the current value if the record was found
@@ -2262,14 +2262,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // ----- Public Site call, must have contentname and recordid
                 //
-                logger.Error($"{core.logCommonMessage}", new Exception("invalid content [" + ContentName + "], RecordID [" + RecordID + "]"));
+                logger.Error(new Exception($"invalid content [{ContentName}], RecordID [{RecordID}]"), $"{core.logCommonMessage}");
             } else {
                 //
                 // ----- Normal Content Edit - find instance in the content
                 //
                 using (var csData = new CsModel(core)) {
                     if (!csData.openRecord(ContentName, RecordID)) {
-                        logger.Error($"{core.logCommonMessage}", new Exception("No record found with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
+                        logger.Error(new Exception($"No record found with content [{ContentName}] and RecordID [{RecordID}]"), $"{core.logCommonMessage}");
                     } else {
                         if (!string.IsNullOrEmpty(FieldName)) {
                             //
@@ -2313,7 +2313,7 @@ namespace Contensive.Processor.Controllers {
                         // Parse out the Addon Name
                         //
                         if (PosACInstanceId == 0) {
-                            logger.Error($"{core.logCommonMessage}", new Exception("AC Instance [" + ACInstanceId + "] not found in record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
+                            logger.Error(new Exception($"AC Instance [{ACInstanceId}] not found in record with content [{ContentName}] and RecordID [{RecordID}]"), $"{core.logCommonMessage}");
                         } else {
                             Copy = ContentRenderController.updateLibraryFilesInHtmlContent(core, Copy);
                             ParseOK = false;
@@ -2412,7 +2412,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                             if (!ParseOK) {
-                                logger.Error($"{core.logCommonMessage}", new Exception("There was a problem parsing AC Instance [" + ACInstanceId + "] record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
+                                logger.Error(new Exception($"There was a problem parsing AC Instance [{ACInstanceId}] record with content [{ContentName}] and RecordID [{RecordID}]"), $"{core.logCommonMessage}");
                             }
                         }
                     }
@@ -2528,17 +2528,17 @@ namespace Contensive.Processor.Controllers {
                 // ----- argument validate
                 captionFieldName = getText(captionFieldName, "name");
                 if (string.IsNullOrEmpty(primaryContentName) || string.IsNullOrEmpty(secondaryContentName) || string.IsNullOrEmpty(rulesContentName) || string.IsNullOrEmpty(rulesPrimaryFieldname) || string.IsNullOrEmpty(rulesSecondaryFieldName)) {
-                    logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, all required fields were not supplied, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    logger.Error(new Exception($"Creating checklist, all required fields were not supplied, Caption=[{captionFieldName}], PrimaryContentName=[{primaryContentName}], SecondaryContentName=[{secondaryContentName}], RulesContentName=[{rulesContentName}], RulesPrimaryFieldName=[{rulesPrimaryFieldname}], RulesSecondaryFieldName=[{rulesSecondaryFieldName}]"), $"{core.logCommonMessage}");
                     return "[Checklist not configured]";
                 }
                 var secondaryMeta = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
                 if (secondaryMeta == null) {
-                    logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, secondary content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    logger.Error(new Exception($"Creating checklist, secondary content was not valid, Caption=[{captionFieldName}], PrimaryContentName=[{primaryContentName}], SecondaryContentName=[{secondaryContentName}], RulesContentName=[{rulesContentName}], RulesPrimaryFieldName=[{rulesPrimaryFieldname}], RulesSecondaryFieldName=[{rulesSecondaryFieldName}]"), $"{core.logCommonMessage}");
                     return "[Checklist not configured]";
                 }
                 var rulesMeta = ContentMetadataModel.createByUniqueName(core, rulesContentName);
                 if (rulesMeta == null) {
-                    logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, rule content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    logger.Error(new Exception($"Creating checklist, rule content was not valid, Caption=[{captionFieldName}], PrimaryContentName=[{primaryContentName}], SecondaryContentName=[{secondaryContentName}], RulesContentName=[{rulesContentName}], RulesPrimaryFieldName=[{rulesPrimaryFieldname}], RulesSecondaryFieldName=[{rulesSecondaryFieldName}]"), $"{core.logCommonMessage}");
                     return "[Checklist not configured]";
                 }
                 //

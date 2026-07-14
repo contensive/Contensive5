@@ -63,7 +63,7 @@ namespace Contensive.Processor.Controllers {
                 if ((srcXmlDom.DocumentElement.Name.ToLowerInvariant() != CollectionFileRootNode) && (srcXmlDom.DocumentElement.Name.ToLowerInvariant() != "contensivecdef")) {
                     //
                     // -- root node must be collection (or legacy contensivemetadata)
-                    logger.Error($"{core.logCommonMessage}", new GenericException("the archive file has a syntax error. Application name must be the first node."));
+                    logger.Error(new GenericException("the archive file has a syntax error. Application name must be the first node."), $"{core.logCommonMessage}");
                 } else {
                     result.isBaseCollection = isBaseCollection;
                     //

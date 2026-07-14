@@ -33,12 +33,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // Content not found or not loaded
                     if (adminData.adminContent.id == 0) {
                         //
-                        logger.Error($"{core.logCommonMessage}", new GenericException("No content definition was specified for this page"));
+                        logger.Error(new GenericException("No content definition was specified for this page"), $"{core.logCommonMessage}");
                         return HtmlController.p("No content was specified.");
                     } else {
                         //
                         // Content Definition was not specified
-                        logger.Error($"{core.logCommonMessage}", new GenericException("The content definition specified for this page [" + adminData.adminContent.id + "] was not found"));
+                        logger.Error(new GenericException("The content definition specified for this page [" + adminData.adminContent.id + "] was not found"), $"{core.logCommonMessage}");
                         return HtmlController.p("No content was specified.");
                     }
                 }

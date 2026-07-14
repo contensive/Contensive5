@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                 if (core.serverConfig == null) {
                     //
                     // -- application error if no server config
-                    logger.Error($"{core.logCommonMessage}", new GenericException("authorization context cannot be created without a server configuration."));
+                    logger.Error(new GenericException("authorization context cannot be created without a server configuration."), $"{core.logCommonMessage}");
                     return;
                 }
                 if (core.appConfig == null) {
@@ -376,7 +376,7 @@ namespace Contensive.Processor.Controllers {
                             ClientInfo userAgent = uaParser.Parse(core.webServer.requestBrowser);
                             //
                             visit.browser = core.webServer.requestBrowser.substringSafe(0, 254);
-                            visit.name = userAgent.Device.IsSpider ? userAgent.Device.Family + " " + userAgent.UA.Family : "user";
+                            visit.name = (userAgent.Device.IsSpider ? userAgent.Device.Family + " " + userAgent.UA.Family : "user").substringSafe(0, 100);
                             visit.bot = userAgent.Device.IsSpider;
                             visit.mobile = isMobile(core, core.webServer.requestBrowser);
                             //
@@ -469,8 +469,8 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- if this is a bot, name the user record with the bot identifier
                             if (visit.bot && !string.IsNullOrEmpty(visit.name) && !visit.name.Equals("user", StringComparison.OrdinalIgnoreCase)) {
-                                user.name = visit.name;
-                                user.firstName = visit.name;
+                                user.name = visit.name.substringSafe(0, 100);
+                                user.firstName = visit.name.substringSafe(0, 100);
                             }
                             //
                             visit.visitAuthenticated = false;
@@ -478,7 +478,7 @@ namespace Contensive.Processor.Controllers {
                             visit.memberId = user.id;
                             //
                             visitor.memberId = user.id;
-                            visitor.name = visit.name;
+                            visitor.name = visit.name.substringSafe(0, 100);
                             resultSessionContect_visitor_changes = true;
                         }
                     }

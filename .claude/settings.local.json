@@ -58,7 +58,14 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(git stash:*)",
       "Bash(dotnet test:*)",
-      "Bash(dotnet list:*)"
+      "Bash(dotnet list:*)",
+      "Bash(/tmp/fix_logger.py:*)",
+      "Bash(python:*)",
+      "Bash(/tmp/fix_logger2.py:*)",
+      "Bash(/tmp/fix_logger3.py:*)",
+      "Bash(/tmp/fix_logger4.py:*)",
+      "Bash(/tmp/fix_webserver.py:*)",
+      "Bash(/tmp/fix_extra.py:*)"
     ]
   }
 }

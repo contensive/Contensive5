@@ -1273,7 +1273,7 @@ namespace Contensive.Processor.Controllers {
                 if (domain == null) {
                     //
                     // -- domain is not valid
-                    logger.Error($"{core.logCommonMessage}", new GenericException("Page could not be determined because the domain was not recognized."));
+                    logger.Error(new GenericException("Page could not be determined because the domain was not recognized."), $"{core.logCommonMessage}");
                     return "";
                 }
                 //
@@ -1454,7 +1454,7 @@ namespace Contensive.Processor.Controllers {
                 if (domain == null) {
                     //
                     // -- domain not available
-                    logger.Error($"{core.logCommonMessage}", new GenericException("Landing page could not be determined because the domain was not recognized."));
+                    logger.Error(new GenericException("Landing page could not be determined because the domain was not recognized."), $"{core.logCommonMessage}");
                 } else {
                     //
                     // -- attempt domain landing page

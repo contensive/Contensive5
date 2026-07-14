@@ -260,7 +260,7 @@ namespace Contensive.Processor.Addons.Tools {
             if (customReport != null) {
                 var ExportCSVAddon = core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
-                    logger.Error($"{core.logCommonMessage}", new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
+                    logger.Error(new GenericException("ExportCSV addon not found. Task could not be added to task queue."), $"{core.logCommonMessage}");
                 } else {
                     var docProperties = new Dictionary<string, string> {
                                                 { "sql", customReport.sqlQuery },

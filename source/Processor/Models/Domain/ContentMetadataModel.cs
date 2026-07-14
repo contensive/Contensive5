@@ -398,7 +398,7 @@ namespace Contensive.Processor.Models.Domain {
                             } else {
                                 Models.Domain.ContentMetadataModel parentMetaData = create(core, result.parentId, loadInvalidFields, forceDbLoad);
                                 if (parentMetaData == null) {
-                                    logger.Error($"{core.logCommonMessage}", new GenericException("ContentMetadataModel error, loading content [" + content.id + ", " + content.name + "], parentId [" + result.parentId + "] but no parent content found."));
+                                    logger.Error(new GenericException("ContentMetadataModel error, loading content [" + content.id + ", " + content.name + "], parentId [" + result.parentId + "] but no parent content found."), $"{core.logCommonMessage}");
                                 } else {
                                     foreach (var keyvaluepair in parentMetaData.fields) {
                                         Models.Domain.ContentFieldMetadataModel parentField = keyvaluepair.Value;

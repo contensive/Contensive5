@@ -75,6 +75,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         currentUser.firstName = firstName;
                         currentUser.lastName = lastName;
                         currentUser.name = $"{firstName} {lastName}";
+                        currentUser.createdByVisit = false;
                         currentUser.save(cp);
                         loginUserId = currentUserId;
                     } else {
@@ -85,6 +86,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         newUser.firstName = firstName;
                         newUser.lastName = lastName;
                         newUser.name = $"{firstName} {lastName}";
+                        newUser.createdByVisit = false;
                         newUser.save(cp);
                         loginUserId = newUser.id;
                     }

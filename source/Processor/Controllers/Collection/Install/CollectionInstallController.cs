@@ -1162,7 +1162,7 @@ namespace Contensive.Processor.Controllers {
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
-                                logger.Error($"{core.logCommonMessage}", new GenericException($"{MethodInfo.GetCurrentMethod().Name}, installing collection [{parentCollectionName}], addon [{addonName}] (guid [{addonGuid}]) was not found in the database by guid or name. This addon's dependencies (such as IncludeAddon references) will be skipped. Verify the addon is defined in the collection XML and appears before any addons that depend on it."));
+                                logger.Error(new GenericException($"{MethodInfo.GetCurrentMethod().Name}, installing collection [{parentCollectionName}], addon [{addonName}] (guid [{addonGuid}]) was not found in the database by guid or name. This addon's dependencies (such as IncludeAddon references) will be skipped. Verify the addon is defined in the collection XML and appears before any addons that depend on it."), $"{core.logCommonMessage}");
                                 return;
                             }
                         }

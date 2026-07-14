@@ -404,7 +404,7 @@ namespace Contensive.Processor {
             try {
                 var ExportCSVAddon = cp.core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
-                    logger.Error($"{cp.core.logCommonMessage}", new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
+                    logger.Error(new GenericException("ExportCSV addon not found. Task could not be added to task queue."), $"{cp.core.logCommonMessage}");
                 } else {
                     var cmdDetail = new TaskModel.CmdDetailClass {
                         addonId = ExportCSVAddon.id,

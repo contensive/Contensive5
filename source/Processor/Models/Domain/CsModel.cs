@@ -1566,7 +1566,7 @@ namespace Contensive.Processor {
                         //
                         // -- unique violation
                         if (dtRecords.Rows.Count > 0) {
-                            logger.Error($"{core.logCommonMessage}", new GenericException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"));
+                            logger.Error(new GenericException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"), $"{core.logCommonMessage}");
                             return;
                         }
                     }

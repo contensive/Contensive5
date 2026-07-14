@@ -228,7 +228,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             AddonModel addon = core.cacheRuntime.addonCache.create(addonGuidAdminSite);
                             if (addon == null) {
-                                logger.Error($"{core.logCommonMessage}", new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));
+                                logger.Error(new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."), $"{core.logCommonMessage}");
                                 returnResult = "The default admin site addon could not be found. Please run an upgrade on this application to restore default services (command line> cc -a appName -r )";
                                 return true;
                             } else {
@@ -348,7 +348,7 @@ namespace Contensive.Processor.Controllers {
         private static string tryExecuteRouteDictionary_remoteMethod(CoreController core, string returnResult, RouteMapModel.RouteClass route) {
             AddonModel addon = core.cacheRuntime.addonCache.create(route.remoteMethodAddonId);
             if (addon == null) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
+                logger.Error(new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."), $"{core.logCommonMessage}");
             } else {
                 CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextRemoteMethodJson,

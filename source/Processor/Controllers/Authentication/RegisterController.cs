@@ -54,7 +54,7 @@ namespace Contensive.Processor.Controllers {
                     if (!csPerson.open("people", "ID=" + core.session.user.id)) {
                         //
                         // -- user record not valid
-                        logger.Error($"{core.logCommonMessage}", new Exception("Could not open the current members account to set the username and password."));
+                        logger.Error(new Exception("Could not open the current members account to set the username and password."), $"{core.logCommonMessage}");
                         return;
                     }
                     if ((!string.IsNullOrEmpty(csPerson.getText("username"))) || !string.IsNullOrEmpty(csPerson.getText("password")) || csPerson.getBoolean("admin") || csPerson.getBoolean("developer")) {

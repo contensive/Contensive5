@@ -79,7 +79,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="remotePathPrefix">If not isLocal, this is added to the remote content path. Ex a\ with content b\c.txt = a\b\c.txt</param>
         public FileController(CoreController core, bool isLocal, string rootLocalPath, string remotePathPrefix) {
             if (string.IsNullOrEmpty(rootLocalPath)) {
-                logger.Error($"{core.logCommonMessage}", new ArgumentException("Blank file system root path not permitted."));
+                logger.Error(new ArgumentException("Blank file system root path not permitted."), $"{core.logCommonMessage}");
             } else {
                 this.core = core;
                 this.isLocal = isLocal;
@@ -96,7 +96,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="rootLocalPath"></param>
         public FileController(CoreController core, string rootLocalPath) {
             if (string.IsNullOrEmpty(rootLocalPath)) {
-                logger.Error($"{core.logCommonMessage}", new ArgumentException("Attempt to create a FileController with blank rootLocalpath."));
+                logger.Error(new ArgumentException("Attempt to create a FileController with blank rootLocalpath."), $"{core.logCommonMessage}");
                 throw new GenericException("Attempt to create a FileController with blank rootLocalpath.");
             }
             this.core = core;
@@ -473,7 +473,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(pathFilename)) { return; }
                 if (!isValidPathFilename(pathFilename)) {
                     // -- invalid filename, log and continue to not blowup
-                    logger.Error($"{core.logCommonMessage}", new GenericException($"attempt to delete file with invalid name [{pathFilename}] in fileSystem [{localAbsRootPath}]"));
+                    logger.Error(new GenericException($"attempt to delete file with invalid name [{pathFilename}] in fileSystem [{localAbsRootPath}]"), $"{core.logCommonMessage}");
                     return;
                 }
                 if (isLocalFileSystem) {

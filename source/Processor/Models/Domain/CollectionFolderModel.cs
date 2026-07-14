@@ -117,7 +117,7 @@ namespace Contensive.Processor.Models.Domain {
                                     if (collectionsFound.Contains(CollectionGuid)) {
                                         //
                                         // -- folder with duplicate Guid not allowed. throw;ception and block the folder
-                                        logger.Error($"{core.logCommonMessage}", new GenericException("Add-on Collection Folder contains a mulitple collection folders with the same guid, [" + CollectionGuid + "], duplicate folder ignored [" + folder.Name + "]. Remove or Combine the mulitple instances. Then delete the collections.xml file and it will regenerate without the duplicate."));
+                                        logger.Error(new GenericException("Add-on Collection Folder contains a mulitple collection folders with the same guid, [" + CollectionGuid + "], duplicate folder ignored [" + folder.Name + "]. Remove or Combine the mulitple instances. Then delete the collections.xml file and it will regenerate without the duplicate."), $"{core.logCommonMessage}");
                                     } else {
                                         collectionsFound.Add(CollectionGuid);
                                         List<FolderDetail> SubFolderList = core.privateFiles.getFolderList(AddonController.getPrivateFilesAddonPath() + FolderName + "\\");

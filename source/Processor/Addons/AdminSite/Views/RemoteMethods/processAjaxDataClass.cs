@@ -40,7 +40,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string processAjaxData(CoreController core) {
             string result = "";
             try {
-                logger.Error($"{core.logCommonMessage}", new GenericException("executeRoute_ProcessAjaxData deprecated"));
+                logger.Error(new GenericException("executeRoute_ProcessAjaxData deprecated"), $"{core.logCommonMessage}");
             } catch (Exception) {
                 throw;
             }

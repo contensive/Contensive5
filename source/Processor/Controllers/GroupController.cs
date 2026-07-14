@@ -125,7 +125,7 @@ namespace Contensive.Processor.Controllers {
             if (groupNameIdOrGuid.isNumeric()) {
                 group = DbBaseModel.create<GroupModel>(core.cpParent, GenericController.getInteger(groupNameIdOrGuid));
                 if (group == null) {
-                    logger.Error($"{core.logCommonMessage}", new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"));
+                    logger.Error(new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"), $"{core.logCommonMessage}");
                     return;
                 }
             } else if (GuidController.isGuid(groupNameIdOrGuid)) {

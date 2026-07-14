@@ -315,7 +315,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]");
                 throw;
             }
             return returnData;
@@ -362,7 +362,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql batch, datasource[{dataSourceName}], statements[{sqlStatements.Count}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql batch, datasource[{dataSourceName}], statements[{sqlStatements.Count}]");
                 throw;
             }
         }
@@ -412,7 +412,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]");
                 throw;
             }
         }
@@ -463,7 +463,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]");
                 throw;
             }
         }
@@ -548,7 +548,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]");
                 throw;
             }
             return returnData;
@@ -650,7 +650,7 @@ namespace Contensive.Processor.Controllers {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]");
                 throw;
             }
         }
@@ -701,7 +701,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException($"exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]");
                 throw;
             }
         }
@@ -714,10 +714,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="criteria"></param>
         /// <param name="sqlList"></param>
         public void update(string tableName, string criteria, NameValueCollection sqlList) {
+            string sql = "";
             try {
-                executeNonQuery("update " + tableName + " set " + sqlList.getNameValueList() + " where " + criteria + ";");
+                sql = $"update {tableName} set {sqlList.getNameValueList()} where {criteria};";
+                executeNonQuery(sql);
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "] updating table[" + tableName + "],criteria[" + criteria + "], dataSourceName[" + dataSourceName + "]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}] updating table[{tableName}],criteria[{criteria}],sql[{sql}],dataSourceName[{dataSourceName}]");
                 throw;
             }
         }
@@ -736,7 +738,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return 0;
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "] inserting table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}] inserting table[{tableName}], dataSourceName[{dataSourceName}]");
                 throw;
             }
         }
@@ -770,7 +772,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 return insert(tableName, new NameValueCollection(), createdByUserId);
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "] inserting table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}] inserting table[{tableName}], dataSourceName[{dataSourceName}]");
                 throw;
             }
         }
@@ -813,7 +815,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                logger.Error($"{core.logCommonMessage}", new GenericException($"Exception[{ex.Message}], inserting table[{tableName}], dataSourceName[{dataSourceName}]\n{fieldDetails}", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}], inserting table[{tableName}], dataSourceName[{dataSourceName}]\n{fieldDetails}");
                 throw;
             }
         }
@@ -846,7 +848,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return executeQuery(sql, getStartRecord(pageSize, pageNumber), pageSize);
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "], opening table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}], opening table[{tableName}], dataSourceName[{dataSourceName}]");
                 throw;
             }
         }
@@ -1904,12 +1906,12 @@ namespace Contensive.Processor.Controllers {
                 //
                 // records did not delete
                 //
-                logger.Error($"{core.logCommonMessage}", new GenericException("Error deleting record chunks. No records were deleted and the process was not complete."));
+                logger.Error(new GenericException("Error deleting record chunks. No records were deleted and the process was not complete."), $"{core.logCommonMessage}");
             } else if (LoopCount >= iChunkCount) {
                 //
                 // records did not delete
                 //
-                logger.Error($"{core.logCommonMessage}", new GenericException("Error deleting record chunks. The maximum chunk count was exceeded while deleting records."));
+                logger.Error(new GenericException("Error deleting record chunks. The maximum chunk count was exceeded while deleting records."), $"{core.logCommonMessage}");
             }
         }
         //

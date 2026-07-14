@@ -425,7 +425,7 @@ namespace Contensive.Processor.Controllers {
                     if (request == null) {
                         //
                         // -- bugfix, if data does not deserialize, skip message
-                        logger.Error($"{core.logCommonMessage}", new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"));
+                        logger.Error(new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"), $"{core.logCommonMessage}");
                         core.db.executeNonQuery("delete from ccTextMessageQueue where (id=@id)", new Dictionary<string, object> { { "@id", textMessage.id } });
                         logTextMessage(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]", "Failed, message error");
                         continue;

@@ -175,12 +175,12 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 //
                                 // Could not insert record
                                 //
-                                logger.Error($"{cp.core.logCommonMessage}", new GenericException("A new record could not be inserted for content [" + adminData.adminContent.name + "]. Verify the Database table and field DateAdded, CreateKey, and ID."));
+                                logger.Error(new GenericException($"A new record could not be inserted for content [{adminData.adminContent.name}]. Verify the Database table and field DateAdded, CreateKey, and ID."), $"{cp.core.logCommonMessage}");
                             } else {
                                 //
                                 // Could not locate record you requested
                                 //
-                                logger.Error($"{cp.core.logCommonMessage}", new GenericException("The record you requested (ID=" + adminData.editRecord.id + ") could not be found for content [" + adminData.adminContent.name + "]"));
+                                logger.Error(new GenericException($"The record you requested (ID={adminData.editRecord.id}) could not be found for content [{adminData.adminContent.name}]"), $"{cp.core.logCommonMessage}");
                             }
                         } else {
                             //
@@ -746,21 +746,21 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                     //
                     blockEditForm = true;
                     Processor.Controllers.ErrorController.addUserError(core, "No content definition was found For Content ID [" + editRecord.id + "]. Please contact your application developer For more assistance.");
-                    logger.Error($"{core.logCommonMessage}", new GenericException("AdminClass.LoadEditRecord_Dbase, No content definition was found For Content ID [" + editRecord.id + "]."));
+                    logger.Error(new GenericException($"AdminClass.LoadEditRecord_Dbase, No content definition was found For Content ID [{editRecord.id}]."), $"{core.logCommonMessage}");
                 } else if (string.IsNullOrEmpty(adminContent.name)) {
                     //
                     // ----- Error: no content name
                     //
                     blockEditForm = true;
                     Processor.Controllers.ErrorController.addUserError(core, "No content definition could be found For ContentID [" + adminContent.id + "]. This could be a menu Error. Please contact your application developer For more assistance.");
-                    logger.Error($"{core.logCommonMessage}", new GenericException("AdminClass.LoadEditRecord_Dbase, No content definition For ContentID [" + adminContent.id + "] could be found."));
+                    logger.Error(new GenericException($"AdminClass.LoadEditRecord_Dbase, No content definition For ContentID [{adminContent.id}] could be found."), $"{core.logCommonMessage}");
                 } else if (adminContent.tableName == "") {
                     //
                     // ----- Error: no content table
                     //
                     blockEditForm = true;
                     Processor.Controllers.ErrorController.addUserError(core, "The content definition [" + adminContent.name + "] is not associated With a valid database table. Please contact your application developer For more assistance.");
-                    logger.Error($"{core.logCommonMessage}", new GenericException("AdminClass.LoadEditRecord_Dbase, No content definition For ContentID [" + adminContent.id + "] could be found."));
+                    logger.Error(new GenericException($"AdminClass.LoadEditRecord_Dbase, No content definition For ContentID [{adminContent.id}] could be found."), $"{core.logCommonMessage}");
                     //
                     // move block to the edit and listing pages - to handle content editor cases - so they can edit 'pages', and just get the records they are allowed
                     //
@@ -777,7 +777,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                     //
                     blockEditForm = true;
                     ErrorController.addUserError(core, "The content definition [" + adminContent.name + "] has no field records defined. Please contact your application developer For more assistance.");
-                    logger.Error($"{core.logCommonMessage}", new GenericException("AdminClass.LoadEditRecord_Dbase, Content [" + adminContent.name + "] has no fields defined."));
+                    logger.Error(new GenericException($"AdminClass.LoadEditRecord_Dbase, Content [{adminContent.name}] has no fields defined."), $"{core.logCommonMessage}");
                 } else {
                     //
                     //   Open Content Sets with the data
@@ -1149,7 +1149,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                             // Was sent out non-blank, and no response back, flag error and leave the current value to a retry
                             string errorMessage = "There has been an error reading the response from your browser. The field[" + field.caption + "]" + TabCopy + " was missing. Please try your change again. If this error happens repeatedly, please report this problem to your site administrator.";
                             ErrorController.addUserError(core, errorMessage);
-                            logger.Error($"{core.logCommonMessage}", new GenericException(errorMessage));
+                            logger.Error(new GenericException(errorMessage), $"{core.logCommonMessage}");
                             ResponseFieldValueIsOKToSave = false;
                         } else {
                             int EditorPixelHeight = 0;

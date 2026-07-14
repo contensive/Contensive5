@@ -64,6 +64,9 @@ namespace Contensive.Processor.Controllers {
                 session.visit.visitAuthenticated = false;
                 session.visit.visitorId = session.visitor.id;
                 session.user.visits = session.user.visits + 1;
+                //
+                // -- clear createdByVisit flag so this user is not deleted during housekeeping
+                session.user.createdByVisit = false;
                 if (session.user.visits == 1) {
                     session.visit.memberNew = true;
                 } else {

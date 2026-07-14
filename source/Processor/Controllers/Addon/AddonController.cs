@@ -229,7 +229,7 @@ namespace Contensive.Processor.Controllers {
             if (executeContext == null) {
                 //
                 // -- no context
-                logger.Error($"{core.logCommonMessage}", new ArgumentException("AddonController.execute call with invalid executeContext,  was not configured for addon [#" + addon.id + ", " + addon.name + "]."));
+                logger.Error(new ArgumentException($"AddonController.execute call with invalid executeContext,  was not configured for addon [#{addon.id}, {addon.name}]."), $"{core.logCommonMessage}");
                 return "";
             }
             //
@@ -243,7 +243,7 @@ namespace Contensive.Processor.Controllers {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                logger.Error($"{core.logCommonMessage}", new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                logger.Error(new GenericException($"AddonController.execute, Addon appears in its own recursion path, addon [{addon.id}, {addon.name}], recursion [{recursionTraceMsg}]"), $"{core.logCommonMessage}");
                 return "";
             }
             //
@@ -259,7 +259,7 @@ namespace Contensive.Processor.Controllers {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                logger.Error($"{core.logCommonMessage}", new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                logger.Error(new GenericException($"AddonController.execute, Addon appears in its own recursion path, addon [{addon.id}, {addon.name}], recursion [{recursionTraceMsg}]"), $"{core.logCommonMessage}");
                 return "";
             }
             //

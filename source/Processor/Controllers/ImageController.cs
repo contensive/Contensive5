@@ -184,7 +184,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- argument testing, width and height must be >=0
                 if ((holeHeight < 0) || (holeWidth < 0)) {
-                    logger.Error($"{core.logCommonMessage}", new ArgumentException("Image resize/crop size must be >0, width [" + holeWidth + "], height [" + holeHeight + "]"));
+                    logger.Error(new ArgumentException("Image resize/crop size must be >0, width [" + holeWidth + "], height [" + holeHeight + "]"), $"{core.logCommonMessage}");
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 
@@ -247,7 +247,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- future actions will open this file. Verify it exists to prevent hard errors
                 if (!core.cdnFiles.fileExists(imageCdnPathFilename)) {
-                    logger.Error($"{core.logCommonMessage}", new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imageCdnPathFilename + "]"));
+                    logger.Error(new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imageCdnPathFilename + "]"), $"{core.logCommonMessage}");
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 

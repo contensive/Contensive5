@@ -771,15 +771,15 @@ namespace Contensive.Processor.Controllers {
                 srcUrl_nonEncoded = normalizeUrl(srcUrl_nonEncoded, out absoluteUrl, out rootRelativeUrl);
 
                 if (string.IsNullOrEmpty(srcUrl_nonEncoded)) {
-                    logger.Error($"{core.logCommonMessage}", new GenericException($"Redirect was called with a blank Link. Redirect Reason [{redirectReason}]"));
+                    logger.Error(new GenericException($"Redirect was called with a blank Link. Redirect Reason [{redirectReason}]"), $"{core.logCommonMessage}");
                     return result;
                 }
 
                 // Prevent cyclic redirects
                 if (requestForm.Count == 0 && requestUrlSource == absoluteUrl) {
-                    logger.Error($"{core.logCommonMessage}", new GenericException(
+                    logger.Error(new GenericException(
                         $"Redirect was called to the same URL, requestUrl is [{requestUrl}], requestUrlSource is [{requestUrlSource}]. " +
-                        $"This redirect is only allowed if either the form or querystring has changed to prevent cyclic redirects. Redirect Reason [{redirectReason}]"));
+                        $"This redirect is only allowed if either the form or querystring has changed to prevent cyclic redirects. Redirect Reason [{redirectReason}]"), $"{core.logCommonMessage}");
                     return result;
                 }
 

@@ -489,7 +489,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     //
                     if (LoopPtr >= 10000) {
-                        logger.Error($"{core.logCommonMessage}",new GenericException("Tag limit of 10000 tags per block reached."));
+                        logger.Error(new GenericException("Tag limit of 10000 tags per block reached."), $"{core.logCommonMessage}");
                     }
                 }
                 //
