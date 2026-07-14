@@ -691,6 +691,21 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
         }
         /// <summary>
+        /// true if the Help Center collection is installed
+        /// </summary>
+        public bool helpCenterInstalled {
+            get {
+                if (_helpCenterInstalled.HasValue) { return _helpCenterInstalled.Value; }
+                var collection = DbBaseModel.create<AddonCollectionModel>(cp, helpCenterCollectionGuid);
+                _helpCenterInstalled = (collection != null);
+                return _helpCenterInstalled.Value;
+            }
+        }
+        private bool? _helpCenterInstalled = null;
+        private const string helpCenterCollectionGuid = "{88a67652-dd4d-446c-826e-c987de276df9}";
+        //
+        //====================================================================================================
+        /// <summary>
         /// exceptions to display at top of admin site
         /// </summary>
         public string adminExceptions {

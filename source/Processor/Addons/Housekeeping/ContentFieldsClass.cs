@@ -50,6 +50,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 // -- verify text field lengths match textLength metadata
                 verifyTextFieldLengths(env);
+                //
+                // -- verify longtext fields are nvarchar(max) in the database
+                verifyLongTextFieldsAreMax(env);
 
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");
@@ -127,6 +130,96 @@ namespace Contensive.Processor.Addons.Housekeeping {
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, $"Housekeep, verifyTextFieldLengths exception, ex [{ex}]");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// LongText (3), HTML (21), and HTMLCode (23) fields should be nvarchar(max) in SQL Server.
+        /// If the database column is a shorter nvarchar, widen it to nvarchar(max).
+        /// This handles cases where a field was created with a limited size before being changed to LongText.
+        /// In SQL Server, CHARACTER_MAXIMUM_LENGTH = -1 means nvarchar(max).
+        /// </summary>
+        private static void verifyLongTextFieldsAreMax(HouseKeepEnvironmentModel env) {
+            try {
+                env.log("HousekeepDaily, verifying longtext fields are nvarchar(max)");
+                //
+                // -- query LongText, HTML, and HTMLCode fields joined to get the sql table name
+                // -- type 3=LongText, 21=HTML, 23=HTMLCode
+                string sql = "select f.name as fieldName, t.name as tableName"
+                    + " from ccfields f"
+                    + " inner join cccontent c on c.id = f.contentId"
+                    + " inner join cctables t on t.id = c.contentTableId"
+                    + " where f.type in (3,21,23)";
+                using DataTable dt = env.core.db.executeQuery(sql);
+                if (!DbController.isDataTableOk(dt)) { return; }
+                //
+                // -- cache table schemas to avoid repeated lookups
+                var schemaCache = new Dictionary<string, TableSchemaModel>(StringComparer.InvariantCultureIgnoreCase);
+                foreach (DataRow row in dt.Rows) {
+                    string fieldName = GenericController.getText(row["fieldName"]);
+                    string tableName = GenericController.getText(row["tableName"]);
+                    if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(tableName)) { continue; }
+                    //
+                    if (!schemaCache.ContainsKey(tableName)) {
+                        var schema = TableSchemaModel.getTableSchema(env.core, tableName, "default");
+                        if (schema == null) { continue; }
+                        schemaCache[tableName] = schema;
+                    }
+                    var tableSchema = schemaCache[tableName];
+                    //
+                    // -- find the column in the schema
+                    TableSchemaModel.ColumnSchemaModel matchedColumn = null;
+                    foreach (var column in tableSchema.columns) {
+                        if (column.COLUMN_NAME.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)) {
+                            matchedColumn = column;
+                            break;
+                        }
+                    }
+                    if (matchedColumn == null) { continue; }
+                    //
+                    string dataType = matchedColumn.DATA_TYPE?.ToLowerInvariant() ?? "";
+                    bool isNvarchar = dataType.Equals("nvarchar");
+                    bool isVarchar = dataType.Equals("varchar");
+                    bool isLegacyText = dataType.Equals("text");
+                    bool isLegacyNtext = dataType.Equals("ntext");
+                    //
+                    // -- skip if metadata is out of sync with db (column is not a text type at all)
+                    if (!isNvarchar && !isVarchar && !isLegacyText && !isLegacyNtext) { continue; }
+                    //
+                    // -- CHARACTER_MAXIMUM_LENGTH of -1 means max/unlimited, skip if already nvarchar(max)
+                    if (isNvarchar && matchedColumn.CHARACTER_MAXIMUM_LENGTH == -1) { continue; }
+                    //
+                    // -- column needs to be widened to nvarchar(max)
+                    env.log($"HousekeepDaily, widening [{tableName}].[{fieldName}] from {dataType}({matchedColumn.CHARACTER_MAXIMUM_LENGTH}) to nvarchar(max)");
+                    //
+                    // -- drop indexes containing this column
+                    var droppedIndexes = new List<TableSchemaModel.IndexSchemaModel>();
+                    foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
+                        if (index.indexKeyList.Contains(matchedColumn.COLUMN_NAME)) {
+                            env.core.db.deleteIndex(tableName, index.index_name);
+                            droppedIndexes.Add(index);
+                        }
+                    }
+                    //
+                    // -- legacy text/ntext cannot be altered directly to nvarchar(max),
+                    // -- convert to varchar(max) first (SQL Server allows text->varchar(max))
+                    if (isLegacyText || isLegacyNtext) {
+                        env.core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} varchar(max) NULL");
+                    }
+                    //
+                    // -- alter the column to nvarchar(max)
+                    env.core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar(max) NULL");
+                    //
+                    // -- recreate dropped indexes (unlikely for max columns, but handle it)
+                    foreach (var index in droppedIndexes) {
+                        env.core.db.createSQLIndex(tableName, index.index_name, index.index_keys);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{env.core.logCommonMessage}");
+                LogController.logAlarm(env.core, $"Housekeep, verifyLongTextFieldsAreMax exception, ex [{ex}]");
                 throw;
             }
         }

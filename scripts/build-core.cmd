@@ -353,8 +353,10 @@ rem
 
 copy "C:\Git\Contensive5\etc\install-core.ps1" "%deploymentFolderRoot%%versionNumber%\install.ps1"
 copy "C:\Git\Contensive5\etc\uninstall-core.ps1" "%deploymentFolderRoot%%versionNumber%\uninstall.ps1"
+copy "C:\Git\Contensive5\etc\upgrade-core.ps1" "%deploymentFolderRoot%%versionNumber%\upgrade.ps1"
 copy "C:\Git\Contensive5\etc\install-core.cmd" "%deploymentFolderRoot%%versionNumber%\install.cmd"
 copy "C:\Git\Contensive5\etc\uninstall-core.cmd" "%deploymentFolderRoot%%versionNumber%\uninstall.cmd"
+copy "C:\Git\Contensive5\etc\upgrade-core.cmd" "%deploymentFolderRoot%%versionNumber%\upgrade.cmd"
 copy "C:\Git\Contensive5\etc\README-core.txt" "%deploymentFolderRoot%%versionNumber%\README.txt"
 
 rem ==============================================================
@@ -388,8 +390,10 @@ rd /s /q "%deploymentFolderRoot%%versionNumber%\Cli" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\TaskService" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.ps1" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\upgrade.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.cmd" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\upgrade.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\defaultaspxsite.zip" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" 2>nul

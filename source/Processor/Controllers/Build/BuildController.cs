@@ -159,6 +159,10 @@ namespace Contensive.Processor.Controllers.Build {
                     logger.Info($"{core.logCommonMessage},{logPrefix}, verify text field lengths");
                     verifyTextFieldLengths(core, logPrefix);
                     //
+                    // -- verify longtext fields are nvarchar(max) in the database
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, verify longtext fields are nvarchar(max)");
+                    verifyLongTextFieldsAreMax(core, logPrefix);
+                    //
                     //  verify data
                     logger.Info($"{core.logCommonMessage},{logPrefix}, verify records required");
                     verifyAdminMenus(core, DataBuildVersion);
@@ -502,6 +506,91 @@ namespace Contensive.Processor.Controllers.Build {
                             }
                             break;
                         }
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// LongText (3), HTML (21), and HTMLCode (23) fields should be nvarchar(max) in SQL Server.
+        /// If the database column is a shorter nvarchar/varchar or a legacy text/ntext, widen it to nvarchar(max).
+        /// </summary>
+        private static void verifyLongTextFieldsAreMax(CoreController core, string logPrefix) {
+            try {
+                //
+                // -- query LongText, HTML, and HTMLCode fields joined to get the sql table name
+                // -- type 3=LongText, 21=HTML, 23=HTMLCode
+                string sql = "select f.name as fieldName, t.name as tableName"
+                    + " from ccfields f"
+                    + " inner join cccontent c on c.id = f.contentId"
+                    + " inner join cctables t on t.id = c.contentTableId"
+                    + " where f.type in (3,21,23)";
+                using System.Data.DataTable dt = core.db.executeQuery(sql);
+                if (!DbController.isDataTableOk(dt)) { return; }
+                //
+                var schemaCache = new System.Collections.Generic.Dictionary<string, TableSchemaModel>(StringComparer.InvariantCultureIgnoreCase);
+                foreach (System.Data.DataRow row in dt.Rows) {
+                    string fieldName = GenericController.getText(row["fieldName"]);
+                    string tableName = GenericController.getText(row["tableName"]);
+                    if (string.IsNullOrEmpty(fieldName) || string.IsNullOrEmpty(tableName)) { continue; }
+                    //
+                    if (!schemaCache.ContainsKey(tableName)) {
+                        var schema = TableSchemaModel.getTableSchema(core, tableName, "default");
+                        if (schema == null) { continue; }
+                        schemaCache[tableName] = schema;
+                    }
+                    var tableSchema = schemaCache[tableName];
+                    //
+                    // -- find the column in the schema
+                    Models.Domain.TableSchemaModel.ColumnSchemaModel matchedColumn = null;
+                    foreach (var column in tableSchema.columns) {
+                        if (column.COLUMN_NAME.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)) {
+                            matchedColumn = column;
+                            break;
+                        }
+                    }
+                    if (matchedColumn == null) { continue; }
+                    //
+                    string dataType = matchedColumn.DATA_TYPE?.ToLowerInvariant() ?? "";
+                    bool isNvarchar = dataType.Equals("nvarchar");
+                    bool isVarchar = dataType.Equals("varchar");
+                    bool isLegacyText = dataType.Equals("text");
+                    bool isLegacyNtext = dataType.Equals("ntext");
+                    //
+                    // -- skip if column is not a text type at all
+                    if (!isNvarchar && !isVarchar && !isLegacyText && !isLegacyNtext) { continue; }
+                    //
+                    // -- CHARACTER_MAXIMUM_LENGTH of -1 means max/unlimited, skip if already nvarchar(max)
+                    if (isNvarchar && matchedColumn.CHARACTER_MAXIMUM_LENGTH == -1) { continue; }
+                    //
+                    // -- column needs to be widened to nvarchar(max)
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, widening [{tableName}].[{fieldName}] from {dataType}({matchedColumn.CHARACTER_MAXIMUM_LENGTH}) to nvarchar(max)");
+                    //
+                    // -- drop indexes containing this column
+                    var droppedIndexes = new System.Collections.Generic.List<Models.Domain.TableSchemaModel.IndexSchemaModel>();
+                    foreach (var index in tableSchema.indexes) {
+                        if (index.indexKeyList.Contains(matchedColumn.COLUMN_NAME)) {
+                            core.db.deleteIndex(tableName, index.index_name);
+                            droppedIndexes.Add(index);
+                        }
+                    }
+                    //
+                    // -- legacy text/ntext cannot be altered directly to nvarchar(max),
+                    // -- convert to varchar(max) first (SQL Server allows text->varchar(max))
+                    if (isLegacyText || isLegacyNtext) {
+                        core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} varchar(max) NULL");
+                    }
+                    //
+                    // -- alter the column to nvarchar(max)
+                    core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar(max) NULL");
+                    //
+                    // -- recreate dropped indexes
+                    foreach (var index in droppedIndexes) {
+                        core.db.createSQLIndex(tableName, index.index_name, index.index_keys);
                     }
                 }
             } catch (Exception ex) {
