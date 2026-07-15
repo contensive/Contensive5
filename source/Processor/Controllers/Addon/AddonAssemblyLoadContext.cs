@@ -12,6 +12,7 @@ namespace Contensive.Processor.Controllers {
     /// default context so that cross-context casts (e.g. (AddonBaseClass)instance) succeed.
     /// </summary>
     internal class AddonAssemblyLoadContext : AssemblyLoadContext {
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private readonly string _addonDirectory;
         private readonly string[] _sharedAssemblyNames;
         //
@@ -66,10 +67,13 @@ namespace Contensive.Processor.Controllers {
             // -- check the addon directory for a matching DLL
             string candidatePath = Path.Combine(_addonDirectory, $"{assemblyName.Name}.dll");
             if (File.Exists(candidatePath)) {
-                return LoadFromAssemblyPath(candidatePath);
+                var loaded = LoadFromAssemblyPath(candidatePath);
+                logger.Warn($"AddonAssemblyLoadContext, resolved [{assemblyName.Name}] from addon folder [{candidatePath}], version [{loaded.GetName().Version}]");
+                return loaded;
             }
             //
             // -- not in addon folder: fall through to default context
+            logger.Warn($"AddonAssemblyLoadContext, [{assemblyName.Name}] not found in addon folder [{_addonDirectory}], falling through to default context");
             return null;
         }
     }

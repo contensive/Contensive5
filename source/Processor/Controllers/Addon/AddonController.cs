@@ -1582,19 +1582,25 @@ namespace Contensive.Processor.Controllers {
                     return string.Empty;
                 }
                 //
-                // -- check if this assembly is already loaded in the default context
-                // -- (e.g. Processor.dll contains built-in addons like EmailProcessTask).
+                // -- only reuse already-loaded assemblies for host/shared types (CPBase, Processor, ContensiveDbModels).
                 // -- LoadFromAssemblyPath bypasses the ALC's Load() override, so the shared
                 // -- assembly list doesn't protect against loading a duplicate here.
+                // -- non-host assemblies (like DesignBlockBase) must always be loaded via the ALC
+                // -- from the current addon folder. Multiple addon collections may ship different
+                // -- versions of the same dependency, and reusing a previously-loaded copy causes
+                // -- MissingMethodException when the addon expects a newer version.
                 string loadAssemblyName = Path.GetFileNameWithoutExtension(assemblyPrivateAbsPathFilename);
-                Assembly alreadyLoadedAssembly = Array.Find(
-                    AppDomain.CurrentDomain.GetAssemblies(),
-                    a => string.Equals(a.GetName().Name, loadAssemblyName, StringComparison.OrdinalIgnoreCase)
-                );
-                if (alreadyLoadedAssembly != null) {
-                    testAssembly = alreadyLoadedAssembly;
-                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly (ALC), using already-loaded assembly [{loadAssemblyName}]");
-                    return execute_dotNetClass_assembly_run(addon, testAssembly, assemblyPrivateAbsPathFilename, ref addonFound);
+                bool isSharedAssembly = Array.Exists(sharedAssemblyNames, n => string.Equals(n, loadAssemblyName, StringComparison.OrdinalIgnoreCase));
+                if (isSharedAssembly) {
+                    Assembly alreadyLoadedAssembly = Array.Find(
+                        AppDomain.CurrentDomain.GetAssemblies(),
+                        a => string.Equals(a.GetName().Name, loadAssemblyName, StringComparison.OrdinalIgnoreCase)
+                    );
+                    if (alreadyLoadedAssembly != null) {
+                        testAssembly = alreadyLoadedAssembly;
+                        logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly (ALC), using already-loaded shared assembly [{loadAssemblyName}]");
+                        return execute_dotNetClass_assembly_run(addon, testAssembly, assemblyPrivateAbsPathFilename, ref addonFound);
+                    }
                 }
                 try {
                     testAssembly = addonContext.LoadFromAssemblyPath(assemblyPrivateAbsPathFilename);
@@ -1651,7 +1657,9 @@ namespace Contensive.Processor.Controllers {
                     // -- version it was compiled against.
                     string candidatePath = Path.Combine(addonDirectory, assemblyName.Name + ".dll");
                     if (File.Exists(candidatePath)) {
-                        return Assembly.LoadFile(candidatePath);
+                        var localAssembly = Assembly.LoadFile(candidatePath);
+                        logger.Warn($"{core.logCommonMessage},AssemblyResolve handler, resolved [{assemblyName.Name}] from addon folder [{candidatePath}], version [{localAssembly.GetName().Version}]");
+                        return localAssembly;
                     }
                     //
                     // -- no local copy; fall back to an already-loaded assembly with the same name.
@@ -1662,6 +1670,7 @@ namespace Contensive.Processor.Controllers {
                         a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)
                     );
                     if (alreadyLoadedFallback != null) {
+                        logger.Warn($"{core.logCommonMessage},AssemblyResolve handler, [{assemblyName.Name}] not in addon folder [{addonDirectory}], using already-loaded version [{alreadyLoadedFallback.GetName().Version}]");
                         return alreadyLoadedFallback;
                     }
                 } catch (Exception ex) {
@@ -1699,15 +1708,26 @@ namespace Contensive.Processor.Controllers {
                 }
                 try {
                     //
-                    // -- check if this assembly is already loaded (e.g. Processor.dll loaded by the host)
+                    // -- only reuse already-loaded assemblies for host/shared types (CPBase, Processor, ContensiveDbModels).
                     // -- Assembly.LoadFile creates a separate load context, so loading the same DLL again
-                    // -- would create duplicate types that cannot be cast to each other
+                    // -- would create duplicate types that cannot be cast to each other.
+                    // -- however, non-host assemblies (like DesignBlockBase) must always be loaded from
+                    // -- the current addon folder. Multiple addon collections may ship different versions
+                    // -- of the same dependency, and reusing a previously-loaded copy causes
+                    // -- MissingMethodException when the addon expects a newer version.
                     string loadAssemblyName = Path.GetFileNameWithoutExtension(assemblyPrivateAbsPathFilename);
-                    Assembly alreadyLoadedAssembly = Array.Find(
-                        AppDomain.CurrentDomain.GetAssemblies(),
-                        a => string.Equals(a.GetName().Name, loadAssemblyName, StringComparison.OrdinalIgnoreCase)
-                    );
+                    bool isHostAssembly = Array.Exists(hostAssemblyNames, n => string.Equals(n, loadAssemblyName, StringComparison.OrdinalIgnoreCase));
+                    Assembly alreadyLoadedAssembly = null;
+                    if (isHostAssembly) {
+                        alreadyLoadedAssembly = Array.Find(
+                            AppDomain.CurrentDomain.GetAssemblies(),
+                            a => string.Equals(a.GetName().Name, loadAssemblyName, StringComparison.OrdinalIgnoreCase)
+                        );
+                    }
                     testAssembly = alreadyLoadedAssembly ?? Assembly.LoadFile(assemblyPrivateAbsPathFilename);
+                    if (alreadyLoadedAssembly == null) {
+                        logger.Warn($"{core.logCommonMessage},execute_dotNetClass_assembly, loaded [{loadAssemblyName}] from [{assemblyPrivateAbsPathFilename}], version [{testAssembly.GetName().Version}]");
+                    }
                 } catch (System.IO.FileLoadException ex) {
                     logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly, 1a, [{assemblyPrivateAbsPathFilename}]");
                     addonFound = false;
