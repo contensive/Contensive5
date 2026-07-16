@@ -4508,60 +4508,6 @@
       <field Name="datacontentid"></field>
     </Record>
 
-	  <Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Share">
-		  <field Name="defaultfeatureid"></field>
-		  <field Name="icon">BaseAssets/dashboardIcons/share.svg</field>
-	  </Record>
-
-    <Record Content="Portal Features" Guid="{fef4be31-16af-48a7-89ae-2b8c45b9788a}" Name="Email">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid"></field>
-      <field Name="datacontentid"></field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{feb1cd78-f98d-4679-b659-9dd28444ffa1}" Name="Group Email">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
-      <field Name="datacontentid">{659CDF19-D7BB-4284-B2AA-E8960BEB49AB}</field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{44bcdf20-8f32-47f2-804a-e4a697b9dafe}" Name="System Email">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
-      <field Name="datacontentid">{E4734A8B-8731-40D8-9A3A-D4D351ACBEAC}</field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{11074243-260D-403E-9765-8AAC22E01B5D}" Name="Email Block List">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid">{B198244B-7B4B-45F3-A52D-34EC2B807E58}</field>
-      <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
-      <field Name="datacontentid"></field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{618c1f75-7e6d-4f84-9833-e9589b012776}" Name="Text Messages">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid"></field>
-      <field Name="datacontentid"></field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{779214f7-3574-4a55-baf7-c91c01a3f1a2}" Name="Group Text Messages">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid">{618c1f75-7e6d-4f84-9833-e9589b012776}</field>
-      <field Name="datacontentid">{630BB039-DB43-43C6-AA95-99DDE1B2F8C7}</field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{7fc03317-97f4-408e-8575-947e77c213b5}" Name="System Text Messages">
-      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid">{618c1f75-7e6d-4f84-9833-e9589b012776}</field>
-      <field Name="datacontentid">{425EF73C-0FC5-48D8-BE39-E047F456AF20} </field>
-    </Record>
-
     <Record Content="Add-on Events" Guid="{BC52E864-809D-4B53-A6FE-53468AF8BA7F}" Name="Addon Collection Installed">
     </Record>
 
