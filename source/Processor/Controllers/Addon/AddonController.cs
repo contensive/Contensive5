@@ -1662,6 +1662,22 @@ namespace Contensive.Processor.Controllers {
                         return localAssembly;
                     }
                     //
+                    // -- if the requesting assembly was loaded from a different directory
+                    // -- (e.g. addonDirectory is the shadow copy folder but the assembly
+                    // -- was loaded via LoadFile from the real addon folder), also check
+                    // -- the requesting assembly's actual location for co-located dependencies.
+                    if (args.RequestingAssembly != null && !string.IsNullOrEmpty(args.RequestingAssembly.Location)) {
+                        string requestingDir = Path.GetDirectoryName(args.RequestingAssembly.Location);
+                        if (!string.Equals(requestingDir, addonDirectory, StringComparison.OrdinalIgnoreCase)) {
+                            string requestingCandidatePath = Path.Combine(requestingDir, assemblyName.Name + ".dll");
+                            if (File.Exists(requestingCandidatePath)) {
+                                var localAssembly = Assembly.LoadFile(requestingCandidatePath);
+                                logger.Warn($"{core.logCommonMessage},AssemblyResolve handler, resolved [{assemblyName.Name}] from requesting assembly folder [{requestingCandidatePath}], version [{localAssembly.GetName().Version}]");
+                                return localAssembly;
+                            }
+                        }
+                    }
+                    //
                     // -- no local copy; fall back to an already-loaded assembly with the same name.
                     // -- this handles host-provided assemblies (AWSSDK, Microsoft.*, System.*, etc.)
                     // -- where the addon folder does not include its own copy.
