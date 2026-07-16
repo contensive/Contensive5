@@ -3629,6 +3629,10 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailSendTask]]></DotNetClass>
     <ProcessInterval></ProcessInterval>
   </Addon>
+  <Addon Name="Email Block List" Guid="{B198244B-7B4B-45F3-A52D-34EC2B807E58}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailBlockListAddon]]></DotNetClass>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
   <Addon Name="Contensive Base Assets" Guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}" Type="Add-on">
     <BlockEditTools>Yes</BlockEditTools>
     <jsheadscriptsrc>/baseassets/baseAssets.js</jsheadscriptsrc>
@@ -4504,9 +4508,9 @@
       <field Name="datacontentid"></field>
     </Record>
 
-	  <Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Communicate">
+	  <Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Share">
 		  <field Name="defaultfeatureid"></field>
-		  <field Name="icon">BaseAssets/dashboardIcons/communications.svg</field>
+		  <field Name="icon">BaseAssets/dashboardIcons/share.svg</field>
 	  </Record>
 
     <Record Content="Portal Features" Guid="{fef4be31-16af-48a7-89ae-2b8c45b9788a}" Name="Email">
@@ -4528,6 +4532,13 @@
       <field Name="addonid"></field>
       <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
       <field Name="datacontentid">{E4734A8B-8731-40D8-9A3A-D4D351ACBEAC}</field>
+    </Record>
+
+    <Record Content="Portal Features" Guid="{11074243-260D-403E-9765-8AAC22E01B5D}" Name="Email Block List">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid">{B198244B-7B4B-45F3-A52D-34EC2B807E58}</field>
+      <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
+      <field Name="datacontentid"></field>
     </Record>
 
     <Record Content="Portal Features" Guid="{618c1f75-7e6d-4f84-9833-e9589b012776}" Name="Text Messages">

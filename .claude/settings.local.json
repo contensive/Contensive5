@@ -65,7 +65,8 @@
       "Bash(/tmp/fix_logger3.py:*)",
       "Bash(/tmp/fix_logger4.py:*)",
       "Bash(/tmp/fix_webserver.py:*)",
-      "Bash(/tmp/fix_extra.py:*)"
+      "Bash(/tmp/fix_extra.py:*)",
+      "Bash(powershell -Command \"[guid]::NewGuid\\(\\).ToString\\(''B''\\).ToUpper\\(\\)\")"
     ]
   }
 }
