@@ -3629,10 +3629,6 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailSendTask]]></DotNetClass>
     <ProcessInterval></ProcessInterval>
   </Addon>
-  <Addon Name="Email Block List" Guid="{B198244B-7B4B-45F3-A52D-34EC2B807E58}" Type="Add-on">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailBlockListAddon]]></DotNetClass>
-    <BlockEditTools>Yes</BlockEditTools>
-  </Addon>
   <Addon Name="Contensive Base Assets" Guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}" Type="Add-on">
     <BlockEditTools>Yes</BlockEditTools>
     <jsheadscriptsrc>/baseassets/baseAssets.js</jsheadscriptsrc>
