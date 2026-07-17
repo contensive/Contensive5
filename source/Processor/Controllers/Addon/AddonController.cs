@@ -1658,7 +1658,7 @@ namespace Contensive.Processor.Controllers {
                     string candidatePath = Path.Combine(addonDirectory, assemblyName.Name + ".dll");
                     if (File.Exists(candidatePath)) {
                         var localAssembly = Assembly.LoadFile(candidatePath);
-                        logger.Warn($"{core.logCommonMessage},AssemblyResolve handler, resolved [{assemblyName.Name}] from addon folder [{candidatePath}], version [{localAssembly.GetName().Version}]");
+                        logger.Debug($"{core.logCommonMessage},AssemblyResolve handler, resolved [{assemblyName.Name}] from addon folder [{candidatePath}], version [{localAssembly.GetName().Version}]");
                         return localAssembly;
                     }
                     //
@@ -1672,7 +1672,7 @@ namespace Contensive.Processor.Controllers {
                             string requestingCandidatePath = Path.Combine(requestingDir, assemblyName.Name + ".dll");
                             if (File.Exists(requestingCandidatePath)) {
                                 var localAssembly = Assembly.LoadFile(requestingCandidatePath);
-                                logger.Warn($"{core.logCommonMessage},AssemblyResolve handler, resolved [{assemblyName.Name}] from requesting assembly folder [{requestingCandidatePath}], version [{localAssembly.GetName().Version}]");
+                                logger.Debug($"{core.logCommonMessage},AssemblyResolve handler, resolved [{assemblyName.Name}] from requesting assembly folder [{requestingCandidatePath}], version [{localAssembly.GetName().Version}]");
                                 return localAssembly;
                             }
                         }
@@ -1686,7 +1686,7 @@ namespace Contensive.Processor.Controllers {
                         a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase)
                     );
                     if (alreadyLoadedFallback != null) {
-                        logger.Warn($"{core.logCommonMessage},AssemblyResolve handler, [{assemblyName.Name}] not in addon folder [{addonDirectory}], using already-loaded version [{alreadyLoadedFallback.GetName().Version}]");
+                        logger.Debug($"{core.logCommonMessage},AssemblyResolve handler, [{assemblyName.Name}] not in addon folder [{addonDirectory}], using already-loaded version [{alreadyLoadedFallback.GetName().Version}]");
                         return alreadyLoadedFallback;
                     }
                 } catch (Exception ex) {
@@ -1742,7 +1742,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     testAssembly = alreadyLoadedAssembly ?? Assembly.LoadFile(assemblyPrivateAbsPathFilename);
                     if (alreadyLoadedAssembly == null) {
-                        logger.Warn($"{core.logCommonMessage},execute_dotNetClass_assembly, loaded [{loadAssemblyName}] from [{assemblyPrivateAbsPathFilename}], version [{testAssembly.GetName().Version}]");
+                        logger.Debug($"{core.logCommonMessage},execute_dotNetClass_assembly, loaded [{loadAssemblyName}] from [{assemblyPrivateAbsPathFilename}], version [{testAssembly.GetName().Version}]");
                     }
                 } catch (System.IO.FileLoadException ex) {
                     logger.Error(ex, $"{core.logCommonMessage}, execute_dotNetClass_assembly, 1a, [{assemblyPrivateAbsPathFilename}]");

@@ -68,12 +68,12 @@ namespace Contensive.Processor.Controllers {
             string candidatePath = Path.Combine(_addonDirectory, $"{assemblyName.Name}.dll");
             if (File.Exists(candidatePath)) {
                 var loaded = LoadFromAssemblyPath(candidatePath);
-                logger.Warn($"AddonAssemblyLoadContext, resolved [{assemblyName.Name}] from addon folder [{candidatePath}], version [{loaded.GetName().Version}]");
+                logger.Debug($"AddonAssemblyLoadContext, resolved [{assemblyName.Name}] from addon folder [{candidatePath}], version [{loaded.GetName().Version}]");
                 return loaded;
             }
             //
             // -- not in addon folder: fall through to default context
-            logger.Warn($"AddonAssemblyLoadContext, [{assemblyName.Name}] not found in addon folder [{_addonDirectory}], falling through to default context");
+            logger.Debug($"AddonAssemblyLoadContext, [{assemblyName.Name}] not found in addon folder [{_addonDirectory}], falling through to default context");
             return null;
         }
     }

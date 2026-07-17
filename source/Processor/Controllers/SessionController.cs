@@ -11,6 +11,7 @@ using System.Threading;
 using UAParser;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 //
@@ -258,7 +259,7 @@ namespace Contensive.Processor.Controllers {
                         // -- Create fingerprint from IP + User-Agent
                         //    Use Base64 encoding to ensure safe storage in DB text field
                         string fingerprint = $"{remoteIP}|{userAgent}";
-                        fingerprintHash = Convert.ToBase64String(Encoding.UTF8.GetBytes(fingerprint));
+                        fingerprintHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fingerprint)));
                         isFingerprintedSession = true;
                         //
                         // -- Look for existing visitor with this fingerprint.
