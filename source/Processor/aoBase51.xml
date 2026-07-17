@@ -4003,12 +4003,6 @@
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
-	<Addon Name="Email Deliverability Widget" Guid="{1D3B1AB0-B1E5-4976-B1BB-2D8069E4C0C8}" Type="Add-on">
-		<DashboardWidget>Yes</DashboardWidget>
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.EmailDeliverabilityWidget]]></DotNetClass>
-		<BlockEditTools>Yes</BlockEditTools>
-	</Addon>
-
 	<Addon Name="Expiring Content Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
 		<DashboardWidget>Yes</DashboardWidget>
 		<DotNetClass><![CDATA[Contensive.DashboardWidgets.ExpiringContentWidget]]></DotNetClass>
