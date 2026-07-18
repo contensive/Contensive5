@@ -136,6 +136,12 @@
     <None Update="ui.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="regexes.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="crawler-user-agents.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
   <ItemGroup>
@@ -202,5 +208,21 @@
 	<ItemGroup>
     <None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net48\" />
   </ItemGroup>	
+
+  <!-- Download fresh bot detection data before build. On failure (offline/timeout), the committed fallback copies are used. -->
+  <Target Name="UpdateBotDetectionData" BeforeTargets="BeforeBuild" Condition="'$(SkipBotDetectionUpdate)' != 'true'">
+    <DownloadFile SourceUrl="https://raw.githubusercontent.com/ua-parser/uap-core/master/regexes.yaml"
+                  DestinationFolder="$(MSBuildProjectDirectory)"
+                  DestinationFileName="regexes.yaml"
+                  SkipUnchangedFiles="false"
+                  Retries="1"
+                  ContinueOnError="WarnAndContinue" />
+    <DownloadFile SourceUrl="https://raw.githubusercontent.com/monperrus/crawler-user-agents/master/crawler-user-agents.json"
+                  DestinationFolder="$(MSBuildProjectDirectory)"
+                  DestinationFileName="crawler-user-agents.json"
+                  SkipUnchangedFiles="false"
+                  Retries="1"
+                  ContinueOnError="WarnAndContinue" />
+  </Target>
 
 </Project>

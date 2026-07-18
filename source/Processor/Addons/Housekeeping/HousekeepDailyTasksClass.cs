@@ -75,6 +75,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- logs
                 ActivityLogClass.executeDailyTasks(env);
                 //
+                // -- bot detection data update
+                BotDetectionUpdateClass.executeDailyTasks(env);
+                //
                 env.log("executeDailyTasks, done");
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");

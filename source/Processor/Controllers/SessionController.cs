@@ -155,6 +155,9 @@ namespace Contensive.Processor.Controllers {
             user = new PersonModel();
             visitStateOk = true;
             //
+            // -- initialize bot detection service (idempotent, only loads data on first call)
+            BotDetectionService.init(core);
+            //
             logger.Trace(core.logCommonMessage + ",SessionController.create, enter-1");
             Logger.Trace( core.logCommonMessage + "," +  "SessionController.create, enter-2");
             logger.Trace($"{core.logCommonMessage},SessionController.create, enter-3");
@@ -257,9 +260,12 @@ namespace Contensive.Processor.Controllers {
                         string remoteIP = core.webServer.requestRemoteIP ?? "";
                         //
                         // -- Create fingerprint from IP + User-Agent
-                        //    Use Base64 encoding to ensure safe storage in DB text field
+                        //    Use hex encoding to ensure safe storage in DB text field
                         string fingerprint = $"{remoteIP}|{userAgent}";
-                        fingerprintHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(fingerprint)));
+                        using (var sha256 = SHA256.Create()) {
+                            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprint));
+                            fingerprintHash = BitConverter.ToString(hashBytes).Replace("-", "");
+                        }
                         isFingerprintedSession = true;
                         //
                         // -- Look for existing visitor with this fingerprint.
@@ -372,13 +378,13 @@ namespace Contensive.Processor.Controllers {
                             visit.browser = string.Empty;
                         } else {
                             //
-                            // -- valid user-agent
-                            var uaParser = Parser.GetDefault();
-                            ClientInfo userAgent = uaParser.Parse(core.webServer.requestBrowser);
+                            // -- valid user-agent, check both UAParser and crawler-user-agents patterns
+                            ClientInfo userAgent = BotDetectionService.parse(core.webServer.requestBrowser);
+                            bool isCrawler = userAgent.Device.IsSpider || BotDetectionService.isCrawler(core.webServer.requestBrowser);
                             //
                             visit.browser = core.webServer.requestBrowser.substringSafe(0, 254);
-                            visit.name = (userAgent.Device.IsSpider ? userAgent.Device.Family + " " + userAgent.UA.Family : "user").substringSafe(0, 100);
-                            visit.bot = userAgent.Device.IsSpider;
+                            visit.name = (isCrawler ? userAgent.Device.Family + " " + userAgent.UA.Family : "user").substringSafe(0, 100);
+                            visit.bot = isCrawler;
                             visit.mobile = isMobile(core, core.webServer.requestBrowser);
                             //
                         }
