@@ -367,10 +367,10 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                         //
-                        // -- setup browser
+                        // -- setup browser using layered bot detection
                         if (string.IsNullOrEmpty(core.webServer.requestBrowser)) {
                             //
-                            // blank browser, Blank-Browser-Bot
+                            // Layer 1: blank browser, Blank-Browser-Bot
                             //
                             visit.name = "Blank-Browser-Bot";
                             visit.bot = true;
@@ -378,14 +378,33 @@ namespace Contensive.Processor.Controllers {
                             visit.browser = string.Empty;
                         } else {
                             //
-                            // -- valid user-agent, check both UAParser and crawler-user-agents patterns
-                            ClientInfo userAgent = BotDetectionService.parse(core.webServer.requestBrowser);
-                            bool isCrawler = userAgent.Device.IsSpider || BotDetectionService.isCrawler(core.webServer.requestBrowser);
+                            // Layer 2: check custom bots (Contensive Site Monitor, SiteUptime, etc.)
+                            string customBotName = BotDetectionService.getCustomBotName(core.webServer.requestBrowser);
+                            if (!string.IsNullOrEmpty(customBotName)) {
+                                visit.browser = core.webServer.requestBrowser.substringSafe(0, 254);
+                                visit.name = customBotName.substringSafe(0, 100);
+                                visit.bot = true;
+                                visit.mobile = false;
+                            }
                             //
-                            visit.browser = core.webServer.requestBrowser.substringSafe(0, 254);
-                            visit.name = (isCrawler ? userAgent.Device.Family + " " + userAgent.UA.Family : "user").substringSafe(0, 100);
-                            visit.bot = isCrawler;
-                            visit.mobile = isMobile(core, core.webServer.requestBrowser);
+                            // Layer 3: check browser format validation (RFC 9110) - detects monitoring tools with non-conforming user-agents
+                            else if (core.siteProperties.getBoolean("Browser Format Validation", true) && !BotDetectionService.conformsToBrowserFormat(core.webServer.requestBrowser)) {
+                                visit.browser = core.webServer.requestBrowser.substringSafe(0, 254);
+                                visit.name = extractSimpleBotName(core.webServer.requestBrowser).substringSafe(0, 100);
+                                visit.bot = true;
+                                visit.mobile = false;
+                            }
+                            //
+                            // Layer 4 & 5: UAParser + community crawler patterns (existing)
+                            else {
+                                ClientInfo userAgent = BotDetectionService.parse(core.webServer.requestBrowser);
+                                bool isCrawler = userAgent.Device.IsSpider || BotDetectionService.isCrawler(core.webServer.requestBrowser);
+                                //
+                                visit.browser = core.webServer.requestBrowser.substringSafe(0, 254);
+                                visit.name = (isCrawler ? userAgent.Device.Family + " " + userAgent.UA.Family : "user").substringSafe(0, 100);
+                                visit.bot = isCrawler;
+                                visit.mobile = isMobile(core, core.webServer.requestBrowser);
+                            }
                             //
                         }
                         //
@@ -1038,6 +1057,23 @@ namespace Contensive.Processor.Controllers {
             // -- todo consider advancedEditing only for developers
             if ((!user.admin) && (!user.developer)) { return false; }
             return core.visitProperty.getBoolean("AllowAdvancedEditor");
+        }
+        //
+        // ================================================================================================
+        /// <summary>
+        /// Extract a simple bot name from a user-agent string that doesn't conform to browser format.
+        /// Takes the first token before any space or slash and appends " Bot".
+        /// Examples: "SiteUptime" -> "SiteUptime Bot", "UptimeRobot/2.0" -> "UptimeRobot Bot"
+        /// </summary>
+        private static string extractSimpleBotName(string userAgent) {
+            if (string.IsNullOrEmpty(userAgent)) {
+                return "Unknown Bot";
+            }
+
+            // Take first token before any space or slash (up to 50 chars)
+            string[] parts = userAgent.Split(new[] { ' ', '/' }, 2);
+            string firstPart = parts.Length > 0 ? parts[0] : userAgent;
+            return $"{firstPart.substringSafe(0, 50)} Bot";
         }
         //
         // ================================================================================================

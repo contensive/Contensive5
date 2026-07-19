@@ -142,6 +142,9 @@
     <None Update="crawler-user-agents.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="contensive-bots.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
   <ItemGroup>

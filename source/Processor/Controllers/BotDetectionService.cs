@@ -12,11 +12,13 @@ using UAParser;
 namespace Contensive.Processor.Controllers {
     //
     /// <summary>
-    /// Manages bot/crawler detection using two sources:
-    /// 1) UAParser (regexes.yaml) - provides Device.IsSpider plus browser/device family names
-    /// 2) crawler-user-agents.json (from github.com/monperrus/crawler-user-agents) - community regex patterns
+    /// Manages bot/crawler detection using multiple sources:
+    /// 1) Contensive custom bots (contensive-bots.json) - internal monitoring tools and known partners
+    /// 2) Browser format validation (RFC 9110) - detects non-conforming user-agents
+    /// 3) UAParser (regexes.yaml) - provides Device.IsSpider plus browser/device family names
+    /// 4) crawler-user-agents.json (from github.com/monperrus/crawler-user-agents) - community regex patterns
     ///
-    /// Both sources can be updated at runtime via housekeeping, with bundled fallbacks for first-run.
+    /// Sources 3-4 can be updated at runtime via housekeeping, with bundled fallbacks for first-run.
     /// </summary>
     public static class BotDetectionService {
         //
@@ -29,6 +31,7 @@ namespace Contensive.Processor.Controllers {
         // -- bundled fallback files deployed alongside assembly (CopyToOutputDirectory)
         private const string BundledRegexesYamlFilename = "regexes.yaml";
         private const string BundledCrawlerJsonFilename = "crawler-user-agents.json";
+        private const string BundledContensiveBotsFilename = "contensive-bots.json";
         //
         // -- download URLs
         public const string RegexesYamlUrl = "https://raw.githubusercontent.com/ua-parser/uap-core/master/regexes.yaml";
@@ -40,6 +43,7 @@ namespace Contensive.Processor.Controllers {
         // -- active detection data
         private static Parser _uaParser;
         private static List<Regex> _crawlerPatterns = new List<Regex>();
+        private static List<CustomBotEntry> _customBots = new List<CustomBotEntry>();
         private static bool _initialized;
         //
         //====================================================================================================
@@ -52,6 +56,7 @@ namespace Contensive.Processor.Controllers {
             _lock.EnterWriteLock();
             try {
                 if (_initialized) { return; }
+                loadCustomBots(core);
                 loadUaParser(core);
                 loadCrawlerPatterns(core);
                 _initialized = true;
@@ -64,7 +69,8 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Reload both detection sources from disk cache. Called by housekeeping after downloading new files.
+        /// Reload detection sources from disk cache. Called by housekeeping after downloading new files.
+        /// Custom bots are not reloaded as they are bundled with the assembly.
         /// </summary>
         public static void reload(CoreController core) {
             _lock.EnterWriteLock();
@@ -111,6 +117,58 @@ namespace Contensive.Processor.Controllers {
             } finally {
                 _lock.ExitReadLock();
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Check if the user-agent matches any custom bot from contensive-bots.json and return the bot name if found.
+        /// Returns null if not a custom bot.
+        /// </summary>
+        public static string getCustomBotName(string userAgentString) {
+            if (string.IsNullOrEmpty(userAgentString)) { return null; }
+            _lock.EnterReadLock();
+            try {
+                foreach (var bot in _customBots) {
+                    if (string.IsNullOrEmpty(bot.pattern)) { continue; }
+                    bool isMatch = bot.isRegex
+                        ? Regex.IsMatch(userAgentString, bot.pattern, RegexOptions.IgnoreCase)
+                        : userAgentString.IndexOf(bot.pattern, StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (isMatch) {
+                        return bot.name;
+                    }
+                }
+                return null;
+            } finally {
+                _lock.ExitReadLock();
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Check if the user-agent conforms to standard browser format (RFC 9110).
+        /// Legitimate browsers typically start with Mozilla/ and contain platform info and rendering engine.
+        /// </summary>
+        public static bool conformsToBrowserFormat(string userAgentString) {
+            if (string.IsNullOrEmpty(userAgentString)) { return false; }
+
+            // Check for Mozilla prefix (standard for all modern browsers)
+            if (!userAgentString.StartsWith("Mozilla/", StringComparison.OrdinalIgnoreCase)) {
+                return false;
+            }
+
+            // Check for platform information in parentheses
+            if (!userAgentString.Contains("(")) {
+                return false;
+            }
+
+            // Check for rendering engine (AppleWebKit, Gecko, or Trident)
+            if (!userAgentString.Contains("AppleWebKit/") &&
+                !userAgentString.Contains("Gecko/") &&
+                !userAgentString.Contains("Trident/")) {
+                return false;
+            }
+
+            return true;
         }
         //
         //====================================================================================================
@@ -208,10 +266,46 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Load custom bots from bundled contensive-bots.json.
+        /// This file is never updated by housekeeping, only by build.
+        /// </summary>
+        private static void loadCustomBots(CoreController core) {
+            string json = null;
+            try {
+                // Load bundled copy deployed with assembly
+                json = readBundledFile(core, BundledContensiveBotsFilename);
+
+                if (string.IsNullOrEmpty(json)) {
+                    logger.Debug($"{core.logCommonMessage}, BotDetectionService, no contensive-bots.json found, custom bot detection disabled");
+                    _customBots = new List<CustomBotEntry>();
+                    return;
+                }
+
+                var entries = JsonConvert.DeserializeObject<List<CustomBotEntry>>(json);
+                _customBots = entries ?? new List<CustomBotEntry>();
+                logger.Trace($"{core.logCommonMessage}, BotDetectionService loaded {_customBots.Count} custom bot patterns");
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}, BotDetectionService.loadCustomBots");
+                _customBots = new List<CustomBotEntry>();
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// JSON model for entries in crawler-user-agents.json
         /// </summary>
         private class CrawlerEntry {
             public string pattern { get; set; }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// JSON model for entries in contensive-bots.json
+        /// </summary>
+        private class CustomBotEntry {
+            public string pattern { get; set; }
+            public string name { get; set; }
+            public bool isRegex { get; set; }
         }
     }
 }

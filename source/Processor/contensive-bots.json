@@ -1,0 +1,32 @@
+[
+  {
+    "pattern": "Contensive Site Monitor",
+    "name": "Contensive Site Monitor",
+    "isRegex": false
+  },
+  {
+    "pattern": "SiteUptime",
+    "name": "SiteUptime",
+    "isRegex": false
+  },
+  {
+    "pattern": "StatusCake",
+    "name": "StatusCake",
+    "isRegex": false
+  },
+  {
+    "pattern": "Pingdom",
+    "name": "Pingdom",
+    "isRegex": false
+  },
+  {
+    "pattern": "UptimeRobot",
+    "name": "UptimeRobot",
+    "isRegex": false
+  },
+  {
+    "pattern": "Uptime-Kuma",
+    "name": "Uptime-Kuma",
+    "isRegex": false
+  }
+]

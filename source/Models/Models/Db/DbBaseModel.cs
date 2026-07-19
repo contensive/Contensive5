@@ -1032,8 +1032,14 @@ namespace Contensive.Models.Db {
         /// Called after load() to establish the baseline for dirty tracking in save().
         /// </summary>
         private void captureSnapshot() {
-            _loadedSnapshot = new Dictionary<string, object>();
+            // Build snapshot in local variable first, then assign atomically to prevent
+            // concurrent access issues when save() is reading while we're capturing
+            var snapshot = new Dictionary<string, object>();
             foreach (PropertyInfo prop in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
+                // Skip if we've already captured this property (handles property hiding scenarios)
+                if (snapshot.ContainsKey(prop.Name)) {
+                    continue;
+                }
                 object value = prop.GetValue(this);
                 switch (prop.PropertyType.Name) {
                     case "FieldTypeTextFile":
@@ -1041,20 +1047,22 @@ namespace Contensive.Models.Db {
                     case "FieldTypeCSSFile":
                     case "FieldTypeHTMLFile": {
                             var textFile = value as FieldTypeTextFileBase;
-                            _loadedSnapshot[prop.Name] = textFile?.filename ?? "";
+                            snapshot[prop.Name] = textFile?.filename ?? "";
                             break;
                         }
                     case "FieldTypeFile": {
                             var fileField = value as FieldTypeFile;
-                            _loadedSnapshot[prop.Name] = fileField?.filename ?? "";
+                            snapshot[prop.Name] = fileField?.filename ?? "";
                             break;
                         }
                     default: {
-                            _loadedSnapshot[prop.Name] = value;
+                            snapshot[prop.Name] = value;
                             break;
                         }
                 }
             }
+            // Atomic assignment - readers will see either old snapshot or fully-populated new one
+            _loadedSnapshot = snapshot;
         }
         //
         //====================================================================================================
