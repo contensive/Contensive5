@@ -83,6 +83,11 @@ Public Class Global_asax
                 If (isFileNotExistsException(exception) OrElse (exception.InnerException IsNot Nothing AndAlso isFileNotExistsException(exception.InnerException))) Then
                     Return
                 End If
+                '
+                ' -- dont log viewstate MAC validation failures (bot/scanner probes submitting forged viewstate)
+                If (isViewStateMacException(exception) OrElse (exception.InnerException IsNot Nothing AndAlso isViewStateMacException(exception.InnerException))) Then
+                    Return
+                End If
                 LogController.logShortLine("Global.asax, Application_Error, exception message [" + exception.Message + "], toString [" + exception.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error)
                 Dim innerException As Exception = exception.InnerException
                 If (innerException IsNot Nothing) Then
@@ -177,6 +182,17 @@ Public Class Global_asax
         Dim msg As String = ex.Message
         If (String.IsNullOrEmpty(msg) OrElse msg.Length < 27) Then Return False
         Return (msg.Substring(0, 10).Equals("The file '") AndAlso msg.Substring(msg.Length - 17, 17).Equals("' does not exist."))
+    End Function
+    '
+    '====================================================================================================
+    ''' <summary>
+    ''' Returns true if the exception is a viewstate MAC validation failure (typically from bots submitting forged viewstate)
+    ''' </summary>
+    Private Function isViewStateMacException(ex As Exception) As Boolean
+        If (ex Is Nothing) Then Return False
+        Dim msg As String = ex.Message
+        If (String.IsNullOrEmpty(msg)) Then Return False
+        Return msg.Contains("Validation of viewstate MAC failed")
     End Function
 
 End Class

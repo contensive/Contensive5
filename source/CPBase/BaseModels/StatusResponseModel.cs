@@ -42,6 +42,12 @@ namespace Contensive.BaseModels {
         /// fields are simply left null, matching how Phase 1's security object handles platform-specific fields.
         /// </summary>
         public StatusPerformanceModel performance { get; set; }
+        /// <summary>
+        /// Backup/reliability status (Site Monitor roadmap Phase 3), or null if unavailable. Contensive only
+        /// for now -- WordPress's equivalent backup-monitoring fields live in its own `reliability` object,
+        /// built by the WordPress Site-Status plugin rather than this model.
+        /// </summary>
+        public StatusReliabilityModel reliability { get; set; }
         //
         /// <summary>
         /// Performance metrics included in the status response
@@ -151,6 +157,39 @@ namespace Contensive.BaseModels {
             /// Names of installed addon collections with a newer version available in the collection library. Contensive only.
             /// </summary>
             public List<string> outdatedAddonCollections { get; set; }
+            /// <summary>
+            /// True once a WPScan API token is configured (Site Monitor roadmap Phase 3, item 9: known CVE
+            /// match on plugin/theme versions). WordPress only. False (with vulnerablePlugins/vulnerableThemes
+            /// both empty) means "not checked yet" -- distinct from "checked, nothing found" -- since an empty
+            /// token skips the check entirely rather than reporting a false-clean result.
+            /// </summary>
+            public bool? cveCheckEnabled { get; set; }
+            /// <summary>
+            /// Installed plugins with at least one known, not-yet-fixed-in-this-version vulnerability, per
+            /// WPScan. WordPress only; empty for Contensive (no plugin/theme concept to match against a
+            /// WordPress-specific vulnerability DB -- see the Phase 4 implementation plan).
+            /// </summary>
+            public List<StatusVulnerableItemModel> vulnerablePlugins { get; set; }
+            /// <summary>
+            /// Same as vulnerablePlugins, for installed themes. WordPress only.
+            /// </summary>
+            public List<StatusVulnerableItemModel> vulnerableThemes { get; set; }
+        }
+        //
+        /// <summary>
+        /// A single plugin or theme with at least one known vulnerability still applicable to its installed
+        /// version (Site Monitor roadmap Phase 3, item 9). WordPress only.
+        /// </summary>
+        public class StatusVulnerableItemModel {
+            public string name { get; set; }
+            public string slug { get; set; }
+            public string version { get; set; }
+            public List<StatusVulnerabilityModel> vulnerabilities { get; set; }
+        }
+        //
+        public class StatusVulnerabilityModel {
+            public string title { get; set; }
+            public string fixedIn { get; set; }
         }
         //
         /// <summary>
@@ -212,6 +251,76 @@ namespace Contensive.BaseModels {
             /// same silent-backlog failure mode that wp-cron does.
             /// </summary>
             public bool? cronBacklogged { get; set; }
+        }
+        //
+        /// <summary>
+        /// Backup/reliability status included in the status response (Site Monitor roadmap Phase 3, items 2-4:
+        /// last successful backup date, backup size, backup-destination awareness). Contensive's database is
+        /// SQL Server, hosted either as SQL Express directly on the app server (backed up to a local drive by
+        /// an external scheduled job/script) or as AWS RDS (backed up via RDS's own automated snapshots) --
+        /// backupSource reports which one this site is using, and the other fields are populated accordingly.
+        /// See ReliabilityDiagnosticsController for how each source is actually checked.
+        /// </summary>
+        public class StatusReliabilityModel {
+            /// <summary>
+            /// Which backup mechanism this site's database uses: "local" (SQL Express, backed up to a local
+            /// drive; checked via msdb.dbo.backupset) or "rds" (AWS RDS automated snapshots; checked via the
+            /// RDS API). Contensive only; null for WordPress, which reports backupPluginDetected instead.
+            /// </summary>
+            public string backupSource { get; set; }
+            /// <summary>
+            /// When the most recent successful backup completed. Set by both platforms: for Contensive, the
+            /// latest full backup in msdb.dbo.backupset ("local") or the latest automated snapshot's creation
+            /// time ("rds"); for WordPress, the most recent backup set in the detected backup plugin's history
+            /// (UpdraftPlus first -- see backupPluginDetected). Null if no backup has been found yet, or if
+            /// the check itself failed/wasn't run.
+            /// </summary>
+            public DateTime? lastBackupDate { get; set; }
+            /// <summary>
+            /// Size, in bytes, of the most recent backup. Set by both platforms when determinable: for
+            /// Contensive, only for backupSource "local" (msdb.dbo.backupset reports an exact size; "rds" is
+            /// left null since the API doesn't expose an actual snapshot byte size). For WordPress, only when
+            /// the backup plugin's files still exist in its local folder (null if shipped off-site only).
+            /// </summary>
+            public long? lastBackupSizeBytes { get; set; }
+            /// <summary>
+            /// Non-empty if the backup check itself failed (e.g. couldn't query msdb, or couldn't reach the RDS
+            /// API/couldn't match this site's connection endpoint to an RDS instance). Contensive only; distinct
+            /// from a null lastBackupDate that means "checked successfully, but no backup found yet".
+            /// </summary>
+            public string backupCheckError { get; set; }
+            /// <summary>
+            /// Name of the detected backup plugin (e.g. "UpdraftPlus"), or null if none is active. WordPress only.
+            /// </summary>
+            public string backupPluginDetected { get; set; }
+            /// <summary>
+            /// Count of PHP fatal errors found in debug.log within scanWindowHours. WordPress only.
+            /// </summary>
+            public int? fatalErrorCount { get; set; }
+            /// <summary>
+            /// Count of PHP warnings found in debug.log within scanWindowHours. WordPress only.
+            /// </summary>
+            public int? warningCount { get; set; }
+            /// <summary>
+            /// Count of PHP notices found in debug.log within scanWindowHours. WordPress only.
+            /// </summary>
+            public int? noticeCount { get; set; }
+            /// <summary>
+            /// Count of PHP deprecation notices found in debug.log within scanWindowHours. WordPress only.
+            /// </summary>
+            public int? deprecatedCount { get; set; }
+            /// <summary>
+            /// The most recent fatal error's message, or null if none found in the scan window. WordPress only.
+            /// </summary>
+            public string lastFatalErrorMessage { get; set; }
+            /// <summary>
+            /// When the most recent fatal error occurred, or null if none found in the scan window. WordPress only.
+            /// </summary>
+            public DateTime? lastFatalErrorTime { get; set; }
+            /// <summary>
+            /// How many hours back the debug.log scan covers. WordPress only.
+            /// </summary>
+            public int? scanWindowHours { get; set; }
         }
     }
 }

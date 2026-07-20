@@ -2,6 +2,7 @@
 using NLog;
 using System;
 using System.Data;
+using System.Text;
 
 namespace Contensive.Processor.Addons.Housekeeping {
     /// <summary>
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
+        // -- max number of detail records to log per table to prevent log flooding
+        private const int maxDetailRecords = 50;
         //
         //====================================================================================================
         /// <summary>
@@ -67,26 +71,75 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 continue;
                             }
                             //
-                            // -- update empty guid fields
+                            // -- detect and log empty guid fields before fixing
                             int recordsAffected = 0;
-                            sql = $"update {tableName} set ccguid=lower('{{'+CONVERT(nvarchar(50), NEWID())+'}}') where ((ccGuid is null)or(ccguid=''))";
-                            env.core.db.executeNonQuery(sql, ref recordsAffected);
-                            if (recordsAffected > 0) {
-                                string msg = $"Housekeep, TablesClass, ERROR, [{recordsAffected}] records with blank ccguid found and fixed in table[{tableName}]. Find and fix the the process that creates records with blank ccguid";
-                                env.log(msg);
-                                logger.Error($"{env.core.logCommonMessage}, {msg}");
-                                continue;
+                            sql = $"select id, DateAdded, ModifiedDate, CreatedBy, ModifiedBy from {tableName} where ((ccGuid is null)or(ccguid=''))";
+                            using (DataTable dtBlank = env.core.db.executeQuery(sql)) {
+                                if (DbController.isDataTableOk(dtBlank)) {
+                                    recordsAffected = dtBlank.Rows.Count;
+                                    string msg = $"Housekeep, TablesClass, ERROR, [{recordsAffected}] records with blank ccguid found and fixed in table[{tableName}]. Find and fix the process that creates records with blank ccguid";
+                                    env.log(msg);
+                                    logger.Error($"{env.core.logCommonMessage}, {msg}");
+                                    //
+                                    // -- log detail for each problematic record (capped)
+                                    int detailCount = 0;
+                                    foreach (DataRow drDetail in dtBlank.Rows) {
+                                        if (detailCount >= maxDetailRecords) {
+                                            env.log($"Housekeep, TablesClass, ...and [{recordsAffected - maxDetailRecords}] more records not shown");
+                                            break;
+                                        }
+                                        int recordId = GenericController.getInteger(drDetail["id"]);
+                                        DateTime dateAdded = GenericController.getDate(drDetail["DateAdded"]);
+                                        DateTime modifiedDate = GenericController.getDate(drDetail["ModifiedDate"]);
+                                        int createdBy = GenericController.getInteger(drDetail["CreatedBy"]);
+                                        int modifiedBy = GenericController.getInteger(drDetail["ModifiedBy"]);
+                                        string dateAddedText = (dateAdded == DateTime.MinValue) ? "(null)" : dateAdded.ToString();
+                                        string modifiedDateText = (modifiedDate == DateTime.MinValue) ? "(null)" : modifiedDate.ToString();
+                                        env.log($"Housekeep, TablesClass, blank ccguid detail, table[{tableName}], id[{recordId}], DateAdded[{dateAddedText}], ModifiedDate[{modifiedDateText}], CreatedBy[{createdBy}], ModifiedBy[{modifiedBy}]");
+                                        detailCount++;
+                                    }
+                                    //
+                                    // -- fix the blank ccguids
+                                    sql = $"update {tableName} set ccguid=lower('{{'+CONVERT(nvarchar(50), NEWID())+'}}') where ((ccGuid is null)or(ccguid=''))";
+                                    env.core.db.executeNonQuery(sql);
+                                    continue;
+                                }
                             }
                             //
-                            // -- update guid dups
+                            // -- detect and log duplicate guid fields before fixing
                             recordsAffected = 0;
-                            sql = $"update b set ccguid=lower('{{'+CONVERT(nvarchar(50), NEWID())+'}}') from {tableName} a,{tableName} b where a.id<b.id and a.ccguid=b.ccguid";
-                            env.core.db.executeNonQuery(sql, ref recordsAffected);
-                            if (recordsAffected > 0) {
-                                string msg = $"Housekeep, TablesClass, ERROR, [{recordsAffected}] records with duplicate ccguids found and fixed in table[{tableName}]. Find and fix the the process that creates records with dup ccguid";
-                                env.log(msg);
-                                logger.Error($"{env.core.logCommonMessage}, {msg}");
-                                continue;
+                            sql = $"select b.id, b.ccguid, b.DateAdded, b.ModifiedDate, b.CreatedBy, b.ModifiedBy from {tableName} a, {tableName} b where a.id<b.id and a.ccguid=b.ccguid";
+                            using (DataTable dtDup = env.core.db.executeQuery(sql)) {
+                                if (DbController.isDataTableOk(dtDup)) {
+                                    recordsAffected = dtDup.Rows.Count;
+                                    string msg = $"Housekeep, TablesClass, ERROR, [{recordsAffected}] records with duplicate ccguids found and fixed in table[{tableName}]. Find and fix the process that creates records with dup ccguid";
+                                    env.log(msg);
+                                    logger.Error($"{env.core.logCommonMessage}, {msg}");
+                                    //
+                                    // -- log detail for each problematic record (capped)
+                                    int detailCount = 0;
+                                    foreach (DataRow drDetail in dtDup.Rows) {
+                                        if (detailCount >= maxDetailRecords) {
+                                            env.log($"Housekeep, TablesClass, ...and [{recordsAffected - maxDetailRecords}] more records not shown");
+                                            break;
+                                        }
+                                        int recordId = GenericController.getInteger(drDetail["id"]);
+                                        string dupGuid = GenericController.getText(drDetail["ccguid"]);
+                                        DateTime dateAdded = GenericController.getDate(drDetail["DateAdded"]);
+                                        DateTime modifiedDate = GenericController.getDate(drDetail["ModifiedDate"]);
+                                        int createdBy = GenericController.getInteger(drDetail["CreatedBy"]);
+                                        int modifiedBy = GenericController.getInteger(drDetail["ModifiedBy"]);
+                                        string dateAddedText = (dateAdded == DateTime.MinValue) ? "(null)" : dateAdded.ToString();
+                                        string modifiedDateText = (modifiedDate == DateTime.MinValue) ? "(null)" : modifiedDate.ToString();
+                                        env.log($"Housekeep, TablesClass, dup ccguid detail, table[{tableName}], id[{recordId}], ccguid[{dupGuid}], DateAdded[{dateAddedText}], ModifiedDate[{modifiedDateText}], CreatedBy[{createdBy}], ModifiedBy[{modifiedBy}]");
+                                        detailCount++;
+                                    }
+                                    //
+                                    // -- fix the duplicate ccguids
+                                    sql = $"update b set ccguid=lower('{{'+CONVERT(nvarchar(50), NEWID())+'}}') from {tableName} a,{tableName} b where a.id<b.id and a.ccguid=b.ccguid";
+                                    env.core.db.executeNonQuery(sql);
+                                    continue;
+                                }
                             }
                         } catch (Exception ex) {
                             logger.Error(ex, $"Housekeep Error updating table {tableName}, ex [{ex}], last sql {sql}, {env.core.logCommonMessage}");

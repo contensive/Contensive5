@@ -175,6 +175,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
             StatusResponseModel.StatusWindowsUpdatesModel windowsUpdates = null;
             StatusResponseModel.StatusSecurityModel security = null;
             StatusResponseModel.StatusPerformanceModel performance = null;
+            StatusResponseModel.StatusReliabilityModel reliability = null;
             if (showDetail) {
                 //
                 // -- security/update-hygiene info (Site Monitor roadmap Phase 1). Informational only --
@@ -184,6 +185,10 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 // -- availability/resource-headroom info (Site Monitor roadmap Phase 2). Informational only,
                 // same as security above -- does not affect status/statusOk.
                 performance = PerformanceDiagnosticsController.GetPerformanceInfo(cp);
+                //
+                // -- backup/reliability info (Site Monitor roadmap Phase 3, items 2-4). Informational only,
+                // same as security/performance above -- does not affect status/statusOk.
+                reliability = ReliabilityDiagnosticsController.GetReliabilityInfo(cp);
                 var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
                 metricsModel = new StatusResponseModel.StatusMetricsModel {
                     avgResponseTimeMs = metrics.AvgResponseTimeMs,
@@ -220,7 +225,8 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 metrics = metricsModel,
                 windowsUpdates = windowsUpdates,
                 security = security,
-                performance = performance
+                performance = performance,
+                reliability = reliability
             };
             return JsonConvert.SerializeObject(response);
         }

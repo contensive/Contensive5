@@ -729,8 +729,12 @@ namespace Contensive.Processor.Controllers {
                 foreach (var kvp in Collection.menus) {
                     var menu = kvp.Value;
                     if (menu.dataChanged) {
-                        logger.Info($"{core.logCommonMessage},creating navigator entry [" + menu.name + "], namespace [" + menu.menuNameSpace + "], guid [" + menu.guid + "]");
-                        BuildController.verifyNavigatorEntry(core, menu, 0);
+                        try {
+                            logger.Info($"{core.logCommonMessage},creating navigator entry [" + menu.name + "], namespace [" + menu.menuNameSpace + "], guid [" + menu.guid + "]");
+                            BuildController.verifyNavigatorEntry(core, menu, 0);
+                        } catch (Exception ex) {
+                            logger.Error(ex, $"{core.logCommonMessage}, failed to create navigator entry [{menu.name}], guid [{menu.guid}], namespace [{menu.menuNameSpace}], continuing with remaining entries");
+                        }
                     }
                 }
                 //

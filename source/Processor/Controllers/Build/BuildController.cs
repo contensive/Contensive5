@@ -1120,22 +1120,48 @@ namespace Contensive.Processor.Controllers.Build {
                     int parentId = verifyNavigatorEntry_getParentIdFromNameSpace(core, menu.menuNameSpace);
                     int contentId = ContentMetadataModel.getContentId(core, menu.contentName);
                     //
-                    // -- find existing entry by name and parentId, including inactive records to prevent duplicates
-                    string findSql = $"select top 1 id from ccmenuentries where (name={DbController.encodeSQLText(menu.name)}) and (parentid={parentId}) order by id";
+                    // -- find existing entry by ccguid first (stable identity), then fall back to name+parentId
+                    // -- DbBaseModel.create filters by active>0, but navigator entries can be inactive.
+                    // -- Use direct SQL to find the id, then activate the record so create<T> can load it.
                     NavigatorEntryModel entry = null;
-                    using (DataTable dt = core.db.executeQuery(findSql)) {
-                        if (dt?.Rows != null && dt.Rows.Count > 0) {
-                            int existingId = core.cpParent.Utils.EncodeInteger(dt.Rows[0]["id"]);
-                            if (existingId > 0) {
-                                entry = DbBaseModel.create<NavigatorEntryModel>(core.cpParent, existingId);
+                    int foundId = 0;
+                    string lookupMethod = "none";
+                    if (!string.IsNullOrWhiteSpace(menu.guid)) {
+                        string findByGuidSql = $"select top 1 id from ccmenuentries where ccguid={DbController.encodeSQLText(menu.guid)}";
+                        using (DataTable dt = core.db.executeQuery(findByGuidSql)) {
+                            if (dt?.Rows != null && dt.Rows.Count > 0) {
+                                foundId = core.cpParent.Utils.EncodeInteger(dt.Rows[0]["id"]);
+                                if (foundId > 0) { lookupMethod = "ccguid"; }
                             }
                         }
                     }
+                    //
+                    // -- fall back to name+parentId lookup, including inactive records to prevent duplicates
+                    if (foundId == 0) {
+                        string findByNameSql = $"select top 1 id from ccmenuentries where (name={DbController.encodeSQLText(menu.name)}) and (parentid={parentId}) order by id";
+                        using (DataTable dt = core.db.executeQuery(findByNameSql)) {
+                            if (dt?.Rows != null && dt.Rows.Count > 0) {
+                                foundId = core.cpParent.Utils.EncodeInteger(dt.Rows[0]["id"]);
+                                if (foundId > 0) { lookupMethod = "name+parentId"; }
+                            }
+                        }
+                    }
+                    if (foundId > 0) {
+                        //
+                        // -- ensure the record is active so DbBaseModel.create can load it
+                        core.db.executeNonQuery($"update ccmenuentries set active=1 where id={foundId} and active=0");
+                        entry = DbBaseModel.create<NavigatorEntryModel>(core.cpParent, foundId);
+                    }
                     if (entry == null) {
                         entry = DbBaseModel.addEmpty<NavigatorEntryModel>(core.cpParent);
-                        entry.name = menu.name.Trim();
-                        entry.parentId = parentId;
+                        lookupMethod = "addEmpty";
+                        logger.Warn($"{core.logCommonMessage}, verifyNavigatorEntry, created new record, menu [{menu.name}], guid [{menu.guid}], new id [{entry.id}]");
                     }
+                    logger.Info($"{core.logCommonMessage}, verifyNavigatorEntry, resolved via [{lookupMethod}], menu [{menu.name}], guid [{menu.guid}], entry.id [{entry.id}]");
+                    //
+                    // -- always update name and parentId to match the collection definition
+                    entry.name = menu.name.Trim();
+                    entry.parentId = parentId;
                     if (contentId <= 0) {
                         entry.contentId = 0;
                     } else {
@@ -1156,8 +1182,7 @@ namespace Contensive.Processor.Controllers.Build {
                     returnEntry = entry.id;
                 }
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
+                logger.Error(ex, $"{core.logCommonMessage}, verifyNavigatorEntry, menu name [{menu.name}], guid [{menu.guid}], namespace [{menu.menuNameSpace}]");
             }
             return returnEntry;
         }
