@@ -593,13 +593,13 @@ namespace Contensive.Processor.Controllers {
                             // -- set value in Db
                             int recordsAffected = 0;
                             core.db.executeNonQuery(
-                                "UPDATE ccSetup SET FieldValue=@fieldValue, ModifiedDate=@modifiedDate WHERE name=@propertyName",
+                                "UPDATE ccSetup SET FieldValue=@fieldValue, ModifiedDate=@modifiedDate, ModifiedBy=0 WHERE name=@propertyName",
                                 new Dictionary<string, object> { { "@fieldValue", Value }, { "@modifiedDate", core.dateTimeNowMockable }, { "@propertyName", propertyName } },
                                 ref recordsAffected);
                             if (recordsAffected == 0) {
                                 core.db.executeNonQuery(
-                                    "INSERT INTO ccSetup (ACTIVE,CONTENTCONTROLID,NAME,FIELDVALUE,ModifiedDate,DateAdded) VALUES (1,0,@propertyName,@fieldValue,@modifiedDate,@dateAdded)",
-                                    new Dictionary<string, object> { { "@propertyName", propertyName.ToUpper() }, { "@fieldValue", Value }, { "@modifiedDate", core.dateTimeNowMockable }, { "@dateAdded", core.dateTimeNowMockable } });
+                                    "INSERT INTO ccSetup (ACTIVE,CONTENTCONTROLID,NAME,FIELDVALUE,ModifiedDate,DateAdded,ccguid,CreatedBy,ModifiedBy) VALUES (1,0,@propertyName,@fieldValue,@modifiedDate,@dateAdded,@ccguid,0,0)",
+                                    new Dictionary<string, object> { { "@propertyName", propertyName.ToUpper() }, { "@fieldValue", Value }, { "@modifiedDate", core.dateTimeNowMockable }, { "@dateAdded", core.dateTimeNowMockable }, { "@ccguid", GenericController.getGUID() } });
                             }
                             //
                             // -- set simple lazy cache

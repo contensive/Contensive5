@@ -54,7 +54,7 @@ namespace Contensive.Processor {
                         //
                         // -- reactivate existing subscription
                         int id = Convert.ToInt32(dt.Rows[0]["id"]);
-                        cp.Db.ExecuteNonQuery($"UPDATE ccMqttSubscriptions SET active=1 WHERE id={id}");
+                        cp.Db.ExecuteNonQuery($"UPDATE ccMqttSubscriptions SET active=1, modifiedDate=GETDATE(), modifiedBy=0 WHERE id={id}");
                     } else {
                         //
                         // -- look up the addon name for the record name
@@ -62,7 +62,7 @@ namespace Contensive.Processor {
                         string addonName = addon != null ? addon.name : $"addon {addonId}";
                         //
                         // -- insert new subscription
-                        cp.Db.ExecuteNonQuery($"INSERT INTO ccMqttSubscriptions (name, topicFilter, addonId, active, dateAdded, createdBy, modifiedDate, modifiedBy, contentControlId) VALUES ({Controllers.DbController.encodeSQLText($"{topicFilter} -> {addonName}")}, {Controllers.DbController.encodeSQLText(topicFilter)}, {addonId}, 1, GETDATE(), 0, GETDATE(), 0, 0)");
+                        cp.Db.ExecuteNonQuery($"INSERT INTO ccMqttSubscriptions (name, topicFilter, addonId, active, dateAdded, createdBy, modifiedDate, modifiedBy, contentControlId, ccguid) VALUES ({Controllers.DbController.encodeSQLText($"{topicFilter} -> {addonName}")}, {Controllers.DbController.encodeSQLText(topicFilter)}, {addonId}, 1, GETDATE(), 0, GETDATE(), 0, 0, {Controllers.DbController.encodeSQLText(Controllers.GenericController.getGUID())})");
                     }
                 }
             } catch (Exception ex) {
@@ -78,7 +78,7 @@ namespace Contensive.Processor {
         /// </summary>
         public override void Unsubscribe(string topicFilter, int addonId) {
             try {
-                cp.Db.ExecuteNonQuery($"UPDATE ccMqttSubscriptions SET active=0 WHERE topicFilter={Controllers.DbController.encodeSQLText(topicFilter)} AND addonId={addonId}");
+                cp.Db.ExecuteNonQuery($"UPDATE ccMqttSubscriptions SET active=0, modifiedDate=GETDATE(), modifiedBy=0 WHERE topicFilter={Controllers.DbController.encodeSQLText(topicFilter)} AND addonId={addonId}");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

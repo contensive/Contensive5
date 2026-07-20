@@ -59,12 +59,15 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // After successful upload
                 cp.Db.ExecuteNonQuery(
-                    "INSERT INTO ccActivityLog (Name, MemberId, TypeId, Message, DateAdded) VALUES (@name, @memberId, @typeId, @message, GETDATE())",
+                    "INSERT INTO ccActivityLog (Name, MemberId, TypeId, Message, DateAdded, ModifiedDate, CreatedBy, ModifiedBy, Active, ccguid) VALUES (@name, @memberId, @typeId, @message, GETDATE(), GETDATE(), @createdBy, @modifiedBy, 1, @ccguid)",
                     new Dictionary<string, object> {
                         { "@name", "Layout Upload" },
                         { "@memberId", cp.User.Id },
                         { "@typeId", 11 },
-                        { "@message", $"Uploaded: {uploadedFilename}" }
+                        { "@message", $"Uploaded: {uploadedFilename}" },
+                        { "@createdBy", cp.User.Id },
+                        { "@modifiedBy", cp.User.Id },
+                        { "@ccguid", Controllers.GenericController.getGUID() }
                     }
                 );
                 //
