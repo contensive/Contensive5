@@ -92,6 +92,9 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     PortalDataFeatureModel feature = kvp.Value;
                     if (feature.parentFeatureId == 0) {
                         //
+                        // -- feature has no parent, only show if it has a valid addon, content, or child features
+                        if (feature.addonId == 0 && feature.dataContentId == 0 && (feature.subFeatureList == null || feature.subFeatureList.Count == 0)) { continue; }
+                        //
                         // -- feature has no parent, add to nav
                         var navFlyoutList = new List<PortalBuilderSubNavItemModel>();
                         if (feature.addonId == 0 && feature.dataContentId == 0) {

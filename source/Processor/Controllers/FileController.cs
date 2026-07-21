@@ -661,7 +661,7 @@ namespace Contensive.Processor.Controllers {
                             }
                             string srcFullPathFilename = joinPath(localAbsRootPath, srcPathFilename);
                             string DstFullPathFilename = joinPath(dstFileSystem.localAbsRootPath, dstPathFilename);
-                            if (dstFileSystem.fileExists(dstPathFilename, isLocal)) {
+                            if (dstFileSystem.fileExists(dstPathFilename, dstFileSystem.isLocal)) {
                                 dstFileSystem.deleteFile(dstPathFilename, dstFileSystem.isLocal);
                             }
                             File.Copy(srcFullPathFilename, DstFullPathFilename);

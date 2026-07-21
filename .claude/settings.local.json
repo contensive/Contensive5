@@ -67,7 +67,8 @@
       "Bash(/tmp/fix_webserver.py:*)",
       "Bash(/tmp/fix_extra.py:*)",
       "Bash(powershell -Command \"[guid]::NewGuid\\(\\).ToString\\(''B''\\).ToUpper\\(\\)\")",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(powershell -Command:*)"
     ]
   }
 }
