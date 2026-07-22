@@ -1062,17 +1062,33 @@ namespace Contensive.Processor.Controllers {
         // ================================================================================================
         /// <summary>
         /// Extract a simple bot name from a user-agent string that doesn't conform to browser format.
-        /// Takes the first token before any space or slash and appends " Bot".
-        /// Examples: "SiteUptime" -> "SiteUptime Bot", "UptimeRobot/2.0" -> "UptimeRobot Bot"
+        /// Many bots use "Mozilla/5.0 (compatible; BotName/version; ...)" format.
+        /// This method first checks for a bot name inside the "compatible;" section,
+        /// then falls back to taking the first token before any space or slash.
+        /// Examples:
+        ///   "Mozilla/5.0 (compatible; SemrushBot/7~bl; ...)" -> "SemrushBot Bot"
+        ///   "Mozilla/5.0 (compatible; AhrefsBot/7.0; ...)" -> "AhrefsBot Bot"
+        ///   "SiteUptime" -> "SiteUptime Bot"
+        ///   "UptimeRobot/2.0" -> "UptimeRobot Bot"
         /// </summary>
         private static string extractSimpleBotName(string userAgent) {
             if (string.IsNullOrEmpty(userAgent)) {
                 return "Unknown Bot";
             }
-
-            // Take first token before any space or slash (up to 50 chars)
-            string[] parts = userAgent.Split(new[] { ' ', '/' }, 2);
-            string firstPart = parts.Length > 0 ? parts[0] : userAgent;
+            //
+            // -- check for "compatible; BotName/version" format used by many crawlers
+            int compatibleIndex = userAgent.IndexOf("compatible;", StringComparison.OrdinalIgnoreCase);
+            if (compatibleIndex >= 0) {
+                string afterCompatible = userAgent.Substring(compatibleIndex + 11).TrimStart();
+                string[] parts = afterCompatible.Split(new[] { '/', ' ', ';', ')' }, 2);
+                if (parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0])) {
+                    return $"{parts[0].Trim().substringSafe(0, 50)} Bot";
+                }
+            }
+            //
+            // -- fallback: take first token before any space or slash (up to 50 chars)
+            string[] fallbackParts = userAgent.Split(new[] { ' ', '/' }, 2);
+            string firstPart = fallbackParts.Length > 0 ? fallbackParts[0] : userAgent;
             return $"{firstPart.substringSafe(0, 50)} Bot";
         }
         //
