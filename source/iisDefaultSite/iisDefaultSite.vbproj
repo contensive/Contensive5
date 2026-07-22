@@ -238,7 +238,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Contensive.CPBaseClass" Version="26.7.22.18901" />
     <PackageReference Include="Contensive.DbModels" Version="26.7.22.18901" />
     <PackageReference Include="Contensive.Processor" Version="26.7.22.18901" />
   </ItemGroup>

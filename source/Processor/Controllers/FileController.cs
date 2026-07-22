@@ -634,14 +634,8 @@ namespace Contensive.Processor.Controllers {
                             }
                             string srcFullPathFilename = joinPath(localAbsRootPath, srcPathFilename);
                             string dstFullPathFilename = joinPath(dstFileSystem.localAbsRootPath, dstPathFilename);
-                            if (!dstFileSystem.fileExists_local(dstPathFilename)) {
-                                hint += ",does not exist on local dst [" + dstPathFilename + "]";
-                            } else {
-                                hint += ",delete local dst [" + dstPathFilename + "]";
-                                dstFileSystem.deleteFile_local(dstPathFilename);
-                            }
                             hint += ",File.copy";
-                            File.Copy(srcFullPathFilename, dstFullPathFilename);
+                            File.Copy(srcFullPathFilename, dstFullPathFilename, true);
                             if (!dstFileSystem.isLocal) {
                                 //
                                 // -- dst is remote, copy file to remote source
@@ -661,10 +655,7 @@ namespace Contensive.Processor.Controllers {
                             }
                             string srcFullPathFilename = joinPath(localAbsRootPath, srcPathFilename);
                             string DstFullPathFilename = joinPath(dstFileSystem.localAbsRootPath, dstPathFilename);
-                            if (dstFileSystem.fileExists(dstPathFilename, dstFileSystem.isLocal)) {
-                                dstFileSystem.deleteFile(dstPathFilename, dstFileSystem.isLocal);
-                            }
-                            File.Copy(srcFullPathFilename, DstFullPathFilename);
+                            File.Copy(srcFullPathFilename, DstFullPathFilename, true);
                             if (!dstFileSystem.isLocal) {
                                 //
                                 // -- dst is remote, copy file to remote source
