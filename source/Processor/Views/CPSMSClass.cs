@@ -69,10 +69,9 @@ namespace Contensive.Processor {
                 SystemTextMessageModel textMessage = DbBaseModel.create<SystemTextMessageModel>(cp, systemTextMessageGuid);
                 if (textMessage == null)
                 {
-                    textMessage = DbBaseModel.addDefault<SystemTextMessageModel>(cp);
+                    textMessage = DbBaseModel.verify<SystemTextMessageModel>(cp, systemTextMessageGuid);
                     textMessage.body = "";
                     textMessage.name = $"Text Message {textMessage.id}, created {textMessage.dateAdded}, for guid {systemTextMessageGuid}";
-                    textMessage.ccguid = systemTextMessageGuid;
                     textMessage.save(cp);
                 }
                 string userErrorMessage = "";

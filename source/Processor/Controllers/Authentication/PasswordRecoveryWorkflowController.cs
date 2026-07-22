@@ -80,8 +80,7 @@ namespace Contensive.Processor.Controllers {
                 string currentProtocolDomain = core.cpParent.Request.Protocol + core.cpParent.Request.Host;
                 SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
                 if (email is null) {
-                    email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);
-                    email.ccguid = emailGuidResetPassword;
+                    email = DbBaseModel.verify<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
                     email.name = "Password Reset";
                     email.subject = "Password reset";
                     email.fromAddress = core.siteProperties.emailFromAddress;

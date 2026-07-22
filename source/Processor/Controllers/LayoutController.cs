@@ -107,13 +107,11 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(layout1 + layout5)) {
                     return "";
                 }
-                // 
-                // -- update or add layout
+                //
+                // -- update or add layout (addDefault with guid is race-condition safe)
                 cp.Db.ExecuteNonQuery($"update cclayouts set active=1 where ccguid={cp.Db.EncodeSQLText(layoutGuid)}");
-                LayoutModel layout = DbBaseModel.create<LayoutModel>(cp, layoutGuid);
-                layout ??= DbBaseModel.addDefault<LayoutModel>(cp);
+                LayoutModel layout = DbBaseModel.verify<LayoutModel>(cp, layoutGuid);
                 layout.name = defaultLayoutName;
-                layout.ccguid = layoutGuid;
                 layout.layout.content = layout1;
                 layout.layoutPlatform5.content = layout5;
                 layout.save(cp);

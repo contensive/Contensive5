@@ -204,13 +204,30 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     if (!string.IsNullOrEmpty(serverDiagJson)) {
                         var serverDiag = JsonConvert.DeserializeObject<ServerDiagnosticsStatusModel>(serverDiagJson);
                         if (serverDiag != null) {
+                            bool checkSuccessful = serverDiag.windowsUpdateCheckSuccessful;
+                            string errorMessage = serverDiag.windowsUpdateErrorMessage ?? "";
+                            //
+                            // -- The plain-text /status path (SiteDiagnosticsAddon) already treats a check
+                            // -- over 7 days stale as an ERROR -- this JSON path (what the dashboard widget
+                            // -- actually renders) previously copied lastCheckDate/updateCount straight
+                            // -- through with no staleness check at all, so a dead "Contensive Server
+                            // -- Diagnostics" scheduled task (see docs/README.txt section 3) could leave the
+                            // -- dashboard showing months-old data indefinitely with no indication anything
+                            // -- was wrong. Mirror that same 7-day threshold here, folded into the existing
+                            // -- checkSuccessful/errorMessage fields so the dashboard doesn't need new wiring
+                            // -- to surface it.
+                            TimeSpan timeSinceCheck = core.dateTimeNowMockable - serverDiag.lastCheckDate;
+                            if (checkSuccessful && timeSinceCheck.TotalDays > 7) {
+                                checkSuccessful = false;
+                                errorMessage = $"Last successful Windows update check was {timeSinceCheck.TotalDays:F0} days ago (last checked {serverDiag.lastCheckDate:yyyy-MM-dd HH:mm}) -- the server's scheduled diagnostics task may not be running.";
+                            }
                             windowsUpdates = new StatusResponseModel.StatusWindowsUpdatesModel {
                                 updatesAvailable = serverDiag.windowsUpdateCount > 0,
                                 updateCount = serverDiag.windowsUpdateCount,
                                 updateTitles = serverDiag.windowsUpdateTitles,
                                 lastChecked = serverDiag.lastCheckDate,
-                                checkSuccessful = serverDiag.windowsUpdateCheckSuccessful,
-                                errorMessage = serverDiag.windowsUpdateErrorMessage ?? ""
+                                checkSuccessful = checkSuccessful,
+                                errorMessage = errorMessage
                             };
                         }
                     }

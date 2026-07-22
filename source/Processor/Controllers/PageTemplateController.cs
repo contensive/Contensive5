@@ -38,10 +38,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- update or add page template
                 cp.Db.ExecuteNonQuery($"update cctemplates set active=1 where ccguid={cp.Db.EncodeSQLText(templateGuid)}");
-                PageTemplateModel template = DbBaseModel.create<PageTemplateModel>(cp, templateGuid);
-                template ??= DbBaseModel.addDefault<PageTemplateModel>(cp);
+                PageTemplateModel template = DbBaseModel.verify<PageTemplateModel>(cp, templateGuid);
                 template.name = defaultTemplateName;
-                template.ccguid = templateGuid;
                 template.bodyHTML = bodyHtml;
                 template.save(cp);
                 //

@@ -32,7 +32,9 @@ namespace Contensive.Processor.Controllers {
                         layout = DbBaseModel.createByUniqueName<LayoutModel>(core.cpParent, layoutName);
                     }
                     if (layout == null) {
-                        layout = DbBaseModel.addDefault<LayoutModel>(core.cpParent);
+                        //
+                        // -- verify is race-condition safe (gets or creates by guid)
+                        layout = DbBaseModel.verify<LayoutModel>(core.cpParent, layoutGuid);
                     }
                     layout.ccguid = layoutGuid;
                     layout.name = layoutName;

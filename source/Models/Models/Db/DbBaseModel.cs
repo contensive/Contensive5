@@ -479,9 +479,11 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// Add a new record to the db as the system user and open it. 
+        /// Add a new record to the db as the system user and open it.
         /// Starting a new model with this method will use the default values in Contensive metadata (active, contentcontrolid, etc).
-        /// Default values are loaded from the Content Field table
+        /// Default values are loaded from the Content Field table.
+        /// If you need to get-or-create a record by ccguid, use verify() instead. Using addDefault() followed
+        /// by setting ccguid and saving is not safe for concurrent callers and can create duplicate ccguid records.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
@@ -489,6 +491,52 @@ namespace Contensive.Models.Db {
         public static T addDefault<T>(CPBaseClass cp) where T : DbBaseModel {
             Dictionary<string, string> defaultValues = getDefaultValues<T>(cp);
             return addDefault<T>(cp, defaultValues, cp.User.IdInSession);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Get a record by ccguid, or create a new one with that guid if none exists.
+        /// Use this method instead of create() followed by addDefault() when you need to ensure a record
+        /// exists for a given guid. This method is safe for concurrent callers: if multiple threads attempt
+        /// to create a record with the same ccguid simultaneously, each will insert a row with that guid,
+        /// then all threads will query for rows with that guid, keep the one with the lowest id, delete
+        /// the rest, and return the survivor.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cp"></param>
+        /// <param name="ccguid">The ccguid of the record. If a record with this guid already exists, it is returned. Otherwise a new record is created with this guid.</param>
+        /// <returns>The record with the specified ccguid.</returns>
+        public static T verify<T>(CPBaseClass cp, string ccguid) where T : DbBaseModel {
+            try {
+                if (string.IsNullOrEmpty(ccguid)) {
+                    return addDefault<T>(cp);
+                }
+                //
+                // -- try to find an existing record with this guid
+                T result = create<T>(cp, ccguid);
+                if (result != null) { return result; }
+                //
+                // -- not found, insert a new record with the target ccguid set at insert time
+                string tableName = derivedTableName(typeof(T));
+                var sqlList = new System.Collections.Specialized.NameValueCollection {
+                    { "ccguid", cp.Db.EncodeSQLText(ccguid) }
+                };
+                cp.Db.Insert(tableName, sqlList, cp.User.IdInSession);
+                cp.Cache.Invalidate(cp.Cache.CreateTableDependencyKey(tableName, derivedDataSourceName(typeof(T))));
+                //
+                // -- query all records with this guid ordered by id, keep the lowest, delete the rest.
+                // This handles the race condition where multiple threads inserted simultaneously.
+                var duplicates = createList<T>(cp, $"(ccguid={cp.Db.EncodeSQLText(ccguid)})", "id");
+                if (duplicates.Count > 1) {
+                    for (int i = 1; i < duplicates.Count; i++) {
+                        delete<T>(cp, duplicates[i].id);
+                    }
+                }
+                return duplicates.Count > 0 ? duplicates[0] : create<T>(cp, ccguid);
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
         }
         //
         //====================================================================================================
@@ -736,10 +784,11 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// create an object from a record with matching ccGuid
-        /// Models from this namespace are cached. 
+        /// Return a model for the record with the matching ccguid, or null if not found.
+        /// Models from this namespace are cached.
         /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
         /// To prevent caching and lose the performance advantage, create and use a subclass.
+        /// If you need to get-or-create a record by ccguid, use verify() instead of create() followed by addDefault().
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
