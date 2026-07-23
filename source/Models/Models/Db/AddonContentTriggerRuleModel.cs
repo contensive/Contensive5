@@ -7,7 +7,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// table definition
         /// </summary>
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Addon Content Trigger Rules", "ccAddonContentTriggerRules", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Add-on Content Trigger Rules", "ccAddonContentTriggerRules", "default", false);
         //
         //====================================================================================================
         public int addonId { get; set; }

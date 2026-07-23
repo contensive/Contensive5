@@ -7,7 +7,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// table definition
         /// </summary>
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Addon Collection Parent Rules", "ccAddonCollectionParentRules", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Add-on Collection Parent Rules", "ccAddonCollectionParentRules", "default", false);
         //
         //====================================================================================================
         //

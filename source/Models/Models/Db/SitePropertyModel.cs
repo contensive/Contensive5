@@ -12,7 +12,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// table definition
         /// </summary>
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Site Property", "ccsetup", "default", true);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Site Properties", "ccsetup", "default", true);
         //
         //====================================================================================================
         public string fieldValue { get; set; }

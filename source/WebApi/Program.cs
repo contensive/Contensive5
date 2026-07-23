@@ -2,6 +2,7 @@
 
 using System.IO;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Contensive.Processor.Models.Domain;
 
 namespace Contensive.WebApi {
@@ -119,12 +120,13 @@ namespace Contensive.WebApi {
             }
             //
             // -- all dynamic routes handled by Contensive processor
+            var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
             app.MapFallback((HttpRequest request, HttpResponse response, HttpContext iisContext) => {
-                return executeManagedRoute(app.Configuration, request, response, iisContext);
+                return executeManagedRoute(app.Configuration, request, response, iisContext, lifetime);
             });
             app.Run();
         }
-        public static IResult executeManagedRoute(IConfiguration configuration, HttpRequest request, HttpResponse response, HttpContext iisContext) {
+        public static IResult executeManagedRoute(IConfiguration configuration, HttpRequest request, HttpResponse response, HttpContext iisContext, IHostApplicationLifetime lifetime) {
             //
             // -- diagnostic: log requests that should have been served as static files
             string requestPath = request.Path.Value ?? "";
@@ -187,10 +189,19 @@ namespace Contensive.WebApi {
                     response.Redirect(context.Response.redirectUrl, false);
                     return Results.Content("", "text/html");
                 }
-                // 
+                //
                 // -- if routeMap changed, unload app domain
                 //if ((ConfigurationClass.routeMapDateInvalid() || (cp.routeMap.dateCreated != (DateTime)HttpContext.Current.Application("RouteMapDateCreated"))))
                 //    HttpRuntime.UnloadAppDomain();
+            }
+            //
+            // -- if a collection install (or similar) requested recycle, schedule a graceful shutdown
+            // -- after a short delay so the response can flush first. IIS restarts the process automatically.
+            if (context.Response.requestRecycle) {
+                _ = Task.Run(async () => {
+                    await Task.Delay(2000);
+                    lifetime.StopApplication();
+                });
             }
             return Results.Content(content, "text/html");
         }

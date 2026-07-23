@@ -108,6 +108,11 @@
                     If (ConfigurationClass.routeMapDateInvalid() OrElse (cp.routeMap.dateCreated <> CDate(HttpContext.Current.Application("RouteMapDateCreated")))) Then
                         HttpRuntime.UnloadAppDomain()
                     End If
+                    '
+                    ' -- if a collection install (or similar) requested recycle, unload app domain
+                    If (context.Response.requestRecycle) Then
+                        HttpRuntime.UnloadAppDomain()
+                    End If
                 End Using
             End If
             '

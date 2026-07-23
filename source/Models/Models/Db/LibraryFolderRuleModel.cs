@@ -7,7 +7,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// table definition
         /// </summary>
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Library Folder Rule", "ccLibraryFolderRules", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Library Folder Rules", "ccLibraryFolderRules", "default", false);
         //
         //====================================================================================================
         //

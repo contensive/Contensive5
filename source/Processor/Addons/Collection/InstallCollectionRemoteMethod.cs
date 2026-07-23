@@ -70,6 +70,7 @@ namespace Contensive.Processor.Addons.Collection {
                 cp.TempFiles.DeleteFolder(uploadPath);
                 //
                 if (success) {
+                    core.webServer.httpContext.Response.requestRecycle = true;
                     return createJsonResponse(true, $"Collection installed successfully from {uploadedFilename}.", null);
                 } else {
                     return createJsonResponse(false, string.IsNullOrWhiteSpace(userError) ? "Collection install failed." : userError, null);

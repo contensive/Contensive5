@@ -254,6 +254,13 @@ namespace Contensive.Processor.Models.Domain {
         /// 
         /// </summary>
         public bool buffer { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// When true, the hosting layer should recycle the application after the response is sent.
+        /// Set by addons (e.g. InstallCollectionRemoteMethod) that require an app restart.
+        /// </summary>
+        public bool requestRecycle { get; set; }
     }
     //
     //====================================================================================================

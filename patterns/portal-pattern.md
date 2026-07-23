@@ -62,6 +62,68 @@ Navigation is hierarchical using the parentfeatureid field:
 - Parent features can be empty features (menu headings) or active features
 - Navigation depth is unlimited but typically 2-3 levels for usability
 
+### Standard top-level nav headings
+
+When a collection defines a portal (a `<record content="Portals">` data record), it should also define the standard top-level navigation headings as empty Portal Feature records. These are nav-only entries (no `addonid`, no `datacontentid`) that group child features:
+
+1. **Reports** — groups report-type addons. All `<Addon type="Report">` features should use this as their `parentfeatureid`.
+2. **Tools** — groups tool-type addons. All `<Addon type="Tool">` features should use this as their `parentfeatureid`.
+3. **Settings** (conditional) — if the collection includes a settings addon, add a top-level feature that links directly to that addon (not an empty heading). Only include this when a settings addon exists in the collection.
+
+Example — defining the standard headings alongside the portal record:
+
+```xml
+<Data>
+    <!-- define the portal -->
+    <record content="Portals" guid="{portal-guid}" name="My Portal">
+        <field Name="defaultfeatureid"></field>
+    </record>
+    <!-- Reports nav heading (empty feature, no addon, no data content) -->
+    <record content="Portal Features" guid="{reports-heading-guid}" name="My Portal - Reports">
+        <field name="portalid">{portal-guid}</field>
+        <field name="heading"><![CDATA[Reports]]></field>
+        <field name="parentfeatureid"></field>
+        <field name="addonid"></field>
+        <field name="datacontentid"></field>
+        <field name="sortorder"><![CDATA[20 Reports]]></field>
+    </record>
+    <!-- Tools nav heading (empty feature, no addon, no data content) -->
+    <record content="Portal Features" guid="{tools-heading-guid}" name="My Portal - Tools">
+        <field name="portalid">{portal-guid}</field>
+        <field name="heading"><![CDATA[Tools]]></field>
+        <field name="parentfeatureid"></field>
+        <field name="addonid"></field>
+        <field name="datacontentid"></field>
+        <field name="sortorder"><![CDATA[10 Tools]]></field>
+    </record>
+    <!-- Settings feature (links to the settings addon, top-level) -->
+    <record content="Portal Features" guid="{settings-feature-guid}" name="My Portal - Settings">
+        <field name="portalid">{portal-guid}</field>
+        <field name="heading"><![CDATA[Settings]]></field>
+        <field name="parentfeatureid"></field>
+        <field name="addonid">{settings-addon-guid}</field>
+        <field name="datacontentid"></field>
+        <field name="sortorder"><![CDATA[90 Settings]]></field>
+    </record>
+</Data>
+```
+
+When a collection adds features to a portal defined in a **different** collection (e.g., a base collection), the top-level headings are owned by that other collection. The child collection should reference the heading GUIDs from the base collection in its `parentfeatureid` fields and document them with XML comments:
+
+```xml
+<!-- portal defined in base collection {portal-guid} -->
+<!-- reports heading defined in base collection {reports-heading-guid} -->
+<!-- tools heading defined in base collection {tools-heading-guid} -->
+<Data>
+    <record content="Portal Features" guid="{feature-guid}" name="My Portal - Reports - My Report">
+        <field name="portalid">{portal-guid}</field>
+        <field name="parentfeatureid">{reports-heading-guid}</field>
+        <field name="addonid">{my-report-addon-guid}</field>
+        <field name="heading"><![CDATA[My Report]]></field>
+    </record>
+</Data>
+```
+
 A Portal Feature is installed with the xml addon collection file with <record> nodes in <data> nodes. For example, this is the xml structure from the Crm.xml file that installs a list of people records in the CRM Portal
 
 
@@ -213,18 +275,27 @@ For convenience, a bundle collection can install multiple portal collections tog
 			<field name="portalid">{12528435-EDBF-4FBB-858F-3731447E24A3}</field>
 			<field name="addonid">{F7B0EA1B-85FB-43C4-84B3-190806562BA2}</field>
 			<field name="datacontentid"></field>
-		</record>   
-    <!-- define an empty feature used to create a navigation heading 'Tools' under which other features can be added -->
+		</record>
+    <!-- Reports nav heading (empty feature, groups report addons) -->
+		<record content="Portal Features" guid="{D60C44EB-8857-4809-9207-4843A42D6197}" name="Ecommerce - Reports">
+			<field name="portalid">{12528435-EDBF-4FBB-858F-3731447E24A3}</field>
+			<field name="heading"><![CDATA[Reports]]></field>
+			<field name="parentfeatureid"></field>
+			<field name="addonid"></field>
+			<field name="datacontentid"></field>
+			<field name="sortorder"><![CDATA[20 Reports]]></field>
+		</record>
+    <!-- Tools nav heading (empty feature, groups tool addons) -->
 		<record content="Portal Features" guid="{CA913E7D-00EF-4466-8C75-9B82A2EA4136}" name="Ecommerce - Tools">
 			<field name="portalid">{12528435-EDBF-4FBB-858F-3731447E24A3}</field>
 			<field name="heading"><![CDATA[Tools]]></field>
 			<field name="parentfeatureid"></field>
 			<field name="addonid"></field>
 			<field name="datacontentid"></field>
-      <!-- sortorder determines the order in which these features appear in naviation -->
+      <!-- sortorder determines the order in which these features appear in navigation -->
 			<field name="sortorder"><![CDATA[10 Tools]]></field>
 		</record>
-    <!-- define a second Addon Feature that is in the heading  --> 
+    <!-- Tool addon feature nested under the Tools heading -->
     <record content="Portal Features" guid="{C882E99E-6130-4F5E-B20C-32126D68D3E8}" name="Ecommerce - Tools - Cash Register">
         <field name="portalid">{12528435-EDBF-4FBB-858F-3731447E24A3}</field>
         <field name="heading"><![CDATA[Cash Register]]></field>
@@ -232,13 +303,13 @@ For convenience, a bundle collection can install multiple portal collections tog
         <field name="addonid">{CE7EA329-6F3E-4F3F-BF90-572AFBD9F73A}</field>
         <field name="datacontentid"></field>
     </record>
-    <!-- define the Data Feature that lists the Accounts records -->
+    <!-- Data Feature that lists the Accounts records -->
 		<record content="Portal Features" guid="{1036FDCB-6745-4F78-B946-BD81179DB24A}" name="Ecommerce - Data - Accounts">
 			<field name="portalid">{12528435-EDBF-4FBB-858F-3731447E24A3}</field>
 			<field name="addonid"></field>
 			<field name="heading"><![CDATA[Accounts]]></field>
 			<field name="parentfeatureid"></field>
 			<field name="datacontentid">{9F5AF044-9256-47F2-86D8-A4B7C90C86C0}</field>
-		</record>    
+		</record>
 	</Data>
 </Collection>
