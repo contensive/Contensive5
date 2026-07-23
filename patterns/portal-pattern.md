@@ -91,6 +91,8 @@ For example, this xml block defines the Account Manager portal with one Data Fea
 
 ## Portal and Portal Feature Installation
 
+When a new portal is installed, it should also include portal features for Reports, Tools, and Settings. These will not appear if they have no child records, but they should be created so other collections can install child features under them as needed.
+
 Portals and portal features are installed through addon collection XML files. The key architectural principle is **separation of concerns between content/addon definitions and portal structure**.
 
 ### Preferred approach: portal features in the portal collection

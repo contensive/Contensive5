@@ -4174,49 +4174,6 @@
       <field Name="iconhtml"><![CDATA[<i class="fas fa-cog"></i>]]></field>
     </Record>
 
-	<Record Content="Portals" Guid="{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}" Name="Content">
-		<field Name="defaultfeatureid"></field>
-		<field Name="icon">BaseAssets/dashboardIcons/content.svg</field>
-	</Record>
-
-    <Record Content="Portal Features" Guid="{7E3A1B4C-9D2F-4A85-B6C8-E1F0D5A39274}" Name="Pages To Review">
-      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
-      <field Name="addonid">{BF25F9DE-02B3-4DDE-91AC-42AB66BF8049}</field>
-      <field Name="parentfeatureid"></field>
-      <field Name="datacontentid"></field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{1C6788CD-9936-464F-B992-524ACF8A4F7B}" Name="Reports">
-      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid"></field>
-      <field Name="datacontentid"></field>
-      <field Name="heading">Reports</field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{60D588B7-AF8C-4CEB-80DA-20CACD1C0AD5}" Name="Tools">
-      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid"></field>
-      <field Name="datacontentid"></field>
-      <field Name="heading">Tools</field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{C07AAC19-4954-42CE-BFEC-06A6F1D1DD4C}" Name="Settings">
-      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
-      <field Name="addonid"></field>
-      <field Name="parentfeatureid"></field>
-      <field Name="datacontentid"></field>
-      <field Name="heading">Settings</field>
-    </Record>
-
-    <Record Content="Portal Features" Guid="{2DBB16B4-D4B2-45CF-9234-43A8D64853DF}" Name="Email Bounce Settings">
-      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
-      <field Name="addonid">{5C860386-0D7D-4578-A580-7E1FB1F7B336}</field>
-      <field Name="parentfeatureid">{C07AAC19-4954-42CE-BFEC-06A6F1D1DD4C}</field>
-      <field Name="datacontentid"></field>
-    </Record>
-
     <Record Content="Add-on Events" Guid="{BC52E864-809D-4B53-A6FE-53468AF8BA7F}" Name="Addon Collection Installed">
     </Record>
 
