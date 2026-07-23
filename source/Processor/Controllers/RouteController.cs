@@ -473,11 +473,6 @@ namespace Contensive.Processor.Controllers {
                             returnResult = (new Contensive.Processor.Addons.Primitives.ProcessSiteExplorerMethodClass()).Execute(core.cpParent).ToString();
                             return true;
                         }
-                    case HardCodedPageStatus: {
-                            //
-                            returnResult = (new Contensive.Processor.Addons.Diagnostics.StatusClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
                     case HardCodedPageRedirect: {
                             //
                             returnResult = (new Contensive.Processor.Addons.Primitives.ProcessRedirectMethodClass()).Execute(core.cpParent).ToString();

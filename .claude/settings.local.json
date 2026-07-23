@@ -68,7 +68,14 @@
       "Bash(/tmp/fix_extra.py:*)",
       "Bash(powershell -Command \"[guid]::NewGuid\\(\\).ToString\\(''B''\\).ToUpper\\(\\)\")",
       "Bash(curl:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(/tmp/check_types.ps1:*)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File /tmp/check_types.ps1)",
+      "Bash(/tmp/check_latest.ps1:*)",
+      "Bash(powershell -NoProfile -ExecutionPolicy Bypass -File:*)",
+      "Bash(/tmp/find_version.ps1:*)",
+      "Bash(/tmp/find_version2.ps1:*)",
+      "Bash(/tmp/find_reliability.ps1:*)"
     ]
   }
 }

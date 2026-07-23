@@ -1,8 +1,7 @@
 
+using Contensive.BaseClasses;
 using Contensive.BaseModels;
 using Contensive.Models.Db;
-using Contensive.Processor.Controllers;
-using Contensive.Processor.Models.Domain;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,15 +9,13 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 //
-namespace Contensive.Processor.Addons.Diagnostics {
+namespace Contensive.Addons.Status {
     /// <summary>
-    /// Run system diagnostics, including both the internal diagnostic class, and every addon with [] diagnostic set
+    /// Run system diagnostics, including both the internal diagnostic class, and every addon with diagnostic set.
     /// If every method returns the first two characters "OK", then the first two characters are OK,
     /// else the failing test is output and the status message should not include the characters (without "OK")
     /// </summary>
-    public class StatusClass : Contensive.BaseClasses.AddonBaseClass {
-        //
-        private const string asdf = "";
+    public class StatusRemoteMethod : AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
@@ -26,36 +23,33 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// + available drive space
         /// + log size
         /// </summary>
-        /// <param name="cp"></param>
-        /// <returns></returns>
-        public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
+        public override object Execute(CPBaseClass cp) {
             int hint = 0;
             try {
                 var resultList = new StringBuilder();
-                var core = ((CPClass)(cp)).core;
                 bool showDetail = cp.Site.GetBoolean("Status Endpoint Detail", true);
                 hint = 10;
-                if (cp.Site.GetDate("Diagnostics pause until date") > core.dateTimeNowMockable) {
+                if (cp.Site.GetDate("Diagnostics pause until date") > DateTime.Now) {
                     string pausedMessage = showDetail
                         ? $"ok, diagnostics paused until {cp.Site.GetDate("Diagnostics pause until date")}.{Environment.NewLine}{resultList}"
                         : "ok, diagnostics paused.";
-                    return BuildResponse(cp, core, "ok", pausedMessage, showDetail);
+                    return BuildResponse(cp, "ok", pausedMessage, showDetail);
                 }
                 hint = 20;
-                foreach (var addon in DbBaseModel.createList<AddonModel>(core.cpParent, "(diagnostic>0)")) {
+                foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "(diagnostic>0)")) {
                     hint = 30;
-                    string testResult = core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
+                    string testResult = cp.Addon.Execute(addon.ccguid);
                     if (testResult.Length < 2) {
                         string errorMsg = showDetail
                             ? $"ERROR, diagnostic [{addon.name}] failed, it returned an invalid result."
                             : "ERROR, a diagnostic check failed.";
-                        return BuildResponse(cp, core, "error", errorMsg, showDetail);
+                        return BuildResponse(cp, "error", errorMsg, showDetail);
                     }
-                    if (testResult.left(2).ToLower(CultureInfo.InvariantCulture) != "ok") {
+                    if (!testResult.Substring(0, 2).Equals("ok", StringComparison.OrdinalIgnoreCase)) {
                         string errorMsg = showDetail
                             ? $"ERROR, diagnostic [{addon.name}] failed, it returned [{testResult}]"
                             : "ERROR, a diagnostic check failed.";
-                        return BuildResponse(cp, core, "error", errorMsg, showDetail);
+                        return BuildResponse(cp, "error", errorMsg, showDetail);
                     }
                     resultList.AppendLine($"{testResult}, {addon.name}");
                 }
@@ -70,13 +64,13 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     string errorMsg = showDetail
                         ? $"ERROR, {diagnosticDetail}."
                         : "ERROR, server diagnostics failed.";
-                    return BuildResponse(cp, core, "error", errorMsg, showDetail);
+                    return BuildResponse(cp, "error", errorMsg, showDetail);
                 }
                 hint = 60;
                 string successMessage = showDetail
                     ? $"ok, all tests passed.{Environment.NewLine}{resultList}{diagnosticDetail}"
                     : "ok, all tests passed.";
-                return BuildResponse(cp, core, "ok", successMessage, showDetail);
+                return BuildResponse(cp, "ok", successMessage, showDetail);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
                 return "ERROR, unexpected exception during diagnostics.";
@@ -88,7 +82,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// Read the ServerDiagnosticsStatus site property and return a summary of all failed checks.
         /// Returns empty string if there are no fails
         /// </summary>
-        private static bool GetServerDiagnosticsSummary(Contensive.BaseClasses.CPBaseClass cp, ref string diagnosticDetail) {
+        private static bool GetServerDiagnosticsSummary(CPBaseClass cp, ref string diagnosticDetail) {
             int hint = 0;
             try {
                 string json = cp.Site.GetText("ServerDiagnosticsStatus");
@@ -102,31 +96,31 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     return false;
                 }
                 if (status.driveSpaceValid) {
-                    diagnosticDetail += Environment.NewLine + $"ok, drive space check passed.";
+                    diagnosticDetail += Environment.NewLine + "ok, drive space check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.driveSpaceErrorMessage;
                     return false;
                 }
                 if (string.IsNullOrEmpty(status.driveSpaceErrorMessage)) {
-                    diagnosticDetail += Environment.NewLine + $"ok, drive space check passed.";
+                    diagnosticDetail += Environment.NewLine + "ok, drive space check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.driveSpaceErrorMessage;
                     return false;
                 }
                 if (status.logFilesValid) {
-                    diagnosticDetail += Environment.NewLine + $"ok, log file check passed.";
+                    diagnosticDetail += Environment.NewLine + "ok, log file check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.logFilesErrorMessage;
                     return false;
                 }
                 if (status.alarmsValid) {
-                    diagnosticDetail += Environment.NewLine + $"ok, alarms check passed.";
+                    diagnosticDetail += Environment.NewLine + "ok, alarms check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.alarmsErrorMessage;
                     return false;
                 }
                 if (status.domainBindingsValid) {
-                    diagnosticDetail += Environment.NewLine + $"ok, bindings check passed.";
+                    diagnosticDetail += Environment.NewLine + "ok, bindings check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + status.domainBindingsErrorMessage;
                     return false;
@@ -139,12 +133,11 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     diagnosticDetail += Environment.NewLine + $"ok, no Windows updates pending (last checked: {status.lastCheckDate:yyyy-MM-dd HH:mm})";
                 }
                 if (status.tlsValid) {
-                    diagnosticDetail += Environment.NewLine + $"ok, TLS check passed.";
+                    diagnosticDetail += Environment.NewLine + "ok, TLS check passed.";
                 } else {
                     diagnosticDetail += Environment.NewLine + (string.IsNullOrEmpty(status.tlsErrorMessage) ? "ERROR, TLS check failed." : status.tlsErrorMessage);
                     return false;
                 }
-                
                 return true;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
@@ -157,8 +150,8 @@ namespace Contensive.Processor.Addons.Diagnostics {
         /// <summary>
         /// Return plain text or JSON depending on the format query parameter
         /// </summary>
-        private static string BuildResponse(Contensive.BaseClasses.CPBaseClass cp, CoreController core, string status, string message, bool showDetail) {
-            string version = CoreController.codeVersion();
+        private static string BuildResponse(CPBaseClass cp, string status, string message, bool showDetail) {
+            string version = cp.Version;
             string format = cp.Doc.GetText("format");
             if (!format.Equals("json", StringComparison.OrdinalIgnoreCase)) {
                 cp.Response.SetType("text/plain");
@@ -189,14 +182,9 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 // -- backup/reliability info (Site Monitor roadmap Phase 3, items 2-4). Informational only,
                 // same as security/performance above -- does not affect status/statusOk.
                 reliability = ReliabilityDiagnosticsController.GetReliabilityInfo(cp);
-                var metrics = PerformanceMetricsController.GetMetrics(core.appConfig.name);
-                metricsModel = new StatusResponseModel.StatusMetricsModel {
-                    avgResponseTimeMs = metrics.AvgResponseTimeMs,
-                    avgResponseTime5MinMs = metrics.AvgResponseTime5MinMs,
-                    hitCount = metrics.HitCount,
-                    hitCount5Min = metrics.HitCount5Min,
-                    uptimeMinutes = metrics.UptimeMinutes
-                };
+                //
+                // -- read performance metrics from site property (written periodically by the Processor)
+                metricsModel = GetMetricsFromSiteProperty(cp);
                 //
                 // -- include windows update status in JSON response
                 try {
@@ -207,16 +195,9 @@ namespace Contensive.Processor.Addons.Diagnostics {
                             bool checkSuccessful = serverDiag.windowsUpdateCheckSuccessful;
                             string errorMessage = serverDiag.windowsUpdateErrorMessage ?? "";
                             //
-                            // -- The plain-text /status path (SiteDiagnosticsAddon) already treats a check
-                            // -- over 7 days stale as an ERROR -- this JSON path (what the dashboard widget
-                            // -- actually renders) previously copied lastCheckDate/updateCount straight
-                            // -- through with no staleness check at all, so a dead "Contensive Server
-                            // -- Diagnostics" scheduled task (see docs/README.txt section 3) could leave the
-                            // -- dashboard showing months-old data indefinitely with no indication anything
-                            // -- was wrong. Mirror that same 7-day threshold here, folded into the existing
-                            // -- checkSuccessful/errorMessage fields so the dashboard doesn't need new wiring
-                            // -- to surface it.
-                            TimeSpan timeSinceCheck = core.dateTimeNowMockable - serverDiag.lastCheckDate;
+                            // -- Mirror the 7-day staleness threshold from the plain-text path.
+                            // A dead scheduled task could leave months-old data with no indication.
+                            TimeSpan timeSinceCheck = DateTime.Now - serverDiag.lastCheckDate;
                             if (checkSuccessful && timeSinceCheck.TotalDays > 7) {
                                 checkSuccessful = false;
                                 errorMessage = $"Last successful Windows update check was {timeSinceCheck.TotalDays:F0} days ago (last checked {serverDiag.lastCheckDate:yyyy-MM-dd HH:mm}) -- the server's scheduled diagnostics task may not be running.";
@@ -246,6 +227,21 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 reliability = reliability
             };
             return JsonConvert.SerializeObject(response);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Read the performance metrics from the site property written periodically by the Processor.
+        /// Returns null if the property is missing or invalid.
+        /// </summary>
+        private static StatusResponseModel.StatusMetricsModel GetMetricsFromSiteProperty(CPBaseClass cp) {
+            try {
+                string json = cp.Site.GetText("PerformanceMetricsStatus");
+                if (string.IsNullOrEmpty(json)) { return null; }
+                return JsonConvert.DeserializeObject<StatusResponseModel.StatusMetricsModel>(json);
+            } catch (Exception) {
+                return null;
+            }
         }
     }
 }

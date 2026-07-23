@@ -1,85 +1,130 @@
-# Plan: Move Email Block List Addon from Contensive5 to aoShare
+# Plan: Move /status endpoint to aoStatus addon
 
-## Summary
+## Goal
 
-Move the `EmailBlockListAddon` from `Contensive5/source/Processor/Addons/Email/` to the `aoShare` repo at `c:\git\aoShare`. The addon is an admin UI tool that lists blocked email addresses (bounced + opted-out users) and lets admins unblock them. It uses only `CPBaseClass` APIs and raw SQL — no internal Processor dependencies — making it a clean candidate for extraction.
+Extract the `/status` remote method from the Processor (where it's hardcoded in `RouteController` and implemented in `StatusClass`) into a standalone addon at `addons/aoStatus/`, following the same folder structure as `addons/aoMcp/`.
 
-## Current State
+## What's Moving
 
-### In Contensive5 (this repo)
-- **Addon class:** `source/Processor/Addons/Email/EmailBlockListAddon.cs` — the full implementation (259 lines)
-- **Addon XML registration:** `source/Processor/aoBase51.xml` line 3632-3635 — registers the addon with GUID `{B198244B-7B4B-45F3-A52D-34EC2B807E58}` and DotNetClass `Contensive.Processor.Addons.Email.EmailBlockListAddon`
-- **Email Bounce List CDef:** `source/Processor/aoBase51.xml` line 1644-1659 — defines the `EmailBounceList` table (this stays; used by AWS SES, housekeeping, etc.)
+The `/status` endpoint currently lives inside the Processor project as an internal class (`Contensive.Processor.Addons.Diagnostics.StatusClass`) with a hardcoded route in `RouteController.cs`. It also depends on three diagnostics controllers and the `PerformanceMetricsController` — all internal to Processor.
 
-### In aoShare (target repo)
-- **Share.xml** already has two portal feature records referencing the Email Block List addon GUID:
-  - Line 61: Under "Email" parent feature `{11074243-260D-403E-9765-8AAC22E01B5D}`
-  - Line 96: Under "Reports" parent feature `{a6893923-6b27-4a34-99c4-86211fb659e5}` (note: has a typo `{{B198244B...}` — double opening brace)
-- **No addon definition** exists in Share.xml yet (just the portal feature records pointing to the addon GUID)
-- **No C# class** for EmailBlockList exists in aoShare yet
+### Files to move (source → new location in aoStatus):
 
-## What Does NOT Move
+| Current Location (Processor) | New Location (aoStatus) | Notes |
+|---|---|---|
+| `Addons/Diagnostics/StatusClass.cs` | `server/Status/StatusRemoteMethod.cs` | Main endpoint — must be rewritten to remove internal Processor dependencies |
+| `Controllers/SecurityDiagnosticsController.cs` | `server/Status/SecurityDiagnosticsController.cs` | Already uses only `CPBaseClass` — moves cleanly |
+| `Controllers/PerformanceDiagnosticsController.cs` | `server/Status/PerformanceDiagnosticsController.cs` | Already uses only `CPBaseClass` — moves cleanly |
+| `Controllers/ReliabilityDiagnosticsController.cs` | `server/Status/ReliabilityDiagnosticsController.cs` | Already uses only `CPBaseClass` — moves cleanly |
+| `Addons/Diagnostics/SecurityAcknowledgeAdminsClass.cs` | `server/Status/SecurityAcknowledgeAdminsRemoteMethod.cs` | Calls `SecurityDiagnosticsController.AcknowledgeAdmins()` — must move with it |
+| `Models/Domain/ServerDiagnosticsStatusModel.cs` | `server/Status/ServerDiagnosticsStatusModel.cs` | Simple POCO, no dependencies |
 
-These items remain in Contensive5 because they are used by internal Processor subsystems:
+### File NOT moving (stays in CPBase, already shared):
+- `CPBase/BaseModels/StatusResponseModel.cs` — this is the public response model in the CPBaseClass NuGet package, already accessible to external addons
 
-- `EmailBounceListModel.cs` — used by `AwsSesController`, `AwsSesProcessClass`, `EmailBounceListClass` (housekeeping), `PeopleEmailBlockEditor`
-- The `Email Bounce List` CDef in `aoBase51.xml` — defines the database table schema
-- All AWS SES processing code that populates the bounce list
+### Internal dependency that CANNOT move as-is:
+- `Controllers/PerformanceMetricsController.cs` — this is a static, in-process metrics collector that records per-request timings from inside the Processor pipeline. It has no meaning outside the Processor process. The `metrics` section of the JSON response will need to be sourced differently (see approach below).
 
-## Steps
+## Approach for Internal Dependencies
 
-### 1. Add addon definition to Share.xml (aoShare)
+### 1. `CoreController.codeVersion()` → `cp.Version`
+`CPBaseClass` exposes a public `Version` property that returns the same Contensive version string. Direct replacement.
 
-Add the `<Addon>` element to `c:\git\aoShare\collections\aoShare\Share.xml` (after the existing addon definitions, before `<Data>`):
+### 2. `core.dateTimeNowMockable` → `DateTime.Now`
+The mockable datetime is used for testing inside Processor. In an external addon, `DateTime.Now` is the standard approach.
 
-```xml
-<Addon Name="Email Block List" Guid="{B198244B-7B4B-45F3-A52D-34EC2B807E58}" Type="Add-on">
-    <DotNetClass><![CDATA[Contensive.Share.EmailBlockListAddon]]></DotNetClass>
-    <BlockEditTools>Yes</BlockEditTools>
-</Addon>
+### 3. `core.appConfig.name` (for PerformanceMetricsController) → `cp.Site.Name`
+`CPBaseClass.Site.Name` returns the app/site name.
+
+### 4. `((CPClass)(cp)).core` cast — ELIMINATE
+StatusClass currently casts `cp` to the internal `CPClass` to access `core` for `dateTimeNowMockable`, `appConfig.name`, and `addon.execute()`. All of these have public `CPBaseClass` equivalents except the metrics controller.
+
+### 5. `core.addon.execute(addon, ...)` for diagnostic addons → `cp.Utils.ExecuteAddon(addonGuid)`
+The diagnostic addon loop queries for addons with `diagnostic>0` and executes them. `CPBaseClass.Utils.ExecuteAddon()` provides the same capability.
+
+### 6. PerformanceMetrics — requires a new approach
+`PerformanceMetricsController` is a static in-process collector. Its data (avg response time, hit count, uptime) is only meaningful inside the running Processor. **Options:**
+- **Option A (Recommended)**: Expose metrics as a site property (JSON blob) written periodically by the Processor, read by aoStatus (same pattern as `ServerDiagnosticsStatus`). This requires a small change to Processor to persist metrics.
+- **Option B**: Drop the `metrics` section from the external addon initially. The data is already available through other monitoring tools, and moving it requires Processor changes anyway.
+- **Option C**: Add a public method to `CPBaseClass` to expose metrics. This would require changes to CPBase, Processor, and a NuGet version bump.
+
+### 7. `.left()` extension method
+This is a simple `string.Substring(0, n)` equivalent used once. Replace inline with standard string operations.
+
+## New aoStatus Folder Structure
+
+```
+addons/aoStatus/
+├── collections/
+│   └── aoStatus.xml          # Collection XML with addon definitions
+├── server/
+│   ├── aoStatus.csproj       # netstandard2.0, same pattern as aoMcp
+│   ├── aoStatus.sln
+│   ├── signingKey.snk        # Generate new signing key
+│   └── Status/
+│       ├── StatusRemoteMethod.cs                     # Main /status endpoint
+│       ├── SecurityDiagnosticsController.cs          # Security checks
+│       ├── SecurityAcknowledgeAdminsRemoteMethod.cs  # Acknowledge admins endpoint
+│       ├── PerformanceDiagnosticsController.cs       # Performance checks
+│       ├── ReliabilityDiagnosticsController.cs       # Backup/reliability checks
+│       └── ServerDiagnosticsStatusModel.cs           # Server diagnostics POCO
+├── scripts/
+│   ├── build.cmd
+│   ├── build.ps1
+│   ├── build-deploy-sprint11.cmd
+│   └── build-deploy-veronica.cmd
+└── ui/
+    ├── cdnFiles/
+    ├── layoutFiles/
+    ├── privateFiles/
+    └── wwwFiles/
 ```
 
-Note the DotNetClass changes from `Contensive.Processor.Addons.Email.EmailBlockListAddon` to `Contensive.Share.EmailBlockListAddon` to match the aoShare namespace.
+## Collection XML (aoStatus.xml)
 
-### 2. Fix the typo in Share.xml portal feature record (aoShare)
+Will define two addon entries (matching what's currently in `aoBase51.xml`):
 
-Line 98 has `{{B198244B` (double opening brace). Fix to `{B198244B`:
+1. **"status"** addon — `RemoteMethod=Yes`, `DotNetClass=Contensive.Addons.Status.StatusRemoteMethod`
+2. **"securityAcknowledgeAdmins"** addon — `RemoteMethod=Yes`, `DotNetClass=Contensive.Addons.Status.SecurityAcknowledgeAdminsRemoteMethod`
 
-```xml
-<field Name="addonid">{B198244B-7B4B-45F3-A52D-34EC2B807E58}</field>
-```
+No CDefs needed (no new database tables).
 
-### 3. Create the addon C# class in aoShare
+## Changes to Processor (removal / cleanup)
 
-Create `c:\git\aoShare\server\Share\share\Views\EmailBlockListAddon.cs`
+### Remove from Processor:
+1. Delete `Addons/Diagnostics/StatusClass.cs`
+2. Delete `Addons/Diagnostics/SecurityAcknowledgeAdminsClass.cs`
+3. Delete `Controllers/SecurityDiagnosticsController.cs`
+4. Delete `Controllers/PerformanceDiagnosticsController.cs`
+5. Delete `Controllers/ReliabilityDiagnosticsController.cs`
+6. Delete `Models/Domain/ServerDiagnosticsStatusModel.cs`
 
-This is a copy of `EmailBlockListAddon.cs` from Contensive5 with these changes:
-- **Namespace:** `Contensive.Processor.Addons.Email` -> `Contensive.Share`
-- **Remove** the portal-related GUID constants (`guidPortalFeature`, `guidCommunicatePortal`, `guidEmailParentFeature`) — the portal feature records are already defined in Share.xml data, not needed in code
-- Keep all other logic identical (it only uses `CPBaseClass` APIs)
+### Modify in Processor:
+7. **`Controllers/RouteController.cs`** (~line 476): Remove the hardcoded `case HardCodedPageStatus:` block. The `/status` route will now be handled by the addon's `RemoteMethod=Yes` registration (same as `/mcp`), no hardcoded route needed.
+8. **`Constants.cs`** (~line 466): Remove `HardCodedPageStatus` constant (verify no other references first).
+9. **`aoBase51.xml`**: Remove the "Status" addon definition (guid `{6444B5C9-36DD-43FF-978C-26650EB2333F}`) and the "SecurityAcknowledgeAdmins" addon definition — these move to `aoStatus.xml`.
+10. **`Addons/OnInstallBase51.cs`** (~lines 19-24): Remove the legacy status method blocking code (this cleanup logic moves to aoStatus's own OnInstall, or is no longer needed since the addon GUID will change).
 
-### 4. Remove the addon from Contensive5
+### Add to Processor (for metrics):
+11. **`PerformanceMetricsController`**: Add a method or hook to periodically serialize the current metrics snapshot to a site property (e.g., `"PerformanceMetricsStatus"`), so aoStatus can read it. A natural place is after each `Record()` call (throttled to avoid excessive writes), or in the existing housekeeping/timer path.
 
-#### 4a. Delete the addon class file
-Delete `source/Processor/Addons/Email/EmailBlockListAddon.cs`
+## Implementation Steps
 
-#### 4b. Remove the addon registration from aoBase51.xml
-Remove lines 3632-3635 from `source/Processor/aoBase51.xml`:
-```xml
-  <Addon Name="Email Block List" Guid="{B198244B-7B4B-45F3-A52D-34EC2B807E58}" Type="Add-on">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailBlockListAddon]]></DotNetClass>
-    <BlockEditTools>Yes</BlockEditTools>
-  </Addon>
-```
-
-### 5. Verify both solutions build
-
-- Build aoShare: `dotnet build c:\git\aoShare\server\Share\Share.sln`
-- Build Contensive5: `dotnet build` the Contensive5 solution
-
-## Risk Assessment
-
-- **Low risk:** The addon only uses `CPBaseClass` public API methods (`cp.User.IsAdmin`, `cp.Db.ExecuteQuery`, `cp.AdminUI.CreateLayoutBuilderList`, etc.) — no internal Processor types
-- **Database tables stay:** Both `EmailBounceList` and `ccMembers` tables are defined by the base collection and will exist at runtime regardless of which DLL contains the addon
-- **GUID preserved:** The addon GUID `{B198244B-7B4B-45F3-A52D-34EC2B807E58}` stays the same, so existing portal feature references continue to work
-- **Typo fix:** The double-brace typo on Share.xml line 98 is a bug that should be fixed regardless
+1. Create the aoStatus folder structure modeled after aoMcp
+2. Generate GUIDs for the new collection and addon definitions
+3. Create `aoStatus.xml` collection XML with the two addon definitions
+4. Create `aoStatus.csproj` targeting netstandard2.0, referencing CPBaseClass, DbModels, Newtonsoft.Json, and AWSSDK.RDS
+5. Create `aoStatus.sln`
+6. Move and adapt `StatusRemoteMethod.cs` — rewrite to use `CPBaseClass` APIs only, read metrics from site property
+7. Move diagnostics controllers — update namespaces, minimal changes needed
+8. Move `ServerDiagnosticsStatusModel.cs` — update namespace only
+9. Move `SecurityAcknowledgeAdminsRemoteMethod.cs` — update namespace and class reference
+10. Add metrics site property write to Processor's `PerformanceMetricsController`
+11. Remove files from Processor (StatusClass, diagnostics controllers, model)
+12. Update `RouteController.cs` — remove hardcoded status route
+13. Update `Constants.cs` — remove `HardCodedPageStatus`
+14. Update `aoBase51.xml` — remove Status and SecurityAcknowledgeAdmins addon definitions
+15. Update `OnInstallBase51.cs` — remove legacy status blocking code
+16. Create build scripts modeled after aoMcp
+17. Generate signing key for the new assembly
+18. Build and verify the new aoStatus addon compiles

@@ -843,6 +843,7 @@ namespace Contensive.Processor.Controllers {
                         // -- record performance metrics for this request
                         if (_doc?.appStopWatch != null && appConfig != null) {
                             PerformanceMetricsController.Record(appConfig.name, doc.appStopWatch.ElapsedMilliseconds);
+                            PerformanceMetricsController.PersistMetrics(cpParent, appConfig.name);
                         }
                         hint = "60";
                         //

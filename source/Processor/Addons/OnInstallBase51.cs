@@ -15,13 +15,7 @@ namespace Contensive.Processor.Addons.Base {
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
-                //
-                // -- remove any legacy status methods
                 var core = ((CPClass)(cp)).core;
-                foreach (var addon in DbBaseModel.createList<AddonModel>(core.cpParent, "(name='status')and(ccguid<>'{6444B5C9-36DD-43FF-978C-26650EB2333F}')")) {
-                    addon.name = addon.name + "-blocked";
-                    addon.save(core.cpParent);
-                }
                 //
                 // -- admin site layouts
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename, layoutAdminSiteCdnPathFilename);

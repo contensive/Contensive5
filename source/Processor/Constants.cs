@@ -463,7 +463,6 @@ namespace Contensive.Processor {
         internal const string HardCodedPageLogout = "logout";
         internal const string HardCodedPageSiteExplorer = "siteexplorer";
         internal const string HardCodedPageNewOrder = "neworderpage";
-        internal const string HardCodedPageStatus = "status";
         internal const string HardCodedPageRedirect = "redirect";
         internal const string HardCodedPageExportAscii = "exportascii";
         internal const string HardCodedPageLoginByEmailOtp = "loginbyemailotp";

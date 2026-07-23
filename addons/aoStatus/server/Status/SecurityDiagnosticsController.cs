@@ -7,20 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 //
-namespace Contensive.Processor.Controllers {
+namespace Contensive.Addons.Status {
     /// <summary>
     /// Security and update-hygiene checks for the /status endpoint (Site Monitor roadmap Phase 1).
     /// Mirrors the WordPress Site-Status plugin's class-diagnostics.php security checks, adapted to
-    /// Contensive's data model. Unlike the pass/fail diagnostic addons run by StatusClass (`diagnostic>0`
+    /// Contensive's data model. Unlike the pass/fail diagnostic addons run by StatusRemoteMethod (`diagnostic>0`
     /// AddonModel rows), these checks are informational only and do not affect the endpoint's overall
     /// status/statusOk -- that stays reserved for uptime, per the Phase 1 implementation plan. Called
-    /// directly from StatusClass.BuildResponse(), the same way PerformanceMetricsController is.
-    ///
-    /// Not implemented here: addon-collection version comparison ("core update available" equivalent).
-    /// AddonCollectionModel (the installed-collection record, Contensive.Models.Db) has no installed-version
-    /// field to compare against AddonCollectionLibraryModel's published version -- see the Phase 1 roadmap
-    /// notes. Needs a follow-up decision on where installed version should be sourced from before this can
-    /// be built; outdatedAddonCollections is left null until then.
+    /// directly from StatusRemoteMethod.BuildResponse(), the same way PerformanceDiagnosticsController is.
     /// </summary>
     public static class SecurityDiagnosticsController {
         //
@@ -81,9 +75,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// Re-snapshot the current admin list, clearing any currently-flagged new admins.
-        /// Intended to be called from a per-site "acknowledge admins" action -- see the Phase 1
-        /// implementation plan's note that the natural home for this is the Site Monitor dashboard's
-        /// existing per-site controls (alongside "refresh now" and "pause monitoring").
+        /// Intended to be called from a per-site "acknowledge admins" action.
         /// </summary>
         public static void AcknowledgeAdmins(CPBaseClass cp) {
             cp.Site.SetProperty(adminSnapshotPropertyName, JsonConvert.SerializeObject(GetCurrentAdminLogins(cp)));
@@ -100,8 +92,6 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// Count of failed login attempts (ccAuthenticationLog, success=0) within the rolling window.
-        /// Captures all logins, not just admin-panel ones -- AuthenticationLogModel.log() is called from
-        /// AuthController.cs for every login attempt, success or failure.
         /// </summary>
         private static int GetFailedLoginCount(CPBaseClass cp, int windowHours) {
             DateTime cutoff = DateTime.Now.AddHours(-windowHours);

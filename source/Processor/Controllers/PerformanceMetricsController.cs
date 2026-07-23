@@ -1,4 +1,7 @@
 
+using Contensive.BaseClasses;
+using Contensive.BaseModels;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -106,6 +109,41 @@ namespace Contensive.Processor.Controllers {
                 while (metrics.RecentQueue.TryPeek(out var oldest) && oldest.ticksUtc < cutoff) {
                     metrics.RecentQueue.TryDequeue(out _);
                 }
+            }
+        }
+        //
+        //===================================================================================================
+        /// <summary>
+        /// Per-app last-persist timestamp, used to throttle site property writes to once per minute.
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, long> lastPersistTicksByApp = new ConcurrentDictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+        //
+        private const long persistIntervalTicks = 60L * TimeSpan.TicksPerSecond;
+        //
+        //===================================================================================================
+        /// <summary>
+        /// Persist the current metrics snapshot to a site property so that external addons (aoStatus)
+        /// can read it. Throttled to once per minute to avoid excessive writes.
+        /// </summary>
+        public static void PersistMetrics(CPBaseClass cp, string appName) {
+            if (string.IsNullOrEmpty(appName)) { return; }
+            try {
+                long nowTicks = DateTime.UtcNow.Ticks;
+                long lastPersist = lastPersistTicksByApp.GetOrAdd(appName, 0L);
+                if ((nowTicks - lastPersist) < persistIntervalTicks) { return; }
+                lastPersistTicksByApp[appName] = nowTicks;
+                //
+                var snapshot = GetMetrics(appName);
+                var model = new StatusResponseModel.StatusMetricsModel {
+                    avgResponseTimeMs = snapshot.AvgResponseTimeMs,
+                    avgResponseTime5MinMs = snapshot.AvgResponseTime5MinMs,
+                    hitCount = snapshot.HitCount,
+                    hitCount5Min = snapshot.HitCount5Min,
+                    uptimeMinutes = snapshot.UptimeMinutes
+                };
+                cp.Site.SetProperty("PerformanceMetricsStatus", JsonConvert.SerializeObject(model));
+            } catch (Exception) {
+                // -- metrics persistence is best-effort, never fail the request
             }
         }
     }

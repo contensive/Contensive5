@@ -3836,18 +3836,6 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.DownloadClass]]></DotNetClass>	
   </Addon>
 
-  <Addon Name="Status" Guid="{6444B5C9-36DD-43FF-978C-26650EB2333F}" Type="Add-on">
-    <Category></Category>
-    <Admin>No</Admin>
-    <Content>No</Content>
-    <Template>No</Template>
-    <Email>No</Email>
-    <RemoteMethod>Yes</RemoteMethod>
-    <IsInline>Yes</IsInline>
-    <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.StatusClass</DotNetClass>	
-  </Addon>
-
   <Addon Name="AuthStatus" Guid="{AF37902B-BCC2-45E4-AF36-E322346731BD}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3858,18 +3846,6 @@
     <IsInline>Yes</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>
-  </Addon>
-
-  <Addon Name="SecurityAcknowledgeAdmins" Guid="{4AFC9349-A4F9-4A4D-84F6-C6567359F92B}" Type="Add-on">
-    <Category></Category>
-    <Admin>No</Admin>
-    <Content>No</Content>
-    <Template>No</Template>
-    <Email>No</Email>
-    <RemoteMethod>Yes</RemoteMethod>
-    <IsInline>Yes</IsInline>
-    <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.SecurityAcknowledgeAdminsClass</DotNetClass>
   </Addon>
 
   <Addon Name="OnInstallBase" Guid="{86739518-9D46-470F-8C76-195D1A19CEDD}" Type="Add-on">
@@ -4274,6 +4250,7 @@
   <ImportCollection Name="CodeMirror Editors">{73121366-107D-4C4B-8F89-A4DE518FA316}</ImportCollection>
   <ImportCollection Name="Personalization">{1339F712-17F7-408A-B021-92DF846BD486}</ImportCollection>
   <ImportCollection Name="Tool Basics">{0abd30d8-1ac0-4f6a-b572-106b9ef6af18}</ImportCollection>
+  <ImportCollection Name="Status">{647FB77C-86BA-435D-8DEB-2B916343494F}</ImportCollection>
   <!-- blocked until upgrade
   <ImportCollection Name="File Manager">{0A080FBC-2814-407F-8F8C-CD06F422789D}</ImportCollection>
   <ImportCollection Name="Site Explorer">{5426E6D5-05A8-4A87-B535-CD0FABA04F29}</ImportCollection>

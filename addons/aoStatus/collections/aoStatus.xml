@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<Collection
+    Name="Status"
+    Guid="{647FB77C-86BA-435D-8DEB-2B916343494F}"
+    System="false"
+    Updateable="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
+>
+	<Addon Name="Status" Guid="{6444B5C9-36DD-43FF-978C-26650EB2333F}" Type="Add-on">
+		<Help>System diagnostics endpoint. Returns OK or ERROR with diagnostic details at the /status route.</Help>
+		<Admin>No</Admin>
+		<Content>No</Content>
+		<Template>No</Template>
+		<Email>No</Email>
+		<RemoteMethod>Yes</RemoteMethod>
+		<BlockEditTools>Yes</BlockEditTools>
+		<DotNetClass><![CDATA[Contensive.Addons.Status.StatusRemoteMethod]]></DotNetClass>
+	</Addon>
+	<Addon Name="SecurityAcknowledgeAdmins" Guid="{4AFC9349-A4F9-4A4D-84F6-C6567359F92B}" Type="Add-on">
+		<Help>Re-snapshots the current admin-user list, clearing any admins currently flagged as new in the /status security response.</Help>
+		<Admin>No</Admin>
+		<Content>No</Content>
+		<Template>No</Template>
+		<Email>No</Email>
+		<RemoteMethod>Yes</RemoteMethod>
+		<BlockEditTools>Yes</BlockEditTools>
+		<DotNetClass><![CDATA[Contensive.Addons.Status.SecurityAcknowledgeAdminsRemoteMethod]]></DotNetClass>
+	</Addon>
+</Collection>
