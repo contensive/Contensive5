@@ -89,6 +89,96 @@ In the Portals record there is a selection for the default Feature which is run 
 
 For example, this xml block defines the Account Manager portal with one Data Feature and two Addon Features. One of the Addon Features is in the Portal, and one is a dashboard widget that displays when the portal is opened
 
+## Portal and Portal Feature Installation
+
+Portals and portal features are installed through addon collection XML files. The key architectural principle is **separation of concerns between content/addon definitions and portal structure**.
+
+### Preferred approach: portal features in the portal collection
+
+The preferred pattern is to include portal features in the same collection that defines the portal. The portal collection defines:
+- The Portal record itself
+- All Portal Feature records within that portal
+- Any addons that are specific to the portal UI
+
+For example, the collection `aoContentPortal` defines the Content Portal record and the portal features that appear within it.
+
+### Adding features to a portal from another collection
+
+When a collection includes an addon or content that should appear in a portal defined by a different collection, the preferred approach is to define the portal feature record in the collection that installs the addon or content — not in the portal collection. This keeps the feature definition alongside the code or data it references, so installing the collection automatically adds its features to the portal.
+
+The collection must include an `<ImportCollection>` node for the collection that defines the portal record. This ensures the portal exists before the feature referencing it is installed. The portal feature record can then reference the portal by GUID even though the portal is defined elsewhere.
+
+For example, if `aoReports` defines a reporting addon that belongs in the Content Portal:
+
+```xml
+<Collection name="Reports" guid="{...}">
+    <!-- import the collection that defines the Content Portal -->
+    <ImportCollection name="Content Portal">{content-portal-collection-guid}</ImportCollection>
+
+    <!-- define the addon -->
+    <Addon name="Usage Report" guid="{usage-report-addon-guid}" type="Add-on">
+        <DotNetClass><![CDATA[Contensive.Reports.UsageReportAddon]]></DotNetClass>
+    </Addon>
+
+    <!-- add a portal feature for this addon in the Content Portal -->
+    <Data>
+        <record content="Portal Features" guid="{feature-guid}" name="Content - Reports - Usage Report">
+            <field name="portalid">{content-portal-guid}</field>
+            <field name="heading"><![CDATA[Usage Report]]></field>
+            <field name="addonid">{usage-report-addon-guid}</field>
+            <field name="parentfeatureid">{reports-heading-feature-guid}</field>
+            <field name="datacontentid"></field>
+        </record>
+    </Data>
+</Collection>
+```
+
+### Base collection content vs. portal collections
+
+When the base Contensive collection (`aoBase51`) includes content definitions or addons that belong in a portal, the base collection should **only** define the content definition (CDef) or addon — it should **not** define the portal or portal features. A separate portal collection owns the portal structure and creates the portal features that reference the base content or addons.
+
+For example:
+- `aoBase51` defines the "Page Content" CDef (the database table and fields)
+- `aoContentPortal` defines the Content Portal and includes a Portal Feature for Page Content that points to the CDef
+
+This separation ensures that:
+1. The base collection stays focused on core data and behavior
+2. Portal organization can be changed or extended without modifying the base collection
+3. Multiple portal collections can reference the same base content or addons
+4. Portal collections can be installed or updated independently
+
+### Cross-collection references
+
+Portal features reference addons and content definitions by GUID. Since GUIDs are globally unique, a portal feature in one collection can reference an addon or CDef defined in a different collection. The referenced collection must be installed for the feature to work — use `<ImportCollection>` to declare the dependency:
+
+```xml
+<Collection name="Content Portal" guid="{...}">
+    <!-- declare dependency on the base collection that defines the CDefs -->
+    <ImportCollection name="Base Collection">{base-collection-guid}</ImportCollection>
+
+    <!-- define the portal -->
+    <Data>
+        <record content="Portals" guid="{portal-guid}" name="Content">
+            <field Name="defaultfeatureid">{default-feature-guid}</field>
+            <field Name="icon">content/content.svg</field>
+        </record>
+
+        <!-- feature referencing a CDef from the base collection -->
+        <record content="Portal Features" guid="{feature-guid}" name="Content - Page Content">
+            <field name="portalid">{portal-guid}</field>
+            <field name="heading"><![CDATA[Page Content]]></field>
+            <field name="datacontentid">{page-content-cdef-guid-from-base}</field>
+            <field name="addonid"></field>
+            <field name="parentfeatureid"></field>
+        </record>
+    </Data>
+</Collection>
+```
+
+### Bundle installer collections
+
+For convenience, a bundle collection can install multiple portal collections together using `<ImportCollection>` references. For example, `InstallBasePortals` imports all the standard portal collections (Ecommerce, Add-on Manager, Distance Learning, etc.) so they can be installed in a single operation without defining any portals or features itself.
+
 ## Complete Example
 
 <!-- collection file -->
