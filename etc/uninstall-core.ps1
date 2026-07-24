@@ -115,6 +115,21 @@ function Uninstall-Cli {
     Write-Host "  CLI removed." -ForegroundColor Green
 }
 
+function Uninstall-ScheduledTask {
+    Write-Step "Removing scheduled task: Contensive Server Diagnostics"
+
+    $taskName = "Contensive Server Diagnostics"
+    $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    if ($existing) {
+        Write-Host "  Removing scheduled task: $taskName"
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+        Write-Host "  Scheduled task removed." -ForegroundColor Green
+    }
+    else {
+        Write-Host "  Scheduled task '$taskName' not found, skipping."
+    }
+}
+
 # ============================================================
 # Main
 # ============================================================
@@ -125,6 +140,7 @@ Write-Host "============================================================"
 Write-Host "Install path: $InstallPath"
 Write-Host ""
 
+if (-not $SkipCli)         { Uninstall-ScheduledTask }
 if (-not $SkipTaskService) { Uninstall-TaskService }
 if (-not $SkipCli)         { Uninstall-Cli }
 if (-not $SkipWebApi)      { Uninstall-WebApiPackage }

@@ -127,13 +127,22 @@ function Install-TaskService {
     if (-not (Test-Path $taskDest)) { New-Item -Path $taskDest -ItemType Directory -Force | Out-Null }
     robocopy $taskSource $taskDest /MIR /NJH /NJS /NDL /NP | Out-Null
 
-    # Create and start service
+    # Remove existing service if present, then create fresh
     $svc = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
-    if (-not $svc) {
-        Write-Host "  Creating Windows service: $ServiceName"
-        $exePath = Join-Path $taskDest "TaskService.exe"
-        New-Service -Name $ServiceName -BinaryPathName $exePath -DisplayName $ServiceName -Description "Manages Contensive Task Scheduler, Task Runner, and MQTT services" -StartupType Automatic | Out-Null
+    if ($svc) {
+        if ($svc.Status -eq "Running") {
+            Write-Host "  Stopping existing service: $ServiceName"
+            Stop-Service -Name $ServiceName -Force
+            Start-Sleep -Seconds 2
+        }
+        Write-Host "  Removing existing service: $ServiceName"
+        sc.exe delete $ServiceName | Out-Null
+        Start-Sleep -Seconds 2
     }
+
+    Write-Host "  Creating Windows service: $ServiceName"
+    $exePath = Join-Path $taskDest "TaskService.exe"
+    New-Service -Name $ServiceName -BinaryPathName $exePath -DisplayName $ServiceName -Description "Manages Contensive Task Scheduler, Task Runner, and MQTT services" -StartupType Automatic | Out-Null
 
     Write-Host "  Starting service: $ServiceName"
     try {
@@ -174,6 +183,43 @@ function Install-Cli {
     Write-Host "  Run 'cc --help' from a new command prompt" -ForegroundColor Green
 }
 
+function Install-ScheduledTask {
+    Write-Step "Creating scheduled task: Contensive Server Diagnostics"
+
+    $taskName = "Contensive Server Diagnostics"
+    $ccExePath = Join-Path $InstallPath "Cli\cc.exe"
+
+    # Remove existing task if present (clean install)
+    $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    if ($existing) {
+        Write-Host "  Removing existing scheduled task"
+        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    }
+
+    $action = New-ScheduledTaskAction -Execute $ccExePath -Argument "--serverdiagnostic"
+
+    # Trigger every 15 minutes using a repeating interval on a daily trigger
+    $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration ([TimeSpan]::MaxValue)
+
+    $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+
+    $settings = New-ScheduledTaskSettingsSet `
+        -AllowStartIfOnBatteries `
+        -DontStopIfGoingOnBatteries `
+        -StartWhenAvailable `
+        -ExecutionTimeLimit (New-TimeSpan -Minutes 10)
+
+    Register-ScheduledTask `
+        -TaskName $taskName `
+        -Action $action `
+        -Trigger $trigger `
+        -Principal $principal `
+        -Settings $settings `
+        -Description "Runs cc.exe --serverdiagnostic every 15 minutes for all Contensive applications" | Out-Null
+
+    Write-Host "  Scheduled task '$taskName' created (runs every 15 minutes)" -ForegroundColor Green
+}
+
 # ============================================================
 # Main
 # ============================================================
@@ -191,6 +237,7 @@ Test-ExistingInstallation
 if (-not $SkipCli)         { Install-Cli }
 if (-not $SkipTaskService) { Install-TaskService }
 if (-not $SkipWebApi)      { Install-WebApiPackage }
+if (-not $SkipCli)         { Install-ScheduledTask }
 
 # Copy defaultaspxsite.zip for legacy framework site installs and upgrades
 $aspxZipSource = Join-Path $SourcePath "defaultaspxsite.zip"

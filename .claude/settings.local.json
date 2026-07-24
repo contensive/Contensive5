@@ -76,7 +76,12 @@
       "Bash(/tmp/find_version.ps1:*)",
       "Bash(/tmp/find_version2.ps1:*)",
       "Bash(/tmp/find_reliability.ps1:*)",
-      "Bash(sort:*)"
+      "Bash(sort:*)",
+      "Bash(dotnet msbuild:*)",
+      "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" ContensiveAspx.sln /p:DeployOnBuild=true /p:PublishProfile=defaultSite)",
+      "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" ContensiveAspx.sln //p:DeployOnBuild=true //p:PublishProfile=defaultSite)",
+      "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" ContensiveAspx.sln //p:DeployOnBuild=true //p:PublishProfile=defaultSite //v:d)",
+      "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" iisDefaultSite/iisDefaultSite.csproj //t:Build //v:d)"
     ]
   }
 }

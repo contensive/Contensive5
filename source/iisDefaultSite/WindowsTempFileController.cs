@@ -2,14 +2,24 @@
 using System.IO;
 
 namespace DefaultSite {
+    //
+    /// <summary>
+    /// 
+    /// </summary>
     public class WindowsTempFileController {
+        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static string createTmpFile() {
             string fileName = string.Empty;
 
             try {
                 fileName = Path.GetTempFileName();
-                var fileInfo = new FileInfo(fileName);
-                fileInfo.Attributes = FileAttributes.Temporary;
+                var fileInfo = new FileInfo(fileName) {
+                    Attributes = FileAttributes.Temporary
+                };
                 Console.WriteLine("TEMP file created at: " + fileName);
             } catch (Exception ex) {
                 Console.WriteLine("Unable to create TEMP file or set its attributes: " + ex.Message);
@@ -17,7 +27,12 @@ namespace DefaultSite {
 
             return fileName;
         }
-
+        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tmpFile"></param>
+        /// <param name="content"></param>
         public static void updateTmpFile(string tmpFile, string content) {
             try {
                 var streamWriter = File.AppendText(tmpFile);
@@ -29,7 +44,11 @@ namespace DefaultSite {
                 Console.WriteLine("Error writing to TEMP file: " + ex.Message);
             }
         }
-
+        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tmpFile"></param>
         public static void readTmpFile(string tmpFile) {
             try {
                 var myReader = File.OpenText(tmpFile);
@@ -39,7 +58,11 @@ namespace DefaultSite {
                 Console.WriteLine("Error reading TEMP file: " + ex.Message);
             }
         }
-
+        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tmpFile"></param>
         public static void deleteTmpFile(string tmpFile) {
             try {
 

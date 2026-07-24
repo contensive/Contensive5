@@ -227,6 +227,14 @@ del /q "..\WebDeploymentPackage\*.*" 2>nul
 
 cd ..\source
 
+dotnet restore ContensiveAspx.sln
+if errorlevel 1 (
+   echo.
+   echo FAILURE restoring iisDefaultSite packages
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
 "%msbuildLocation%msbuild.exe" ContensiveAspx.sln /p:DeployOnBuild=true /p:PublishProfile=defaultSite
 if errorlevel 1 (
    echo.
