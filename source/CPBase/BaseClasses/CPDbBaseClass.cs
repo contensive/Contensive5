@@ -141,6 +141,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Return a set of column names (lower-cased) that exist in the specified database table.
+        /// Uses cached schema data so repeated calls for the same table are fast.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        public abstract HashSet<string> GetTableColumnNames(string tableName);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Encode a boolean value to be used in an sql Query for this application. Boolean fields are stored as integers in Contensive. Example 'select id from ccmembers where active='+EncodeSqlBoolean(true)
         /// </summary>
         /// <param name="sourceBoolean"></param>

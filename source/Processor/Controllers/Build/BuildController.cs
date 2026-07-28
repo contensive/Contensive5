@@ -416,39 +416,30 @@ namespace Contensive.Processor.Controllers.Build {
                                 int sqlTimeout = core.cpParent.Db.SQLTimeout;
                                 core.cpParent.Db.SQLTimeout = 1800;
                                 //
-                                // drop any indexes that use this field
+                                // -- drop all indexes referencing this field (key or INCLUDE columns)
                                 hint = "5";
-                                bool indexDropped = false;
+                                var droppedKeyIndexes = new System.Collections.Generic.List<TableSchemaModel.IndexSchemaModel>();
                                 foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                                     if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
-                                        //
-                                        logger.Info($"{core.logCommonMessage},{logPrefix}, verifySqlFieldCompatibility, index [" + index.index_name + "] must be dropped");
-                                        core.db.deleteIndex(table.name, index.index_name);
-                                        indexDropped = true;
-                                        //
+                                        droppedKeyIndexes.Add(index);
                                     }
                                 }
+                                core.db.dropIndexesReferencingColumn(table.name, column.COLUMN_NAME);
                                 hint = "6";
                                 //
                                 // -- datetime2(0)...datetime2(2) need to be converted to datetime2(7)
                                 // -- rename column to tempName
                                 string tempName = "tempDateTime" + getRandomInteger().ToString();
-                                core.db.executeNonQuery("sp_rename '" + table.name + "." + column.COLUMN_NAME + "', '" + tempName + "', 'COLUMN';");
-                                core.db.executeNonQuery("ALTER TABLE " + table.name + " ADD " + column.COLUMN_NAME + " DateTime2(7) NULL;");
-                                core.db.executeNonQuery("update " + table.name + " set " + column.COLUMN_NAME + "=" + tempName + " ");
-                                core.db.executeNonQuery("ALTER TABLE " + table.name + " DROP COLUMN " + tempName + ";");
+                                core.db.executeNonQuery($"sp_rename '{table.name}.{column.COLUMN_NAME}', '{tempName}', 'COLUMN';");
+                                core.db.executeNonQuery($"ALTER TABLE {table.name} ADD {column.COLUMN_NAME} DateTime2(7) NULL;");
+                                core.db.executeNonQuery($"update {table.name} set {column.COLUMN_NAME}={tempName} ");
+                                core.db.executeNonQuery($"ALTER TABLE {table.name} DROP COLUMN {tempName};");
                                 //
                                 hint = "7";
-                                // recreate dropped indexes
-                                if (indexDropped) {
-                                    foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
-                                        if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
-                                            //
-                                            logger.Info($"{core.logCommonMessage},{logPrefix}, verifySqlFieldCompatibility, recreating index [" + index.index_name + "]");
-                                            core.db.createSQLIndex(table.name, index.index_name, index.index_keys);
-                                            //
-                                        }
-                                    }
+                                // -- recreate key-column indexes
+                                foreach (var index in droppedKeyIndexes) {
+                                    logger.Info($"{core.logCommonMessage},{logPrefix}, verifySqlFieldCompatibility, recreating index [{index.index_name}]");
+                                    core.db.createSQLIndex(table.name, index.index_name, index.index_keys);
                                 }
                                 core.cpParent.Db.SQLTimeout = sqlTimeout;
                             }
@@ -570,14 +561,10 @@ namespace Contensive.Processor.Controllers.Build {
                     // -- column needs to be widened to nvarchar(max)
                     logger.Info($"{core.logCommonMessage},{logPrefix}, widening [{tableName}].[{fieldName}] from {dataType}({matchedColumn.CHARACTER_MAXIMUM_LENGTH}) to nvarchar(max)");
                     //
-                    // -- drop indexes containing this column
-                    var droppedIndexes = new System.Collections.Generic.List<Models.Domain.TableSchemaModel.IndexSchemaModel>();
-                    foreach (var index in tableSchema.indexes) {
-                        if (index.indexKeyList.Contains(matchedColumn.COLUMN_NAME)) {
-                            core.db.deleteIndex(tableName, index.index_name);
-                            droppedIndexes.Add(index);
-                        }
-                    }
+                    // -- drop all indexes referencing this column (key or INCLUDE columns)
+                    // -- sp_helpindex only reports key columns, so we query sys.index_columns
+                    // -- to find indexes with this column as an INCLUDE column too
+                    core.db.dropIndexesReferencingColumn(tableName, fieldName);
                     //
                     // -- legacy text/ntext cannot be altered directly to nvarchar(max),
                     // -- convert to varchar(max) first (SQL Server allows text->varchar(max))
@@ -588,10 +575,8 @@ namespace Contensive.Processor.Controllers.Build {
                     // -- alter the column to nvarchar(max)
                     core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar(max) NULL");
                     //
-                    // -- recreate dropped indexes
-                    foreach (var index in droppedIndexes) {
-                        core.db.createSQLIndex(tableName, index.index_name, index.index_keys);
-                    }
+                    // -- do not recreate dropped indexes because the column is now
+                    // -- nvarchar(max), which SQL Server does not allow as an index key
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

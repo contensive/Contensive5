@@ -5,8 +5,10 @@ using Contensive.Models.Db;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Text;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 //
 namespace Contensive.Addons.Status {
@@ -36,8 +38,20 @@ namespace Contensive.Addons.Status {
                     return BuildResponse(cp, "ok", pausedMessage, showDetail);
                 }
                 hint = 20;
+                //
+                // -- run built-in site diagnostics (database, task service, email, metadata, etc.)
+                //
+                string siteDiagError = "";
+                if (!RunSiteDiagnostics(cp, resultList, ref siteDiagError)) {
+                    string errorMsg = showDetail ? siteDiagError : "ERROR, a diagnostic check failed.";
+                    return BuildResponse(cp, "error", errorMsg, showDetail);
+                }
+                hint = 30;
+                //
+                // -- run any collection-registered diagnostic addons
+                //
                 foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "(diagnostic>0)")) {
-                    hint = 30;
+                    hint = 40;
                     string testResult = cp.Addon.Execute(addon.ccguid);
                     if (testResult.Length < 2) {
                         string errorMsg = showDetail
@@ -56,8 +70,8 @@ namespace Contensive.Addons.Status {
                 hint = 50;
                 //
                 // -- include the server diagnostic summary,
-                // which is collected by the internal ServerDiagnosticsController and stored in the site property "ServerDiagnosticsStatus".
-                // This will include any failed checks, such as drive space, log file size, domain bindings, alarms, and windows update status.
+                // which is collected by cc.exe --serverdiagnostic and stored in the site property "ServerDiagnosticsStatus".
+                // This includes drive space, log file size, domain bindings, alarms, TLS, and windows update status.
                 //
                 string diagnosticDetail = "";
                 if (!GetServerDiagnosticsSummary(cp, ref diagnosticDetail)) {
@@ -74,6 +88,156 @@ namespace Contensive.Addons.Status {
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
                 return "ERROR, unexpected exception during diagnostics.";
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Run built-in site-level diagnostic checks: database connectivity, task scheduler,
+        /// task runner, email process, SMS provider, root user password, metadata integrity,
+        /// and site warnings. Appends ok lines to resultList. Returns false and sets errorMessage
+        /// on the first failure.
+        /// </summary>
+        private static bool RunSiteDiagnostics(CPBaseClass cp, StringBuilder resultList, ref string errorMessage) {
+            try {
+                //
+                // -- test default database connection
+                try {
+                    using (DataTable dt = cp.Db.ExecuteQuery("select 1 as test")) {
+                        if (dt == null || dt.Rows.Count == 0) {
+                            errorMessage = "ERROR, database connection test failed (no result returned).";
+                            return false;
+                        }
+                    }
+                } catch (Exception exDb) {
+                    errorMessage = $"ERROR, database connection test failed: [{exDb.Message}].";
+                    return false;
+                }
+                resultList.AppendLine("ok, database connection passed.");
+                //
+                // -- test for task scheduler not running (process addons not executed for over 1 hour)
+                string oneHourAgo = cp.Db.EncodeSQLDate(DateTime.Now.AddHours(-1));
+                if (DbBaseModel.createList<AddonModel>(cp, $"(ProcessNextRun<{oneHourAgo})").Count > 0) {
+                    errorMessage = "ERROR, there are process addons unexecuted for over 1 hour. TaskScheduler may not be enabled, or no server is running the Contensive Task Service.";
+                    return false;
+                }
+                //
+                // -- test for stuck tasks (started over 1 hour ago, never completed)
+                if (DbBaseModel.createList<TaskModel>(cp, $"(dateCompleted is null)and(dateStarted<{oneHourAgo})").Count > 0) {
+                    errorMessage = "ERROR, there are tasks that have been executing for over 1 hour. The Task Runner Server may have stopped.";
+                    return false;
+                }
+                resultList.AppendLine("ok, task scheduler running.");
+                //
+                // -- test for task runner not running (over 100 tasks queued, never started)
+                if (DbBaseModel.createList<TaskModel>(cp, "(dateCompleted is null)and(dateStarted is null)").Count > 100) {
+                    errorMessage = "ERROR, there are over 100 tasks waiting to be executed. The Task Runner Server may have stopped.";
+                    return false;
+                }
+                resultList.AppendLine("ok, task runner running.");
+                //
+                // -- verify the email process is running
+                if (cp.Site.GetDate("EmailServiceLastCheck") < DateTime.Now.AddHours(-1)) {
+                    errorMessage = "ERROR, email process has not executed for over 1 hour.";
+                    return false;
+                }
+                resultList.AppendLine("ok, email process running.");
+                //
+                // -- verify SMS provider is configured (1=Twilio, 2=AWS)
+                int smsProviderId = cp.Site.GetInteger("SMS Provider Id", 2);
+                if (smsProviderId == 0) {
+                    errorMessage = "ERROR, SMS provider is not configured. Set 'SMS Provider Id' in site settings (1=Twilio, 2=AWS).";
+                    return false;
+                }
+                resultList.AppendLine("ok, SMS provider configured.");
+                //
+                // -- verify the default root user does not have the well-known default password
+                if (DbBaseModel.createList<PersonModel>(cp, "((username='root')and(password='contensive')and(active>0))").Count > 0) {
+                    errorMessage = "ERROR, active root user found with default password. Change the root user password or deactivate the account.";
+                    return false;
+                }
+                resultList.AppendLine("ok, root user password check passed.");
+                //
+                // -- verify the favicon has been customized (not the default install favicon)
+                {
+                    string faviconFilename = cp.Site.GetText("FaviconFilename", "");
+                    if (string.IsNullOrEmpty(faviconFilename)) {
+                        errorMessage = "ERROR, no favicon is configured. Upload a custom favicon in Website Settings.";
+                        return false;
+                    }
+                    if (!cp.Site.Name.Equals("kmaintranet", StringComparison.OrdinalIgnoreCase)) {
+                        try {
+                            byte[] faviconBytes = cp.CdnFiles.ReadBinary(faviconFilename);
+                            if (faviconBytes != null && faviconBytes.Length > 0) {
+                                using (var md5 = MD5.Create()) {
+                                    byte[] hash = md5.ComputeHash(faviconBytes);
+                                    string hashHex = BitConverter.ToString(hash).Replace("-", "");
+                                    if (hashHex.Equals("560618EBBAA396BB9ECAB303D25B538B", StringComparison.OrdinalIgnoreCase)) {
+                                        errorMessage = "ERROR, the favicon is still the default install icon. Upload a custom favicon in Website Settings.";
+                                        return false;
+                                    }
+                                }
+                            }
+                        } catch (Exception) {
+                            // -- if we cannot read the file, skip this check
+                        }
+                    }
+                    resultList.AppendLine("ok, favicon check passed.");
+                }
+                //
+                // -- metadata test: lookup fields without a valid lookup content definition
+                using (DataTable dt = cp.Db.ExecuteQuery(
+                    "select c.name as contentName, f.name"
+                    + " from ccfields f"
+                    + " left join ccContent c on c.id = f.LookupContentID"
+                    + " where f.Type = 7 and c.id is null and f.LookupContentID > 0 and f.Active > 0 and f.Authorable > 0"
+                )) {
+                    if (dt.Rows.Count > 0) {
+                        string badFieldList = "";
+                        foreach (DataRow row in dt.Rows) {
+                            badFieldList += $",{row["contentName"]}.{row["name"]}";
+                        }
+                        errorMessage = $"ERROR, the following field(s) are configured as lookup, but the field's lookup-content is not set [{badFieldList.Substring(1)}].";
+                        return false;
+                    }
+                }
+                //
+                // -- metadata test: many-to-many fields with incomplete configuration
+                using (DataTable dt = cp.Db.ExecuteQuery(
+                    "select f.id, f.name as fieldName, pc.name as primaryContentName"
+                    + " from ccfields f"
+                    + " left join cccontent sc on sc.id = f.ManyToManyContentID"
+                    + " left join cccontent pc on pc.id = f.contentid"
+                    + " left join cccontent r on r.id = f.ManyToManyRuleContentID"
+                    + " left join ccfields rp on (rp.name = f.ManyToManyRulePrimaryField)and(rp.ContentID = r.id)"
+                    + " left join ccfields rs on (rs.name = f.ManyToManyRuleSecondaryField)and(rs.ContentID = r.id)"
+                    + " where (f.type = 14)and(f.Authorable > 0)and(f.active > 0)"
+                    + " and((sc.id is null)or(pc.id is null)or(r.id is null)or(rp.id is null)or(rs.id is null))"
+                )) {
+                    if (dt.Rows.Count > 0) {
+                        string badFieldList = "";
+                        foreach (DataRow row in dt.Rows) {
+                            badFieldList += $",{row["primaryContentName"]}.{row["fieldName"]}";
+                        }
+                        errorMessage = $"ERROR, the following field(s) are configured as many-to-many, but the field's many-to-many metadata is not set [{badFieldList.Substring(1)}].";
+                        return false;
+                    }
+                }
+                resultList.AppendLine("ok, metadata checks passed.");
+                //
+                // -- verify no site warnings with alarm set
+                if (DbBaseModel.createList<SiteWarningModel>(cp, "((alarm>0)and(active>0))").Count > 0) {
+                    int warningCount = DbBaseModel.getCount<SiteWarningModel>(cp, "((alarm>0)and(active>0))");
+                    errorMessage = $"ERROR, [{warningCount}] Site Warning(s) with alarm set to true.";
+                    return false;
+                }
+                resultList.AppendLine("ok, no site warning alarms.");
+                //
+                return true;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex, "Exception in RunSiteDiagnostics");
+                errorMessage = $"ERROR, unexpected exception during site diagnostics: [{ex.Message}].";
+                return false;
             }
         }
         //

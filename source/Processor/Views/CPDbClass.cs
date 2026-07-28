@@ -240,6 +240,12 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override HashSet<string> GetTableColumnNames(string tableName) {
+            return db.getTableColumnNames(tableName);
+        }
+        //
+        //====================================================================================================
+        //
         public override DataTable ExecuteRemoteQuery(string remoteQueryKey) {
             return db.executeRemoteQuery(remoteQueryKey);
         }

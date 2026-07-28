@@ -397,7 +397,7 @@ function Invoke-ContensiveBuild {
             }
 
             Write-Host "  Packing: $projPath"
-            & dotnet pack $fullPath --configuration Release --no-build --output $deploymentFolder /p:Version=$version
+            & dotnet pack $fullPath --configuration $Configuration --no-build --output $deploymentFolder /p:Version=$version
             if ($LASTEXITCODE -ne 0) {
                 throw "dotnet pack failed for: $fullPath"
             }

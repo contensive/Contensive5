@@ -1360,6 +1360,21 @@ namespace Contensive.Models.Db {
                             }
                     }
                 }
+                //
+                // -- filter sqlPairs to only include columns that exist in the database table.
+                // This prevents errors when new model properties are added but the
+                // database has not yet been upgraded to include the new columns.
+                //
+                HashSet<string> existingColumnsForSave = cp.Db.GetTableColumnNames(tableName);
+                if (existingColumnsForSave.Count > 0) {
+                    var filteredPairs = new NameValueCollection();
+                    foreach (string key in sqlPairs.AllKeys) {
+                        if (existingColumnsForSave.Contains(key)) {
+                            filteredPairs.Add(key, sqlPairs[key]);
+                        }
+                    }
+                    sqlPairs = filteredPairs;
+                }
                 if (sqlPairs.Count > 0) {
                     if (id == 0) {
                         //
@@ -1735,15 +1750,27 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static string getSelectSql<T>(CPBaseClass cp, List<string> fieldList, string sqlCriteria, string sqlOrderBy) where T : DbBaseModel {
             try {
+                string tableName = derivedTableName(typeof(T));
                 if ((fieldList == null) || (fieldList.Count == 0)) {
                     fieldList = new List<string>();
                     T instance = (T)Activator.CreateInstance(typeof(T));
                     foreach (PropertyInfo modelProperty in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                         fieldList.Add(modelProperty.Name);
                     }
+                    //
+                    // -- filter to only columns that exist in the database table.
+                    // This prevents errors when new model properties are added but the
+                    // database has not yet been upgraded to include the new columns.
+                    // The load() method already handles missing columns gracefully by
+                    // leaving the C# property at its default value.
+                    //
+                    HashSet<string> existingColumns = cp.Db.GetTableColumnNames(tableName);
+                    if (existingColumns.Count > 0) {
+                        fieldList = fieldList.Where(f => existingColumns.Contains(f)).ToList();
+                    }
                 }
                 var sb = (new StringBuilder("select ")).Append(string.Join(",", fieldList.ToArray()))
-                    .Append(" from ").Append(derivedTableName(typeof(T)))
+                    .Append(" from ").Append(tableName)
                     .Append(" where (active>0)");
                 if (!string.IsNullOrEmpty(sqlCriteria)) { sb.Append("and(" + sqlCriteria + ")"); }
                 if (!string.IsNullOrEmpty(sqlOrderBy)) { sb.Append(" order by " + sqlOrderBy); }

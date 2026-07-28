@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -873,6 +874,24 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
+        /// Return a set of column names (lower-cased) that exist in the specified database table.
+        /// Uses cached TableSchemaModel so repeated calls for the same table are fast.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        public HashSet<string> getTableColumnNames(string tableName) {
+            try {
+                TableSchemaModel tableSchema = TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
+                if (tableSchema == null) { return new HashSet<string>(StringComparer.OrdinalIgnoreCase); }
+                return new HashSet<string>(tableSchema.columns.Select(c => c.COLUMN_NAME), StringComparer.OrdinalIgnoreCase);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
         /// Returns true if the table exists
         /// </summary>
         /// <param name="tableName"></param>
@@ -1020,15 +1039,18 @@ namespace Contensive.Processor.Controllers {
                                                     //
                                                     // -- widen the column, drop/recreate indexes if needed
                                                     logger.Info($"{core.logCommonMessage},widening sql table field[{fieldName}],table[{tableName}] from nvarchar({column.CHARACTER_MAXIMUM_LENGTH}) to nvarchar({textLength})");
-                                                    var droppedIndexes = new System.Collections.Generic.List<TableSchemaModel.IndexSchemaModel>();
+                                                    // -- track key-column indexes so they can be recreated after the alter
+                                                    var droppedKeyIndexes = new System.Collections.Generic.List<TableSchemaModel.IndexSchemaModel>();
                                                     foreach (var index in tableSchema.indexes) {
                                                         if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
-                                                            deleteIndex(tableName, index.index_name);
-                                                            droppedIndexes.Add(index);
+                                                            droppedKeyIndexes.Add(index);
                                                         }
                                                     }
+                                                    // -- drop all indexes referencing this column (key or INCLUDE)
+                                                    dropIndexesReferencingColumn(tableName, fieldName);
                                                     executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar({textLength}) NULL");
-                                                    foreach (var index in droppedIndexes) {
+                                                    // -- recreate key-column indexes
+                                                    foreach (var index in droppedKeyIndexes) {
                                                         createSQLIndex(tableName, index.index_name, index.index_keys);
                                                     }
                                                     TableSchemaModel.tableSchemaDirty(core, tableName);
@@ -1105,18 +1127,11 @@ namespace Contensive.Processor.Controllers {
                         int sqlTimeout = core.cpParent.Db.SQLTimeout;
                         core.cpParent.Db.SQLTimeout = 1800;
                         //
-                        // drop any indexes that use this field
-                        foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
-                            if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
-                                //
-                                logger.Info($"{core.logCommonMessage},deleteTableField, dropping index[" + index.index_name + "], because it contains this field");
-                                //
-                                try {
-                                    core.db.deleteIndex(tableName, index.index_name);
-                                } catch (Exception ex) {
-                                    logger.Warn($"{core.logCommonMessage}, deleteTableField, error dropping index,[" + ex + "]");
-                                }
-                            }
+                        // -- drop all indexes that reference this field (key or INCLUDE columns)
+                        try {
+                            core.db.dropIndexesReferencingColumn(tableName, fieldName);
+                        } catch (Exception ex) {
+                            logger.Warn($"{core.logCommonMessage}, deleteTableField, error dropping indexes, [{ex}]");
                         }
                         //
                         logger.Info($"{core.logCommonMessage},deleteTableField, dropping field");
@@ -1320,6 +1335,40 @@ namespace Contensive.Processor.Controllers {
                     return textLength > 0 ? textLength : 255;
                 default:
                     return 0;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Drop all indexes on a table that reference a given column, whether as a key column
+        /// or as an INCLUDE column. sp_helpindex only reports key columns, so this method
+        /// queries sys.index_columns directly to find all indexes that depend on the column.
+        /// </summary>
+        public void dropIndexesReferencingColumn(string tableName, string columnName) {
+            try {
+                if (string.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(columnName)) { return; }
+                if (!Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {tableName}"); }
+                if (!Regex.IsMatch(columnName, @"^[a-zA-Z0-9_]+$")) { throw new ArgumentException($"Invalid identifier: {columnName}"); }
+                string sql = $"select i.name as index_name"
+                    + $" from sys.indexes i"
+                    + $" inner join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id"
+                    + $" inner join sys.columns c on c.object_id = ic.object_id and c.column_id = ic.column_id"
+                    + $" where i.object_id = OBJECT_ID('{tableName}')"
+                    + $" and c.name = '{columnName}'"
+                    + $" and i.name is not null";
+                using DataTable dt = executeQuery(sql);
+                if (!isDataTableOk(dt)) { return; }
+                foreach (DataRow row in dt.Rows) {
+                    string indexName = GenericController.getText(row["index_name"]);
+                    if (string.IsNullOrEmpty(indexName)) { continue; }
+                    if (!Regex.IsMatch(indexName, @"^[a-zA-Z0-9_]+$")) { continue; }
+                    executeNonQuery($"DROP INDEX [{indexName}] ON [{tableName}];");
+                }
+                core.cache.invalidateAll();
+                core.cacheRuntime.clear();
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
         }
         //

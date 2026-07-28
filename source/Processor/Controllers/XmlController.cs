@@ -134,6 +134,8 @@ namespace Contensive.Processor.Controllers {
             try {
                 bool includeBaseFields = false;
                 // 
+                HashSet<string> ccContentColumns = cp.core.db.getTableColumnNames("ccContent");
+                HashSet<string> ccFieldsColumns = cp.core.db.getTableColumnNames("ccFields");
                 string ContentSelectList = ""
                     + " id,name,active,adminonly,allowadd"
                     + ",allowcalendarevents,allowcontentchildtool,allowcontenttracking,allowdelete,allowmetacontent"
@@ -141,7 +143,8 @@ namespace Contensive.Processor.Controllers {
                     + ",ContentTableID,DefaultSortMethodID,DeveloperOnly,DropDownFieldList"
                     + ",EditorGroupID,ParentID,ccGuid,IsBaseContent"
                     + ",IconLink,IconHeight,IconWidth,IconSprites"
-                    + ",NavTypeID,AddonCategoryId";
+                    + $",{(ccContentColumns.Contains("NavTypeID") ? "NavTypeID" : "0 as NavTypeID")}"
+                    + $",{(ccContentColumns.Contains("AddonCategoryId") ? "AddonCategoryId" : "0 as AddonCategoryId")}";
 
                 string FieldSelectList = ""
                     + "f.ID,f.Name,f.contentid,f.Active,f.AdminOnly,f.Authorable,f.Caption,f.DeveloperOnly,f.EditSortPriority,f.Type,f.HTMLContent"
@@ -151,7 +154,7 @@ namespace Contensive.Processor.Controllers {
                     + ",f.ManyToManyRuleSecondaryField,'' as HelpMessageDeprecated,f.ModifiedBy,f.IsBaseField,f.LookupContentID"
                     + ",f.RedirectContentID,f.ManyToManyContentID,f.ManyToManyRuleContentID"
                     + ",h.helpdefault,h.helpcustom,f.IndexWidth,f.editorAddonId,a.ccguid as editorAddonGuid"
-                    + $"{(!versionIsOlder(cp.core.siteProperties.dataBuildVersion, "24.8.26.0") ? ",editGroup" : ",'' as editGroup")}";
+                    + $",{(ccFieldsColumns.Contains("editGroup") ? "editGroup" : "'' as editGroup")}";
                 // 
                 int FieldCnt = 0;
                 string fieldName;

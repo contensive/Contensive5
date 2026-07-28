@@ -215,33 +215,46 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- create a column list with one column per category, move advanced to last
                 List<CategoryNavColumn> columnList = [];
-                string buildVersion = cp.core.siteProperties.dataBuildVersion;
-                string abbreviationField = cp.Utils.versionIsOlder(buildVersion, "25.6.11.1") ? "'' as abbreviation" : "a.abbreviation";
-                string orderBy = cp.Utils.versionIsOlder(buildVersion, "25.6.11.1") ? "categoryName,name" : "categoryName, COALESCE(abbreviation,name)";
-                    string sql = $@"
-                        select * 
-                        from 
-                            (
-                            select 
-                                a.name,a.ccguid,a.id as id,c.name as categoryName,0 as isContent,a.abbreviation
-                            from 
-                                ccaggregatefunctions a 
-                                left join ccaddoncategories c on c.id=a.addonCategoryId 
+                HashSet<string> addonColumns = cp.core.db.getTableColumnNames("ccaggregatefunctions");
+                HashSet<string> contentColumns = cp.core.db.getTableColumnNames("cccontent");
+                bool addonHasNavTypeId = addonColumns.Contains("navTypeId");
+                bool contentHasNavTypeId = contentColumns.Contains("navTypeId");
+                string addonAbbreviation = addonColumns.Contains("abbreviation") ? "a.abbreviation" : "'' as abbreviation";
+                string contentAbbreviation = contentColumns.Contains("abbreviation") ? "a.abbreviation" : "'' as abbreviation";
+                bool hasAbbreviation = addonColumns.Contains("abbreviation") && contentColumns.Contains("abbreviation");
+                string orderBy = hasAbbreviation ? "categoryName, COALESCE(abbreviation,name)" : "categoryName,name";
+                //
+                // -- if navTypeId column does not exist, exclude that part of the union
+                string addonUnion = !addonHasNavTypeId ? "" : $@"
+                            select
+                                a.name,a.ccguid,a.id as id,c.name as categoryName,0 as isContent,{addonAbbreviation}
+                            from
+                                ccaggregatefunctions a
+                                left join ccaddoncategories c on c.id=a.addonCategoryId
                             where 1=1
-                                and(a.navTypeId={(int)navTypeId}) 
+                                and(a.navTypeId={(int)navTypeId})
                                 and(a.admin>0)
                                 and(a.name is not null)
-                                and(a.ccguid is not null) 
-                            union
-                            select 
-                                a.name,a.ccguid,a.id as id,c.name as categoryName,1 as isContent,a.abbreviation
-                            from 
-                                cccontent a 
-                                left join ccaddoncategories c on c.id=a.AddonCategoryId 
+                                and(a.ccguid is not null)";
+                string contentUnion = !contentHasNavTypeId ? "" : $@"
+                            select
+                                a.name,a.ccguid,a.id as id,c.name as categoryName,1 as isContent,{contentAbbreviation}
+                            from
+                                cccontent a
+                                left join ccaddoncategories c on c.id=a.AddonCategoryId
                             where 1=1
-                                and(a.navTypeId={(int)navTypeId})           
+                                and(a.navTypeId={(int)navTypeId})
                                 and(a.name is not null)
-                                and(a.ccguid is not null) 
+                                and(a.ccguid is not null)";
+                string unionKeyword = (!string.IsNullOrEmpty(addonUnion) && !string.IsNullOrEmpty(contentUnion)) ? " union " : "";
+                if (string.IsNullOrEmpty(addonUnion) && string.IsNullOrEmpty(contentUnion)) {
+                    return columnList;
+                }
+                    string sql = $@"
+                        select *
+                        from
+                            (
+                            {addonUnion}{unionKeyword}{contentUnion}
                             ) combined
                         order by
                             {orderBy}";

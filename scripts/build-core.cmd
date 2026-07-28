@@ -366,6 +366,7 @@ copy "C:\Git\Contensive5\etc\install-core.cmd" "%deploymentFolderRoot%%versionNu
 copy "C:\Git\Contensive5\etc\uninstall-core.cmd" "%deploymentFolderRoot%%versionNumber%\uninstall.cmd"
 copy "C:\Git\Contensive5\etc\upgrade-core.cmd" "%deploymentFolderRoot%%versionNumber%\upgrade.cmd"
 copy "C:\Git\Contensive5\etc\README-core.txt" "%deploymentFolderRoot%%versionNumber%\README.txt"
+copy "C:\Git\Contensive5\etc\clear-c-drive-space.cmd" "%deploymentFolderRoot%%versionNumber%\clear-c-drive-space.cmd"
 
 rem ==============================================================
 rem
@@ -403,6 +404,7 @@ del /q "%deploymentFolderRoot%%versionNumber%\install.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\upgrade.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\clear-c-drive-space.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\defaultaspxsite.zip" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" 2>nul

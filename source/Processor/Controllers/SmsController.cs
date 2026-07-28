@@ -22,8 +22,7 @@ namespace Contensive.Processor.Controllers {
                     return true;
                 }
 
-                int providerId = core.cpParent.Site.GetInteger("SMS Provider Id", 0);
-                switch (core.cpParent.Site.GetInteger("SMS Provider Id", 0)) {
+                switch (core.cpParent.Site.GetInteger("SMS Provider Id", 2)) {
                     case 1: {
                             //
                             // -- twillio

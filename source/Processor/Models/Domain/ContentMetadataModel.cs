@@ -314,8 +314,10 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     // load Db version
                     //
-                    string editGroupFieldSelect = $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0") ? "''" : "f.EditGroup")} as EditGroup";
-                    string textLengthFieldSelect = $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "26.5.14.0") ? "0" : "f.TextLength")} as TextLength";
+                    HashSet<string> ccFieldsColumns = core.db.getTableColumnNames("ccFields");
+                    string editGroupFieldSelect = $",{(ccFieldsColumns.Contains("EditGroup") ? "f.EditGroup" : "''")} as EditGroup";
+                    string textLengthFieldSelect = $",{(ccFieldsColumns.Contains("TextLength") ? "f.TextLength" : "0")} as TextLength";
+                    string lookupSqlFilterFieldSelect = $",{(ccFieldsColumns.Contains("LookupContentSqlFilter") ? "f.LookupContentSqlFilter" : "''")} as LookupContentSqlFilter";
                     string sql = "SELECT "
                         + "c.ID"
                         + ", c.Name"
@@ -462,7 +464,7 @@ namespace Contensive.Processor.Models.Domain {
                                 + ",h.helpCustom"
                                 + ",a.id as editorAddonId"
                                 + ",a.ccguid as editorAddonGuid"
-                                + ",f.LookupContentSqlFilter as LookupContentSqlFilter"
+                                + lookupSqlFilterFieldSelect
                                 + editGroupFieldSelect
                                 + textLengthFieldSelect
                                 + ""
@@ -1013,17 +1015,18 @@ namespace Contensive.Processor.Models.Domain {
                             { "edittab", DbController.encodeSQLText(fieldMetadata.editTabName) },
                             { "scramble", DbController.encodeSQLBoolean(false) },
                             { "isbasefield", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
-                            { "lookuplist", DbController.encodeSQLText(fieldMetadata.lookupList) },
-                            { "lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter) }
+                            { "lookuplist", DbController.encodeSQLText(fieldMetadata.lookupList) }
                         };
                 //
-                // -- editgroup, added 24.8.26.0
-                if (!GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0")) {
+                // -- only include columns that exist in the database to support older installations
+                HashSet<string> ccFieldsColumnsForUpdate = db.getTableColumnNames("ccFields");
+                if (ccFieldsColumnsForUpdate.Contains("lookupcontentsqlfilter")) {
+                    sqlList.Add("lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter));
+                }
+                if (ccFieldsColumnsForUpdate.Contains("editgroup")) {
                     sqlList.Add("editgroup", DbController.encodeSQLText(fieldMetadata.editGroupName));
                 }
-                //
-                // -- textlength, added 26.5.14.0
-                if (!GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "26.5.14.0")) {
+                if (ccFieldsColumnsForUpdate.Contains("textlength")) {
                     sqlList.Add("textlength", DbController.encodeSQLNumber(fieldMetadata.textLength));
                 }
                 //
@@ -1248,11 +1251,20 @@ namespace Contensive.Processor.Models.Domain {
                         { "iconwidth", DbController.encodeSQLNumber(contentMetadata.iconWidth) },
                         { "iconsprites", DbController.encodeSQLNumber(contentMetadata.iconSprites) },
                         { "installedbycollectionid", DbController.encodeSQLNumber(InstalledByCollectionId) },
-                        { "isbasecontent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) },
-                        { "navtypeid",  DbController.encodeSQLNumber(  contentMetadata.navTypeID) },
-                        { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.getAddonCategoryId(core.cpParent) ) },
-                        { "abbreviation", DbController.encodeSQLText(getText(contentMetadata.abbreviation, "")) }
+                        { "isbasecontent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) }
                     };
+                    //
+                    // -- only include columns that exist in the database to support older installations
+                    HashSet<string> ccContentColumns = db.getTableColumnNames("ccContent");
+                    if (ccContentColumns.Contains("navtypeid")) {
+                        sqlList.Add("navtypeid", DbController.encodeSQLNumber(contentMetadata.navTypeID));
+                    }
+                    if (ccContentColumns.Contains("addoncategoryid")) {
+                        sqlList.Add("addoncategoryid", DbController.encodeSQLNumber(contentMetadata.getAddonCategoryId(core.cpParent)));
+                    }
+                    if (ccContentColumns.Contains("abbreviation")) {
+                        sqlList.Add("abbreviation", DbController.encodeSQLText(getText(contentMetadata.abbreviation, "")));
+                    }
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
                     //
                     // -- reload metadata

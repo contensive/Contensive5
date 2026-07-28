@@ -50,6 +50,10 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     }
 
                 }
+                if (portal == null) {
+                    cp.Log.Warn($"PortalAddon.Execute, no portal found, instanceId [{instanceId}], path [{cp.Request.PathPage}], qs [{cp.Request.QueryString}], userId [{cp.User.Id}], userName [{cp.User.Name}]");
+                    return "<!-- no portal found -->";
+                }
                 cp.Doc.AddRefreshQueryString(Constants.rnSetPortalId, portal.id);
                 cp.Visit.SetProperty(visitPropertyName, portal.id);
                 return getPortalAddonHtml(cp, portal.id);

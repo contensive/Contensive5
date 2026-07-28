@@ -127,17 +127,30 @@ function Install-TaskService {
     if (-not (Test-Path $taskDest)) { New-Item -Path $taskDest -ItemType Directory -Force | Out-Null }
     robocopy $taskSource $taskDest /MIR /NJH /NJS /NDL /NP | Out-Null
 
-    # Remove existing service if present, then create fresh
-    $svc = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
-    if ($svc) {
-        if ($svc.Status -eq "Running") {
-            Write-Host "  Stopping existing service: $ServiceName"
-            Stop-Service -Name $ServiceName -Force
+    # Remove existing service if present, then create fresh.
+    # Search by both service name and display name so we catch legacy installs
+    # that may have used a different internal service name.
+    $servicesToRemove = @()
+    $servicesToRemove += Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+    $servicesToRemove += Get-Service -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -eq $ServiceName -and $_.ServiceName -ne $ServiceName }
+    $servicesToRemove = $servicesToRemove | Select-Object -Unique
+    foreach ($svc in $servicesToRemove) {
+        if ($svc.Status -ne "Stopped") {
+            Write-Host "  Stopping existing service: $($svc.ServiceName)"
+            Stop-Service -Name $svc.ServiceName -Force
             Start-Sleep -Seconds 2
         }
-        Write-Host "  Removing existing service: $ServiceName"
-        sc.exe delete $ServiceName | Out-Null
-        Start-Sleep -Seconds 2
+        Write-Host "  Removing existing service: $($svc.ServiceName) (display: $($svc.DisplayName))"
+        & sc.exe delete "$($svc.ServiceName)" | Out-Null
+        # Wait for the service to be fully removed from the SCM database
+        $retries = 0
+        while ((Get-Service -Name $svc.ServiceName -ErrorAction SilentlyContinue) -and $retries -lt 15) {
+            Start-Sleep -Seconds 1
+            $retries++
+        }
+        if (Get-Service -Name $svc.ServiceName -ErrorAction SilentlyContinue) {
+            Write-Host "  WARNING: Service '$($svc.ServiceName)' could not be fully removed. You may need to reboot." -ForegroundColor Yellow
+        }
     }
 
     Write-Host "  Creating Windows service: $ServiceName"
@@ -198,8 +211,8 @@ function Install-ScheduledTask {
 
     $action = New-ScheduledTaskAction -Execute $ccExePath -Argument "--serverdiagnostic"
 
-    # Trigger every 15 minutes using a repeating interval on a daily trigger
-    $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration ([TimeSpan]::MaxValue)
+    # Trigger every 15 minutes, repeating indefinitely (25 years ≈ forever, avoids TimeSpan.MaxValue XML overflow)
+    $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 9131)
 
     $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 
@@ -237,7 +250,6 @@ Test-ExistingInstallation
 if (-not $SkipCli)         { Install-Cli }
 if (-not $SkipTaskService) { Install-TaskService }
 if (-not $SkipWebApi)      { Install-WebApiPackage }
-if (-not $SkipCli)         { Install-ScheduledTask }
 
 # Copy defaultaspxsite.zip for legacy framework site installs and upgrades
 $aspxZipSource = Join-Path $SourcePath "defaultaspxsite.zip"
@@ -248,6 +260,9 @@ if (Test-Path $aspxZipSource) {
     Copy-Item $aspxZipSource $FrameworkSiteDest -Force
     Write-Host "  defaultaspxsite.zip copied to $FrameworkSiteDest" -ForegroundColor Green
 }
+
+# Scheduled task is non-critical — run last so a failure here does not block the rest of the install
+if (-not $SkipCli)         { Install-ScheduledTask }
 
 Write-Step "Installation complete"
 

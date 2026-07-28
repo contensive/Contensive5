@@ -110,20 +110,22 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     // -- column is shorter than required, widen it
                     env.log($"HousekeepDaily, widening [{tableName}].[{fieldName}] from nvarchar({matchedColumn.CHARACTER_MAXIMUM_LENGTH}) to nvarchar({textLength})");
                     //
-                    // -- drop indexes containing this column
-                    var droppedIndexes = new List<TableSchemaModel.IndexSchemaModel>();
+                    // -- drop all indexes referencing this column (key or INCLUDE columns)
+                    // -- track key-column indexes so they can be recreated after the alter
+                    var droppedKeyIndexes = new List<TableSchemaModel.IndexSchemaModel>();
                     foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                         if (index.indexKeyList.Contains(matchedColumn.COLUMN_NAME)) {
-                            env.core.db.deleteIndex(tableName, index.index_name);
-                            droppedIndexes.Add(index);
+                            droppedKeyIndexes.Add(index);
                         }
                     }
+                    env.core.db.dropIndexesReferencingColumn(tableName, fieldName);
                     //
                     // -- alter the column
                     env.core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar({textLength}) NULL");
                     //
-                    // -- recreate dropped indexes
-                    foreach (var index in droppedIndexes) {
+                    // -- recreate dropped key-column indexes (INCLUDE-only indexes are not
+                    // -- tracked in sp_helpindex schema, so they cannot be recreated here)
+                    foreach (var index in droppedKeyIndexes) {
                         env.core.db.createSQLIndex(tableName, index.index_name, index.index_keys);
                     }
                 }
@@ -194,14 +196,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     // -- column needs to be widened to nvarchar(max)
                     env.log($"HousekeepDaily, widening [{tableName}].[{fieldName}] from {dataType}({matchedColumn.CHARACTER_MAXIMUM_LENGTH}) to nvarchar(max)");
                     //
-                    // -- drop indexes containing this column
-                    var droppedIndexes = new List<TableSchemaModel.IndexSchemaModel>();
-                    foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
-                        if (index.indexKeyList.Contains(matchedColumn.COLUMN_NAME)) {
-                            env.core.db.deleteIndex(tableName, index.index_name);
-                            droppedIndexes.Add(index);
-                        }
-                    }
+                    // -- drop all indexes referencing this column (key or INCLUDE columns)
+                    env.core.db.dropIndexesReferencingColumn(tableName, fieldName);
                     //
                     // -- legacy text/ntext cannot be altered directly to nvarchar(max),
                     // -- convert to varchar(max) first (SQL Server allows text->varchar(max))
@@ -212,10 +208,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     // -- alter the column to nvarchar(max)
                     env.core.db.executeNonQuery($"ALTER TABLE {tableName} ALTER COLUMN {fieldName} nvarchar(max) NULL");
                     //
-                    // -- recreate dropped indexes (unlikely for max columns, but handle it)
-                    foreach (var index in droppedIndexes) {
-                        env.core.db.createSQLIndex(tableName, index.index_name, index.index_keys);
-                    }
+                    // -- do not recreate dropped indexes because the column is now
+                    // -- nvarchar(max), which SQL Server does not allow as an index key
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");
