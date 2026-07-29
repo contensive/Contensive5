@@ -370,6 +370,15 @@ copy "C:\Git\Contensive5\etc\clear-c-drive-space.cmd" "%deploymentFolderRoot%%ve
 
 rem ==============================================================
 rem
+rem copy backuptools into the deployment folder
+rem
+
+md "%deploymentFolderRoot%%versionNumber%\backuptools" 2>nul
+copy "C:\Git\Contensive5\etc\backuptools\RunBackup.cmd" "%deploymentFolderRoot%%versionNumber%\backuptools\"
+copy "C:\Git\Contensive5\etc\backuptools\SQLExpressBackup.sql" "%deploymentFolderRoot%%versionNumber%\backuptools\"
+
+rem ==============================================================
+rem
 rem create a single zip distribution package
 rem
 
@@ -397,6 +406,7 @@ rem
 rd /s /q "%deploymentFolderRoot%%versionNumber%\WebApi" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\Cli" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\TaskService" 2>nul
+rd /s /q "%deploymentFolderRoot%%versionNumber%\backuptools" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\upgrade.ps1" 2>nul
