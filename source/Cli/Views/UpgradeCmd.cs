@@ -63,6 +63,12 @@ namespace Contensive.CLI {
             //
             // -- check for orphan collections in Collections.xml with no matching database record
             checkOrphanCollections(cp, appName);
+            //
+            // -- suggest local Redis if using in-process memory cache
+            if (cp.core.serverConfig.enableLocalMemoryCache && !cp.core.serverConfig.enableRemoteCache) {
+                Console.WriteLine();
+                Console.WriteLine("  TIP: For a higher-performing local cache that survives iisreset and is shared across processes, install Memurai (free Redis for Windows) from https://www.memurai.com and enable remote cache with endpoint 127.0.0.1:6379.");
+            }
         }
         //
         // ====================================================================================================

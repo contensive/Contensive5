@@ -10,11 +10,54 @@ using System.Linq;
 
 
 namespace Contensive.Processor.Controllers {
-    // 
+    //
     // =========================================================================================
     /// <summary>
-    /// service controller wraps services like email. It should be a child object of the application. Never static class b/c mocking interface
-    /// public property bool 'mock', set true to mock this service by loggin activity in a mockList()
+    /// Image resizing, cropping, and padding controller.
+    ///
+    /// This controller provides two primary operations for fitting images into layout "holes":
+    ///
+    /// <para><b>ResizeAndCrop</b> — Resize the image so its smallest dimension fills the hole,
+    /// then crop the overflow on the larger dimension (centered). Use when the hole must be
+    /// completely filled with no letterboxing.</para>
+    ///
+    /// <para><b>ResizeAndPad</b> — Resize the image so its largest dimension fits the hole,
+    /// then pad the remaining space with transparency. Use when the entire image must be
+    /// visible within the hole.</para>
+    ///
+    /// <para><b>How holeWidth and holeHeight interact:</b></para>
+    /// <list type="bullet">
+    ///   <item><b>Both > 0:</b> The image is resized to fill (crop) or fit (pad) the exact
+    ///   hole dimensions. The aspect ratio of the hole determines where cropping or padding
+    ///   occurs. The caller typically derives one dimension from the other using an aspect
+    ///   ratio (e.g., 16:9 → holeHeight = holeWidth * 9 / 16).</item>
+    ///   <item><b>One dimension is 0:</b> The image is resized proportionally using only the
+    ///   non-zero dimension. No cropping or padding is performed. The missing dimension is
+    ///   calculated from the source image's natural aspect ratio. This is the "As-Is" mode
+    ///   — the image keeps its original proportions, just scaled to the specified width or
+    ///   height.</item>
+    ///   <item><b>Both are 0:</b> No resize is performed; the original image path is returned.</item>
+    ///   <item><b>Either is negative:</b> Invalid input; the original image path is returned
+    ///   and an error is logged.</item>
+    /// </list>
+    ///
+    /// <para><b>Typical caller pattern with aspect ratios:</b></para>
+    /// <code>
+    /// // Aspect ratio provided (e.g., 4:1) — calculate height from width and ratio
+    /// int holeHeight = (int)(holeWidth / aspectRatio);  // both > 0 → resize + crop
+    ///
+    /// // As-Is (no aspect ratio) — pass height as 0
+    /// int holeHeight = 0;  // width > 0, height = 0 → proportional resize, no crop
+    /// </code>
+    ///
+    /// <para><b>Output file naming:</b> Resized images are saved alongside the original with
+    /// a suffix: <c>{name}-{width}x{height}.{ext}</c> for crop, or
+    /// <c>{name}-pad-{width}x{height}.{ext}</c> for pad. WebP variants use .webp extension
+    /// regardless of source format.</para>
+    ///
+    /// <para><b>Caching:</b> The imageAltSizes parameter tracks which sizes have already been
+    /// generated. On subsequent calls, the method returns the cached path without re-processing.
+    /// The caller must persist this string and pass it on each call.</para>
     /// </summary>
     public sealed class ImageController {
         //
@@ -161,18 +204,33 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// internal - resize and crop image.
-        /// resize the image so it's smallest dimension fits, then crop the larger dimension
+        /// Core image resize method used by all public ResizeAndCrop/ResizeAndPad variants.
+        ///
+        /// <para><b>When both holeWidth and holeHeight are provided (both > 0):</b></para>
+        /// <list type="bullet">
+        ///   <item>If cropOrPad is true: resizes the image so its smallest dimension fills the hole,
+        ///   then crops the overflow on the larger dimension, centered.</item>
+        ///   <item>If cropOrPad is false: resizes the image so its largest dimension fits the hole,
+        ///   then pads the remaining space with transparency.</item>
+        /// </list>
+        ///
+        /// <para><b>When one dimension is 0 (holeWidth=0 or holeHeight=0):</b></para>
+        /// <para>The image is resized proportionally using only the non-zero dimension. The other
+        /// dimension is calculated from the source image's natural aspect ratio. No cropping or
+        /// padding is performed regardless of the cropOrPad flag. The image is never scaled up.</para>
+        ///
+        /// <para><b>When both dimensions are 0:</b> Returns the original image path unchanged.</para>
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="imageCdnPathFilename"></param>
-        /// <param name="holeWidth"></param>
-        /// <param name="holeHeight"></param>
-        /// <param name="imageAltSizeList"></param>
-        /// <param name="saveAsWebP"></param>
-        /// <param name="cropOrPad">if true, resize to smaller proportion and crop off the overlapping proportion.
-        /// if false, resize to the larger proportion and pad the open area with transparent, or white depending on image format</param>
-        /// <returns></returns>
+        /// <param name="core">Contensive core controller</param>
+        /// <param name="imageCdnPathFilename">CDN path to the source image file</param>
+        /// <param name="holeWidth">Target width in pixels, or 0 for proportional sizing</param>
+        /// <param name="holeHeight">Target height in pixels, or 0 for proportional sizing</param>
+        /// <param name="imageAltSizes">Comma-delimited list tracking generated sizes; first entry is the source filename</param>
+        /// <param name="saveAsWebP">If true, output is saved as .webp regardless of source format</param>
+        /// <param name="cropOrPad">If true, resize to fill and crop overflow. If false, resize to fit and pad remainder.
+        /// Ignored when one dimension is 0 (proportional resize, no crop or pad).</param>
+        /// <param name="isNewSize">Set to true if a new resized variant was created (caller should persist imageAltSizes)</param>
+        /// <returns>CDN path to the resized image (unix slashes), or the original path if no resize was needed</returns>
         private static string resize(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, bool saveAsWebP, bool cropOrPad, out bool isNewSize) {
             // 
             isNewSize = false;
@@ -255,151 +313,180 @@ namespace Contensive.Processor.Controllers {
                 // -- then crop to the final size
                 core.cdnFiles.copyFileRemoteToLocal(imageCdnPathFilename);
                 using Image image = Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"));
-                // 
+                //
                 // -- if image load issue, return un-resized
                 if (image.Width.Equals(0) || image.Height.Equals(0)) {
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
-                // 
-                // -- determine the scale ratio for each axis
-                double widthRatio = holeWidth / (double)image.Width;
-                double heightRatio = holeHeight / (double)image.Height;
-                // 
-                // -- determine scale-up (grow) or scale-down (shrink), if either ratio > 1, scale up
-                bool scaleUp = (widthRatio > 1) || (heightRatio > 1);
-                // 
-                // -- determine scale ratio based on scapeup, width and height ratio
-                bool resizeToWidth;
-                if (scaleUp)
-                    // 
-                    // -- scaleup, select larger of width and height ratio
-                    resizeToWidth = cropOrPad ? widthRatio > heightRatio : heightRatio > widthRatio;
-                else
-                    // 
-                    // -- scaledown, select smaller of width and height ratio
-                    resizeToWidth = cropOrPad ? widthRatio > heightRatio : heightRatio > widthRatio;
-                // 
-                // -- determine the final size of the resized image (to be cropped next)
-                Size finalResizedImageSize;
-                if (resizeToWidth) {
-                    // 
-                    // -- resize to width
-                    finalResizedImageSize = new Size {
-                        Width = holeWidth,
-                        Height = Convert.ToInt32(image.Height * widthRatio)
-                    };
-                } else {
-                    // 
-                    // -- resize to height
-                    finalResizedImageSize = new Size {
-                        Width = Convert.ToInt32(image.Width * heightRatio),
-                        Height = holeHeight
-                    };
-                }
-                if (finalResizedImageSize.Height >= image.Height) {
+                //
+                if (holeWidth.Equals(0) || holeHeight.Equals(0)) {
                     //
-                    if (cropOrPad) {
-                        // -- crop, (crop to the proportions of the hole, but do not resize up
-                        int cropWidth;
-                        int cropHeight;
-                        Rectangle cropRectangle = new();
-                        if (resizeToWidth) {
-                            // 
-                            // -- use image width, crop off overflow height
-                            cropWidth = image.Width;
-                            cropHeight = Convert.ToInt32(image.Width * holeHeight / (double)holeWidth);
-                            cropRectangle.X = 0;
-                            cropRectangle.Y = System.Convert.ToInt32((image.Height - cropHeight) / (double)2);
-                            cropRectangle.Width = cropWidth;
-                            cropRectangle.Height = cropHeight;
-                        } else {
-                            // 
-                            // -- use image height, crop off overflow width
-                            cropHeight = image.Height;
-                            cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
-                            cropRectangle.X = System.Convert.ToInt32((image.Width - cropWidth) / (double)2);
-                            cropRectangle.Y = 0;
-                            cropRectangle.Width = cropWidth;
-                            cropRectangle.Height = cropHeight;
-                        }
-                        // 
-                        // -- now crop if both axis provided
-                        if ((!cropWidth.Equals(0)) & (!cropHeight.Equals(0)))
-                            image.Mutate(x => x.Crop(cropRectangle));
+                    // -- one dimension is 0: resize proportionally by the provided dimension, no crop
+                    int targetWidth;
+                    int targetHeight;
+                    if (holeWidth.Equals(0)) {
+                        //
+                        // -- resize to height, calculate width proportionally
+                        targetHeight = holeHeight;
+                        targetWidth = Convert.ToInt32(image.Width * (holeHeight / (double)image.Height));
                     } else {
                         //
-                        // -- pad (pad to the proportions of the hole, but no not resize)
-                        int cropWidth;
-                        int cropHeight;
-                        if (resizeToWidth) {
-                            // 
-                            // -- use image width, crop off overflow height
-                            cropWidth = image.Width;
-                            cropHeight = Convert.ToInt32(image.Width * holeHeight / (double)holeWidth);
-                        } else {
-                            // 
-                            // -- use image height, crop off overflow width
-                            cropHeight = image.Height;
-                            cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
-                        }
-                        Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder() {
-                            ColorType = PngColorType.RgbWithAlpha
-                        });
-                        ResizeOptions options = new() {
-                            Mode = ResizeMode.Pad,
-                            TargetRectangle = new Rectangle {
-                                Height = image.Height,
-                                Width = image.Width
-                            },
-                            PadColor = Color.Transparent,
-                            Size = new Size {
-                                Height = cropHeight,
-                                Width = cropWidth
-                            }
-                        };
-                        image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
+                        // -- resize to width, calculate height proportionally
+                        targetWidth = holeWidth;
+                        targetHeight = Convert.ToInt32(image.Height * (holeWidth / (double)image.Width));
+                    }
+                    if (targetWidth < 1) { targetWidth = 1; }
+                    if (targetHeight < 1) { targetHeight = 1; }
+                    //
+                    // -- only resize if the target is smaller than the original
+                    if (targetWidth < image.Width || targetHeight < image.Height) {
+                        image.Mutate(x => x.Resize(targetWidth, targetHeight));
                     }
                 } else {
-                    // 
-                    // -- resize smaller
-                    if (cropOrPad) {
-                        // 
-                        // -- resize and crop
-                        ResizeOptions options = new() {
-                            Mode = ResizeMode.Manual,
-                            TargetRectangle = new Rectangle {
-                                Height = finalResizedImageSize.Height,
-                                Width = finalResizedImageSize.Width,
-                                X = (holeWidth - finalResizedImageSize.Width)/2,
-                                Y = (holeHeight - finalResizedImageSize.Height) / 2
-                            },
-                            PadColor = Color.Transparent,
-                            Size = new Size {
-                                Height = holeHeight,
-                                Width = holeWidth
-                            }
-                        };
-                        image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
+                    //
+                    // -- both dimensions provided: resize and crop/pad
+                    //
+                    // -- determine the scale ratio for each axis
+                    double widthRatio = holeWidth / (double)image.Width;
+                    double heightRatio = holeHeight / (double)image.Height;
+                    //
+                    // -- determine scale-up (grow) or scale-down (shrink), if either ratio > 1, scale up
+                    bool scaleUp = (widthRatio > 1) || (heightRatio > 1);
+                    //
+                    // -- determine scale ratio based on scapeup, width and height ratio
+                    bool resizeToWidth;
+                    if (scaleUp) {
+                        //
+                        // -- scaleup, select larger of width and height ratio
+                        resizeToWidth = cropOrPad ? widthRatio > heightRatio : heightRatio > widthRatio;
                     } else {
                         //
-                        // -- resize and pad
-                        Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder() {
-                            ColorType = PngColorType.RgbWithAlpha
-                        });
-                        ResizeOptions options = new() {
-                            Mode = ResizeMode.Pad,
-                            TargetRectangle = new Rectangle {
-                                Height = finalResizedImageSize.Height,
-                                Width = finalResizedImageSize.Width
-                            },
-                            PadColor = Color.Transparent,
-                            Size = new Size {
-                                Height = holeHeight,
-                                Width = holeWidth
+                        // -- scaledown, select smaller of width and height ratio
+                        resizeToWidth = cropOrPad ? widthRatio > heightRatio : heightRatio > widthRatio;
+                    }
+                    //
+                    // -- determine the final size of the resized image (to be cropped next)
+                    Size finalResizedImageSize;
+                    if (resizeToWidth) {
+                        //
+                        // -- resize to width
+                        finalResizedImageSize = new Size {
+                            Width = holeWidth,
+                            Height = Convert.ToInt32(image.Height * widthRatio)
+                        };
+                    } else {
+                        //
+                        // -- resize to height
+                        finalResizedImageSize = new Size {
+                            Width = Convert.ToInt32(image.Width * heightRatio),
+                            Height = holeHeight
+                        };
+                    }
+                    if (finalResizedImageSize.Height >= image.Height) {
+                        //
+                        if (cropOrPad) {
+                            // -- crop, (crop to the proportions of the hole, but do not resize up
+                            int cropWidth;
+                            int cropHeight;
+                            Rectangle cropRectangle = new();
+                            if (resizeToWidth) {
+                                //
+                                // -- use image width, crop off overflow height
+                                cropWidth = image.Width;
+                                cropHeight = Convert.ToInt32(image.Width * holeHeight / (double)holeWidth);
+                                cropRectangle.X = 0;
+                                cropRectangle.Y = System.Convert.ToInt32((image.Height - cropHeight) / (double)2);
+                                cropRectangle.Width = cropWidth;
+                                cropRectangle.Height = cropHeight;
+                            } else {
+                                //
+                                // -- use image height, crop off overflow width
+                                cropHeight = image.Height;
+                                cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
+                                cropRectangle.X = System.Convert.ToInt32((image.Width - cropWidth) / (double)2);
+                                cropRectangle.Y = 0;
+                                cropRectangle.Width = cropWidth;
+                                cropRectangle.Height = cropHeight;
                             }
-                        }; 
-                        image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
-                        //image.Mutate(x => x.Resize(options).BackgroundColor(Color.Transparent));
+                            //
+                            // -- now crop if both axis provided
+                            if ((!cropWidth.Equals(0)) & (!cropHeight.Equals(0))) {
+                                image.Mutate(x => x.Crop(cropRectangle));
+                            }
+                        } else {
+                            //
+                            // -- pad (pad to the proportions of the hole, but no not resize)
+                            int cropWidth;
+                            int cropHeight;
+                            if (resizeToWidth) {
+                                //
+                                // -- use image width, crop off overflow height
+                                cropWidth = image.Width;
+                                cropHeight = Convert.ToInt32(image.Width * holeHeight / (double)holeWidth);
+                            } else {
+                                //
+                                // -- use image height, crop off overflow width
+                                cropHeight = image.Height;
+                                cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
+                            }
+                            Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder() {
+                                ColorType = PngColorType.RgbWithAlpha
+                            });
+                            ResizeOptions options = new() {
+                                Mode = ResizeMode.Pad,
+                                TargetRectangle = new Rectangle {
+                                    Height = image.Height,
+                                    Width = image.Width
+                                },
+                                PadColor = Color.Transparent,
+                                Size = new Size {
+                                    Height = cropHeight,
+                                    Width = cropWidth
+                                }
+                            };
+                            image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
+                        }
+                    } else {
+                        //
+                        // -- resize smaller
+                        if (cropOrPad) {
+                            //
+                            // -- resize and crop
+                            ResizeOptions options = new() {
+                                Mode = ResizeMode.Manual,
+                                TargetRectangle = new Rectangle {
+                                    Height = finalResizedImageSize.Height,
+                                    Width = finalResizedImageSize.Width,
+                                    X = (holeWidth - finalResizedImageSize.Width) / 2,
+                                    Y = (holeHeight - finalResizedImageSize.Height) / 2
+                                },
+                                PadColor = Color.Transparent,
+                                Size = new Size {
+                                    Height = holeHeight,
+                                    Width = holeWidth
+                                }
+                            };
+                            image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
+                        } else {
+                            //
+                            // -- resize and pad
+                            Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder() {
+                                ColorType = PngColorType.RgbWithAlpha
+                            });
+                            ResizeOptions options = new() {
+                                Mode = ResizeMode.Pad,
+                                TargetRectangle = new Rectangle {
+                                    Height = finalResizedImageSize.Height,
+                                    Width = finalResizedImageSize.Width
+                                },
+                                PadColor = Color.Transparent,
+                                Size = new Size {
+                                    Height = holeHeight,
+                                    Width = holeWidth
+                                }
+                            };
+                            image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
+                        }
                     }
                 }
                 // 
