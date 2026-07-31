@@ -108,7 +108,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             //
                             // -- detect and log duplicate guid fields before fixing
                             recordsAffected = 0;
-                            sql = $"select b.id, b.ccguid, b.DateAdded, b.ModifiedDate, b.CreatedBy, b.ModifiedBy from {tableName} a, {tableName} b where a.id<b.id and a.ccguid=b.ccguid";
+                            sql = $"select id, ccguid, DateAdded, ModifiedDate, CreatedBy, ModifiedBy from (select *, ROW_NUMBER() over (partition by ccguid order by id) as rn from {tableName}) t where rn > 1";
                             using (DataTable dtDup = env.core.db.executeQuery(sql)) {
                                 if (DbController.isDataTableOk(dtDup)) {
                                     recordsAffected = dtDup.Rows.Count;
@@ -136,7 +136,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     }
                                     //
                                     // -- fix the duplicate ccguids
-                                    sql = $"update b set ccguid=lower('{{'+CONVERT(nvarchar(50), NEWID())+'}}') from {tableName} a,{tableName} b where a.id<b.id and a.ccguid=b.ccguid";
+                                    sql = $"update t set ccguid=lower('{{'+CONVERT(nvarchar(50), NEWID())+'}}') from (select *, ROW_NUMBER() over (partition by ccguid order by id) as rn from {tableName}) t where rn > 1";
                                     env.core.db.executeNonQuery(sql);
                                     continue;
                                 }
