@@ -92,9 +92,14 @@ public class Global_asax : HttpApplication {
                 if (isViewStateMacException(exception) || exception.InnerException is not null && isViewStateMacException(exception.InnerException)) {
                     return;
                 }
-                // 
+                //
                 // -- dont log TraceHandler exceptions (bots/scanners requesting /trace.axd)
                 if (isTraceHandlerException(exception) || exception.InnerException is not null && isTraceHandlerException(exception.InnerException)) {
+                    return;
+                }
+                //
+                // -- dont log maxUrlLength exceptions (bots/scanners sending excessively long URLs)
+                if (isMaxUrlLengthException(exception) || exception.InnerException is not null && isMaxUrlLengthException(exception.InnerException)) {
                     return;
                 }
                 LogController.logShortLine("Global.asax, Application_Error, exception message [" + exception.Message + "], toString [" + exception.ToString() + "]", CPLogBaseClass.LogLevel.Error);
@@ -250,6 +255,19 @@ public class Global_asax : HttpApplication {
         if (string.IsNullOrEmpty(stackTrace))
             return false;
         return stackTrace.Contains("System.Web.Handlers.TraceHandler");
+    }
+    //
+    // ====================================================================================================
+    /// <summary>
+    /// Returns true if the exception is a maxUrlLength violation (bots/scanners sending excessively long URLs)
+    /// </summary>
+    private bool isMaxUrlLengthException(Exception ex) {
+        if (ex is null)
+            return false;
+        string msg = ex.Message;
+        if (string.IsNullOrEmpty(msg))
+            return false;
+        return msg.Contains("maxUrlLength");
     }
 
 }
