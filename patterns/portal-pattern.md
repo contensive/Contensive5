@@ -151,6 +151,13 @@ In the Portals record there is a selection for the default Feature which is run 
 
 For example, this xml block defines the Account Manager portal with one Data Feature and two Addon Features. One of the Addon Features is in the Portal, and one is a dashboard widget that displays when the portal is opened
 
+## Portal and Portal Feature Installation Rules
+
+1. **Collections that define a portal**: All portal features in that collection should belong to that portal.
+2. **Collections that do not define a portal**: The collection can install portal features in portals defined by other collections. When doing so, the collection must include an `<ImportCollection>` node for the collection that defines the target portal, ensuring it is installed first.
+3. **Addon validate-portal requirement**: If an addon includes a validate-portal line (`CP.AdminUI.EndpointContainsPortal()` / `RedirectToPortalFeature`), then the collection file must include a portal feature record assigning that addon to the referenced portal.
+4. **Addons without portal features**: An addon that has neither a portal feature record nor validate-portal code in its class runs outside a portal and is allowed. Do not add a portal feature or portal detection/redirect code independently — they must always be added together.
+
 ## Portal and Portal Feature Installation
 
 When a new portal is installed, it should also include portal features for Reports, Tools, and Settings. These will not appear if they have no child records, but they should be created so other collections can install child features under them as needed.
