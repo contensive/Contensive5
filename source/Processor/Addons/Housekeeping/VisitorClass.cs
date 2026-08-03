@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     int cnt = 0;
                     do {
                         env.core.db.sqlCommandTimeout = 180;
-                        env.core.db.executeNonQuery("delete top (1000) from ccvisitors from ccvisitors t left join ccvisits v on v.VisitorID=t.id where v.bot=1", ref recordsAffected);
+                        env.core.db.executeNonQuery("delete top (1000) from ccvisitors where id in (select t.id from ccvisitors t inner join ccvisits v on v.VisitorID=t.id where v.bot=1)", ref recordsAffected);
                         cnt++;
                     } while ((recordsAffected != 0) && (cnt < 100));
                 }

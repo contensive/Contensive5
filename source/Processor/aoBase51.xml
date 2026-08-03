@@ -4031,9 +4031,7 @@
   <SQLIndex IndexName="ccVisitSummaryDateTimeDuration" DataSourceName="Default" TableName="ccVisitSummary" FieldNameList="DateNumber,TimeNumber,TimeDuration" />
   <SQLIndex IndexName="ccPropertiesTypeidKeyIdActive" DataSourceName="Default" TableName="ccProperties" FieldNameList="typeid,keyid,active" />
   <SQLIndex IndexName="ccFieldHelpFieldIdAcive" DataSourceName="Default" TableName="ccFieldHelp" FieldNameList="FieldID,active" />
-  <SQLIndex IndexName="ccOAuthCodesCode" DataSourceName="Default" TableName="ccOAuthCodes" FieldNameList="code" />
-  <SQLIndex IndexName="ccOAuthCodesExpiresAt" DataSourceName="Default" TableName="ccOAuthCodes" FieldNameList="expiresAt" />
-  <SQLIndex IndexName="ccOAuthClientsClientId" DataSourceName="Default" TableName="ccOAuthClients" FieldNameList="clientId" />
+  <SQLIndex IndexName="ccVisitorsFingerprint" DataSourceName="Default" TableName="ccvisitors" FieldNameList="fingerprint" />
 
   <!-- Manage Add-ons -->
   <NavigatorEntry Name="Manage Add-ons" NameSpace="" NavIconTitle="" NavIconType="Addon" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{DBA354AB-5D3E-4882-8718-CF23CAAB7927}" />
