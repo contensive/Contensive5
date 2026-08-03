@@ -82,7 +82,7 @@ namespace Contensive.Processor.Models.Domain {
                 var sortedFields = fieldsByGroupName[groupName];
                 sortedFields.Sort((x, y) => x.nameLc.CompareTo(y.nameLc));
                 foreach (var field in sortedFields) {
-                    string currentValue = currentRecordCs.OK() ? currentRecordCs.GetText(field.nameLc) : "";
+                    string currentValue = currentRecordCs.OK() ? currentRecordCs.GetValue(field.nameLc) : "";
                     rightGroup.rightGroupFields.Add(new EditModalViewModel_Field(core, field, currentValue, recordId, contentMetadata.fields, contentMetadata, editModalSn, false, FieldTypeEditorAddons));
                     rightGroup.help += string.IsNullOrEmpty(field.helpMessage) ? "" : field.caption + ": " + field.helpMessage + ". \n";
                 }

@@ -10,6 +10,7 @@
     height: 50px;
     border-radius: 30px;
     padding-left: 35px;
+    padding-right: 35px;
     border: none;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -21,6 +22,21 @@
     transform: translateY(-50%);
     color: #888;
 }
+
+.search-clear {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #888;
+    cursor: pointer;
+    display: none;
+    font-size: 14px;
+}
+
+.search-clear:hover {
+    color: #333;
+}
 </style>
 <div class="container-fluid">
 	<div class="row {{^allowPagination}}d-flex justify-content-end{{/allowPagination}}">
@@ -29,6 +45,7 @@
 				<div class="search-container">
 					<input type="text" name="searchTerm" value="{{searchTerm}}" id="searchControl" class="form-control search-input" placeholder="Search...">
 					<i class="fas fa-search search-icon"></i>
+					<i class="fas fa-times search-clear" id="searchClear"></i>
 				</div>       
 			</div>
 		{{/allowSearch}}
@@ -68,9 +85,16 @@
 			console.log("AdminUILayoutBuilderList, paginationLink click");
 			submitAfwAjaxListForm();  
 		});
-		// -- search 
+		// -- search
 		var myTimer = 0;
+		// -- show/hide clear button based on search input value
+		function toggleSearchClear() {
+			let val = $('#searchControl').val();
+			$('#searchClear').toggle(val.length > 0);
+		}
+		toggleSearchClear();
 		$('.afw').on('keyup','#searchControl', function() {
+			toggleSearchClear();
 			// -- search term key, delay search until the user stops typing
 			if (myTimer) {
 				clearTimeout(myTimer);
@@ -79,8 +103,16 @@
 				// -- reset the pagination on search
 				let pageNumber = document.getElementsByName('setPaginationPageNumber');
 				if(pageNumber.length>0) {pageNumber[0].value='1';}
-				submitAfwAjaxListForm(); 
+				submitAfwAjaxListForm();
 			}, 1000);
+		});
+		// -- clear search
+		$('.afw').on('click','#searchClear', function() {
+			$('#searchControl').val('');
+			toggleSearchClear();
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if(pageNumber.length>0) {pageNumber[0].value='1';}
+			submitAfwAjaxListForm();
 		});
 	});
 	// -- submit the list form
