@@ -271,6 +271,10 @@ namespace Contensive.Processor.Models.Domain {
                                             break;
                                         }
                                 }
+                            } else if (!currentRecordCs.OK() && !string.IsNullOrEmpty(field.defaultValue)) {
+                                //
+                                // -- new record (add), use the field's default value
+                                currentValue = field.defaultValue;
                             } else if (currentRecordCs.OK()) {
                                 //
                                 // -- current record value
