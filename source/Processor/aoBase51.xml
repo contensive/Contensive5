@@ -3285,6 +3285,12 @@
 		<Category><![CDATA[ ]]></Category>
   </Addon>
 
+  <Addon Name="Find Legacy Content Commands" Guid="{0CAFCCC8-C5AE-4646-A872-685F69DEBDE5}" Type="Tool">
+    <Admin>Yes</Admin>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Diagnostics.FindLegacyContentCommandsAddon]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon>
+
   <Addon Name="Create Guid" Guid="{CFA18140-FBB4-4404-BF02-7B5C82BE2964}" Type="Tool">
     <Admin>Yes</Admin>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.CreateGUIDToolClass]]></DotNetClass>

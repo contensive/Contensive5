@@ -69,6 +69,11 @@ namespace Contensive.CLI {
                 Console.WriteLine();
                 Console.WriteLine("  TIP: For a higher-performing local cache that survives iisreset and is shared across processes, install Memurai (free Redis for Windows) from https://www.memurai.com and enable remote cache with endpoint 127.0.0.1:6379.");
             }
+            //
+            // -- remind user to scan for legacy content commands
+            Console.WriteLine();
+            Console.WriteLine($"  TIP: To scan for legacy content commands embedded in dbText records, run:");
+            Console.WriteLine($"    cc -a {(string.IsNullOrEmpty(appName) ? "appName" : appName)} --execute \"Find Legacy Content Commands\"");
         }
         //
         // ====================================================================================================

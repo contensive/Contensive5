@@ -23,6 +23,26 @@ Container for the default login form
 	margin: 0 auto;
 }
 
+.ccLoginFormCon,
+.ccLoginFormCon p,
+.ccLoginFormCon label,
+.ccLoginFormCon h4,
+.ccLoginFormCon span {
+	color: #333 !important;
+}
+
+.ccLoginFormCon a,
+.ccLoginFormCon a:visited {
+	color: #0056b3 !important;
+	text-decoration: underline !important;
+}
+
+.ccLoginFormCon a:hover,
+.ccLoginFormCon a:focus {
+	color: #003d80 !important;
+	text-decoration: underline !important;
+}
+
 /*
     Grid
 */

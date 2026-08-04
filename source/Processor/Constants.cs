@@ -751,6 +751,7 @@ namespace Contensive.Processor {
         internal const string RequestNameTitleExtension = "tx";
         internal const string RequestNameRunAddon = "addonid";
         internal const string RequestNameEditReferer = "EditReferer";
+        internal const string RequestNameEditRefererStack = "EditRefererStack";
         internal const string rnDownloadFileGuid = "download";
         internal const string rnDownloadFileId = "downloadid";
         internal const string RequestNameAdminForm = "af";

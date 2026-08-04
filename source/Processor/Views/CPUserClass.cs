@@ -358,6 +358,18 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// Returns the login form HTML for the current site configuration.
+        /// The form posts back to the current page and is processed by the platform's authentication pipeline.
+        /// Returns empty string if the user is already authenticated.
+        /// </summary>
+        /// <returns></returns>
+        public override string GetLoginForm() {
+            if (cp.core.session.isAuthenticated) { return ""; }
+            return AuthWorkflowController.processGetAuthWorkflow(cp.core, false, false);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Impersonate another user by their user id. The current user must be an admin or developer.
         /// The target user must not be an admin or developer.
         /// </summary>

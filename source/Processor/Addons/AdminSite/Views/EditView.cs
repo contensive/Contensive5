@@ -61,23 +61,40 @@ namespace Contensive.Processor.Addons.AdminSite {
                     return "";
                 }
                 //
-                // Setup Edit Referer
-                string EditReferer = core.docProperties.getText(RequestNameEditReferer);
-                if (string.IsNullOrEmpty(EditReferer)) {
-                    EditReferer = core.webServer.requestReferer;
-                    if (!string.IsNullOrEmpty(EditReferer)) {
+                // -- Setup Edit Referer Stack
+                // -- The stack tracks return URLs so OK/Cancel navigates back through edit levels.
+                // -- On first entry (no stack in request), capture from HTTP Referer header.
+                // -- On form posts (stack already in request), preserve the existing stack.
+                string editRefererStackEncoded = core.docProperties.getText(RequestNameEditRefererStack);
+                string editReferer;
+                if (!string.IsNullOrEmpty(editRefererStackEncoded)) {
+                    //
+                    // -- stack was passed explicitly (form post or carried from parent), preserve it
+                    editReferer = Controllers.EditRefererStackController.peek(editRefererStackEncoded);
+                } else {
+                    //
+                    // -- no stack in request, capture from legacy EditReferer or HTTP Referer header
+                    editReferer = core.docProperties.getText(RequestNameEditReferer);
+                    if (string.IsNullOrEmpty(editReferer)) {
+                        editReferer = core.webServer.requestReferer;
+                    }
+                    if (!string.IsNullOrEmpty(editReferer)) {
                         //
-                        // special case - if you are coming from the advanced search, go back to the list page
-                        EditReferer = GenericController.strReplace(EditReferer, "&af=39", "");
+                        // -- special case - if coming from advanced search, go back to the list page
+                        editReferer = GenericController.strReplace(editReferer, "&af=39", "");
                         //
-                        // if referer includes AdminWarningMsg (admin hint message), remove it -- this edit may fix the problem
-                        int Pos = EditReferer.IndexOf("AdminWarningMsg=", StringComparison.CurrentCulture);
-                        if (Pos >= 0) {
-                            EditReferer = EditReferer.left(Pos - 2);
+                        // -- if referer includes AdminWarningMsg, remove it -- this edit may fix the problem
+                        int pos = editReferer.IndexOf("AdminWarningMsg=", StringComparison.CurrentCulture);
+                        if (pos >= 0) {
+                            editReferer = editReferer.left(pos - 2);
                         }
                     }
+                    editRefererStackEncoded = Controllers.EditRefererStackController.push("", editReferer);
                 }
-                core.doc.addRefreshQueryString(RequestNameEditReferer, EditReferer);
+                core.doc.addRefreshQueryString(RequestNameEditRefererStack, editRefererStackEncoded);
+                //
+                // -- backward compat: also set legacy EditReferer
+                core.doc.addRefreshQueryString(RequestNameEditReferer, editReferer);
                 //
                 // load user's editor preferences to fieldEditorPreferences() - this is the editor this user has picked when there are >1
                 //   fieldId:addonId,fieldId:addonId,etc

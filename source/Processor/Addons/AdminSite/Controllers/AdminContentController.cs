@@ -139,22 +139,32 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----------------------------------------------------------------------------------------------------------------------------------
                 //
                 if (adminData.srcFormId == AdminFormEdit) {
-                    if (cp.core.doc.userErrorList.Count.Equals(0) && adminData.allowRedirectToRefer ) {
-                        string EditReferer = cp.core.docProperties.getText("EditReferer");
-                        string CurrentLink = GenericController.modifyLinkQuery(cp.core.webServer.requestUrl, "editreferer", "", false);
-                        CurrentLink = GenericController.toLCase(CurrentLink);
+                    if (cp.core.doc.userErrorList.Count.Equals(0) && adminData.allowRedirectToRefer) {
                         //
-                        // check if this editreferer includes cid=thisone and id=thisone -- if so, go to index form for this cid
+                        // -- pop the top URL from the edit referer stack
+                        string stackEncoded = cp.core.docProperties.getText(RequestNameEditRefererStack);
+                        string redirectUrl = "";
+                        if (!string.IsNullOrEmpty(stackEncoded)) {
+                            redirectUrl = EditRefererStackController.pop(stackEncoded, out _);
+                        }
                         //
-                        if ((!string.IsNullOrEmpty(EditReferer)) && (EditReferer.ToLowerInvariant() != CurrentLink)) {
+                        // -- fallback to legacy EditReferer for backward compatibility
+                        if (string.IsNullOrEmpty(redirectUrl)) {
+                            redirectUrl = cp.core.docProperties.getText(RequestNameEditReferer);
+                        }
+                        //
+                        // -- build a version of the current URL without the stack params for comparison
+                        string currentLink = GenericController.modifyLinkQuery(cp.core.webServer.requestUrl, RequestNameEditRefererStack.ToLowerInvariant(), "", false);
+                        currentLink = GenericController.modifyLinkQuery(currentLink, RequestNameEditReferer.ToLowerInvariant(), "", false);
+                        currentLink = currentLink.ToLowerInvariant();
+                        //
+                        if (!string.IsNullOrEmpty(redirectUrl) && redirectUrl.ToLowerInvariant() != currentLink) {
                             //
-                            // return to the page it came from
-                            //
-                            return cp.core.webServer.redirect(EditReferer, "Admin Edit page returning to the EditReferer setting");
+                            // -- return to the page it came from (the popped URL already contains its own stack)
+                            return cp.core.webServer.redirect(redirectUrl, "Admin Edit returning to EditRefererStack");
                         } else {
                             //
-                            // return to the index page for this content
-                            //
+                            // -- no valid return URL, fall back to the index page for this content
                             adminData.dstFormId = AdminFormIndex;
                         }
                     }
