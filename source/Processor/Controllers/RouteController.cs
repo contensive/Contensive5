@@ -314,6 +314,13 @@ namespace Contensive.Processor.Controllers {
                             }
                             //
                             // -- link alias with no redirect, set the bid and qs in doc properties for the default route to process
+                            {
+                                //
+                                // -- always include canonical tag, even when the current url is the canonical url
+                                string absoluteCanonicalUrl, relativeCanonicalUrl;
+                                core.webServer.normalizeUrl(normalizedWorkingUrl, out absoluteCanonicalUrl, out relativeCanonicalUrl);
+                                core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteCanonicalUrl}\">", "link alias canonical tag");
+                            }
                             core.docProperties.setProperty("bid", route.linkAliasPageId);
                             if (route.linkAliasQSList != null) {
                                 foreach (NameValueModel nameValue in route.linkAliasQSList) {

@@ -230,7 +230,20 @@ namespace Contensive.BaseClasses {
         /// The form posts back to the current page and is processed by the platform's authentication pipeline.
         /// Returns empty string if the user is already authenticated.
         /// </summary>
-        /// <returns></returns>
+        /// <example>
+        /// <code>
+        /// public override object Execute(CPBaseClass cp) {
+        ///     if (!cp.User.IsAuthenticated) {
+        ///         string loginForm = cp.User.GetLoginForm();
+        ///         if (!string.IsNullOrEmpty(loginForm)) {
+        ///             return loginForm;
+        ///         }
+        ///     }
+        ///     // user is authenticated, proceed with addon logic
+        /// }
+        /// </code>
+        /// </example>
+        /// <returns>Login form HTML, or empty string if already authenticated.</returns>
         public abstract string GetLoginForm();
         //
         //====================================================================================================

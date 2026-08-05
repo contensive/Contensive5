@@ -448,11 +448,11 @@ namespace Contensive.Processor.Controllers {
                 // -- last, the first entry should be the most-specific (inner-most), the last should be the least specific (outer most)
                 // -- title tag. If metaTitle is empty, only add page.name if the title is empty
                 if (string.IsNullOrEmpty(page.pageTitle)) {
-                    core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
+                    core.html.addTitle(page.name, "page content");
                 } else {
-                    core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
+                    core.html.addTitle(page.pageTitle, "page content");
                 }
-                core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
+                core.html.addMetaDescription(page.metaDescription, "page content");
                 core.html.addStructuredData(page.structuredData, "page content structured data");
                 core.html.addHeadTag(page.otherHeadTags, "page content");
                 core.html.addMetaKeywordList(page.metaKeywordList, "page content");
@@ -1426,8 +1426,8 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph Site Name", core.siteProperties.getText("Open Graph Site Name", core.appConfig.name));
                 core.docProperties.setProperty("Open Graph Content Type", "website");
                 core.docProperties.setProperty("Open Graph URL", getPageLink(core, core.doc.pageController.page.id, ""));
-                core.docProperties.setProperty("Open Graph Title", HtmlController.encodeHtml(core.doc.pageController.page.pageTitle));
-                core.docProperties.setProperty("Open Graph Description", HtmlController.encodeHtml(core.doc.pageController.page.metaDescription));
+                core.docProperties.setProperty("Open Graph Title", core.doc.pageController.page.pageTitle);
+                core.docProperties.setProperty("Open Graph Description", core.doc.pageController.page.metaDescription);
                 string imageFilename = core.doc.pageController.page.imageFilename.filename;
                 core.docProperties.setProperty("Open Graph Image", string.IsNullOrEmpty(imageFilename) ? string.Empty : HttpController.getCdnFilePathPrefixAbsolute(core) + imageFilename);
                 return "";

@@ -208,8 +208,8 @@ namespace Contensive.Processor.Controllers {
                                                                 if (!CollectionLibraryController.downloadCollectionFromLibrary(core, workingTempPath, ChildCollectionGUID, ref libraryCollectionLastModifiedDate, ref return_ErrorMessage)) {
                                                                     //
                                                                     // -- did not download correctly
-                                                                    logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, [" + statusMsg + "], downloadCollectionFiles returned error state, message [" + return_ErrorMessage + "]");
-                                                                    return_ErrorMessage.warnings.Add($"{statusMsg}. There was an error downloading the necessary collection file, [{ChildCollectionGUID}]. The installation will continue.");
+                                                                    logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, [{statusMsg}], downloadCollectionFiles returned error state, message [{return_ErrorMessage}]");
+                                                                    return_ErrorMessage.warnings.Add($"The collection [{Collectionname}] installed, but there was an issue installing dependency [{ChildCollectionName}, {ChildCollectionGUID}]. See previous warnings for details.");
                                                                 } else {
                                                                     logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, libraryCollectionLastChangeDate [" + libraryCollectionLastModifiedDate.ToString() + "].");
                                                                     bool installDependentCollection = true;
@@ -237,7 +237,8 @@ namespace Contensive.Processor.Controllers {
                                                                         // -- install the downloaded file
                                                                         logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, collection missing or needs to be updated.");
                                                                         if (!buildCollectionFoldersFromCollectionZips(core, contextLog, workingTempPath, libraryCollectionLastModifiedDate, ref collectionsDownloaded, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies)) {
-                                                                            logger.Warn($"{core.logCommonMessage}, BuildLocalCollectionFolder, [{statusMsg}], BuildLocalCollectionFolder returned error state, message [{return_ErrorMessage}]. The installation will continue without this included collection file, guid [{ChildCollectionGUID}].");
+                                                                            logger.Warn($"{core.logCommonMessage}, BuildLocalCollectionFolder, [{statusMsg}], BuildLocalCollectionFolder returned error state, message [{return_ErrorMessage}].");
+                                                                            return_ErrorMessage.warnings.Add($"The collection [{Collectionname}] installed, but there was an issue installing dependency [{ChildCollectionName}, {ChildCollectionGUID}]. See previous warnings for details.");
                                                                         }
                                                                     }
                                                                 }

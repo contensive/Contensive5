@@ -101,9 +101,10 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Parse the Download File and download each file into the working folder
                         if (Doc.DocumentElement.ChildNodes.Count == 0) {
-                            // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                            logger.Warn($"{core.logCommonMessage},{errorPrefix},The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
-                            result = true;
+                            // -- collection not found in the library. Could be missing, or this site may not have access to non-public collections.
+                            logger.Warn($"{core.logCommonMessage},{errorPrefix},The collection library returned an empty response for [{URL}]. The collection may not be public, or the guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
+                            return_ErrorMessage.warnings.Add($"The collection [{collectionGuid}] was not found in the collection library. The guid may be incorrect, no valid download may be available for this version [{CoreController.codeVersion()}], or this site may not have access to non-public collections. Ask support to verify the site is whitelisted in Library Authorization.");
+                            result = false;
                         } else {
                             //
                             int CollectionFileCnt = 0;
