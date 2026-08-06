@@ -141,14 +141,21 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- root-relative URL, try wwwFiles
-                if (url.StartsWith("/")) {
+                if (url.StartsWith("/") && !url.StartsWith("//")) {
                     return core.wwwFiles.readFileText(url.Substring(1));
+                }
+                //
+                // -- external URL (http:, https:, //), fetch via HTTP
+                if (url.StartsWith("http", StringComparison.InvariantCultureIgnoreCase) || url.StartsWith("//")) {
+                    string fetchUrl = url.StartsWith("//") ? $"https:{url}" : url;
+                    var http = new HttpController();
+                    return http.getURL(fetchUrl);
                 }
                 //
                 // -- can't resolve, return empty
                 return "";
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}, error reading CSS for addon {asset.sourceAddonId}");
+                logger.Error(ex, $"{core.logCommonMessage}, error reading CSS for addon {asset.sourceAddonId}, url [{asset.content}]");
                 return "";
             }
         }
