@@ -911,6 +911,18 @@ namespace Contensive.Processor.Controllers {
         private bool? allowMinify_Local = null;
         //
         /// <summary>
+        /// When true, all non-deferred addon CSS is combined into a single file per page
+        /// </summary>
+        public bool allowCssMerge {
+            get {
+                if (_allowCssMerge != null) { return (bool)_allowCssMerge; }
+                _allowCssMerge = getBoolean("Allow CSS Merge", false);
+                return (bool)_allowCssMerge;
+            }
+        }
+        private bool? _allowCssMerge = null;
+        //
+        /// <summary>
         /// file returned from site property 'RobotsTxtFilename'
         /// </summary>
         public string robotsTxt {

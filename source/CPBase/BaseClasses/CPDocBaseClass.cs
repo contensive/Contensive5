@@ -59,6 +59,10 @@ namespace Contensive.BaseClasses {
             /// If true, this asset can can be merged with other similar documents
             /// </summary>
             public bool canBeMerged { get; set; }
+            /// <summary>
+            /// If true, this style asset loads asynchronously and does not block page render
+            /// </summary>
+            public bool cssDefer { get; set; }
         }
         //
         //====================================================================================================
