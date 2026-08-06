@@ -1682,7 +1682,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrEmpty(tableName.Trim())) { throw new GenericException("tablename cannot be blank"); }
                 if (recordId <= 0) { throw new GenericException("record id is not valid [" + recordId + "]"); }
-                executeNonQuery("delete from " + tableName + " where id=" + recordId);
+                executeNonQuery($"delete from {tableName} where id=@id", new Dictionary<string, object> { { "@id", recordId } });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -1706,7 +1706,7 @@ namespace Contensive.Processor.Controllers {
                     tableName = tmp;
                 }
                 // -- allow for non-guid formated guid values (can just be unique)
-                executeNonQuery("delete from " + tableName + " where ccguid=" + encodeSQLText(guid));
+                executeNonQuery($"delete from {tableName} where ccguid=@guid", new Dictionary<string, object> { { "@guid", (object)guid ?? DBNull.Value } });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
