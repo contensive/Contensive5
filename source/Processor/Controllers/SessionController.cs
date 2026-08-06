@@ -348,7 +348,7 @@ namespace Contensive.Processor.Controllers {
                             visit.name = "User";
                         }
                         visit.startTime = core.doc.profileStartTime;
-                        visit.remote_addr = core.webServer.requestRemoteIP;
+                        visit.remote_addr = Regex.Replace(core.webServer.requestRemoteIP ?? "", @"[^0-9a-fA-F\.\:,\s]", "").substringSafe(0, 254);
                         //
                         // -- setup referrer
                         if (!string.IsNullOrEmpty(core.webServer.requestReferrer)) {
