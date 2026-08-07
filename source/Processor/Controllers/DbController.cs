@@ -99,7 +99,8 @@ namespace Contensive.Processor.Controllers {
             //  49918 = Not enough resources to process request
             //  49919 = Too many create/update requests
             //  49920 = Too many requests
-            int[] transientErrors = { -2, 20, 64, 121, 233, 10053, 10054, 10060, 10061, 40143, 40197, 40501, 40613, 49918, 49919, 49920 };
+            //  1205  = Deadlock victim (SQL Server recommends rerun)
+            int[] transientErrors = { -2, 20, 64, 121, 233, 1205, 10053, 10054, 10060, 10061, 40143, 40197, 40501, 40613, 49918, 49919, 49920 };
             foreach (SqlError err in ex.Errors) {
                 if (Array.IndexOf(transientErrors, err.Number) >= 0) { return true; }
             }
