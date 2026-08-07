@@ -5,6 +5,7 @@ using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 
@@ -48,6 +49,49 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 throw new GenericException("Unexpected exception in normalizeRoute(route=[" + route + "])", ex);
             }
+        }
+        //
+        //=============================================================================
+        /// <summary>
+        /// Add a canonical tag to the page head.
+        /// Contensive canonical standard: lowercase, no trailing slash.
+        /// Landing page special case: if the page is the domain landing page
+        /// with no query string, canonical is the domain root (https://domain.com)
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="pageId">The page being rendered</param>
+        /// <param name="queryStringSuffix">Query string from the link alias record or URL (empty string if none)</param>
+        /// <param name="overrideCanonicalPath">Optional: the canonical path to use (e.g., from a replacement URL). If null, looks up the page's primary link alias.</param>
+        private static void addCanonicalTag(CoreController core, int pageId, string queryStringSuffix, string overrideCanonicalPath = null) {
+            //
+            // -- skip if a canonical tag has already been added
+            if (core.doc.htmlMetaContent_OtherTags.Any(t => t.content.Contains("rel=\"canonical\""))) { return; }
+            //
+            // -- landing page special case
+            bool hasQueryString = !string.IsNullOrEmpty(queryStringSuffix)
+                || !string.IsNullOrEmpty(core.cpParent.Request.QueryString);
+            if (pageId == core.domain.rootPageId && pageId != 0 && !hasQueryString) {
+                //
+                // -- landing page with no query string, canonical is domain root (no trailing slash)
+                string domainRoot = $"{core.webServer.requestProtocol}{core.webServer.requestDomain}";
+                core.html.addHeadTag($"<link rel=\"canonical\" href=\"{domainRoot}\">", "canonical tag");
+                return;
+            }
+            //
+            // -- normal page: use override path if provided, otherwise look up primary link alias
+            string canonicalPath;
+            if (!string.IsNullOrEmpty(overrideCanonicalPath)) {
+                canonicalPath = overrideCanonicalPath;
+            } else {
+                canonicalPath = LinkAliasController.getLinkAlias(core, pageId, queryStringSuffix, "");
+            }
+            if (string.IsNullOrEmpty(canonicalPath)) { return; }
+            //
+            // -- build absolute canonical URL (lowercase, no trailing slash)
+            string absoluteCanonicalUrl, relativeCanonicalUrl;
+            canonicalPath = $"/{normalizeRoute(canonicalPath)}";
+            core.webServer.normalizeUrl(canonicalPath, out absoluteCanonicalUrl, out relativeCanonicalUrl);
+            core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteCanonicalUrl}\">", "canonical tag");
         }
         //
         //=============================================================================
@@ -140,6 +184,17 @@ namespace Contensive.Processor.Controllers {
                 string routeDictionaryResult = "";
                 if (tryExecuteRouteDictionary(core, requestedRoute, requestPathPage, ref routeDictionaryResult)) {
                     return routeDictionaryResult;
+                }
+                //
+                // -- add canonical tag for pages not matched by a link alias
+                {
+                    int pageId = core.docProperties.getInteger("bid");
+                    if (pageId == 0) {
+                        // -- no bid means page manager will use the landing page
+                        pageId = core.domain.rootPageId;
+                    }
+                    string urlQueryString = core.cpParent.Request.QueryString;
+                    addCanonicalTag(core, pageId, urlQueryString);
                 }
                 //
                 // -- default route, try domain default route first, then site default route, then just use page manager
@@ -292,12 +347,10 @@ namespace Contensive.Processor.Controllers {
                                     default: {
                                             //
                                             // -- set the canonical tag
-                                            string canonicalUrl = replacementUrl;
-                                            //string canonicalUrl = string.IsNullOrEmpty(route.linkAliasRedirect) ? normalizedWorkingUrl : route.linkAliasRedirect;
-
-                                            string absoluteCanonicalUrl, relativeCanonicalUrl;
-                                            core.webServer.normalizeUrl(canonicalUrl, out absoluteCanonicalUrl, out relativeCanonicalUrl);
-                                            core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteCanonicalUrl}\">", "link alias canonical tag");
+                                            string qsSuffix = (route.linkAliasQSList != null && route.linkAliasQSList.Count > 0)
+                                                ? string.Join("&", route.linkAliasQSList.Select(nv => $"{nv.name}={nv.value}"))
+                                                : "";
+                                            addCanonicalTag(core, route.linkAliasPageId, qsSuffix, replacementUrl);
                                             //
                                             // -- no redirect, return the result from the new route
                                             string normalizedLinkAliasRedirect = normalizeRoute(replacementUrl);
@@ -317,9 +370,10 @@ namespace Contensive.Processor.Controllers {
                             {
                                 //
                                 // -- always include canonical tag, even when the current url is the canonical url
-                                string absoluteCanonicalUrl, relativeCanonicalUrl;
-                                core.webServer.normalizeUrl(normalizedWorkingUrl, out absoluteCanonicalUrl, out relativeCanonicalUrl);
-                                core.html.addHeadTag($"<link rel=\"canonical\" href=\"{absoluteCanonicalUrl}\">", "link alias canonical tag");
+                                string qsSuffix = (route.linkAliasQSList != null && route.linkAliasQSList.Count > 0)
+                                    ? string.Join("&", route.linkAliasQSList.Select(nv => $"{nv.name}={nv.value}"))
+                                    : "";
+                                addCanonicalTag(core, route.linkAliasPageId, qsSuffix);
                             }
                             core.docProperties.setProperty("bid", route.linkAliasPageId);
                             if (route.linkAliasQSList != null) {
