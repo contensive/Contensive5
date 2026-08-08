@@ -203,11 +203,33 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
+        /// Save content to a text file with Cache-Control max-age set on the remote file.
+        /// When stored on a remote file system (e.g. S3), the file will include a Cache-Control header
+        /// of "public, max-age={cacheMaxAgeSeconds}". Path arguments should have no leading slash.
+        /// </summary>
+        /// <param name="pathFilename"></param>
+        /// <param name="fileContent"></param>
+        /// <param name="cacheMaxAgeSeconds">The max-age value in seconds for the Cache-Control header (e.g. 86400 for one day, 31536000 for one year)</param>
+        public abstract void Save(string pathFilename, string fileContent, int cacheMaxAgeSeconds);
+        //
+        //==========================================================================================
+        /// <summary>
         /// Save a byte array to a file. Path arguments should have no leading slash. (ex ParentFolder/FileToSave.bin )
         /// </summary>
         /// <param name="pathFilename"></param>
         /// <param name="fileContent"></param>
         public abstract void SaveBinary(string pathFilename, byte[] fileContent);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Save a byte array to a file with Cache-Control max-age set on the remote file.
+        /// When stored on a remote file system (e.g. S3), the file will include a Cache-Control header
+        /// of "public, max-age={cacheMaxAgeSeconds}". Path arguments should have no leading slash.
+        /// </summary>
+        /// <param name="pathFilename"></param>
+        /// <param name="fileContent"></param>
+        /// <param name="cacheMaxAgeSeconds">The max-age value in seconds for the Cache-Control header (e.g. 86400 for one day, 31536000 for one year)</param>
+        public abstract void SaveBinary(string pathFilename, byte[] fileContent, int cacheMaxAgeSeconds);
         //
         //==========================================================================================
         /// <summary>

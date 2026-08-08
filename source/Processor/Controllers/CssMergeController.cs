@@ -56,8 +56,8 @@ namespace Contensive.Processor.Controllers {
                 // -- merged addon CSS: build a single file from all mergeable assets
                 if (mergeableAssets.Count > 0) {
                     //
-                    // -- build filename from sorted addon IDs
-                    var addonIds = mergeableAssets.Select(a => a.sourceAddonId).Distinct().OrderBy(id => id).ToList();
+                    // -- build filename from addon IDs in document order (preserves the order stylesheets appear on the page)
+                    var addonIds = mergeableAssets.Select(a => a.sourceAddonId).Distinct().ToList();
                     string idString = string.Join("-", addonIds);
                     string mergedFilename = $"cssmerge/merged_{idString}.css";
                     //
@@ -79,7 +79,7 @@ namespace Contensive.Processor.Controllers {
                         // -- save the merged file
                         mergedCss = cssBuilder.ToString();
                         if (!string.IsNullOrEmpty(mergedCss)) {
-                            core.cdnFiles.saveFile(mergedFilename, mergedCss);
+                            core.cdnFiles.saveFile(mergedFilename, mergedCss, 31536000);
                         }
                     }
                     //
@@ -442,21 +442,78 @@ namespace Contensive.Processor.Controllers {
             // -- Bootstrap dynamic classes
             var bootstrapClasses = new[] {
                 "show", "hide", "fade", "collapse", "collapsing",
-                "modal-open", "modal-backdrop", "modal-dialog-scrollable",
+                "modal", "modal-dialog", "modal-content", "modal-header", "modal-body", "modal-footer",
+                "modal-title", "modal-open", "modal-backdrop", "modal-dialog-scrollable", "modal-dialog-centered",
+                "modal-sm", "modal-lg", "modal-xl", "modal-fullscreen", "modal-static",
                 "active", "disabled", "open", "close", "in", "out",
-                "visible", "invisible", "dropdown-menu", "dropdown-toggle",
+                "visible", "invisible", "dropdown-menu", "dropdown-toggle", "dropdown-header", "dropdown-item",
                 "tooltip", "tooltip-inner", "tooltip-arrow",
                 "popover", "popover-header", "popover-body",
                 "carousel", "carousel-item", "carousel-item-next", "carousel-item-prev",
-                "offcanvas", "offcanvas-backdrop",
-                "accordion", "accordion-collapse",
+                "offcanvas", "offcanvas-backdrop", "offcanvas-header", "offcanvas-body", "offcanvas-title",
+                "accordion", "accordion-body", "accordion-button", "accordion-collapse", "accordion-header", "accordion-item", "accordion-flush",
                 "tab-pane", "nav-link", "nav-item",
                 "alert-dismissible",
                 "was-validated", "is-valid", "is-invalid",
-                "sticky-top", "fixed-top", "fixed-bottom"
+                "sticky-top", "fixed-top", "fixed-bottom",
+                "collapsed", "rounded-circle", "border-0",
+                "navbar", "navbar-nav", "navbar-expand-xxl", "navbar-light", "navbar-toggler", "navbar-toggler-icon", "navbar-search",
+                "sidebar-divider", "collapse-inner", "collapse-header", "collapse-item",
+                "form-control", "form-select", "form-check", "form-check-input", "form-check-label", "form-label", "form-floating", "form-inline", "form-check-inline",
+                "input-group", "btn-group", "btn-check",
+                "container-fluid", "row", "col-md-4", "col-md-6", "col-md-8",
+                "d-flex", "d-none", "d-md-block", "d-lg-flex", "d-xxl-flex",
+                "justify-content-between", "justify-content-end", "justify-content-start",
+                "align-items-center", "align-items-start",
+                "flex-wrap", "flex-grow-1",
+                "bg-white", "bg-transparent", "bg-danger", "bg-info", "bg-success", "bg-warning",
+                "text-center", "text-end", "text-primary", "text-white", "text-dark", "text-danger",
+                "border", "border-0", "border-top", "border-end",
+                "rounded-2", "shadow", "shadow-sm",
+                "position-relative", "position-absolute",
+                "translate-middle",
+                "mb-0", "mb-1", "mb-2", "mb-3", "mt-1", "mt-3", "mx-1", "mx-2", "ms-1", "ms-2", "ms-auto", "me-1", "me-3",
+                "my-0", "my-1", "my-2", "my-auto",
+                "p-3", "ps-1", "ps-2", "pe-0", "pe-1", "px-2", "py-2", "pb-0",
+                "fw-bold", "fw-light", "fs-6", "h4", "m-0", "w-100", "small"
             };
             foreach (var cls in bootstrapClasses) {
                 identifiers.Add(cls);
+            }
+            //
+            // -- Contensive admin UI classes (loaded dynamically via AJAX in edit modals and admin layouts)
+            var contensiveUiClasses = new[] {
+                "widgetEditModal", "widgetName", "editModalBtn",
+                "ccRecordLinkCon", "ccRecordEditLink",
+                "ccBodyAdmin", "ccCon", "ccContentCon", "ccNavColumn", "ccToolsCon", "ccJumpCon",
+                "ccAdminHeaderNav",
+                "editBtn", "editBtnIcon", "cutBtn", "pasteBtn", "openLink",
+                "addNewItemTag", "sctnWrpr",
+                "output", "outputBgImg",
+                "custom-tooltip", "helpIcon",
+                "rightSideAccordion", "custom-select",
+                "afw", "afwBeforeHtml", "afwDescription", "afwLeftSideHtml", "afwRightSideHtml",
+                "tabCntBd", "filter-btn", "dropdown-filter",
+                "search-container", "search-input", "search-icon", "search-clear",
+                "topnavSubItems", "navDrag", "warn-icon", "warn-icon-badge",
+                "btn-sm", "btn-primary", "btn-secondary", "btn-light", "btn-link",
+                "btn-outline-danger"
+            };
+            foreach (var cls in contensiveUiClasses) {
+                identifiers.Add(cls);
+            }
+            //
+            // -- Contensive admin UI IDs (loaded dynamically)
+            var contensiveUiIds = new[] {
+                "afw", "wrapper", "desktop",
+                "accordionSidebar", "collapsingNavbar",
+                "cmdSearch", "filterDropdown",
+                "paginationPageNumber", "searchClear", "searchControl", "setPaginationPageNumber",
+                "sidebarToggle", "sidebarToggleTop",
+                "navbarDropdown", "navbarDropdownMenuLink"
+            };
+            foreach (var id in contensiveUiIds) {
+                identifiers.Add(id);
             }
             //
             // -- Font Awesome core classes (base classes only, individual icons are purged)
@@ -469,6 +526,16 @@ namespace Contensive.Processor.Controllers {
                 "fa-stack", "fa-stack-1x", "fa-stack-2x", "fa-inverse"
             };
             foreach (var cls in fontAwesomeCore) {
+                identifiers.Add(cls);
+            }
+            //
+            // -- Font Awesome specific icons used in admin UI templates
+            var fontAwesomeIcons = new[] {
+                "fa-trash-can", "fa-globe", "fa-cog", "fa-tachometer-alt",
+                "fa-angle-right", "fa-circle-question", "fa-clock-rotate-left", "fa-xmark",
+                "fa-bell", "fa-search", "fa-times"
+            };
+            foreach (var cls in fontAwesomeIcons) {
                 identifiers.Add(cls);
             }
         }

@@ -218,6 +218,18 @@ namespace Contensive.Processor.Controllers {
         //
         //==============================================================================================================
         /// <summary>
+        /// Save text file with Cache-Control max-age set on the remote file.
+        /// </summary>
+        /// <param name="pathFilename">Path and filename in the form "myfolder\subfolder\MyFile.txt"</param>
+        /// <param name="FileContent"></param>
+        /// <param name="cacheMaxAgeSeconds">The max-age value in seconds for the Cache-Control header. Use 0 for no cache header.</param>
+        public void saveFile(string pathFilename, string FileContent, int cacheMaxAgeSeconds) {
+            logger.Trace($"{core.logCommonMessage},FileController.saveFile, [{pathFilename}], cacheMaxAgeSeconds [{cacheMaxAgeSeconds}]");
+            saveFile_TextBinary(pathFilename, FileContent, null, false, isLocal, cacheMaxAgeSeconds);
+        }
+        //
+        //==============================================================================================================
+        /// <summary>
         /// test api, called from tests and within this class.
         /// </summary>
         /// <param name="pathFilename">Path and filename in the form "myfolder\subfolder\MyFile.txt"</param>
@@ -238,6 +250,17 @@ namespace Contensive.Processor.Controllers {
         /// <param name="FileContent"></param>
         public void saveFile(string pathFilename, byte[] FileContent)
             => saveFile(pathFilename, FileContent, isLocal);
+        //
+        //==============================================================================================================
+        /// <summary>
+        /// Save binary file with Cache-Control max-age set on the remote file.
+        /// </summary>
+        /// <param name="pathFilename">Path and filename in the form "myfolder\subfolder\MyFile.txt"</param>
+        /// <param name="FileContent"></param>
+        /// <param name="cacheMaxAgeSeconds">The max-age value in seconds for the Cache-Control header. Use 0 for no cache header.</param>
+        public void saveFile(string pathFilename, byte[] FileContent, int cacheMaxAgeSeconds) {
+            saveFile_TextBinary(pathFilename, null, FileContent, true, isLocal, cacheMaxAgeSeconds);
+        }
         //
         //==============================================================================================================
         /// <summary>
@@ -270,7 +293,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="binaryContent"></param>
         /// <param name="isBinary"></param>
         /// <param name="isLocalFileSystem"></param>
-        private void saveFile_TextBinary(string pathFilename, string textContent, byte[] binaryContent, bool isBinary, bool isLocalFileSystem) {
+        /// <param name="cacheMaxAgeSeconds">Optional Cache-Control max-age in seconds for remote files. 0 means no cache header.</param>
+        private void saveFile_TextBinary(string pathFilename, string textContent, byte[] binaryContent, bool isBinary, bool isLocalFileSystem, int cacheMaxAgeSeconds = 0) {
             try {
                 //
                 logger.Trace($"{core.logCommonMessage},FileController.saveFile_TextBinary, [{pathFilename}], isLocalFileSystem [{isLocalFileSystem}]");
@@ -307,7 +331,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 if (!isLocalFileSystem) {
                     // copy to remote
-                    copyFileLocalToRemote(pathFilename);
+                    copyFileLocalToRemote(pathFilename, cacheMaxAgeSeconds);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -1684,7 +1708,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="pathFilename">Path and filename in the form "myfolder\subfolder\MyFile.txt"</param>
         /// <returns></returns>
-        public bool copyFileLocalToRemote(string pathFilename) {
+        public bool copyFileLocalToRemote(string pathFilename, int cacheMaxAgeSeconds = 0) {
             bool result = false;
             try {
                 //
@@ -1706,6 +1730,11 @@ namespace Contensive.Processor.Controllers {
                     Key = convertToUnixSlash(joinPath(remotePathPrefix, pathFilename)),
                     FilePath = joinPath(localAbsRootPath, convertToDosSlash(pathFilename))
                 };
+                //
+                // -- set Cache-Control header if specified
+                if (cacheMaxAgeSeconds > 0) {
+                    request.Headers.CacheControl = $"public, max-age={cacheMaxAgeSeconds}";
+                }
                 //
                 // -- Make service call and get back the response.
                 PutObjectResponse response = s3Client.PutObjectAsync(request).waitSynchronously();

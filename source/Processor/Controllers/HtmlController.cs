@@ -3014,9 +3014,10 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- styles: use CSS merge if enabled, otherwise render individually
                     var styleAssets = inHeadAssets.FindAll(a => a.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.style));
-                    if (core.siteProperties.allowCssMerge && styleAssets.Count > 0) {
+                    bool isAdminRoute = core.webServer.requestPathPage.IndexOf($"/{core.appConfig.adminRoute}", StringComparison.OrdinalIgnoreCase) >= 0;
+                    if (core.siteProperties.allowCssMerge && styleAssets.Count > 0 && !isAdminRoute) {
                         //
-                        // -- CSS merge enabled: combine mergeable addon CSS into single file, defer marked assets
+                        // -- CSS merge enabled: combine mergeable addon CSS into single file, defer marked assets (skip for admin route)
                         styleList.AddRange(CssMergeController.getMergedStyleTags(core, styleAssets, allowDebug, htmlBody, core.siteProperties.allowCssPurge));
                     } else {
                         //

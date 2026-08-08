@@ -142,6 +142,17 @@ namespace Contensive.Processor {
         //
         //==========================================================================================
         /// <summary>
+        /// Save text file with Cache-Control max-age set on the remote file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="fileContent"></param>
+        /// <param name="cacheMaxAgeSeconds"></param>
+        public override void Save(string filename, string fileContent, int cacheMaxAgeSeconds) {
+            fileSystemController.saveFile(filename, fileContent, cacheMaxAgeSeconds);
+        }
+        //
+        //==========================================================================================
+        /// <summary>
         /// Save response from an http get
         /// </summary>
         /// <param name="pathFilename"></param>
@@ -180,6 +191,17 @@ namespace Contensive.Processor {
         /// <param name="fileContent"></param>
         public override void SaveBinary(string filename, byte[] fileContent) {
             fileSystemController.saveFile(filename, fileContent);
+        }
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Save binary file with Cache-Control max-age set on the remote file
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <param name="fileContent"></param>
+        /// <param name="cacheMaxAgeSeconds"></param>
+        public override void SaveBinary(string filename, byte[] fileContent, int cacheMaxAgeSeconds) {
+            fileSystemController.saveFile(filename, fileContent, cacheMaxAgeSeconds);
         }
         //
         //==========================================================================================
