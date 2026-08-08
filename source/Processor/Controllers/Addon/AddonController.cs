@@ -415,10 +415,10 @@ namespace Contensive.Processor.Controllers {
                     bool validMinJs = core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyJsFilename.filename);
                     if (validMinJs) {
                         string scriptCodeUrl = getCdnFileLink(core, addon.minifyJsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id, addon.jsDefer);
                     } else if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
                         string scriptCodeUrl = getCdnFileLink(core, addon.jsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id, addon.jsDefer);
                     }
                     //
                     // -- js Url
@@ -427,7 +427,7 @@ namespace Contensive.Processor.Controllers {
                         if (validMinJs && AddonModel.isAssetUrlLocal(core.cpParent, scriptUrl)) {
                             // -- local js, was included in minified
                         } else {
-                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id, addon.jsDefer);
                         }
                     }
                     if (!isDependencyThatAlreadyRan) {

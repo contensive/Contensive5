@@ -165,6 +165,7 @@
     <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.501.16" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.501.16" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.501.18" />
+    <PackageReference Include="ExCSS" Version="4.3.2" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.9" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />

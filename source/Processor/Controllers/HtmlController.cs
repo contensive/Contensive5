@@ -187,7 +187,8 @@ namespace Contensive.Processor.Controllers {
                         if (asset.content.Trim().Substring(0, 1) == "<") {
                             result.Add(Environment.NewLine + asset.content);
                         } else {
-                            result.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                            string deferAttr = asset.jsDefer ? " defer" : "";
+                            result.Add($"{Environment.NewLine}<script type=\"text/javascript\" src=\"{asset.content}\"{deferAttr}></script>");
                         }
                     }
                 }
@@ -2892,7 +2893,7 @@ namespace Contensive.Processor.Controllers {
         public string getHtmlDoc(string htmlBody ) {
             string result = "";
             try {
-                string htmlHead = getHtmlHead();
+                string htmlHead = getHtmlHead(htmlBody);
                 string htmlBeforeEndOfBody = getHtmlBodyEnd();
                 //
                 // -- add beta-mode classes
@@ -2929,7 +2930,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public string getHtmlHead() {
+        public string getHtmlHead(string htmlBody = "") {
             List<string> headList = [];
             try {
                 //
@@ -3016,7 +3017,7 @@ namespace Contensive.Processor.Controllers {
                     if (core.siteProperties.allowCssMerge && styleAssets.Count > 0) {
                         //
                         // -- CSS merge enabled: combine mergeable addon CSS into single file, defer marked assets
-                        styleList.AddRange(CssMergeController.getMergedStyleTags(core, styleAssets, allowDebug));
+                        styleList.AddRange(CssMergeController.getMergedStyleTags(core, styleAssets, allowDebug, htmlBody, core.siteProperties.allowCssPurge));
                     } else {
                         //
                         // -- CSS merge disabled: render each style individually, but still support cssDefer
@@ -3044,13 +3045,14 @@ namespace Contensive.Processor.Controllers {
                     foreach (var asset in inHeadAssets.FindAll(a => a.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.script))) {
                         if (string.IsNullOrEmpty(asset.content)) { continue; }
                         if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
-                            headScriptList.Add(getAddedByComment(asset.addedByMessage));
+                            headScriptList.Add(getAddedByComment(asset.addedByMessage + (asset.jsDefer ? " (deferred)" : "")));
                         }
                         if (asset.isLink) {
                             if (asset.content.Trim().Substring(0, 1) == "<") {
                                 headScriptList.Add(asset.content);
                             } else {
-                                headScriptList.Add($"<script type=\"text/javascript\" src=\"{asset.content}\"></script>");
+                                string deferAttr = asset.jsDefer ? " defer" : "";
+                                headScriptList.Add($"<script type=\"text/javascript\" src=\"{asset.content}\"{deferAttr}></script>");
                             }
                         } else {
                             headScriptList.Add($"<script type=\"text/javascript\">{asset.content}</script>");
@@ -3185,7 +3187,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addedByMessage">message displayed in debug mode</param>
         /// <param name="forceHead">if true, this document tag goes in the head, else at the end of body</param>
         /// <param name="sourceAddonId">optional, the addon that supplied this javascript</param>
-        public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId) {
+        public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId, bool jsDefer = false) {
             try {
                 if (string.IsNullOrEmpty(scriptUrl)) { return; }
                 //
@@ -3216,7 +3218,8 @@ namespace Contensive.Processor.Controllers {
                     isLink = true,
                     inHead = forceHead,
                     content = scriptUrlNormalized,
-                    sourceAddonId = sourceAddonId
+                    sourceAddonId = sourceAddonId,
+                    jsDefer = jsDefer
                 });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

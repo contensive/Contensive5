@@ -63,6 +63,10 @@ namespace Contensive.BaseClasses {
             /// If true, this style asset loads asynchronously and does not block page render
             /// </summary>
             public bool cssDefer { get; set; }
+            /// <summary>
+            /// If true, this script asset includes the defer attribute
+            /// </summary>
+            public bool jsDefer { get; set; }
         }
         //
         //====================================================================================================

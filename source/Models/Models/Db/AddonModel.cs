@@ -71,6 +71,10 @@ namespace Contensive.Models.Db {
         /// created from jsFilename by minify
         /// </summary>
         public FieldTypeJavascriptFile minifyJsFilename { get; set; }
+        /// <summary>
+        /// When true, this addon's script tags include the defer attribute
+        /// </summary>
+        public bool jsDefer { get; set; }
         public string link { get; set; }
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }

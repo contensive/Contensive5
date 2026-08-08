@@ -923,6 +923,18 @@ namespace Contensive.Processor.Controllers {
         private bool? _allowCssMerge = null;
         //
         /// <summary>
+        /// When true, unused CSS rules are purged per page and inlined. Requires allowCssMerge.
+        /// </summary>
+        public bool allowCssPurge {
+            get {
+                if (_allowCssPurge != null) { return (bool)_allowCssPurge; }
+                _allowCssPurge = getBoolean("Allow CSS Purge", false);
+                return (bool)_allowCssPurge;
+            }
+        }
+        private bool? _allowCssPurge = null;
+        //
+        /// <summary>
         /// file returned from site property 'RobotsTxtFilename'
         /// </summary>
         public string robotsTxt {
