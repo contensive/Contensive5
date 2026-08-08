@@ -187,7 +187,8 @@ namespace Contensive.Processor.Controllers {
                         if (asset.content.Trim().Substring(0, 1) == "<") {
                             result.Add(Environment.NewLine + asset.content);
                         } else {
-                            result.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                            string deferAttr = asset.jsDefer ? " defer" : "";
+                            result.Add($"{Environment.NewLine}<script type=\"text/javascript\" src=\"{asset.content}\"{deferAttr}></script>");
                         }
                     }
                 }
@@ -2892,7 +2893,7 @@ namespace Contensive.Processor.Controllers {
         public string getHtmlDoc(string htmlBody ) {
             string result = "";
             try {
-                string htmlHead = getHtmlHead();
+                string htmlHead = getHtmlHead(htmlBody);
                 string htmlBeforeEndOfBody = getHtmlBodyEnd();
                 //
                 // -- add beta-mode classes
@@ -2929,7 +2930,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public string getHtmlHead() {
+        public string getHtmlHead(string htmlBody = "") {
             List<string> headList = [];
             try {
                 //
@@ -3009,34 +3010,52 @@ namespace Contensive.Processor.Controllers {
                 if (core.doc.htmlAssetList.Count > 0) {
                     List<string> headScriptList = new List<string>();
                     List<string> styleList = new List<string>();
-                    foreach (var asset in core.doc.htmlAssetList.FindAll((CPDocBaseClass.HtmlAssetClass item) => (item.inHead))) {
-                        if (string.IsNullOrEmpty(asset.content)) { continue; }
-                        if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.style)) {
+                    var inHeadAssets = core.doc.htmlAssetList.FindAll((CPDocBaseClass.HtmlAssetClass item) => (item.inHead));
+                    //
+                    // -- styles: use CSS merge if enabled, otherwise render individually
+                    var styleAssets = inHeadAssets.FindAll(a => a.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.style));
+                    if (core.siteProperties.allowCssMerge && styleAssets.Count > 0) {
+                        //
+                        // -- CSS merge enabled: combine mergeable addon CSS into single file, defer marked assets
+                        styleList.AddRange(CssMergeController.getMergedStyleTags(core, styleAssets, allowDebug, htmlBody, core.siteProperties.allowCssPurge));
+                    } else {
+                        //
+                        // -- CSS merge disabled: render each style individually, but still support cssDefer
+                        foreach (var asset in styleAssets) {
+                            if (string.IsNullOrEmpty(asset.content)) { continue; }
                             if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
-                                styleList.Add(getAddedByComment(asset.addedByMessage));
+                                styleList.Add(getAddedByComment(asset.addedByMessage + (asset.cssDefer ? " (deferred)" : "")));
                             }
                             if (asset.isLink) {
                                 if (asset.content.Trim().Substring(0, 1) == "<") {
                                     styleList.Add(asset.content);
+                                } else if (asset.cssDefer) {
+                                    styleList.Add($"<link rel=\"stylesheet\" href=\"{asset.content}\" media=\"print\" onload=\"this.media='all'\">");
+                                    styleList.Add($"<noscript><link rel=\"stylesheet\" href=\"{asset.content}\"></noscript>");
                                 } else {
-                                    styleList.Add("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + asset.content + "\" >");
+                                    styleList.Add($"<link rel=\"stylesheet\" type=\"text/css\" href=\"{asset.content}\" >");
                                 }
                             } else {
-                                styleList.Add("<style>" + asset.content + "</style>");
+                                styleList.Add($"<style>{asset.content}</style>");
                             }
-                        } else if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.script)) {
-                            if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
-                                headScriptList.Add(getAddedByComment(asset.addedByMessage));
-                            }
-                            if (asset.isLink) {
-                                if (asset.content.Trim().Substring(0, 1) == "<") {
-                                    headScriptList.Add(asset.content);
-                                } else {
-                                    headScriptList.Add("<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
-                                }
+                        }
+                    }
+                    //
+                    // -- scripts: unchanged
+                    foreach (var asset in inHeadAssets.FindAll(a => a.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.script))) {
+                        if (string.IsNullOrEmpty(asset.content)) { continue; }
+                        if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
+                            headScriptList.Add(getAddedByComment(asset.addedByMessage + (asset.jsDefer ? " (deferred)" : "")));
+                        }
+                        if (asset.isLink) {
+                            if (asset.content.Trim().Substring(0, 1) == "<") {
+                                headScriptList.Add(asset.content);
                             } else {
-                                headScriptList.Add("<script type=\"text/javascript\">" + asset.content + "</script>");
+                                string deferAttr = asset.jsDefer ? " defer" : "";
+                                headScriptList.Add($"<script type=\"text/javascript\" src=\"{asset.content}\"{deferAttr}></script>");
                             }
+                        } else {
+                            headScriptList.Add($"<script type=\"text/javascript\">{asset.content}</script>");
                         }
                     }
                     headList.AddRange(styleList);
@@ -3168,7 +3187,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addedByMessage">message displayed in debug mode</param>
         /// <param name="forceHead">if true, this document tag goes in the head, else at the end of body</param>
         /// <param name="sourceAddonId">optional, the addon that supplied this javascript</param>
-        public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId) {
+        public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId, bool jsDefer = false) {
             try {
                 if (string.IsNullOrEmpty(scriptUrl)) { return; }
                 //
@@ -3199,7 +3218,8 @@ namespace Contensive.Processor.Controllers {
                     isLink = true,
                     inHead = forceHead,
                     content = scriptUrlNormalized,
-                    sourceAddonId = sourceAddonId
+                    sourceAddonId = sourceAddonId,
+                    jsDefer = jsDefer
                 });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -3261,7 +3281,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="styleSheetUrlNormalized">link, must start with either "/" or "http" or a "/" is added. This is because designers often create layouts without using a server by opening the files in the filesystem, and it is path relative.</param>
         /// <param name="addedByMessage">Displayed in debug mode</param>
-        public void addStyleLink(string styleSheetUrlNormalized, string addedByMessage) {
+        public void addStyleLink(string styleSheetUrlNormalized, string addedByMessage, int sourceAddonId = 0, bool canBeMerged = false, bool cssDefer = false) {
             try {
                 if (string.IsNullOrEmpty(styleSheetUrlNormalized)) { return; }
                 string link = styleSheetUrlNormalized.Trim();
@@ -3283,7 +3303,10 @@ namespace Contensive.Processor.Controllers {
                     assetType = CPDocBaseClass.HtmlAssetTypeEnum.style,
                     inHead = true,
                     isLink = true,
-                    content = link
+                    content = link,
+                    sourceAddonId = sourceAddonId,
+                    canBeMerged = canBeMerged,
+                    cssDefer = cssDefer
                 });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

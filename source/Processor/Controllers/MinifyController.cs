@@ -62,6 +62,9 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 addon.save(core.cpParent);
+                //
+                // -- invalidate any merged CSS files that include this addon
+                CssMergeController.invalidateAddonCss(core, addon.id);
 
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

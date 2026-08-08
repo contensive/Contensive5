@@ -415,10 +415,10 @@ namespace Contensive.Processor.Controllers {
                     bool validMinJs = core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyJsFilename.filename);
                     if (validMinJs) {
                         string scriptCodeUrl = getCdnFileLink(core, addon.minifyJsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id, addon.jsDefer);
                     } else if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
                         string scriptCodeUrl = getCdnFileLink(core, addon.jsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id, addon.jsDefer);
                     }
                     //
                     // -- js Url
@@ -427,7 +427,7 @@ namespace Contensive.Processor.Controllers {
                         if (validMinJs && AddonModel.isAssetUrlLocal(core.cpParent, scriptUrl)) {
                             // -- local js, was included in minified
                         } else {
-                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id, addon.jsDefer);
                         }
                     }
                     if (!isDependencyThatAlreadyRan) {
@@ -577,22 +577,23 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- styles (use minify version)
                             bool validMinCss = core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyStylesFilename.filename);
+                            bool addonCanBeMerged = !addon.cssDefer;
                             if (validMinCss) {
                                 // -- minified if allow and minified styles exists
-                                core.html.addStyleLink(getCdnFileLink(core, addon.minifyStylesFilename.filename), addon.name + " Minified Stylesheet");
+                                core.html.addStyleLink(getCdnFileLink(core, addon.minifyStylesFilename.filename), $"{addon.name} Minified Stylesheet", addon.id, addonCanBeMerged, addon.cssDefer);
                             } else if (!string.IsNullOrEmpty(addon.stylesFilename.filename)) {
                                 // -- non-minified if not allow, no minified styles, and rawStyles exist
-                                core.html.addStyleLink(getCdnFileLink(core, addon.stylesFilename.filename), addon.name + " Stylesheet");
+                                core.html.addStyleLink(getCdnFileLink(core, addon.stylesFilename.filename), $"{addon.name} Stylesheet", addon.id, addonCanBeMerged, addon.cssDefer);
                             }
                             //
-                            // -- link to stylesheet if not in minified styles. if allowmin and url starts with '/', it was in the min. 
+                            // -- link to stylesheet if not in minified styles. if allowmin and url starts with '/', it was in the min.
                             string cssUrl = AddonModel.getPlatformAsset(core.cpParent, addon.StylesLinkPlatform5Href, addon.stylesLinkHref); // (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
                             if (!string.IsNullOrEmpty(cssUrl)) {
                                 if (validMinCss && AddonModel.isAssetUrlLocal(core.cpParent, cssUrl)) {  // (styleSheetUrl.Substring(0, 1) == "/" && styleSheetUrl.Substring(0, 2) != "//")) {
                                     // -- url is wrapped up in minified styles
                                 } else {
                                     // -- style link is not allow-minified, or it does not begin with "/"
-                                    core.html.addStyleLink(cssUrl, addon.name + " Stylesheet Link");
+                                    core.html.addStyleLink(cssUrl, $"{addon.name} Stylesheet Link", addon.id, addonCanBeMerged, addon.cssDefer);
                                 }
                             }
                         }

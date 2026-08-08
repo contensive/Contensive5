@@ -71,6 +71,10 @@ namespace Contensive.Models.Db {
         /// created from jsFilename by minify
         /// </summary>
         public FieldTypeJavascriptFile minifyJsFilename { get; set; }
+        /// <summary>
+        /// When true, this addon's script tags include the defer attribute
+        /// </summary>
+        public bool jsDefer { get; set; }
         public string link { get; set; }
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }
@@ -127,6 +131,10 @@ namespace Contensive.Models.Db {
         /// The link to a stylesheet, used for html platform 5
         /// </summary>
         public string StylesLinkPlatform5Href { get; set; }
+        /// <summary>
+        /// When true, this addon's CSS loads asynchronously and does not block page render
+        /// </summary>
+        public bool cssDefer { get; set; }
         public bool template { get; set; }
         /// <summary>
         /// The time in seconds for this addon if run the background

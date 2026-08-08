@@ -182,6 +182,8 @@
 									<xs:element minOccurs="0" maxOccurs="1" name="JavaScriptForceHead" type="booleanYesNo"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="JsHeadScriptSrc" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="JsHeadScriptPlatform5Src" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="JsDefer" type="booleanYesNo"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="CssDefer" type="booleanYesNo"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="Category" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="Content" type="booleanYesNo"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="Template"  type="booleanYesNo" />
