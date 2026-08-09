@@ -804,7 +804,7 @@ namespace Contensive.Processor.Controllers {
                             + Environment.NewLine + "Styles added " + core.dateTimeNowMockable + Environment.NewLine + "*/"
                             + Environment.NewLine + StyleSheetAdd;
                     }
-                    core.wwwFiles.saveFile("templates/styles.css", SiteStyles);
+                    core.wwwFiles.saveFile("templates/styles.css", SiteStyles, 31536000);
                     //
                     // -- Update stylesheet cache
                     core.siteProperties.setProperty("StylesheetSerialNumber", "-1");

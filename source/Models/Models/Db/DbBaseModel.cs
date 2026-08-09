@@ -1350,7 +1350,11 @@ namespace Contensive.Models.Db {
                                                     fileFieldFilename = cp.Db.CreateFieldPathFilename(tableName, fieldNameNormalized, id, fieldTypeId);
                                                     fileFieldFilenameProperty.SetValue(textFileProperty, fileFieldFilename);
                                                 }
-                                                cp.CdnFiles.Save(fileFieldFilename, fileFieldContent);
+                                                if (fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileCSS || fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavaScript) {
+                                                    cp.CdnFiles.Save(fileFieldFilename, fileFieldContent, 31536000);
+                                                } else {
+                                                    cp.CdnFiles.Save(fileFieldFilename, fileFieldContent);
+                                                }
                                                 sqlPairs.Add(instanceProperty.Name, cp.Db.EncodeSQLText(fileFieldFilename));
                                             }
                                         }

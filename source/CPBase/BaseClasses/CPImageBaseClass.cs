@@ -155,6 +155,64 @@ namespace Contensive.BaseClasses {
         /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSizes string back</param>
         public abstract string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
         //
+        //==========================================================================================
+        /// <summary>
+        /// Resize and crop an image, returning actual output dimensions along with the CDN path.
+        /// Use this when you need to know the actual pixel dimensions of the resized image
+        /// (e.g., to populate width/height attributes on an img tag).
+        /// </summary>
+        /// <param name="imagePathFilename">The source image in CdnFiles.</param>
+        /// <param name="holeWidth">Target width in pixels, or 0 for proportional sizing.</param>
+        /// <param name="holeHeight">Target height in pixels, or 0 for proportional sizing.</param>
+        /// <param name="imageAltSizes">JSON string tracking generated sizes. Save back if isNewSize is true.</param>
+        /// <returns>ImageResizeResult with path, actual width, actual height, and isNewSize flag.</returns>
+        public abstract ImageResizeResult ResizeAndCropWithDimensions(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Generate responsive img srcset/sizes attributes for the given image.
+        /// Creates multiple resized WebP variants at standard breakpoints and returns
+        /// the attribute values needed for a responsive img tag.
+        /// </summary>
+        /// <param name="imagePathFilename">CDN path to the original image (no prefix).</param>
+        /// <param name="holeWidth">The max display width in pixels (used as largest srcset size).</param>
+        /// <param name="holeHeight">The display height at holeWidth (0 = auto/proportional).</param>
+        /// <param name="imageAltSizes">JSON string tracking generated sizes. Save back if changed.</param>
+        /// <returns>ImgSrcSetResult with src, srcset, sizes, imageWidth, and imageHeight.</returns>
+        public abstract ImgSrcSetResult GetImgSrcSet(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Result of an image resize operation, including actual output dimensions.
+        /// </summary>
+        public class ImageResizeResult {
+            /// <summary>CDN path to the resized image (unix slashes).</summary>
+            public string path { get; set; } = "";
+            /// <summary>Actual width of the output image in pixels.</summary>
+            public int width { get; set; }
+            /// <summary>Actual height of the output image in pixels.</summary>
+            public int height { get; set; }
+            /// <summary>True if a new variant was created and imageAltSizes should be saved.</summary>
+            public bool isNewSize { get; set; }
+        }
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Result of responsive srcset generation, containing the attribute values needed for a responsive img tag.
+        /// </summary>
+        public class ImgSrcSetResult {
+            /// <summary>Fallback src URL (largest size, for browsers that don't support srcset).</summary>
+            public string src { get; set; } = "";
+            /// <summary>srcset attribute value, e.g. "image-400x0.webp 400w, image-800x0.webp 800w".</summary>
+            public string srcset { get; set; } = "";
+            /// <summary>sizes attribute value, e.g. "(max-width: 1200px) 100vw, 1200px".</summary>
+            public string sizes { get; set; } = "";
+            /// <summary>Width of the largest variant in pixels, for the img width attribute.</summary>
+            public int imageWidth { get; set; }
+            /// <summary>Height of the largest variant in pixels, for the img height attribute.</summary>
+            public int imageHeight { get; set; }
+        }
+        //
         //====================================================================================================
         // deprecated
         //

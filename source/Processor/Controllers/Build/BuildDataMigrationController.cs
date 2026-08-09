@@ -587,6 +587,52 @@ namespace Contensive.Processor.Controllers.Build {
                         //    because the dotnet framework changed, these collections need to be updated
                         upgradeCommonCollectionsFromLibrary(core, cp, logPrefix);
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.8.10.1")) {
+                        //
+                        // -- upgrade altSizeList fields from Text to LongText for JSON format
+                        try {
+                            using var dt = core.db.executeQuery(
+                                "SELECT f.id, f.name, c.name AS contentName, t.name AS tableName"
+                                + " FROM ccfields f"
+                                + " JOIN cccontent c ON c.id = f.contentid"
+                                + " JOIN cctables t ON t.id = c.contenttableid"
+                                + " WHERE f.name LIKE '%altsizelist%'"
+                                + $" AND f.type = {(int)BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Text}"
+                            );
+                            if (dt?.Rows != null) {
+                                foreach (System.Data.DataRow dr in dt.Rows) {
+                                    string fieldName = GenericController.getText(dr["name"]);
+                                    string tableName = GenericController.getText(dr["tableName"]);
+                                    int fieldId = GenericController.getInteger(dr["id"]);
+                                    //
+                                    // -- update field type from Text to LongText
+                                    core.db.executeNonQuery($"UPDATE ccfields SET type={(int)BaseClasses.CPContentBaseClass.FieldTypeIdEnum.LongText} WHERE id={fieldId}");
+                                    //
+                                    // -- drop any indexes on this column before altering
+                                    try {
+                                        core.db.executeNonQuery(
+                                            $"DECLARE @sql NVARCHAR(MAX) = '';"
+                                            + $" SELECT @sql = @sql + 'DROP INDEX [' + i.name + '] ON [{tableName}]; '"
+                                            + $" FROM sys.indexes i"
+                                            + $" JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id"
+                                            + $" JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id"
+                                            + $" WHERE c.name = '{fieldName}'"
+                                            + $" AND i.object_id = OBJECT_ID('{tableName}')"
+                                            + $" AND i.is_primary_key = 0;"
+                                            + $" IF LEN(@sql) > 0 EXEC sp_executesql @sql;"
+                                        );
+                                    } catch (Exception) {
+                                        // -- index drop may fail if no indexes exist, continue
+                                    }
+                                    //
+                                    // -- alter the column to nvarchar(max)
+                                    core.db.executeNonQuery($"ALTER TABLE [{tableName}] ALTER COLUMN [{fieldName}] NVARCHAR(MAX)");
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.Error($"{core.logCommonMessage}", ex, "altSizeList field migration");
+                        }
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

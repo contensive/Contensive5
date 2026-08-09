@@ -177,6 +177,22 @@ namespace Contensive.Processor {
         }
         //
         // ====================================================================================================
+        /// <summary>
+        /// Resize and crop, returning actual output dimensions along with the path.
+        /// </summary>
+        public override ImageResizeResult ResizeAndCropWithDimensions(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes) {
+            return ImageController.resizeAndCropWithDimensions(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes);
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Generate responsive img srcset/sizes attributes for the given image.
+        /// </summary>
+        public override ImgSrcSetResult GetImgSrcSet(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes) {
+            return ImageController.getImgSrcSet(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes);
+        }
+        //
+        // ====================================================================================================
         //
         [Obsolete("Use ResizeAndCrop()", false)]
         public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {

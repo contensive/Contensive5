@@ -3207,8 +3207,9 @@ namespace Contensive.Processor.Controllers {
                 CPDocBaseClass.HtmlAssetClass asset = core.doc.htmlAssetList.Find(t => (t.content == scriptUrlNormalized) && t.isLink);
                 if (asset != null) {
                     //
-                    // already in list, just mark it forceHead
+                    // already in list, update forceHead and jsDefer
                     asset.inHead = asset.inHead || forceHead;
+                    asset.jsDefer = asset.jsDefer || jsDefer;
                     return;
                 }
                 //

@@ -1,4 +1,6 @@
-﻿using SixLabors.ImageSharp;
+﻿using Contensive.Processor.Models.Domain;
+using Newtonsoft.Json;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -225,7 +227,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="imageCdnPathFilename">CDN path to the source image file</param>
         /// <param name="holeWidth">Target width in pixels, or 0 for proportional sizing</param>
         /// <param name="holeHeight">Target height in pixels, or 0 for proportional sizing</param>
-        /// <param name="imageAltSizes">Comma-delimited list tracking generated sizes; first entry is the source filename</param>
+        /// <param name="imageAltSizes">JSON string tracking generated sizes (v2 format). Legacy comma-delimited format is converted on-the-fly.</param>
         /// <param name="saveAsWebP">If true, output is saved as .webp regardless of source format</param>
         /// <param name="cropOrPad">If true, resize to fill and crop overflow. If false, resize to fit and pad remainder.
         /// Ignored when one dimension is 0 (proportional resize, no crop or pad).</param>
@@ -264,40 +266,43 @@ namespace Contensive.Processor.Controllers {
                     // -- unsupported image type, return original
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
-                // 
-                // -- verify this altsizelist matches this image, or reset it
-                List<string> imageAltSizeList = imageAltSizes.Split(',').ToList();
-                if (!imageAltSizeList.Contains(imageCdnPathFilename)) {
-                    // 
-                    // -- alt size list does not start with this filename, new image uploaded, reset list
-                    imageAltSizeList.Clear();
-                    imageAltSizeList.Add(imageCdnPathFilename);
-                }
                 //
-                // -- check if the image is in the altSizeList, fast but default images may not exist
-                if (imageAltSizeList.Contains(imageAltsize + filenameExt)) {
+                // -- parse the alt size list (handles both JSON v2 and legacy comma-delimited formats)
+                var altSizeModel = parseAltSizeList(imageAltSizes, imageCdnPathFilename);
+                //
+                // -- check if the image is in the altSizeList (fast lookup)
+                var existingEntry = altSizeModel.sizes.Find(e => e.w == holeWidth && e.h == holeHeight && e.crop == cropOrPad);
+                if (existingEntry != null) {
                     //
-                    // -- if altSizeList shows the image exists, return it
+                    // -- altSizeList shows the image exists, return it
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
-                // -- first, use cache to determine if this image size exists (fastest)
+                // -- use cache to determine if this image size exists (fastest after list check)
                 string imageExistsKey = "fileExists-" + newImageFilename;
                 if (core.cache.getBoolean(imageExistsKey)) {
                     //
-                    // -- if altSizeList shows the image exists, return it
-                    imageAltSizeList.Add(imageAltsize + filenameExt);
-                    imageAltSizes = string.Join(",", imageAltSizeList.ToArray());
+                    // -- cached as existing, add to model and return
+                    altSizeModel.sizes.Add(new ImageAltSizeEntry {
+                        w = holeWidth, h = holeHeight, ah = 0, aw = holeWidth,
+                        f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
+                        crop = cropOrPad
+                    });
+                    imageAltSizes = serializeAltSizeList(altSizeModel);
                     isNewSize = true;
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
-                // -- check if the file actually exists (slowest)
+                // -- check if the file actually exists on disk (slowest)
                 if (core.cdnFiles.fileExists(newImageFilename)) {
                     //
-                    // -- image exists, return it
-                    imageAltSizeList.Add(imageAltsize + filenameExt);
-                    imageAltSizes = string.Join(",", imageAltSizeList.ToArray());
+                    // -- image exists, add to model, cache, and return
+                    altSizeModel.sizes.Add(new ImageAltSizeEntry {
+                        w = holeWidth, h = holeHeight, ah = 0, aw = holeWidth,
+                        f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
+                        crop = cropOrPad
+                    });
+                    imageAltSizes = serializeAltSizeList(altSizeModel);
                     isNewSize = true;
                     core.cache.storeObject(imageExistsKey, true);
                     return newImageFilename.Replace(@"\", "/");
@@ -497,10 +502,17 @@ namespace Contensive.Processor.Controllers {
                     image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
                 }
                 core.cdnFiles.copyFileLocalToRemote(newImageFilename);
-                // 
-                // -- save the new size back to the item and cache
-                imageAltSizeList.Add(imageAltsize + filenameExt);
-                imageAltSizes = String.Join(",", imageAltSizeList.ToArray());
+                //
+                // -- save the new size back to the model and cache
+                altSizeModel.sizes.Add(new ImageAltSizeEntry {
+                    w = holeWidth,
+                    h = holeHeight,
+                    ah = image.Height,
+                    aw = image.Width,
+                    f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
+                    crop = cropOrPad
+                });
+                imageAltSizes = serializeAltSizeList(altSizeModel);
                 isNewSize = true;
                 core.cache.storeObject(imageExistsKey, true);
                 return newImageFilename.Replace(@"\", "/");
@@ -515,6 +527,187 @@ namespace Contensive.Processor.Controllers {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return imageCdnPathFilename;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Resize and crop, returning actual output dimensions along with the path.
+        /// Used by cp.Image.ResizeAndCropWithDimensions.
+        /// </summary>
+        public static BaseClasses.CPImageBaseClass.ImageResizeResult resizeAndCropWithDimensions(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes) {
+            string path = resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, true, true, out bool isNewSize);
+            var model = parseAltSizeList(imageAltSizes, imageCdnPathFilename);
+            var entry = model.sizes.Find(e => e.w == holeWidth && e.h == holeHeight && e.crop);
+            return new BaseClasses.CPImageBaseClass.ImageResizeResult {
+                path = path,
+                width = entry?.aw ?? holeWidth,
+                height = entry?.ah ?? holeHeight,
+                isNewSize = isNewSize
+            };
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Generate responsive srcset/sizes attributes for the given image.
+        /// Used by cp.Image.GetImgSrcSet.
+        /// </summary>
+        public static BaseClasses.CPImageBaseClass.ImgSrcSetResult getImgSrcSet(CoreController core, string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes) {
+            try {
+                var result = new BaseClasses.CPImageBaseClass.ImgSrcSetResult();
+                if (string.IsNullOrWhiteSpace(imagePathFilename)) {
+                    return result;
+                }
+                //
+                // -- determine breakpoint widths based on holeWidth
+                var breakpointWidths = getBreakpointWidths(holeWidth);
+                //
+                // -- generate resized variants at each breakpoint
+                var srcsetParts = new List<string>();
+                string largestSrc = "";
+                int largestActualWidth = 0;
+                int largestActualHeight = 0;
+                foreach (int bpWidth in breakpointWidths) {
+                    int bpHeight = 0;
+                    if (holeHeight > 0 && holeWidth > 0) {
+                        bpHeight = (int)Math.Round((double)bpWidth * holeHeight / holeWidth);
+                    }
+                    string resizedPath = resize(core, imagePathFilename, bpWidth, bpHeight, ref imageAltSizes, true, true, out _);
+                    string fullUrl = HttpController.getCdnFilePathPrefix(core) + resizedPath.Replace(" ", "%20");
+                    srcsetParts.Add($"{fullUrl} {bpWidth}w");
+                    largestSrc = fullUrl;
+                    //
+                    // -- track dimensions from the largest breakpoint
+                    var model = parseAltSizeList(imageAltSizes, imagePathFilename);
+                    var entry = model.sizes.Find(e => e.w == bpWidth && e.h == bpHeight && e.crop);
+                    if (entry != null) {
+                        largestActualWidth = entry.aw;
+                        largestActualHeight = entry.ah;
+                    }
+                }
+                //
+                // -- assemble result
+                result.src = largestSrc;
+                result.srcset = string.Join(", ", srcsetParts);
+                result.sizes = $"(max-width: {holeWidth}px) 100vw, {holeWidth}px";
+                result.imageWidth = largestActualWidth > 0 ? largestActualWidth : holeWidth;
+                result.imageHeight = largestActualHeight;
+                return result;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Determine the set of breakpoint widths to generate based on the maximum display width.
+        /// Keeps the number of resize operations bounded (max 4 variants).
+        /// </summary>
+        private static List<int> getBreakpointWidths(int holeWidth) {
+            var widths = new List<int>();
+            if (holeWidth <= 400) {
+                widths.Add(holeWidth);
+            } else if (holeWidth <= 800) {
+                widths.Add(holeWidth / 2);
+                widths.Add(holeWidth);
+            } else if (holeWidth <= 1600) {
+                widths.Add(400);
+                int halfWidth = holeWidth / 2;
+                if (halfWidth != 400) {
+                    widths.Add(halfWidth);
+                }
+                widths.Add(holeWidth);
+            } else {
+                widths.Add(400);
+                widths.Add(800);
+                widths.Add(1200);
+                if (holeWidth != 1200) {
+                    widths.Add(holeWidth);
+                }
+            }
+            return widths;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Parse imageAltSizes string, handling both JSON (v2) and legacy comma-delimited formats.
+        /// If legacy format is detected, converts to JSON on-the-fly.
+        /// </summary>
+        internal static ImageAltSizeListModel parseAltSizeList(string imageAltSizes, string imageCdnPathFilename) {
+            if (string.IsNullOrWhiteSpace(imageAltSizes)) {
+                return new ImageAltSizeListModel { src = imageCdnPathFilename };
+            }
+            string trimmed = imageAltSizes.TrimStart();
+            if (trimmed.StartsWith("{")) {
+                //
+                // -- JSON format
+                try {
+                    var model = JsonConvert.DeserializeObject<ImageAltSizeListModel>(imageAltSizes);
+                    if (model == null) {
+                        return new ImageAltSizeListModel { src = imageCdnPathFilename };
+                    }
+                    //
+                    // -- verify source matches; if not, image was re-uploaded, reset
+                    if (!string.Equals(model.src, imageCdnPathFilename, StringComparison.OrdinalIgnoreCase)) {
+                        return new ImageAltSizeListModel { src = imageCdnPathFilename };
+                    }
+                    return model;
+                } catch {
+                    return new ImageAltSizeListModel { src = imageCdnPathFilename };
+                }
+            }
+            //
+            // -- legacy comma-delimited format: convert on-the-fly
+            var result = new ImageAltSizeListModel();
+            var parts = imageAltSizes.Split(',');
+            if (parts.Length > 0) {
+                result.src = parts[0].Trim();
+                //
+                // -- verify source matches
+                if (!string.Equals(result.src, imageCdnPathFilename, StringComparison.OrdinalIgnoreCase)) {
+                    return new ImageAltSizeListModel { src = imageCdnPathFilename };
+                }
+                for (int i = 1; i < parts.Length; i++) {
+                    string entry = parts[i].Trim();
+                    if (string.IsNullOrEmpty(entry)) { continue; }
+                    //
+                    // -- entry format: [pad-]WIDTHxHEIGHT.ext
+                    bool isCrop = true;
+                    string sizePart = entry;
+                    if (sizePart.StartsWith("pad-")) {
+                        isCrop = false;
+                        sizePart = sizePart.Substring(4);
+                    }
+                    //
+                    // -- strip extension
+                    int dotPos = sizePart.LastIndexOf('.');
+                    if (dotPos > 0) {
+                        sizePart = sizePart.Substring(0, dotPos);
+                    }
+                    int xPos = sizePart.IndexOf('x');
+                    if (xPos > 0
+                        && int.TryParse(sizePart.Substring(0, xPos), out int w)
+                        && int.TryParse(sizePart.Substring(xPos + 1), out int h)) {
+                        result.sizes.Add(new ImageAltSizeEntry {
+                            w = w,
+                            h = h,
+                            ah = (h > 0) ? h : 0,
+                            aw = w,
+                            f = entry,
+                            crop = isCrop
+                        });
+                    }
+                }
+            }
+            return result;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Serialize the alt size list model back to its JSON string form.
+        /// </summary>
+        internal static string serializeAltSizeList(ImageAltSizeListModel model) {
+            return JsonConvert.SerializeObject(model, Formatting.None);
         }
         //
         //====================================================================================================
