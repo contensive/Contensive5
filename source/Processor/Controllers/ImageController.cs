@@ -274,7 +274,12 @@ namespace Contensive.Processor.Controllers {
                 var existingEntry = altSizeModel.sizes.Find(e => e.w == holeWidth && e.h == holeHeight && e.crop == cropOrPad);
                 if (existingEntry != null) {
                     //
-                    // -- altSizeList shows the image exists, return it
+                    // -- altSizeList shows the image exists
+                    // -- if actual dimensions are missing (legacy data), read the file once to populate them
+                    if (existingEntry.ah == 0 || existingEntry.aw == 0) {
+                        populateActualDimensions(core, existingEntry, newImageFilename);
+                        imageAltSizes = serializeAltSizeList(altSizeModel);
+                    }
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
@@ -283,11 +288,13 @@ namespace Contensive.Processor.Controllers {
                 if (core.cache.getBoolean(imageExistsKey)) {
                     //
                     // -- cached as existing, add to model and return
-                    altSizeModel.sizes.Add(new ImageAltSizeEntry {
+                    var cacheEntry = new ImageAltSizeEntry {
                         w = holeWidth, h = holeHeight, ah = 0, aw = holeWidth,
                         f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
                         crop = cropOrPad
-                    });
+                    };
+                    populateActualDimensions(core, cacheEntry, newImageFilename);
+                    altSizeModel.sizes.Add(cacheEntry);
                     imageAltSizes = serializeAltSizeList(altSizeModel);
                     isNewSize = true;
                     return newImageFilename.Replace(@"\", "/");
@@ -297,11 +304,13 @@ namespace Contensive.Processor.Controllers {
                 if (core.cdnFiles.fileExists(newImageFilename)) {
                     //
                     // -- image exists, add to model, cache, and return
-                    altSizeModel.sizes.Add(new ImageAltSizeEntry {
+                    var fileEntry = new ImageAltSizeEntry {
                         w = holeWidth, h = holeHeight, ah = 0, aw = holeWidth,
                         f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
                         crop = cropOrPad
-                    });
+                    };
+                    populateActualDimensions(core, fileEntry, newImageFilename);
+                    altSizeModel.sizes.Add(fileEntry);
                     imageAltSizes = serializeAltSizeList(altSizeModel);
                     isNewSize = true;
                     core.cache.storeObject(imageExistsKey, true);
@@ -324,6 +333,8 @@ namespace Contensive.Processor.Controllers {
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 //
+                int proportionalWidth = image.Width;
+                int proportionalHeight = image.Height;
                 if (holeWidth.Equals(0) || holeHeight.Equals(0)) {
                     //
                     // -- one dimension is 0: resize proportionally by the provided dimension, no crop
@@ -342,6 +353,10 @@ namespace Contensive.Processor.Controllers {
                     }
                     if (targetWidth < 1) { targetWidth = 1; }
                     if (targetHeight < 1) { targetHeight = 1; }
+                    //
+                    // -- track the proportional dimensions for the alt size entry
+                    proportionalWidth = targetWidth;
+                    proportionalHeight = targetHeight;
                     //
                     // -- only resize if the target is smaller than the original
                     if (targetWidth < image.Width || targetHeight < image.Height) {
@@ -507,8 +522,8 @@ namespace Contensive.Processor.Controllers {
                 altSizeModel.sizes.Add(new ImageAltSizeEntry {
                     w = holeWidth,
                     h = holeHeight,
-                    ah = image.Height,
-                    aw = image.Width,
+                    ah = proportionalHeight,
+                    aw = proportionalWidth,
                     f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
                     crop = cropOrPad
                 });
@@ -700,6 +715,29 @@ namespace Contensive.Processor.Controllers {
                 }
             }
             return result;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// For cache-hit entries where actual dimensions are unknown (ah==0 or aw==0),
+        /// read the existing resized file from CDN to populate actual width and height.
+        /// This is a one-time cost per entry — once ah/aw are stored in JSON, subsequent
+        /// lookups skip this step.
+        /// </summary>
+        private static void populateActualDimensions(CoreController core, ImageAltSizeEntry entry, string imageFilePath) {
+            if (entry.ah > 0 && entry.aw > 0) { return; }
+            try {
+                core.cdnFiles.copyFileRemoteToLocal(imageFilePath);
+                string localPath = core.cdnFiles.localAbsRootPath + imageFilePath.Replace("/", @"\");
+                if (!File.Exists(localPath)) { return; }
+                var info = Image.Identify(localPath);
+                if (info != null) {
+                    entry.aw = info.Width;
+                    entry.ah = info.Height;
+                }
+            } catch (Exception ex) {
+                logger.Warn(ex, $"populateActualDimensions failed for [{imageFilePath}]");
+            }
         }
         //
         //====================================================================================================
