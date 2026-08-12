@@ -28,12 +28,24 @@ namespace Contensive.Processor.LayoutBuilder {
         // constructors
         //
         /// <summary>
-        /// prefered constructor
+        /// Deprecated. Use the constructor that accepts callbackAddonGuid.
         /// </summary>
         /// <param name="cp"></param>
+        [Obsolete("Deprecated. Use the constructor that accepts callbackAddonGuid to ensure per-addon property isolation.", false)]
         public LayoutBuilderListClass(CPBaseClass cp) : base(cp) {
             this.cp = (CPClass)cp;
             layoutBuilderBase = new(cp);
+            //
+            // -- set includeForm default true
+            includeForm = true;
+        }
+        /// <summary>
+        /// Preferred constructor. The callbackAddonGuid identifies the addon for ajax callbacks and is used to persist search/filter values per-addon.
+        /// </summary>
+        public LayoutBuilderListClass(CPBaseClass cp, string callbackAddonGuid) : base(cp, callbackAddonGuid) {
+            this.cp = (CPClass)cp;
+            layoutBuilderBase = new(cp);
+            layoutBuilderBase.callbackAddonGuid = callbackAddonGuid;
             //
             // -- set includeForm default true
             includeForm = true;
@@ -265,14 +277,21 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string sqlSearchTerm {
             get {
                 if (_sqlSearchTerm != null) { return _sqlSearchTerm; }
+                if (string.IsNullOrEmpty(callbackAddonGuid)) {
+                    //
+                    // -- callbackAddonGuid not set, log warning and return only the current request value without persisting.
+                    // -- callbackAddonGuid must be set before accessing sqlSearchTerm so the value can be persisted per-addon.
+                    cp.Log.Warn("LayoutBuilderListClass.sqlSearchTerm accessed before callbackAddonGuid is set. Set callbackAddonGuid first.");
+                    return cp.Doc.IsProperty("searchTerm") ? cp.Request.GetText("searchTerm") : "";
+                }
                 string propertyKey = $"AdminUIListSearch_{callbackAddonGuid}";
                 if (cp.Doc.IsProperty("searchTerm")) {
                     //
                     // -- ajax callback, use submitted value and save it
                     _sqlSearchTerm = cp.Request.GetText("searchTerm");
-                    cp.User.SetProperty(propertyKey, _sqlSearchTerm);
+                    cp.Visit.SetProperty(propertyKey, _sqlSearchTerm);
                 }
-                _sqlSearchTerm = cp.User.GetText(propertyKey);
+                _sqlSearchTerm = cp.Visit.GetText(propertyKey);
                 return _sqlSearchTerm;
             }
         }

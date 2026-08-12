@@ -36,9 +36,17 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a list layout builder for displaying tabular data with filters.
+        /// Deprecated. Use CreateLayoutBuilderList(string callbackAddonGuid) to ensure per-addon property isolation.
         /// </summary>
+        [Obsolete("Deprecated. Use CreateLayoutBuilderList(string callbackAddonGuid) to ensure per-addon property isolation.", false)]
         public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Create a list layout builder for displaying tabular data with filters.
+        /// The callbackAddonGuid identifies the addon for ajax callbacks and is used to persist search/filter values per-addon.
+        /// </summary>
+        public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList(string callbackAddonGuid);
         //
         //====================================================================================================
         /// <summary>

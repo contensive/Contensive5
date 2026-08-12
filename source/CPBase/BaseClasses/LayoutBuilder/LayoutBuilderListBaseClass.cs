@@ -5,7 +5,22 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// A tabular list of data rows with filters on the left.
     /// </summary>
-    public abstract class LayoutBuilderListBaseClass(CPBaseClass cp) : LayoutBuilderBaseClass(cp) {
+    public abstract class LayoutBuilderListBaseClass : LayoutBuilderBaseClass {
+        /// <summary>
+        /// Constructor. Set callbackAddonGuid before accessing query properties (sqlSearchTerm, sqlOrderBy, pagination).
+        /// </summary>
+        [Obsolete("Deprecated. Use the constructor that accepts callbackAddonGuid to ensure per-addon property isolation.", false)]
+        protected LayoutBuilderListBaseClass(CPBaseClass cp) : base(cp) { }
+        /// <summary>
+        /// Preferred constructor. The callbackAddonGuid identifies the addon for ajax callbacks and is used to persist search/filter values per-addon.
+        /// </summary>
+        protected LayoutBuilderListBaseClass(CPBaseClass cp, string callbackAddonGuid) : base(cp) {
+            _constructorCallbackAddonGuid = callbackAddonGuid;
+        }
+        /// <summary>
+        /// The callbackAddonGuid passed to the constructor for use by the derived class during initialization.
+        /// </summary>
+        protected string _constructorCallbackAddonGuid { get; }
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.

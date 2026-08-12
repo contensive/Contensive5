@@ -42,8 +42,13 @@ namespace Contensive.Processor {
             return new LayoutBuilder.LayoutBuilderTwoColumnRight(cp);
         }
 
+        [Obsolete("Deprecated. Use CreateLayoutBuilderList(string callbackAddonGuid) to ensure per-addon property isolation.", false)]
         public override LayoutBuilderListBaseClass CreateLayoutBuilderList() {
             return new LayoutBuilder.LayoutBuilderListClass(cp);
+        }
+
+        public override LayoutBuilderListBaseClass CreateLayoutBuilderList(string callbackAddonGuid) {
+            return new LayoutBuilder.LayoutBuilderListClass(cp, callbackAddonGuid);
         }
 
         public override LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue() {
