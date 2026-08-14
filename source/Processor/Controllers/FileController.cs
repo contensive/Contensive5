@@ -153,8 +153,28 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if (fileExists_local(pathFilename)) {
-                        using (StreamReader sr = File.OpenText(convertRelativeToLocalAbsPath(pathFilename))) {
-                            returnContent = sr.ReadToEnd();
+                        //
+                        // -- retry loop to handle file contention from concurrent requests
+                        string absPath = convertRelativeToLocalAbsPath(pathFilename);
+                        int retryCount = 0;
+                        const int maxRetries = 5;
+                        const int retryDelayMs = 50;
+                        while (true) {
+                            try {
+                                using (var fs = new FileStream(absPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                using (var sr = new StreamReader(fs)) {
+                                    returnContent = sr.ReadToEnd();
+                                }
+                                break;
+                            } catch (IOException) when (retryCount < maxRetries) {
+                                retryCount++;
+                                logger.Trace($"{core.logCommonMessage},FileController.readFileText, file contention (IOException) on [{absPath}], retry {retryCount} of {maxRetries}");
+                                Thread.Sleep(retryDelayMs * retryCount);
+                            } catch (UnauthorizedAccessException) when (retryCount < maxRetries) {
+                                retryCount++;
+                                logger.Trace($"{core.logCommonMessage},FileController.readFileText, file access denied on [{absPath}], retry {retryCount} of {maxRetries}");
+                                Thread.Sleep(retryDelayMs * retryCount * 2); // Wait longer for access denied
+                            }
                         }
                     }
                 }
@@ -195,9 +215,28 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if (fileExists(pathFilename, isLocalFileSystem)) {
-                        using (FileStream sr = File.OpenRead(convertRelativeToLocalAbsPath(pathFilename))) {
-                            returnContent = new byte[sr.Length];
-                            int bytesRead = sr.Read(returnContent, 0, (int)sr.Length);
+                        //
+                        // -- retry loop to handle file contention from concurrent requests
+                        string absPath = convertRelativeToLocalAbsPath(pathFilename);
+                        int retryCount = 0;
+                        const int maxRetries = 5;
+                        const int retryDelayMs = 50;
+                        while (true) {
+                            try {
+                                using (FileStream sr = new FileStream(absPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                                    returnContent = new byte[sr.Length];
+                                    int bytesRead = sr.Read(returnContent, 0, (int)sr.Length);
+                                }
+                                break;
+                            } catch (IOException) when (retryCount < maxRetries) {
+                                retryCount++;
+                                logger.Trace($"{core.logCommonMessage},FileController.readFileBinary, file contention (IOException) on [{absPath}], retry {retryCount} of {maxRetries}");
+                                Thread.Sleep(retryDelayMs * retryCount);
+                            } catch (UnauthorizedAccessException) when (retryCount < maxRetries) {
+                                retryCount++;
+                                logger.Trace($"{core.logCommonMessage},FileController.readFileBinary, file access denied on [{absPath}], retry {retryCount} of {maxRetries}");
+                                Thread.Sleep(retryDelayMs * retryCount * 2); // Wait longer for access denied
+                            }
                         }
                     }
                 }

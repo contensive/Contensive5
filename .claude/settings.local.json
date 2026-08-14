@@ -82,7 +82,8 @@
       "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" ContensiveAspx.sln //p:DeployOnBuild=true //p:PublishProfile=defaultSite)",
       "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" ContensiveAspx.sln //p:DeployOnBuild=true //p:PublishProfile=defaultSite //v:d)",
       "Bash(\"C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/msbuild.exe\" iisDefaultSite/iisDefaultSite.csproj //t:Build //v:d)",
-      "WebFetch(domain:www.oasis-internal-medicine.com)"
+      "WebFetch(domain:www.oasis-internal-medicine.com)",
+      "WebFetch(domain:contensive.io)"
     ]
   }
 }

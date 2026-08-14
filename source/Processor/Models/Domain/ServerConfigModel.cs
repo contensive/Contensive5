@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using Contensive.BaseModels;
 using Contensive.Processor.Controllers;
@@ -22,9 +23,9 @@ namespace Contensive.Processor.Models.Domain {
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
-        // Named mutex for cross-process synchronization of config.json access
-        private static readonly string ConfigFileMutexName = "Global\\ContensiveConfigFileMutex";
-        private const int MutexTimeoutMs = 5000; // 5 second timeout
+        // File-based lock for cross-process/cross-user synchronization of config.json access
+        private static readonly string LockFileName = "config.lock";
+        private const int LockTimeoutMs = 5000; // 5 second timeout
         //
         private CoreController core;
         //
@@ -251,19 +252,78 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
+        /// Acquire file-based lock for cross-process/cross-user synchronization of config.json access.
+        /// The lock file is automatically deleted when the stream is disposed.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns>FileStream that must be disposed to release the lock</returns>
+        private static FileStream AcquireConfigLock(CoreController core) {
+            string lockFilePath = core.programDataFiles.convertRelativeToLocalAbsPath(LockFileName);
+            string fallbackLockPath = Path.Combine(Path.GetTempPath(), $"Contensive_{LockFileName}");
+            DateTime startTime = DateTime.UtcNow;
+            bool attemptedStaleFileCleanup = false;
+            bool usingFallbackPath = false;
+
+            while (true) {
+                try {
+                    // Create/open lock file with exclusive access
+                    return new FileStream(
+                        lockFilePath,
+                        FileMode.OpenOrCreate,
+                        FileAccess.ReadWrite,
+                        FileShare.None,  // No sharing - exclusive lock
+                        1,
+                        FileOptions.DeleteOnClose  // Auto-cleanup when disposed
+                    );
+                } catch (UnauthorizedAccessException ex) {
+                    // Could be stale lock file from crashed process - try to delete it once
+                    if (!attemptedStaleFileCleanup && File.Exists(lockFilePath)) {
+                        attemptedStaleFileCleanup = true;
+                        try {
+                            logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock, attempting to remove stale lock file: [{lockFilePath}]");
+                            File.Delete(lockFilePath);
+                            Thread.Sleep(50); // Brief pause before retry
+                            continue; // Retry with deleted file
+                        } catch {
+                            // Delete failed - file truly locked or permissions issue
+                        }
+                    }
+
+                    // If not already using fallback, try temp directory
+                    if (!usingFallbackPath) {
+                        logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock, switching to temp directory for lock file: [{fallbackLockPath}]");
+                        lockFilePath = fallbackLockPath;
+                        usingFallbackPath = true;
+                        attemptedStaleFileCleanup = false; // Reset for fallback path
+                        startTime = DateTime.UtcNow; // Reset timeout for fallback attempt
+                        continue; // Retry with fallback path
+                    }
+
+                    // Both primary and fallback failed
+                    logger.Error($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock, access denied to lock file (tried both primary and temp locations)", ex);
+                    throw;
+                } catch (IOException) {
+                    // File is locked by another process
+                    if ((DateTime.UtcNow - startTime).TotalMilliseconds > LockTimeoutMs) {
+                        logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock timed out waiting for config file lock");
+                        throw new TimeoutException($"Timed out waiting for exclusive access to config.json after {LockTimeoutMs}ms");
+                    }
+                    Thread.Sleep(100);  // Wait 100ms before retry
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// get ServerConfig, returning only the server data section without specific serverConfig.app
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="recordId"></param>
         public static ServerConfigModel create(CoreController core) {
-            Mutex configMutex = null;
+            FileStream lockStream = null;
             try {
-                // Acquire cross-process mutex for read
-                configMutex = new Mutex(false, ConfigFileMutexName);
-                if (!configMutex.WaitOne(MutexTimeoutMs)) {
-                    logger.Warn($"{core.logCommonMessage},ServerConfigModel.create timed out waiting for config file mutex");
-                    throw new TimeoutException($"Timed out waiting for exclusive access to config.json after {MutexTimeoutMs}ms");
-                }
+                // Acquire cross-process file-based lock for read
+                lockStream = AcquireConfigLock(core);
 
                 ServerConfigModel returnModel;
                 //
@@ -315,8 +375,7 @@ namespace Contensive.Processor.Models.Domain {
                 logger.Error($"{core.logCommonMessage}", ex, "exception in serverConfigModel.getObject");
                 throw;
             } finally {
-                configMutex?.ReleaseMutex();
-                configMutex?.Dispose();
+                lockStream?.Dispose();
             }
         }
         //
@@ -327,14 +386,10 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <returns></returns>
         public int save(CoreController core) {
-            Mutex configMutex = null;
+            FileStream lockStream = null;
             try {
-                // Acquire cross-process mutex
-                configMutex = new Mutex(false, ConfigFileMutexName);
-                if (!configMutex.WaitOne(MutexTimeoutMs)) {
-                    logger.Warn($"{core.logCommonMessage},ServerConfigModel.save timed out waiting for config file mutex");
-                    throw new TimeoutException($"Timed out waiting for exclusive access to config.json after {MutexTimeoutMs}ms");
-                }
+                // Acquire cross-process file-based lock
+                lockStream = AcquireConfigLock(core);
 
                 if (useSecretManager) {
                     //
@@ -365,9 +420,9 @@ namespace Contensive.Processor.Models.Domain {
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             } finally {
-                configMutex?.ReleaseMutex();
-                configMutex?.Dispose();
+                lockStream?.Dispose();
             }
             return 0;
         }

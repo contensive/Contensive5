@@ -72,6 +72,9 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- verify program files folder
+                    if (!currentPath.EndsWith("\\")) {
+                        currentPath += "\\";
+                    }
                     if (!cp.core.serverConfig.programFilesPath.Equals(currentPath)) {
                         cp.core.serverConfig.programFilesPath = currentPath;
                         cp.core.serverConfig.save(cp.core);

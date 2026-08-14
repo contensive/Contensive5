@@ -461,22 +461,28 @@ namespace Contensive.Processor.Controllers {
                     return _programFiles;
                 }
                 if (!string.IsNullOrEmpty(serverConfig.programFilesPath)) {
-                    if (System.IO.File.Exists(serverConfig.programFilesPath + "Processor.dll")) {
+                    // Normalize path to include trailing backslash
+                    string normalizedPath = serverConfig.programFilesPath;
+                    if (!normalizedPath.EndsWith("\\")) {
+                        normalizedPath += "\\";
+                        serverConfig.programFilesPath = normalizedPath;
+                    }
+                    if (System.IO.File.Exists(normalizedPath + "Processor.dll")) {
                         //
                         // -- use saved path if it exists (framework build with shared folder)
-                        _programFiles = new FileController(this, serverConfig.programFilesPath);
+                        _programFiles = new FileController(this, normalizedPath);
                         return _programFiles;
                     }
-                    if (System.IO.File.Exists(serverConfig.programFilesPath + "Cli\\Processor.dll")) {
+                    if (System.IO.File.Exists(normalizedPath + "Cli\\Processor.dll")) {
                         //
                         // -- core build with CLI in subfolder
-                        _programFiles = new FileController(this, serverConfig.programFilesPath + "Cli\\");
+                        _programFiles = new FileController(this, normalizedPath + "Cli\\");
                         return _programFiles;
                     }
-                    if (System.IO.File.Exists(serverConfig.programFilesPath + "TaskService\\Processor.dll")) {
+                    if (System.IO.File.Exists(normalizedPath + "TaskService\\Processor.dll")) {
                         //
                         // -- core build with TaskService in subfolder
-                        _programFiles = new FileController(this, serverConfig.programFilesPath + "TaskService\\");
+                        _programFiles = new FileController(this, normalizedPath + "TaskService\\");
                         return _programFiles;
                     }
                 }
@@ -487,7 +493,7 @@ namespace Contensive.Processor.Controllers {
                     : System.IO.File.Exists("c:\\Program Files\\Contensive\\Cli\\Processor.dll") ? "c:\\Program Files\\Contensive\\Cli\\"
                     : System.IO.File.Exists("c:\\Program Files\\Contensive\\TaskService\\Processor.dll") ? "c:\\Program Files\\Contensive\\TaskService\\"
                     : "c:\\Program Files\\Contensive\\";
-                logger.Warn($"{logCommonMessage},serverConfig.ProgramFilesPath is blank. Using detected path [{probePath}]. Run 'cc --configure' to persist this setting to config.json.");
+                logger.Info($"{logCommonMessage},serverConfig.ProgramFilesPath is blank. Using detected path [{probePath}]. Run 'cc --configure' to persist this setting to config.json.");
                 serverConfig.programFilesPath = probePath;
                 _programFiles = new FileController(this, probePath);
                 return _programFiles;

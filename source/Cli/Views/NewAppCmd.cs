@@ -56,6 +56,9 @@ namespace Contensive.CLI {
                     //
                     // -- verify program files folder (update to current CLI location)
                     string currentPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    if (!currentPath.EndsWith("\\")) {
+                        currentPath += "\\";
+                    }
                     if (!cp.core.serverConfig.programFilesPath.Equals(currentPath)) {
                         cp.core.serverConfig.programFilesPath = currentPath;
                         cp.core.serverConfig.save(cp.core);

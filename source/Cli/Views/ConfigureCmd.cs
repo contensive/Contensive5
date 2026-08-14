@@ -30,13 +30,6 @@ namespace Contensive.CLI {
                 // -- Warning.
                 Console.WriteLine("\n\nThis server's configuration will be updated. If this is not correct, use Ctrl-C to exit.");
                 //
-                // -- verify defaultaspxsite.zip
-                if (!cp.core.programFiles.fileExists("defaultaspxsite.zip")) {
-                    Console.WriteLine($"To build a new site, the DefaultAspxSite.zip must be downloaded from contensive.io/downloads to the program files folder, {cp.core.programFiles.localAbsRootPath}");
-                    Console.ReadLine();
-                    return;
-                }
-                //
                 // -- serverGroup name
                 {
                     Console.WriteLine("\n\nServer Group Name");
@@ -372,7 +365,12 @@ namespace Contensive.CLI {
                 core.serverConfig.allowTaskSchedulerService = true;
                 //
                 // -- program files folder will be the current folder for this application
-                core.serverConfig.programFilesPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                // -- Ensure trailing backslash for consistency
+                string programPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (!programPath.EndsWith("\\")) {
+                    programPath += "\\";
+                }
+                core.serverConfig.programFilesPath = programPath;
                 //
                 // -- save the configuration
                 core.serverConfig.save(core);
