@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Contensive.BaseModels;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Controllers.Aws;
@@ -20,6 +21,10 @@ namespace Contensive.Processor.Models.Domain {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
+        // Named mutex for cross-process synchronization of config.json access
+        private static readonly string ConfigFileMutexName = "Global\\ContensiveConfigFileMutex";
+        private const int MutexTimeoutMs = 5000; // 5 second timeout
         //
         private CoreController core;
         //
@@ -251,7 +256,15 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="cp"></param>
         /// <param name="recordId"></param>
         public static ServerConfigModel create(CoreController core) {
+            Mutex configMutex = null;
             try {
+                // Acquire cross-process mutex for read
+                configMutex = new Mutex(false, ConfigFileMutexName);
+                if (!configMutex.WaitOne(MutexTimeoutMs)) {
+                    logger.Warn($"{core.logCommonMessage},ServerConfigModel.create timed out waiting for config file mutex");
+                    throw new TimeoutException($"Timed out waiting for exclusive access to config.json after {MutexTimeoutMs}ms");
+                }
+
                 ServerConfigModel returnModel;
                 //
                 // ----- read/create serverConfig from local config.json
@@ -301,6 +314,9 @@ namespace Contensive.Processor.Models.Domain {
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "exception in serverConfigModel.getObject");
                 throw;
+            } finally {
+                configMutex?.ReleaseMutex();
+                configMutex?.Dispose();
             }
         }
         //
@@ -311,7 +327,15 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <returns></returns>
         public int save(CoreController core) {
+            Mutex configMutex = null;
             try {
+                // Acquire cross-process mutex
+                configMutex = new Mutex(false, ConfigFileMutexName);
+                if (!configMutex.WaitOne(MutexTimeoutMs)) {
+                    logger.Warn($"{core.logCommonMessage},ServerConfigModel.save timed out waiting for config file mutex");
+                    throw new TimeoutException($"Timed out waiting for exclusive access to config.json after {MutexTimeoutMs}ms");
+                }
+
                 if (useSecretManager) {
                     //
                     // -- secrets manager mode: save full config to SM, save only bootstrap fields to config.json
@@ -341,6 +365,9 @@ namespace Contensive.Processor.Models.Domain {
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+            } finally {
+                configMutex?.ReleaseMutex();
+                configMutex?.Dispose();
             }
             return 0;
         }

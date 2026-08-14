@@ -482,14 +482,14 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 //  -- serverConfig.programFilesPath not set, probe default paths
-                logger.Warn($"{this.logCommonMessage},serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
+                //  -- Set in memory only; next CLI command will persist to config.json
                 string probePath = System.IO.File.Exists("c:\\Program Files\\Contensive\\Processor.dll") ? "c:\\Program Files\\Contensive\\"
                     : System.IO.File.Exists("c:\\Program Files\\Contensive\\Cli\\Processor.dll") ? "c:\\Program Files\\Contensive\\Cli\\"
                     : System.IO.File.Exists("c:\\Program Files\\Contensive\\TaskService\\Processor.dll") ? "c:\\Program Files\\Contensive\\TaskService\\"
                     : "c:\\Program Files\\Contensive\\";
+                logger.Warn($"{logCommonMessage},serverConfig.ProgramFilesPath is blank. Using detected path [{probePath}]. Run 'cc --configure' to persist this setting to config.json.");
                 serverConfig.programFilesPath = probePath;
-                serverConfig.save(this);
-                _programFiles = new FileController(this, serverConfig.programFilesPath);
+                _programFiles = new FileController(this, probePath);
                 return _programFiles;
             }
         }

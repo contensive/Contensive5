@@ -322,8 +322,12 @@ namespace Contensive.Processor.Controllers {
                         break;
                     } catch (IOException) when (retryCount < maxRetries) {
                         retryCount++;
-                        logger.Trace($"{core.logCommonMessage},FileController.saveFile_TextBinary, file contention on [{absPath}], retry {retryCount} of {maxRetries}");
+                        logger.Trace($"{core.logCommonMessage},FileController.saveFile_TextBinary, file contention (IOException) on [{absPath}], retry {retryCount} of {maxRetries}");
                         Thread.Sleep(retryDelayMs * retryCount);
+                    } catch (UnauthorizedAccessException) when (retryCount < maxRetries) {
+                        retryCount++;
+                        logger.Trace($"{core.logCommonMessage},FileController.saveFile_TextBinary, file access denied on [{absPath}], retry {retryCount} of {maxRetries}");
+                        Thread.Sleep(retryDelayMs * retryCount * 2); // Wait longer for access denied
                     } catch (Exception ex) {
                         logger.Error(ex, $"{core.logCommonMessage}");
                         throw;
