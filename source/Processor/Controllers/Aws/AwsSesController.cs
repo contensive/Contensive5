@@ -16,7 +16,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static AmazonSimpleEmailServiceClient getSesClient(CoreController core) {
-            return new AmazonSimpleEmailServiceClient(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.getAwsRegion());
+            var cred = Aws.AwsCredentialController.getCredentials(core);
+            var region = core.serverConfig.getAwsRegion();
+            if (cred == null) { return new AmazonSimpleEmailServiceClient(region); }
+            return new AmazonSimpleEmailServiceClient(cred, region);
         }
         //
         //====================================================================================================

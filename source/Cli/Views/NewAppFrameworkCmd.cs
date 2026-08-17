@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Contensive.Processor;
+using Contensive.Processor.Controllers.Aws;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using Contensive.Processor.Models.Domain;
@@ -255,7 +256,8 @@ namespace Contensive.CLI {
                         string policyString = "";
                         try {
                             Amazon.RegionEndpoint region = Amazon.RegionEndpoint.GetBySystemName(cp.core.serverConfig.awsRegionName);
-                            s3client = new(cp.core.secrets.awsAccessKey, cp.core.secrets.awsSecretAccessKey, region);
+                            var cred = AwsCredentialController.getCredentials(cp.core);
+                            s3client = (cred == null) ? new AmazonS3Client(region) : new AmazonS3Client(cred, region);
                         } catch (Exception ex) {
                             cp.Log.Error(ex, "NewAppFrameworkCmd, error getting S3 client.");
                             Console.WriteLine($"\nError getting S3 client, {ex.Message}");

@@ -85,7 +85,9 @@ namespace Contensive.Addons.Status {
             try {
                 string regionName = string.IsNullOrEmpty(cp.ServerConfig.awsRegionName) ? "us-east-1" : cp.ServerConfig.awsRegionName;
                 RegionEndpoint region = RegionEndpoint.GetBySystemName(regionName);
-                using (var rdsClient = new AmazonRDSClient(cp.ServerConfig.awsAccessKey, cp.ServerConfig.awsSecretAccessKey, region)) {
+                using (var rdsClient = string.IsNullOrEmpty(cp.ServerConfig.awsAccessKey)
+                    ? new AmazonRDSClient(region)
+                    : new AmazonRDSClient(cp.ServerConfig.awsAccessKey, cp.ServerConfig.awsSecretAccessKey, region)) {
                     var instancesResponse = rdsClient.DescribeDBInstancesAsync(new DescribeDBInstancesRequest()).Result;
                     var matchedInstance = instancesResponse.DBInstances.FirstOrDefault(i =>
                         string.Equals(i.Endpoint?.Address, connectionAddress, StringComparison.OrdinalIgnoreCase));

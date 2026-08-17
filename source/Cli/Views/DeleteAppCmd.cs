@@ -5,6 +5,7 @@ using System.Linq;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Contensive.Processor;
+using Contensive.Processor.Controllers.Aws;
 
 namespace Contensive.CLI {
     static class DeleteAppCmd {
@@ -57,7 +58,10 @@ namespace Contensive.CLI {
                 if (!cpServer.core.serverConfig.isLocalFileSystem && !string.IsNullOrEmpty(remoteFilePath)) {
                     try {
                         Amazon.RegionEndpoint region = Amazon.RegionEndpoint.GetBySystemName(cpServer.core.serverConfig.awsRegionName);
-                        using var s3client = new AmazonS3Client(cpServer.core.secrets.awsAccessKey, cpServer.core.secrets.awsSecretAccessKey, region);
+                        var cred = AwsCredentialController.getCredentials(cpServer.core);
+                        using var s3client = (cred == null)
+                            ? new AmazonS3Client(region)
+                            : new AmazonS3Client(cred, region);
                         //
                         // -- get current policy
                         string policyString = "";

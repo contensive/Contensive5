@@ -5,6 +5,7 @@ using Contensive.BaseClasses;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Controllers.Aws;
 using Contensive.Processor.Models.Domain;
 
 namespace Contensive.Processor.Addons {
@@ -40,7 +41,11 @@ namespace Contensive.Processor.Addons {
                     } else {
                         //
                         // -- setup aws client
-                        AmazonSQSClient sqsClient = new(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.getAwsRegion());
+                        var cred = AwsCredentialController.getCredentials(core);
+                        var region = core.serverConfig.getAwsRegion();
+                        AmazonSQSClient sqsClient = (cred == null)
+                            ? new(region)
+                            : new(cred, region);
                         ReceiveMessageRequest receiveMessageRequest = new() {
                             QueueUrl = awsSQSBounceEmailQueueEndpoint,
                             MaxNumberOfMessages = 10

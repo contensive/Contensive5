@@ -57,8 +57,11 @@ namespace Contensive.Processor.Controllers {
             get {
                 if (local_s3Client == null) {
                     logger.Trace($"{core.logCommonMessage},construct Amazon S3 client");
-
-                    local_s3Client = new AmazonS3Client(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.getAwsRegion());
+                    var cred = Aws.AwsCredentialController.getCredentials(core);
+                    var region = core.serverConfig.getAwsRegion();
+                    local_s3Client = (cred == null)
+                        ? new AmazonS3Client(region)
+                        : new AmazonS3Client(cred, region);
                 };
                 return local_s3Client;
             }
