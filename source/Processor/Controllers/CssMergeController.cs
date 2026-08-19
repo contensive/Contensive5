@@ -67,13 +67,32 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- file does not exist, read and concatenate all CSS content
                         var cssBuilder = new StringBuilder();
+                        var importRules = new List<string>();
                         string cdnFileUrl = core.appConfig.cdnFileUrl;
                         foreach (var asset in mergeableAssets) {
                             string cssContent = readCssFromAsset(core, asset, cdnFileUrl);
                             if (!string.IsNullOrEmpty(cssContent)) {
+                                //
+                                // -- extract @import rules so they can be hoisted to the top of the merged file.
+                                // Per CSS spec, @import must precede all other rules or the browser ignores them.
+                                // The regex must handle semicolons inside quoted url() strings (e.g. Google Fonts URLs).
+                                cssContent = Regex.Replace(cssContent, @"@import\s+(url\(\s*(['""]).*?\2\s*\)|url\([^)]*\)|(['""]).*?\3)[^;]*;", match => {
+                                    importRules.Add(match.Value);
+                                    return "";
+                                });
                                 cssBuilder.AppendLine($"/* addon {asset.sourceAddonId} */");
                                 cssBuilder.AppendLine(cssContent);
                             }
+                        }
+                        //
+                        // -- hoist @import rules to the top of the merged file
+                        if (importRules.Count > 0) {
+                            var finalBuilder = new StringBuilder();
+                            foreach (var importRule in importRules) {
+                                finalBuilder.AppendLine(importRule);
+                            }
+                            finalBuilder.Append(cssBuilder);
+                            cssBuilder = finalBuilder;
                         }
                         //
                         // -- save the merged file

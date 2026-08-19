@@ -119,14 +119,19 @@ function Uninstall-ScheduledTask {
     Write-Step "Removing scheduled task: Contensive Server Diagnostics"
 
     $taskName = "Contensive Server Diagnostics"
-    $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-    if ($existing) {
-        Write-Host "  Removing scheduled task: $taskName"
-        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-        Write-Host "  Scheduled task removed." -ForegroundColor Green
+    try {
+        $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+        if ($existing) {
+            Write-Host "  Removing scheduled task: $taskName"
+            Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+            Write-Host "  Scheduled task removed." -ForegroundColor Green
+        }
+        else {
+            Write-Host "  Scheduled task '$taskName' not found, skipping."
+        }
     }
-    else {
-        Write-Host "  Scheduled task '$taskName' not found, skipping."
+    catch {
+        Write-Host "  Could not query scheduled tasks (CIM unavailable), skipping: $_" -ForegroundColor Yellow
     }
 }
 

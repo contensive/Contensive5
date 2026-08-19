@@ -379,6 +379,14 @@ copy "C:\Git\Contensive5\etc\backuptools\SQLExpressBackup.sql" "%deploymentFolde
 
 rem ==============================================================
 rem
+rem copy install-scripts into the deployment folder
+rem
+
+md "%deploymentFolderRoot%%versionNumber%\scripts" 2>nul
+copy "C:\Git\Contensive5\etc\install-scripts\*" "%deploymentFolderRoot%%versionNumber%\scripts\"
+
+rem ==============================================================
+rem
 rem create a single zip distribution package
 rem
 

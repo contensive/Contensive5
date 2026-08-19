@@ -203,10 +203,15 @@ function Install-ScheduledTask {
     $ccExePath = Join-Path $InstallPath "Cli\cc.exe"
 
     # Remove existing task if present (clean install)
-    $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-    if ($existing) {
-        Write-Host "  Removing existing scheduled task"
-        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+    try {
+        $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+        if ($existing) {
+            Write-Host "  Removing existing scheduled task"
+            Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+        }
+    }
+    catch {
+        Write-Host "  Could not query scheduled tasks (CIM unavailable), continuing: $_" -ForegroundColor Yellow
     }
 
     $action = New-ScheduledTaskAction -Execute $ccExePath -Argument "--serverdiagnostic"
