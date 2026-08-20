@@ -1050,7 +1050,8 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     if (confirmationMemberId == 0) {
-                        ErrorController.addUserError(core, "No confirmation email was send because a Confirmation member is not selected");
+                        //
+                        // -- no confirmation member selected, skip silently (normal condition)
                     } else {
                         PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, confirmationMemberId);
                         if (person == null) {

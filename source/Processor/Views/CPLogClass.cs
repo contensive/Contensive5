@@ -1,15 +1,13 @@
-﻿
+
 using System;
-using Amazon.Runtime;
-using Amazon.Runtime.Internal.Util;
 using Contensive.BaseClasses;
-using Contensive.Processor.Controllers;
 using NLog;
 using static Contensive.BaseClasses.CPLogBaseClass;
 
 namespace Contensive.Processor {
     /// <summary>
-    /// Logging interface
+    /// Logging interface. All methods guard on NLog's IsEnabled check to avoid
+    /// building logCommonMessage and concatenating strings when the level is disabled.
     /// </summary>
     public class CPLogClass : CPLogBaseClass, IDisposable {
         //
@@ -22,12 +20,6 @@ namespace Contensive.Processor {
         /// </summary>
         private readonly CPClass cp;
         //
-        //====================================================================================================
-        /// <summary>
-        /// nlog class instance
-        /// </summary>
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        //
         // ====================================================================================================
         /// <summary>
         /// Constructor
@@ -37,12 +29,46 @@ namespace Contensive.Processor {
             => this.cp = cp;
         //
         // ====================================================================================================
+        // IsEnabled properties — delegate to NLog so addon callers can guard expensive message construction
+        //
+        /// <summary>
+        /// True if trace-level logging is enabled
+        /// </summary>
+        public override bool IsTraceEnabled => logger.IsTraceEnabled;
+        //
+        /// <summary>
+        /// True if debug-level logging is enabled
+        /// </summary>
+        public override bool IsDebugEnabled => logger.IsDebugEnabled;
+        //
+        /// <summary>
+        /// True if info-level logging is enabled
+        /// </summary>
+        public override bool IsInfoEnabled => logger.IsInfoEnabled;
+        //
+        /// <summary>
+        /// True if warn-level logging is enabled
+        /// </summary>
+        public override bool IsWarnEnabled => logger.IsWarnEnabled;
+        //
+        /// <summary>
+        /// True if error-level logging is enabled
+        /// </summary>
+        public override bool IsErrorEnabled => logger.IsErrorEnabled;
+        //
+        /// <summary>
+        /// True if fatal-level logging is enabled
+        /// </summary>
+        public override bool IsFatalEnabled => logger.IsFatalEnabled;
+        //
+        // ====================================================================================================
         /// <summary>
         /// add a log message at the trace level (trace, debug, info, warn, error, fatal)
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Trace(string logMessage) {
-            Logger.Trace( cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsTraceEnabled) { return; }
+            logger.Trace($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -51,7 +77,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Debug(string logMessage) {
-            Logger.Debug(cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsDebugEnabled) { return; }
+            logger.Debug($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -60,7 +87,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Info(string logMessage) {
-            Logger.Info(cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsInfoEnabled) { return; }
+            logger.Info($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -69,7 +97,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(string logMessage) {
-            Logger.Warn(cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsWarnEnabled) { return; }
+            logger.Warn($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -78,7 +107,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(Exception ex, string logMessage) {
-            Logger.Warn(ex, cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsWarnEnabled) { return; }
+            logger.Warn(ex, $"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -87,7 +117,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(Exception ex) {
-            Logger.Warn(ex, cp.core.logCommonMessage);
+            if (!logger.IsWarnEnabled) { return; }
+            logger.Warn(ex, cp.core.logCpommonMessage_forStructuredLogging);
         }
         //
         // ====================================================================================================
@@ -96,7 +127,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(string logMessage) {
-            Logger.Error( cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsErrorEnabled) { return; }
+            logger.Error($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -105,7 +137,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(Exception ex, string logMessage) {
-            Logger.Error(ex, cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsErrorEnabled) { return; }
+            logger.Error(ex, $"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -114,7 +147,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(Exception ex) {
-            Logger.Warn(ex, cp.core.logCommonMessage );
+            if (!logger.IsErrorEnabled) { return; }
+            logger.Error(ex, cp.core.logCpommonMessage_forStructuredLogging);
         }
         //
         // ====================================================================================================
@@ -123,7 +157,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(string logMessage) {
-            Logger.Warn(cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsFatalEnabled) { return; }
+            logger.Fatal($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -132,7 +167,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(Exception ex, string logMessage) {
-            Logger.Fatal(ex, cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsFatalEnabled) { return; }
+            logger.Fatal(ex, $"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -141,7 +177,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(Exception ex) {
-            Logger.Fatal(ex, cp.core.logCommonMessage);
+            if (!logger.IsFatalEnabled) { return; }
+            logger.Fatal(ex, cp.core.logCpommonMessage_forStructuredLogging);
         }
         //
         // ====================================================================================================
@@ -150,7 +187,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Add(string logMessage) {
-            Logger.Debug(cp.core.logCommonMessage + "," + logMessage);
+            if (!logger.IsDebugEnabled) { return; }
+            logger.Debug($"{cp.core.logCpommonMessage_forStructuredLogging},{{Message}}", logMessage);
         }
         //
         // ====================================================================================================
@@ -162,33 +200,33 @@ namespace Contensive.Processor {
         public override void Add(LogLevel level, string logMessage) {
             switch (level) {
                 case LogLevel.Trace: {
-                        logger.Trace($"{cp.core.logCommonMessage},{logMessage}");
+                        Trace(logMessage);
                         break;
                     }
                 case LogLevel.Debug: {
-                        logger.Debug($"{cp.core.logCommonMessage},{logMessage}");
+                        Debug(logMessage);
                         break;
                     }
                 case LogLevel.Warn: {
-                        logger.Warn($"{cp.core.logCommonMessage},{logMessage}");
+                        Warn(logMessage);
                         break;
                     }
                 case LogLevel.Error: {
-                        logger.Error($"{cp.core.logCommonMessage},{logMessage}");
+                        Error(logMessage);
                         break;
                     }
                 case LogLevel.Fatal: {
-                        logger.Fatal($"{cp.core.logCommonMessage},{logMessage}");
+                        Fatal(logMessage);
                         break;
                     }
                 default: {
-                        logger.Info($"{cp.core.logCommonMessage},{logMessage}");
+                        Info(logMessage);
                         break;
                     }
             }
         }
         //
-        #region  IDisposable Support 
+        #region  IDisposable Support
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
         //

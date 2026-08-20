@@ -143,11 +143,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // System SMS
                             bool submitted = false;
                             bool sent = false;
-                            if (adminData.editRecord.id != 0) {
-                                if (getInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content) == 0) {
-                                    adminData.editRecord.fieldsLc["testmemberid"].value_content = core.session.user.id;
-                                }
-                            }
                             editButtonBarInfo.allowSave = userContentPermissions.allowSave && adminData.editRecord.allowUserSave && (!submitted) && (!sent);
                             editButtonBarInfo.allowSendTest = (!submitted) && (!sent);
                             break;
@@ -184,13 +179,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // System Email
                                 emailSubmitted = false;
-                                if (adminData.editRecord.id != 0) {
-                                    if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
-                                        if (getInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content) == 0) {
-                                            adminData.editRecord.fieldsLc["testmemberid"].value_content = core.session.user.id;
-                                        }
-                                    }
-                                }
                                 editButtonBarInfo.allowSave = (userContentPermissions.allowSave && adminData.editRecord.allowUserSave && (!emailSubmitted) && (!emailSent));
                                 editButtonBarInfo.allowSendTest = ((!emailSubmitted) && (!emailSent));
                             } else if (adminData.adminContent.id.Equals(ContentMetadataModel.getContentId(core, "Conditional Email"))) {

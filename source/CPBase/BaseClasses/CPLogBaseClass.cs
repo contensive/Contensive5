@@ -40,6 +40,42 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// True if trace-level logging is enabled. Use to guard expensive message construction.
+        /// </summary>
+        public virtual bool IsTraceEnabled => true;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if debug-level logging is enabled. Use to guard expensive message construction.
+        /// </summary>
+        public virtual bool IsDebugEnabled => true;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if info-level logging is enabled. Use to guard expensive message construction.
+        /// </summary>
+        public virtual bool IsInfoEnabled => true;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if warn-level logging is enabled. Use to guard expensive message construction.
+        /// </summary>
+        public virtual bool IsWarnEnabled => true;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if error-level logging is enabled. Use to guard expensive message construction.
+        /// </summary>
+        public virtual bool IsErrorEnabled => true;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if fatal-level logging is enabled. Use to guard expensive message construction.
+        /// </summary>
+        public virtual bool IsFatalEnabled => true;
+        //
+        //====================================================================================================
+        /// <summary>
         /// Log a message at the info level. (same a Info(logMessage))
         /// </summary>
         /// <param name="logMessage"></param>

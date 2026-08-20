@@ -178,17 +178,19 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                             int EmailToConfirmationMemberId = 0;
                                             if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
                                                 EmailToConfirmationMemberId = GenericController.getInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content);
-                                                EmailController.sendConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
-                                                //
-                                                if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
+                                                if (EmailToConfirmationMemberId != 0) {
+                                                    EmailController.sendConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
                                                     //
-                                                    // -- if there were no errors, and the table supports lastsendtestdate, update it
-                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
-                                                    db.executeNonQuery("update ccemail Set lastsendtestdate=@sendDate where id=@id", new Dictionary<string, object> { { "@sendDate", cp.core.doc.profileStartTime }, { "@id", adminData.editRecord.id } });
-                                                    //
-                                                    // -- force a sent task process
-                                                    AddonModel.setRunNow(cp, addonGuidEmailSendTask);
-                                                    cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
+                                                    if (cp.core.doc.userErrorList.Count.Equals(0) && adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
+                                                        //
+                                                        // -- if there were no errors, and the table supports lastsendtestdate, update it
+                                                        adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
+                                                        db.executeNonQuery("update ccemail Set lastsendtestdate=@sendDate where id=@id", new Dictionary<string, object> { { "@sendDate", cp.core.doc.profileStartTime }, { "@id", adminData.editRecord.id } });
+                                                        //
+                                                        // -- force a sent task process
+                                                        AddonModel.setRunNow(cp, addonGuidEmailSendTask);
+                                                        cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
+                                                    }
                                                 }
                                             }
                                         }
