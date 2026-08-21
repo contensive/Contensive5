@@ -396,6 +396,27 @@ Declare other collections that must be installed before this collection.
 
 The element text content is the GUID of the required collection. The `Name` attribute is for readability.
 
+### ImportCollection and IncludeAddon Relationship
+
+When an addon uses `<IncludeAddon>` to declare a dependency on an addon from another collection, the collection XML **must** also have an `<ImportCollection>` node for the collection that contains that addon. Without the `<ImportCollection>`, the installer cannot resolve the `<IncludeAddon>` reference and the install will fail with an error like:
+
+> "The add-on [MyAddon] requires an included add-on [DependencyAddon] which could not be found."
+
+**Example:** If your addon depends on ChartJs (which is in the ChartJs collection):
+
+```xml
+<!-- The collection must import the ChartJs collection -->
+<ImportCollection Name="ChartJs">{d0c6f06e-a585-4651-b585-e8b9fde0aa3b}</ImportCollection>
+
+<!-- Then addons can reference ChartJs as an included addon -->
+<Addon Name="My Report" Guid="{...}" Type="Report">
+    <DotNetClass><![CDATA[MyNamespace.MyReportAddon]]></DotNetClass>
+    <IncludeAddon Name="ChartJs" Guid="{54ddddd1-798c-4423-b9a1-8537ced4abb1}" />
+</Addon>
+```
+
+The `<ImportCollection>` ensures the dependency collection is installed first, making its addons available for `<IncludeAddon>` references.
+
 ## Resources
 
 Declare files to be deployed during installation. No path is needed for type="layoutFiles"
