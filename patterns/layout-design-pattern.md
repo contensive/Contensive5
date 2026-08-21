@@ -31,11 +31,89 @@ This pattern keeps widgets self-contained and avoids conflicts when multiple wid
 
 ### Deployment Workflow (Installation)
 
-1. **Package preparation:** Zip the `/UI` folder with all subfolders
-2. **Copy to collection:** Place UI.zip in `/Collections/{CollectionName}` folder
-3. **Reference in XML:** Add resource node in addon collection XML file pointing to UI.zip
-4. **OnInstall execution:** The OnInstall addon calls `cp.Layout.updateLayout()` for each layout to update Layout database records
-5. **Resource extraction:** Collection installer automatically extracts UI.zip files to destination application
+#### UI folder structure and build packaging
+
+The `/ui/` folder contains four subfolders for different types of UI assets:
+
+```
+ui/
+  wwwFiles/       → public web root files (CSS, JS, images served via HTTP)
+  cdnFiles/       → CDN/content files
+  privateFiles/   → server-side private files (not publicly accessible)
+  layoutFiles/    → HTML layout templates used by cp.Layout methods
+```
+
+During the build, the build script compresses each subfolder into a zip file of the same name and copies it to the collection folder:
+
+```
+ui/wwwFiles/      → collections/{CollectionName}/wwwFiles.zip
+ui/cdnFiles/      → collections/{CollectionName}/cdnFiles.zip
+ui/privateFiles/  → collections/{CollectionName}/privateFiles.zip
+ui/layoutFiles/   → collections/{CollectionName}/layoutFiles.zip
+```
+
+Each zip file must have a corresponding `<Resource>` entry in the collection XML so the installer knows to extract it during deployment:
+
+```xml
+<Resource name="wwwFiles.zip" type="www" path="wwwFiles" />
+<Resource name="cdnFiles.zip" type="cdn" path="cdnFiles" />
+<Resource name="privateFiles.zip" type="privateFiles" path="privateFiles" />
+<Resource name="layoutFiles.zip" type="content" path="layoutFiles" />
+```
+
+You only need resource entries for subfolders that contain files. If a subfolder is empty or unused, you can omit its resource entry.
+
+#### Special handling for layoutFiles
+
+The `layoutFiles.zip` resource extracts HTML layout files to the server's file system, but this alone does **not** make them available to `cp.Layout.GetLayout()`. Layout files require an additional step: the OnInstall addon must call `cp.Layout.updateLayout()` for each layout file to read it from disk and create or update the corresponding record in the Layouts database table.
+
+Without this `updateLayout()` call, the HTML file will exist on disk but `cp.Layout.GetLayout()` will return empty because there is no database record pointing to it.
+
+#### Complete checklist for adding a new layout
+
+Every new layout requires all four steps below. Missing any step will cause the layout to either not deploy or not be available at runtime.
+
+**Step 1 — Create the HTML layout file** in `/ui/layoutFiles/`:
+
+```
+ui/layoutFiles/MyNewLayout.html
+```
+
+**Step 2 — Add constants** for the layout GUID, name, and filename in `constants.cs`:
+
+```csharp
+public const string guidLayoutMyNewLayout = "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}";
+public const string nameLayoutMyNewLayout = "My New Layout";
+public const string pathFilenameLayoutMyNewLayout = "MyNewLayout.html";
+```
+
+**Step 3 — Verify the `layoutFiles.zip` resource exists** in the collection XML:
+
+```xml
+<Resource name="layoutFiles.zip" type="content" path="layoutFiles" />
+```
+
+This single entry covers all files in the `layoutFiles/` folder. If it already exists (because other layouts are deployed), no XML change is needed.
+
+**Step 4 — Add `cp.Layout.updateLayout()` call** in the OnInstall addon:
+
+```csharp
+cp.Layout.updateLayout(
+    Constants.guidLayoutMyNewLayout,
+    Constants.nameLayoutMyNewLayout,
+    Constants.pathFilenameLayoutMyNewLayout  // filename only, no path prefix
+);
+```
+
+**Important:** The third argument is the **filename only** (e.g., `"MyNewLayout.html"`), not a path. The platform resolves the file from the deployed `layoutFiles` folder automatically.
+
+#### What happens if a step is missed
+
+| Missing step | Result |
+|-------------|--------|
+| Step 1 (no HTML file) | Nothing to zip or deploy — `updateLayout()` finds no file to read |
+| Step 3 (no resource entry) | The zip file is in the collection package but the installer ignores it — files are not extracted to the server |
+| Step 4 (no `updateLayout()` call) | The file is on disk but no Layout database record exists — `cp.Layout.GetLayout()` returns empty |
 
 ### Example: Using Layouts with Mustache Templates
 

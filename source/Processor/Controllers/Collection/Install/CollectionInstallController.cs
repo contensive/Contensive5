@@ -1103,7 +1103,8 @@ namespace Contensive.Processor.Controllers {
                 var collectionsBuildingFolder = new List<string>();
                 if (!CollectionFolderController.buildCollectionFolderFromCollectionZip(core, contextLog, tempPathFilename, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsDownloaded, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies)) {
                     //
-                    // -- BuildLocal had errors, log warning but continue to install whatever was built
+                    // -- BuildLocal had errors, continue to install whatever was built but flag the overall result as failed
+                    returnSuccess = false;
                     logger.Warn($"{core.logCommonMessage}, BuildLocalCollectionFolder returned false with Error Message [{return_ErrorMessage}], continuing to install successfully built collections");
                 }
                 if (collectionsDownloaded.Count > 0) {
@@ -1195,10 +1196,10 @@ namespace Contensive.Processor.Controllers {
                                             }
                                             bool AddRule = false;
                                             if (IncludeAddonId == 0) {
-                                                string UserError = "While installng collection/addon [" + parentCollectionName + "/" + parentAddonName + "], the include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
-                                                logger.Info($"{core.logCommonMessage}, UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
+                                                string UserError = $"While installing collection [{parentCollectionName}], the add-on [{addonName}] includes add-on [{IncludeAddonName}] which could not be found in the database. Verify the collection that contains [{IncludeAddonName}] has an ImportCollection node in this collection, and if the add-on has been deleted, try reinstalling its collection manually.";
+                                                logger.Warn($"{core.logCommonMessage}, UpgradeAddFromLocalCollection_InstallAddonNode, {UserError}");
                                                 ReturnUpgradeOK = false;
-                                                ReturnErrorMessage.errors.Add($"The collection was not installed because the add-on [{addonName}] requires an included add-on [{IncludeAddonName}] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.");
+                                                ReturnErrorMessage.errors.Add($"The add-on [{addonName}] in collection [{parentCollectionName}] includes add-on [{IncludeAddonName}] which could not be found. Verify there is an ImportCollection node for the collection that contains [{IncludeAddonName}]. If the add-on has been deleted, try reinstalling its collection manually.");
                                             } else {
                                                 using (var cs3 = new CsModel(core)) {
                                                     AddRule = !cs3.openSql("select ID from ccAddonIncludeRules where Addonid=" + csData.getInteger("id") + " and IncludedAddonID=" + IncludeAddonId);

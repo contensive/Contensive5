@@ -114,10 +114,10 @@ namespace Contensive.Processor.Controllers {
                                 CollectionFile.LoadXml(core.tempFiles.readFileText(tmpInstallPath + file.Name));
                             } catch (Exception ex) {
                                 //
-                                // -- There was a parse error in this xml file. Set the return message and the flag
-                                // -- If another xml files shows up, and process OK it will cover this error
-                                return_ErrorMessage.warnings.Add($"There was a problem installing the Collection File [{tmpInstallPath}{file.Name}]. The error reported was [{ex.Message}]. The installation will continue.");
-                                logger.Warn($"{core.logCommonMessage}, BuildLocalCollectionFolder, error reading collection [{sourceTempFolderPathFilename}]");
+                                // -- There was a parse error in this xml file, likely a malformed XML document (unbalanced tags, missing closing elements, etc.)
+                                // -- This is an error, not a warning, because the collection cannot install without valid XML
+                                return_ErrorMessage.errors.Add($"The collection XML file [{file.Name}] has a malformed XML document and could not be parsed. The error was [{ex.Message}]. Please correct the XML and retry the installation.");
+                                logger.Error(ex, $"{core.logCommonMessage}, BuildLocalCollectionFolder, XML parse error in collection [{sourceTempFolderPathFilename}], file [{file.Name}]");
                                 continue;
                             }
                             string CollectionFileBaseName = GenericController.toLCase(CollectionFile.DocumentElement.Name);
