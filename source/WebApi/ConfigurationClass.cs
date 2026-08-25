@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
+using Contensive.BaseModels;
 using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 
@@ -114,7 +115,11 @@ namespace Contensive.WebApi {
                                     byte[] array = new byte[inputStream.Length];
                                     inputStream.Seek(0, SeekOrigin.Begin);
                                     inputStream.Read(array, 0, array.Length);
-                                    string normalizedFilename = Processor.Controllers.FileController.normalizeDosFilename(formFile.FileName);
+                                    // Use new sanitization with Moderate level (default, safe for most deployments)
+                                    string normalizedFilename = Processor.Controllers.FileController.sanitizeFilename(
+                                        formFile.FileName,
+                                        ServerConfigBaseModel.FilenameSanitizationLevelEnum.Moderate
+                                    );
                                     if (string.IsNullOrWhiteSpace(normalizedFilename)) { continue; }
                                     context.Request.Files.Add(new DocPropertyModel() {
                                         name = formFile.Name,

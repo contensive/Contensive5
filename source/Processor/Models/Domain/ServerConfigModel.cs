@@ -213,6 +213,12 @@ namespace Contensive.Processor.Models.Domain {
         public override string defaultEmailContact { get; set; }
         //
         /// <summary>
+        /// Filename sanitization level for uploads (default: Moderate)
+        /// Strict = ASCII-only, Moderate = Unicode with safety checks (recommended), Permissive = minimal filtering
+        /// </summary>
+        public override FilenameSanitizationLevelEnum filenameSanitizationLevel { get; set; } = FilenameSanitizationLevelEnum.Moderate;
+        //
+        /// <summary>
         /// List of all apps on this server
         /// </summary>
         public Dictionary<string, AppConfigModel> apps { get; set; }

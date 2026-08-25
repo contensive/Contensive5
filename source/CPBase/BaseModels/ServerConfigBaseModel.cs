@@ -9,8 +9,39 @@ namespace Contensive.BaseModels {
     /// -- saveObject( cp ) - saves instance properties, returns the record id
     /// </summary>
     public abstract class ServerConfigBaseModel {
+        //
+        //====================================================================================================
         /// <summary>
-        /// full dos path to the contensive program file installation. 
+        /// Security level for filename sanitization
+        /// </summary>
+        public enum FilenameSanitizationLevelEnum {
+            /// <summary>
+            /// Strict: ASCII-only (a-z, A-Z, 0-9, and safe symbols: -._,()+ )
+            /// Use for: High-security systems, compliance requirements
+            /// Blocks: All Unicode, all special chars except safe symbols
+            /// Example: "文档.pdf" → "__.pdf", "file[1].pdf" → "file_1_.pdf"
+            /// </summary>
+            Strict = 0,
+
+            /// <summary>
+            /// Moderate: Allow Unicode but block problematic chars and normalize look-alikes
+            /// Use for: Most business applications, authenticated users (DEFAULT)
+            /// Blocks: Filesystem-invalid, URL-unsafe, shell-dangerous, control/format chars
+            /// Example: "文档.pdf" → "文档.pdf", "file[1].pdf" → "file_1_.pdf"
+            /// </summary>
+            Moderate = 1,
+
+            /// <summary>
+            /// Permissive: Allow all valid filesystem characters
+            /// Use for: Fully trusted internal systems only
+            /// Blocks: Only OS-invalid characters (using Path.GetInvalidFileNameChars)
+            /// Example: "文档.pdf" → "文档.pdf", "file[1].pdf" → "file[1].pdf"
+            /// </summary>
+            Permissive = 2
+        }
+        //
+        /// <summary>
+        /// full dos path to the contensive program file installation.
         /// </summary>
         public abstract string programFilesPath { get; set; }
         //
@@ -136,6 +167,12 @@ namespace Contensive.BaseModels {
         /// email address for the server contact. Also used as the default from email address for the server.
         /// </summary>
         public abstract string defaultEmailContact { get; set; }
+        //
+        /// <summary>
+        /// Filename sanitization level for uploads (default: Moderate)
+        /// Strict = ASCII-only, Moderate = Unicode with safety checks (recommended), Permissive = minimal filtering
+        /// </summary>
+        public abstract FilenameSanitizationLevelEnum filenameSanitizationLevel { get; set; }
 
     }
 }

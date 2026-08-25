@@ -1,5 +1,6 @@
 ﻿using NUglify.JavaScript.Syntax;
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.Processor {
     /// <summary>
@@ -57,10 +58,58 @@ namespace Contensive.Processor {
         // -- valid file characters
         // -- dos valid "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ^&'@{}[],$-#()%.+~_"
         // -- unix valid "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+"
-        // -- windows valid characters 
-        // -- url valid characters 
+        // -- windows valid characters
+        // -- url valid characters
         // -- 230301, added space - no, not allowed in url
+        [Obsolete("Use FilenameSanitizationLevel configuration instead")]
         public const string allowedFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+";
+        //
+        //=======================================================================
+        //   Filename Sanitization Configuration
+        //=======================================================================
+        //
+        /// <summary>
+        /// Comprehensive blacklist of characters that cause issues across DOS/Unix/URL/S3 environments
+        /// Includes: filesystem restrictions (less than, greater than, colon, quote, forward slash, backslash, pipe, question mark, asterisk)
+        ///          URL/S3 issues (hash, brackets, braces, semicolon, ampersand, dollar, at, backtick, apostrophe, exclamation, tilde, percent, caret, equals)
+        ///          Control characters (0-31, 127-159) added in static constructor
+        /// </summary>
+        public static readonly HashSet<char> crossPlatformInvalidFilenameChars = new HashSet<char> {
+            // Filesystem restrictions
+            '<', '>', ':', '"', '/', '\\', '|', '?', '*',
+            // URL/S3/Shell problematic characters
+            '#', '[', ']', '{', '}', ';', '&', '$', '@', '`', '\'', '!', '~', '%', '^', '='
+            // Control characters added in static constructor
+        };
+        //
+        /// <summary>
+        /// Windows reserved filenames that must be blocked or prefixed
+        /// </summary>
+        public static readonly string[] windowsReservedNames = {
+            "CON", "PRN", "AUX", "NUL",
+            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"
+        };
+        //
+        /// <summary>
+        /// Maximum filename length (leaving room for extensions and paths)
+        /// </summary>
+        public const int maxSafeFilenameLength = 200;
+        //
+        //=======================================================================
+        // Static constructor to initialize control characters in blacklist
+        //=======================================================================
+        //
+        static Constants() {
+            // Add ASCII control characters (0-31)
+            for (int i = 0; i <= 31; i++) {
+                crossPlatformInvalidFilenameChars.Add((char)i);
+            }
+            // Add extended control characters (127-159)
+            for (int i = 127; i <= 159; i++) {
+                crossPlatformInvalidFilenameChars.Add((char)i);
+            }
+        }
         //
         // -- content.fields that are in the control-info tab of the admin site
         public static readonly string[] controlInfoFields = { "active", "id", "contentcontrolid", "createdby", "dateadded", "modifiedby", "modifieddate", "createkey", "sortorder", "ccguid" };

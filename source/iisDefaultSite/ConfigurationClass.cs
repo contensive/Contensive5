@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Web;
 using System.Web.Routing;
+using Contensive.BaseModels;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
@@ -139,7 +140,11 @@ public class ConfigurationClass {
                     continue;
                 if (@file.ContentLength == 0)
                     continue;
-                string normalizedFilename = FileController.normalizeDosFilename(@file.FileName);
+                // Use new sanitization with Moderate level (default, safe for most deployments)
+                string normalizedFilename = FileController.sanitizeFilename(
+                    @file.FileName,
+                    ServerConfigBaseModel.FilenameSanitizationLevelEnum.Moderate
+                );
                 if (string.IsNullOrWhiteSpace(normalizedFilename))
                     continue;
                 string windowsTempFile = DefaultSite.WindowsTempFileController.createTmpFile();

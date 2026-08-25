@@ -2,6 +2,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Contensive.BaseClasses;
+using Contensive.BaseModels;
 using Contensive.Exceptions;
 using Contensive.Processor.Extensions;
 using Contensive.Processor.Models.Domain;
@@ -1498,6 +1499,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="filename">filename in the form "MyFile.txt"</param>
         /// <returns></returns>
+        [Obsolete("Use sanitizeFilename(filename, level) instead. This method does not handle URLs or Unicode properly.")]
         public static string normalizeDosFilename(string filename) {
             string invalid = new string(Path.GetInvalidFileNameChars());
             foreach (char c in invalid) {
@@ -1596,7 +1598,9 @@ namespace Contensive.Processor.Controllers {
                     var docProperty = core.docProperties.getProperty(key);
                     if ((docProperty.propertyType == DocPropertyModel.DocPropertyTypesEnum.file) && (docProperty.name.ToLowerInvariant() == key)) {
                         string dstDosPath = FileController.normalizeDosPath(path);
-                        returnFilename = encodeDosPathFilename(docProperty.value);
+                        // Filename already sanitized at upload time by ConfigurationClass
+                        // using configured sanitization level - no need to re-sanitize here
+                        returnFilename = docProperty.value;
                         string dstDosPathFilename = dstDosPath + returnFilename;
                         deleteFile(dstDosPathFilename, isLocal);
                         if (docProperty.windowsTempfilename != "") {
@@ -2024,6 +2028,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="pathFilename">Filename in the form "folder1/folder2/MyFile.txt"</param>
         /// <returns></returns>
+        [Obsolete("Use sanitizePathFilename(pathFilename, level) instead for configurable sanitization.")]
         public static string encodeDosPathFilename(string pathFilename) {
             if (string.IsNullOrEmpty(pathFilename)) { return pathFilename; }
             // -- convert to correct slash and split segments
@@ -2043,6 +2048,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="pathFilename">Filename in the form "folder1\folder2\MyFile.txt"</param>
         /// <returns></returns>
+        [Obsolete("Use sanitizePathFilename(pathFilename, level) instead for configurable sanitization.")]
         public static string encodeUnixPathFilename(string pathFilename) {
             if (string.IsNullOrEmpty(pathFilename)) { return ""; }
             // -- convert to correct slash and split segments
@@ -2076,6 +2082,228 @@ namespace Contensive.Processor.Controllers {
                 test.Append("_");
             }
             return test.ToString();
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Sanitize filename using configured security level (recommended primary sanitization method)
+        /// </summary>
+        /// <param name="filename">Just the filename (no path), e.g., "myfile.pdf"</param>
+        /// <param name="level">Security level to apply</param>
+        /// <returns>Sanitized filename safe for DOS/Unix/URL/S3</returns>
+        public static string sanitizeFilename(string filename, ServerConfigBaseModel.FilenameSanitizationLevelEnum level) {
+            if (string.IsNullOrWhiteSpace(filename)) return "";
+
+            // Extract extension first to preserve it
+            string extension = Path.GetExtension(filename);
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(filename);
+
+            string sanitizedName;
+
+            switch (level) {
+                case ServerConfigBaseModel.FilenameSanitizationLevelEnum.Strict:
+                    sanitizedName = sanitizeFilenameStrict(nameWithoutExt);
+                    break;
+
+                case ServerConfigBaseModel.FilenameSanitizationLevelEnum.Moderate:
+                    sanitizedName = sanitizeFilenameModerate(nameWithoutExt);
+                    break;
+
+                case ServerConfigBaseModel.FilenameSanitizationLevelEnum.Permissive:
+                    sanitizedName = sanitizeFilenamePermissive(nameWithoutExt);
+                    break;
+
+                default:
+                    sanitizedName = sanitizeFilenameModerate(nameWithoutExt);
+                    break;
+            }
+
+            // Sanitize extension with same rules
+            string sanitizedExt = sanitizeExtension(extension, level);
+
+            // Apply edge case protections (all levels)
+            sanitizedName = applyEdgeCaseProtections(sanitizedName);
+
+            return sanitizedName + sanitizedExt;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Strict: ASCII-only allowlist approach (backward compatible with current behavior)
+        /// </summary>
+        private static string sanitizeFilenameStrict(string nameWithoutExt) {
+            // Use existing allowlist method for strict mode
+            return encodeFilename(nameWithoutExt, Constants.allowedFilenameCharacters);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Moderate: Blacklist approach with Unicode normalization (recommended default)
+        /// </summary>
+        private static string sanitizeFilenameModerate(string nameWithoutExt) {
+            if (string.IsNullOrEmpty(nameWithoutExt)) return "";
+
+            // 1. Apply Unicode normalization (converts look-alikes to canonical forms)
+            nameWithoutExt = nameWithoutExt.Normalize(NormalizationForm.FormKC);
+
+            // 2. Block dangerous Unicode categories
+            StringBuilder result = new StringBuilder(nameWithoutExt.Length);
+            foreach (char c in nameWithoutExt) {
+                UnicodeCategory category = char.GetUnicodeCategory(c);
+
+                // Block format control characters (includes RTL override, zero-width, etc.)
+                if (category == UnicodeCategory.Format) {
+                    result.Append('_');
+                    continue;
+                }
+
+                // Block other control characters
+                if (category == UnicodeCategory.Control) {
+                    result.Append('_');
+                    continue;
+                }
+
+                // Block unassigned and private use characters
+                if (category == UnicodeCategory.OtherNotAssigned || category == UnicodeCategory.PrivateUse) {
+                    result.Append('_');
+                    continue;
+                }
+
+                // Apply comprehensive blacklist for known problematic chars
+                if (Constants.crossPlatformInvalidFilenameChars.Contains(c)) {
+                    result.Append('_');
+                    continue;
+                }
+
+                result.Append(c);
+            }
+
+            return result.ToString();
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Permissive: Only block OS-invalid characters (most permissive, least safe)
+        /// </summary>
+        private static string sanitizeFilenamePermissive(string nameWithoutExt) {
+            if (string.IsNullOrEmpty(nameWithoutExt)) return "";
+
+            // Use OS-provided list of invalid characters only
+            string invalid = new string(Path.GetInvalidFileNameChars());
+            HashSet<char> invalidSet = new HashSet<char>(invalid);
+
+            StringBuilder result = new StringBuilder(nameWithoutExt.Length);
+            foreach (char c in nameWithoutExt) {
+                if (invalidSet.Contains(c)) {
+                    result.Append('_');
+                } else {
+                    result.Append(c);
+                }
+            }
+
+            return result.ToString();
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Sanitize file extension with same rules as filename
+        /// </summary>
+        private static string sanitizeExtension(string extension, ServerConfigBaseModel.FilenameSanitizationLevelEnum level) {
+            if (string.IsNullOrEmpty(extension)) return "";
+
+            // Remove the leading dot
+            string extWithoutDot = extension.TrimStart('.');
+
+            // Sanitize using same method as filename
+            string sanitized;
+            switch (level) {
+                case ServerConfigBaseModel.FilenameSanitizationLevelEnum.Strict:
+                    sanitized = sanitizeFilenameStrict(extWithoutDot);
+                    break;
+                case ServerConfigBaseModel.FilenameSanitizationLevelEnum.Moderate:
+                    sanitized = sanitizeFilenameModerate(extWithoutDot);
+                    break;
+                case ServerConfigBaseModel.FilenameSanitizationLevelEnum.Permissive:
+                    sanitized = sanitizeFilenamePermissive(extWithoutDot);
+                    break;
+                default:
+                    sanitized = extWithoutDot;
+                    break;
+            }
+
+            // Re-add the dot if we have content
+            return string.IsNullOrEmpty(sanitized) ? "" : "." + sanitized;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Apply edge case protections: path traversal, reserved names, length limits, trim
+        /// </summary>
+        private static string applyEdgeCaseProtections(string filename) {
+            if (string.IsNullOrEmpty(filename)) return "";
+
+            // 1. Remove leading/trailing spaces and dots (Windows strips these)
+            filename = filename.Trim(' ', '.');
+
+            // 2. Prevent path traversal attacks
+            filename = filename.Replace("..", "_");
+
+            // 3. Block Windows reserved names (case-insensitive check)
+            string upperFilename = filename.ToUpperInvariant();
+            foreach (string reserved in Constants.windowsReservedNames) {
+                if (upperFilename == reserved || upperFilename.StartsWith(reserved + ".")) {
+                    // Prefix with underscore to make it safe
+                    filename = "_" + filename;
+                    break;
+                }
+            }
+
+            // 4. Ensure we have something left
+            if (string.IsNullOrWhiteSpace(filename)) {
+                filename = "file";  // Default fallback name
+            }
+
+            // 5. Truncate to safe length
+            if (filename.Length > Constants.maxSafeFilenameLength) {
+                filename = filename.Substring(0, Constants.maxSafeFilenameLength);
+            }
+
+            return filename;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Sanitize a full path+filename using configured level
+        /// </summary>
+        /// <param name="pathFilename">Path and filename in the form "folder/subfolder/myfile.txt"</param>
+        /// <param name="level">Security level to apply</param>
+        /// <returns>Sanitized path with Unix slashes</returns>
+        public static string sanitizePathFilename(string pathFilename, ServerConfigBaseModel.FilenameSanitizationLevelEnum level) {
+            if (string.IsNullOrWhiteSpace(pathFilename)) return "";
+
+            // Convert to Unix slashes and split
+            pathFilename = convertToUnixSlash(pathFilename);
+            string[] segments = pathFilename.Split('/');
+
+            // Sanitize only the filename (last segment), preserve path segments
+            if (segments.Length > 0) {
+                segments[segments.Length - 1] = sanitizeFilename(segments[segments.Length - 1], level);
+            }
+
+            return string.Join("/", segments);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Validate that a filename meets sanitization requirements without modifying it
+        /// </summary>
+        /// <param name="filename">Filename to validate</param>
+        /// <param name="level">Security level to check against</param>
+        /// <returns>True if filename is already safe</returns>
+        public static bool isValidFilename(string filename, ServerConfigBaseModel.FilenameSanitizationLevelEnum level) {
+            if (string.IsNullOrWhiteSpace(filename)) return false;
+            string sanitized = sanitizeFilename(filename, level);
+            return filename.Equals(sanitized);
         }
         //
         //==============================================================================================================
