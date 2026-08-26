@@ -2893,6 +2893,11 @@ namespace Contensive.Processor.Controllers {
         public string getHtmlDoc(string htmlBody ) {
             string result = "";
             try {
+                //
+                // -- clickjacking protection: prevent page from being framed by external sites
+                core.webServer.httpContext?.Response?.headers.Add(new HttpContextResponseHeader { name = "X-Frame-Options", value = "SAMEORIGIN" });
+                core.webServer.httpContext?.Response?.headers.Add(new HttpContextResponseHeader { name = "Content-Security-Policy", value = "frame-ancestors 'self'" });
+                //
                 string htmlHead = getHtmlHead(htmlBody);
                 string htmlBeforeEndOfBody = getHtmlBodyEnd();
                 //

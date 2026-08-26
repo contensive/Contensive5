@@ -161,8 +161,9 @@ namespace Contensive.WebApi {
                 foreach (var file in context.Request.Files)
                     WindowsTempFileController.deleteTmpFile(file.windowsTempfilename);
                 // 
-                //foreach (Contensive.Processor.Models.Domain.HttpContextResponseHeader header in context.Response.headers)
-                //    Response.Headers.Add(header.name, header.value);
+                foreach (Contensive.Processor.Models.Domain.HttpContextResponseHeader header in context.Response.headers) {
+                    response.Headers.Append(header.name, header.value);
+                }
                 // 
                 foreach (KeyValuePair<string, HttpContextResponseCookie> cookie in context.Response.cookies) {
                     CookieOptions responseCookie = new Microsoft.AspNetCore.Http.CookieOptions() {
