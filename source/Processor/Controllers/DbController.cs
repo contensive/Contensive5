@@ -728,6 +728,37 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
+        /// Parameterized update. fieldValues contains raw typed values (not pre-encoded SQL fragments).
+        /// Values are passed as SqlCommand parameters to prevent SQL injection.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="recordId"></param>
+        /// <param name="fieldValues"></param>
+        public void update(string tableName, int recordId, Dictionary<string, object> fieldValues) {
+            try {
+                if (string.IsNullOrEmpty(tableName?.Trim())) { throw new ArgumentException("tableName cannot be blank"); }
+                if (recordId <= 0) { throw new ArgumentException($"recordId is not valid [{recordId}]"); }
+                if (fieldValues == null || fieldValues.Count == 0) { return; }
+                var setClauses = new List<string>();
+                var parameters = new Dictionary<string, object> { { "@whereId", recordId } };
+                int i = 0;
+                foreach (var kvp in fieldValues) {
+                    if (string.IsNullOrWhiteSpace(kvp.Key)) { continue; }
+                    string paramName = $"@p{i}";
+                    setClauses.Add($"{kvp.Key}={paramName}");
+                    parameters.Add(paramName, kvp.Value ?? DBNull.Value);
+                    i++;
+                }
+                string sql = $"update {tableName} set {string.Join(",", setClauses)} where id=@whereId";
+                executeNonQuery(sql, parameters);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}] updating table[{tableName}],recordId[{recordId}],dataSourceName[{dataSourceName}]");
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
         /// insert a record into a table and returns the ID
         /// </summary>
         /// <param name="tableName"></param>
@@ -761,6 +792,27 @@ namespace Contensive.Processor.Controllers {
             if (sqlList["name"] == null) { sqlList.Add("name", encodeSQLText("")); };
             if (sqlList["active"] == null) { sqlList.Add("active", encodeSQLBoolean(true)); };
             return sqlList;
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Verify base fields (name, guid, etc) are present in a fieldValues dictionary for parameterized insert.
+        /// Values are raw typed values, not pre-encoded SQL fragments.
+        /// </summary>
+        /// <param name="fieldValues"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public Dictionary<string, object> verifyBaseFieldValues(Dictionary<string, object> fieldValues, int userId) {
+            var keys = new HashSet<string>(fieldValues.Keys, StringComparer.OrdinalIgnoreCase);
+            if (!keys.Contains("ccguid")) { fieldValues.Add("ccguid", GenericController.getGUID()); }
+            if (!keys.Contains("dateadded")) { fieldValues.Add("dateadded", core.dateTimeNowMockable); }
+            if (!keys.Contains("modifieddate")) { fieldValues.Add("modifieddate", core.dateTimeNowMockable); }
+            if (!keys.Contains("createdby")) { fieldValues.Add("createdby", userId); }
+            if (!keys.Contains("modifiedby")) { fieldValues.Add("modifiedby", userId); }
+            if (!keys.Contains("contentcontrolid")) { fieldValues.Add("contentcontrolid", 0); }
+            if (!keys.Contains("name")) { fieldValues.Add("name", ""); }
+            if (!keys.Contains("active")) { fieldValues.Add("active", true); }
+            return fieldValues;
         }
         //
         //========================================================================
@@ -814,6 +866,55 @@ namespace Contensive.Processor.Controllers {
                         if (!string.IsNullOrWhiteSpace(key)) {
                             string value = sqlListWorking[key] ?? "null";
                             fieldDetails.AppendLine($"  [{key}] = [{value}]");
+                        }
+                    }
+                }
+                logger.Error(ex, $"{core.logCommonMessage},Exception[{ex.Message}], inserting table[{tableName}], dataSourceName[{dataSourceName}]\n{fieldDetails}");
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Parameterized insert. fieldValues contains raw typed values (not pre-encoded SQL fragments).
+        /// Values are passed as SqlCommand parameters to prevent SQL injection.
+        /// Returns the inserted row via OUTPUT INSERTED.*.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="fieldValues"></param>
+        /// <param name="createdByUserId"></param>
+        /// <returns></returns>
+        public DataTable insert(string tableName, Dictionary<string, object> fieldValues, int createdByUserId) {
+            Dictionary<string, object> fieldValuesWorking = null;
+            try {
+                if (string.IsNullOrEmpty(tableName)) {
+                    throw new ArgumentException("Blank table name is not allowed for Db insert.");
+                }
+                fieldValuesWorking = verifyBaseFieldValues(fieldValues ?? new Dictionary<string, object>(), createdByUserId);
+                if (fieldValuesWorking.Count == 0) {
+                    throw new ArgumentException("Empty field list is not allowed for Db insert.");
+                }
+                var columns = new List<string>();
+                var paramNames = new List<string>();
+                var parameters = new Dictionary<string, object>();
+                int i = 0;
+                foreach (var kvp in fieldValuesWorking) {
+                    if (string.IsNullOrWhiteSpace(kvp.Key)) { continue; }
+                    string paramName = $"@p{i}";
+                    columns.Add(kvp.Key);
+                    paramNames.Add(paramName);
+                    parameters.Add(paramName, kvp.Value ?? DBNull.Value);
+                    i++;
+                }
+                string sql = $"insert into {tableName}({string.Join(",", columns)}) output inserted.* values({string.Join(",", paramNames)})";
+                return core.db.executeQuery(sql, parameters);
+            } catch (Exception ex) {
+                var fieldDetails = new System.Text.StringBuilder();
+                fieldDetails.AppendLine($"Field details for table[{tableName}]:");
+                if (fieldValuesWorking != null) {
+                    foreach (var kvp in fieldValuesWorking) {
+                        if (!string.IsNullOrWhiteSpace(kvp.Key)) {
+                            fieldDetails.AppendLine($"  [{kvp.Key}] = [{kvp.Value ?? "null"}]");
                         }
                     }
                 }
@@ -1683,7 +1784,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrEmpty(tableName.Trim())) { throw new GenericException("tablename cannot be blank"); }
                 if (recordId <= 0) { throw new GenericException("record id is not valid [" + recordId + "]"); }
-                executeNonQuery("delete from " + tableName + " where id=" + recordId);
+                executeNonQuery($"delete from {tableName} where id=@id", new Dictionary<string, object> { { "@id", recordId } });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -1707,7 +1808,7 @@ namespace Contensive.Processor.Controllers {
                     tableName = tmp;
                 }
                 // -- allow for non-guid formated guid values (can just be unique)
-                executeNonQuery("delete from " + tableName + " where ccguid=" + encodeSQLText(guid));
+                executeNonQuery($"delete from {tableName} where ccguid=@guid", new Dictionary<string, object> { { "@guid", (object)guid ?? DBNull.Value } });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
