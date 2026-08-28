@@ -343,22 +343,33 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="cp"></param>
         /// <param name="recordId"></param>
         public static ServerConfigModel create(CoreController core) {
-            FileStream lockStream = null;
             try {
-                // Acquire cross-process file-based lock for read
-                lockStream = AcquireConfigLock(core);
-
                 ServerConfigModel returnModel;
                 //
                 // ----- read/create serverConfig from local config.json
+                // -- no lock needed for reads: file reads on NTFS are atomic for typical config file sizes,
+                // -- and config.json writes (which do acquire a lock) are infrequent
                 string JSONTemp = core.programDataFiles.readFileText("config.json");
                 if (string.IsNullOrEmpty(JSONTemp)) {
                     //
-                    // -- no config.json found, create default
-                    returnModel = new ServerConfigModel();
-                    core.programDataFiles.saveFile("config.json", SerializeObject(returnModel));
-                    returnModel.core = core;
-                    return returnModel;
+                    // -- no config.json found, create default (acquire write lock for initial creation)
+                    FileStream lockStream = null;
+                    try {
+                        lockStream = AcquireConfigLock(core, "write/create-default");
+                        //
+                        // -- re-check after acquiring lock in case another process created it
+                        JSONTemp = core.programDataFiles.readFileText("config.json");
+                        if (string.IsNullOrEmpty(JSONTemp)) {
+                            returnModel = new ServerConfigModel();
+                            core.programDataFiles.saveFile("config.json", SerializeObject(returnModel));
+                            returnModel.core = core;
+                            return returnModel;
+                        }
+                    } finally {
+                        lockStream?.Dispose();
+                    }
+                    //
+                    // -- another process created config.json before we got the lock, fall through to deserialize
                 }
                 //
                 // -- deserialize bootstrap config from file
@@ -397,8 +408,6 @@ namespace Contensive.Processor.Models.Domain {
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "exception in serverConfigModel.getObject");
                 throw;
-            } finally {
-                lockStream?.Dispose();
             }
         }
         //
@@ -411,8 +420,8 @@ namespace Contensive.Processor.Models.Domain {
         public int save(CoreController core) {
             FileStream lockStream = null;
             try {
-                // Acquire cross-process file-based lock
-                lockStream = AcquireConfigLock(core);
+                // Acquire cross-process file-based lock for write
+                lockStream = AcquireConfigLock(core, "write/save");
 
                 if (useSecretManager) {
                     //
