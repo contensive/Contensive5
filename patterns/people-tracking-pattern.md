@@ -51,6 +51,64 @@ The final stage label ("Member") is the underlying platform term. Addons may pre
 
 ---
 
+## Roles
+
+Roles control what an authenticated user is allowed to do. There are two built-in roles stored directly on the People record, plus custom group-based roles.
+
+### Built-in Roles
+
+The People record (`ccmembers`) has two boolean fields that grant built-in roles:
+
+| Field | Role Granted | Condition |
+|---|---|---|
+| `admin` | **Admin** | User is authenticated AND `admin = true` OR `developer = true` |
+| `developer` | **Developer** | User is authenticated AND `developer = true` |
+
+- A user with the **Developer** role automatically has the **Admin** role as well — the developer flag implies admin.
+- These roles only apply when the user is **authenticated**. An unauthenticated user has no roles regardless of what the People record says.
+
+**API checks:**
+
+- `cp.User.IsAdmin` — returns `true` if the user is authenticated and has the admin role (either `admin` or `developer` is checked). This implicitly guarantees `IsAuthenticated`.
+- `cp.User.IsDeveloper` — returns `true` if the user is authenticated and has the developer role.
+
+### Group-Based Roles
+
+Additional roles are defined by creating Groups (`ccgroups` table, `GroupModel`). A user has a group-based role if:
+
+1. The user is **authenticated**, AND
+2. The user is a **member of the group**
+
+Group membership is stored in the `ccmemberrules` table (`MemberRuleModel`), which joins a People record to a Group:
+
+| Field | Description |
+|---|---|
+| `memberId` | Foreign key to the People record (`ccmembers.id`) |
+| `groupId` | Foreign key to the Group (`ccgroups.id`) |
+| `dateExpires` | Optional expiration date — if set and past, the membership is no longer active |
+| `groupRoleId` | Optional foreign key to a Group Role (`ccgrouproles.id`) for sub-role differentiation within the group |
+
+**API checks:**
+
+- `cp.User.IsInGroup("groupName")` — returns `true` if the authenticated user is an active member of the named group.
+
+### Role Hierarchy
+
+```
+Developer (developer = true)
+   └── implies Admin
+Admin (admin = true OR developer = true)
+   └── platform administration access
+Group Roles (ccmemberrules membership)
+   └── application-defined permissions per group
+Authenticated (no special flags)
+   └── basic authenticated access
+```
+
+All roles require authentication. An unauthenticated visitor has no roles.
+
+---
+
 ## Record Lifecycle Summary
 
 ```

@@ -23,9 +23,13 @@ namespace Contensive.Processor.Models.Domain {
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
-        // File-based lock for cross-process/cross-user synchronization of config.json access
+        // File-based lock for cross-process/cross-user synchronization of config.json write access
         private static readonly string LockFileName = "config.lock";
         private const int LockTimeoutMs = 5000; // 5 second timeout
+        //
+        // Cached lock file path — resolved once per process to avoid repeated fallback discovery
+        private static string _resolvedLockPath;
+        private static readonly object _lockPathResolutionLock = new object();
         //
         private CoreController core;
         //
@@ -258,22 +262,27 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
-        /// Acquire file-based lock for cross-process/cross-user synchronization of config.json access.
+        /// Acquire file-based lock for cross-process/cross-user synchronization of config.json write access.
         /// The lock file is automatically deleted when the stream is disposed.
+        /// Uses a cached lock path to avoid repeated fallback discovery on every call.
         /// </summary>
         /// <param name="core"></param>
+        /// <param name="operationDescription">Description of the operation (e.g. "write/save") for log messages</param>
         /// <returns>FileStream that must be disposed to release the lock</returns>
-        private static FileStream AcquireConfigLock(CoreController core) {
-            string lockFilePath = core.programDataFiles.convertRelativeToLocalAbsPath(LockFileName);
+        private static FileStream AcquireConfigLock(CoreController core, string operationDescription) {
+            string primaryLockPath = core.programDataFiles.convertRelativeToLocalAbsPath(LockFileName);
             string fallbackLockPath = Path.Combine(Path.GetTempPath(), $"Contensive_{LockFileName}");
+            //
+            // -- use cached path if already resolved, otherwise start with primary
+            string lockFilePath = _resolvedLockPath ?? primaryLockPath;
             DateTime startTime = DateTime.UtcNow;
             bool attemptedStaleFileCleanup = false;
-            bool usingFallbackPath = false;
-
+            bool usingFallbackPath = (lockFilePath == fallbackLockPath);
+            //
             while (true) {
                 try {
                     // Create/open lock file with exclusive access
-                    return new FileStream(
+                    var stream = new FileStream(
                         lockFilePath,
                         FileMode.OpenOrCreate,
                         FileAccess.ReadWrite,
@@ -281,12 +290,20 @@ namespace Contensive.Processor.Models.Domain {
                         1,
                         FileOptions.DeleteOnClose  // Auto-cleanup when disposed
                     );
-                } catch (UnauthorizedAccessException ex) {
+                    //
+                    // -- success: cache this path for future calls
+                    if (_resolvedLockPath == null) {
+                        lock (_lockPathResolutionLock) {
+                            _resolvedLockPath ??= lockFilePath;
+                        }
+                    }
+                    return stream;
+                } catch (UnauthorizedAccessException) {
                     // Could be stale lock file from crashed process - try to delete it once
                     if (!attemptedStaleFileCleanup && File.Exists(lockFilePath)) {
                         attemptedStaleFileCleanup = true;
                         try {
-                            logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock, attempting to remove stale lock file: [{lockFilePath}]");
+                            logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock ({operationDescription}), attempting to remove stale lock file: [{lockFilePath}]. Check that the IIS app pool identity has write permission to the folder [{Path.GetDirectoryName(lockFilePath)}]");
                             File.Delete(lockFilePath);
                             Thread.Sleep(50); // Brief pause before retry
                             continue; // Retry with deleted file
@@ -294,24 +311,24 @@ namespace Contensive.Processor.Models.Domain {
                             // Delete failed - file truly locked or permissions issue
                         }
                     }
-
+                    //
                     // If not already using fallback, try temp directory
                     if (!usingFallbackPath) {
-                        logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock, switching to temp directory for lock file: [{fallbackLockPath}]");
+                        logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock ({operationDescription}), switching to temp directory for lock file: [{fallbackLockPath}]. Check that the IIS app pool identity has write permission to the folder [{Path.GetDirectoryName(primaryLockPath)}]");
                         lockFilePath = fallbackLockPath;
                         usingFallbackPath = true;
                         attemptedStaleFileCleanup = false; // Reset for fallback path
                         startTime = DateTime.UtcNow; // Reset timeout for fallback attempt
                         continue; // Retry with fallback path
                     }
-
+                    //
                     // Both primary and fallback failed
-                    logger.Error($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock, access denied to lock file (tried both primary and temp locations)", ex);
+                    logger.Error($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock ({operationDescription}), access denied to lock file (tried both primary and temp locations). Check that the IIS app pool identity has write permission to [{Path.GetDirectoryName(primaryLockPath)}]");
                     throw;
                 } catch (IOException) {
                     // File is locked by another process
                     if ((DateTime.UtcNow - startTime).TotalMilliseconds > LockTimeoutMs) {
-                        logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock timed out waiting for config file lock");
+                        logger.Warn($"{core.logCommonMessage},ServerConfigModel.AcquireConfigLock ({operationDescription}) timed out waiting for config file lock");
                         throw new TimeoutException($"Timed out waiting for exclusive access to config.json after {LockTimeoutMs}ms");
                     }
                     Thread.Sleep(100);  // Wait 100ms before retry
