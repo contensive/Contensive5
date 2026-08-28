@@ -205,6 +205,75 @@ Addon names, filenames, and class names should include a suffix that describes t
 
 For example, an addon that manages site configuration should be named `SiteConfigSetting` with a class `SiteConfigSetting`, not `SiteConfigClass`. A page widget that displays a hero banner should be `HeroBannerPageWidget`, a remote method that returns search results should be `SearchResultsRemote`, and a background task that sends digest emails should be `DigestEmailTask`.
 
+## Addon Stylesheet Best Practices
+
+Contensive addons are installed across many sites, each with its own site-level stylesheet controlling typography, colors, and layout. Addon stylesheets must not override or conflict with these site-level decisions. The following rules apply to all CSS shipped in an addon collection — both external `.css` files and inline `<style>` blocks in layout HTML files.
+
+### Scope All Selectors Under a Wrapper Class
+
+Every addon should render its content inside a wrapper element with a unique class (e.g., `.blogWrapper`, `.ecomWrapper`). Every CSS rule in the addon's stylesheet must be prefixed with that wrapper class. No rule should target bare elements without the wrapper prefix.
+
+```css
+/* WRONG — affects the entire page */
+h2 { font-size: 1.25rem; }
+p { color: #333; }
+
+/* RIGHT — scoped to the addon */
+.blogWrapper h2 { font-size: 1.25rem; }
+.blogWrapper p { color: #333; }
+```
+
+### Never Target Global Elements
+
+Addon stylesheets must never set properties on `body`, `html`, `*`, or other page-level selectors. These elements belong to the site theme. This includes inline `<style>` blocks in layout HTML files — they must follow the same scoping rules.
+
+```css
+/* WRONG — overrides the site's font size for the entire page */
+body { font-size: 15px; }
+
+/* WRONG — even in a layout file's inline <style> block */
+body { background-color: blue; }
+```
+
+### Do Not Set `font-family`
+
+An addon must never declare `font-family`. The site theme controls typeface selection. If the addon needs a specific font for a narrow purpose (icon font, monospace code block), scope it to that exact element.
+
+### Prefer `inherit` and `currentColor` for Typography
+
+Addon styles should let typography properties flow from the site theme rather than hardcoding values. Use `inherit` or `currentColor` for `color`, `font-size`, `font-weight`, and `line-height` on general content elements. Only hardcode values for addon-specific UI elements like warning badges, admin notices, or buttons where a specific appearance is required.
+
+```css
+/* AVOID — overrides the site's text color */
+.blogWrapper .aoBlogEntryCopy { color: black; }
+
+/* PREFER — inherits from the site theme */
+.blogWrapper .aoBlogEntryCopy { color: inherit; }
+```
+
+### Use Relative Units for `font-size`
+
+When an addon needs to adjust font size for a specific element, use `rem` or `em` (relative to the site's base). Do not set absolute `px` sizes on container-level elements that could cascade to many children.
+
+### Avoid `!important` on Typography and Color Properties
+
+Using `!important` on `color`, `font-size`, `font-weight`, `font-family`, or `line-height` prevents site themes from overriding addon styles. Reserve `!important` for structural concerns (e.g., overriding a third-party framework conflict), never for typography or color.
+
+### Keep a Single Source of Truth for CSS
+
+If the addon ships CSS in multiple locations (e.g., both `wwwFiles/` and `layoutFiles/`), ensure one is the canonical source and the other is not stale. Stale duplicates cause confusing inconsistencies across sites.
+
+### Summary of What Addons Should and Should Not Set
+
+| Property | Addon May Set (scoped to wrapper) | Addon Must Not Set |
+|---|---|---|
+| `font-family` | No (except narrow icon/monospace use) | On any element |
+| `font-size` | On specific elements, using `rem`/`em` | On `body`, `html`, unscoped elements |
+| `font-weight` | On specific scoped elements | On `body`, `html`, unscoped selectors |
+| `line-height` | On specific scoped elements | On `body`, `html`, unscoped selectors |
+| `color` | Prefer `inherit`/`currentColor`; hardcode only for UI-specific elements (warnings, badges) | On `body`, `html`, bare `p`/`a`/`h1` |
+| `background-color` | On scoped addon elements | On `body`, `html` |
+
 ## Summary
 
 | Method Type | Catch Behavior |

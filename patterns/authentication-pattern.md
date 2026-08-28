@@ -7,6 +7,42 @@
 
 ---
 
+## Session Tracking Model
+
+Every hit to a Contensive website generates a chain of four records:
+
+| Record | Granularity | What it represents |
+|---|---|---|
+| **Pageview** | One per page hit | A single page load. |
+| **Visit** | One per session | The session containing that pageview. |
+| **Visitor** | One per browser (persistent cookie) | The recurring browser/device across sessions. |
+| **People** | One per identity | The actual identity — username/password, contact info, etc. |
+
+**On a page hit, these records are resolved in order:**
+
+1. **Visitor** (persistent cookie) is read or established.
+2. **Visit** (session) is determined from the Visitor.
+3. **People** record is determined from the Visit.
+4. **Pageview** is created for the current page hit.
+
+**How the records relate:**
+
+- A **Pageview** belongs to a **Visit** (the current session).
+- The **Visit** is tied to a **Visitor**, identified by the persistent cookie.
+- During a visit, the user can change people records. The Visit stores the last People record ID used during that visit, and stores whether it was authenticated or not.
+- The Visit record points to the Visitor record associated with this visit.
+- The Visitor record stores the last People record ID for that visitor.
+
+**Recognition vs. authentication on session creation:**
+
+- When creating a new visit, if there is a valid Visitor, the user from that Visitor is used for the visit and the user is **recognized**.
+- If there is a valid visit, the user is determined by the Visit, which stores whether the visit is authenticated, recognized, or not recognized.
+- If the person logs in (username/password), the Visitor record is updated to point to the authenticated People record, and the person becomes **authenticated** for that session.
+
+See `CPVisitBaseClass` (`cp.Visit`) and `CPVisitorBaseClass` (`cp.Visitor`) in the [Site, User & Cache API Reference](api-site-user-cache-reference.md) for the API surface available to addons.
+
+---
+
 ## Overview
 
 Authentication is resolved in two sequential phases on every request, before any addon executes.

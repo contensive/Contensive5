@@ -30,3 +30,5 @@
   href: addon-task-pattern.md
 - name: Remote Method Pattern
   href: addon-remote-method-pattern.md
+- name: People Tracking Pattern
+  href: people-tracking-pattern.md

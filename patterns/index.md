@@ -47,8 +47,12 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 
 ## Security
 
-- [Authentication Pattern](authentication-pattern.md) — username/password, bearer token, HTTP Basic, and session cookie authentication flows
+- [Authentication Pattern](authentication-pattern.md) — session tracking model (Pageview/Visit/Visitor/People), username/password, bearer token, HTTP Basic, and session cookie authentication flows
 - [Security Best Practices](security-best-practices.md) — authentication vs authorization, the recognized state, secure coding patterns, and common vulnerabilities
+
+## People & Tracking
+
+- [People Tracking Pattern](people-tracking-pattern.md) — People record types (Bot/Guest/Contact), creation source, lifecycle management, and the Contact funnel stages
 
 ## Infrastructure
 
