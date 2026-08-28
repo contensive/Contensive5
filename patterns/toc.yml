@@ -14,6 +14,8 @@
   href: database-management-pattern.md
 - name: Database Models Pattern
   href: database-models-pattern.md
+- name: People Tracking Pattern
+  href: people-tracking-pattern.md
 - name: Diagnostic Addon Pattern
   href: diagnostic-addon-patter.md
 - name: Help Doc Pattern

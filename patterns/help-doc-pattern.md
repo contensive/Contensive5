@@ -22,8 +22,8 @@ Content visibility is controlled by folder location:
 
 | Folder | Audience | Visible To |
 |---|---|---|
-| `helpfiles/` | Public visitors | Everyone |
-| `helpfiles/members/` | Authenticated users | Members, Administrators, Developers |
+| `helpfiles/` (root, no subfolder) | Public visitors | Everyone |
+| `helpfiles/member/` | Authenticated people | Members, Administrators, Developers. See [People Tracking Pattern](people-tracking-pattern.md) to distinguish an authenticated Member from an unauthenticated Guest or Bot — this is not the same "Member" as the Contact funnel stage described there, it means any authenticated person. |
 | `helpfiles/admin/` | Site admins | Administrators, Developers |
 | `helpfiles/dev/` | Developers | Developers only |
 | `helpfiles/fieldhelp/` | Database documentation | Administrators, Developers |
@@ -53,11 +53,11 @@ Every Contensive addon collection can include help files. Follow these steps:
 ### 1. Create a /helpfiles Folder in the Project
 
 Add folders for each of the roles used in the project
-- `helpfiles/` folder at the root of the addon project's Git repository. This folder contains articles available to anyone
-- `helpfiles/dev/' folder for help only available devs
-- `helpfiles/admin/' folder for help only available to admins and devs
-- `helpfiles/members/' folder for help only available to admins, devs and anyone who an authenticate to the site
-- `helpfiles/fieldhelp/' folder for help related to content metadata, available to admins and devs
+- `helpfiles/` folder at the root of the addon project's Git repository. This folder contains articles available to anyone, logged in or not.
+- `helpfiles/dev/` folder for help only available to devs
+- `helpfiles/admin/` folder for help only available to admins and devs
+- `helpfiles/member/` folder for help visible to any authenticated person, plus admins and devs. See [People Tracking Pattern](people-tracking-pattern.md) for how People records and authentication work.
+- `helpfiles/fieldhelp/` folder for help related to content metadata, available to admins and devs
 
 
 ### 2. Update the Build Script

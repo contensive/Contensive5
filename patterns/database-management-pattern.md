@@ -8,8 +8,14 @@ The Contensive architecture provides a database api
 
 ## Naming Conventions
 
-- Tables are named first with a 2-letter prefix unique to the collection codebase that installed them. The Contensive5 main codebase uses the prefix `cc` (e.g., `ccMembers`, `ccGroups`, `ccContent`). Each addon collection should choose its own unique 2-letter prefix to avoid table name collisions (e.g., an ecommerce collection might use `ec`, a blog collection might use `bl`).
-- Table names are camelCase with no dashes and no underscores
+### Table Names
+
+- Tables are named with a lowercase 2- or 3-letter prefix that represents the collection that installs them, followed by a PascalCase name describing the plural form of the data. For example, `ccMembers` — `cc` is the prefix for Contensive Control, and `Members` describes the people stored in the table. The Contensive5 main codebase uses the prefix `cc` (e.g., `ccMembers`, `ccGroups`, `ccContent`). Each addon collection should choose its own unique prefix to avoid table name collisions (e.g., an ecommerce collection might use `ec`, a blog collection might use `bl`).
+- Tables that represent many-to-many relationships use the suffix `Rules` (e.g., `ccMemberRules`, `ecOrderItemRules`).
+- Table names use no dashes and no underscores.
+
+### Field Names
+
 - Field names are camelCase with no dashes and no underscores
 - Foreign keys are named with the table they reference followed by the field in that table where they connect
 

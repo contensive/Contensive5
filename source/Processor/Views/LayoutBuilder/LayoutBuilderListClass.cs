@@ -281,7 +281,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     //
                     // -- callbackAddonGuid not set, log warning and return only the current request value without persisting.
                     // -- callbackAddonGuid must be set before accessing sqlSearchTerm so the value can be persisted per-addon.
-                    cp.Log.Warn("LayoutBuilderListClass.sqlSearchTerm accessed before callbackAddonGuid is set. Set callbackAddonGuid first.");
+                    cp.Log.Warn($"LayoutBuilderListClass.sqlSearchTerm accessed before callbackAddonGuid is set. Set callbackAddonGuid first. Stack:{Environment.StackTrace}");
                     return cp.Doc.IsProperty("searchTerm") ? cp.Request.GetText("searchTerm") : "";
                 }
                 string propertyKey = $"AdminUIListSearch_{callbackAddonGuid}";

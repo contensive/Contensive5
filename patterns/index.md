@@ -44,6 +44,7 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 
 - [Database Models Pattern](database-models-pattern.md) — creating and using typed database model classes
 - [Database Management Pattern](database-management-pattern.md) — database schema management and conventions
+- [People Tracking Pattern](people-tracking-pattern.md) — People records, Bot/Guest/Contact classification, the Contact funnel, and built-in vs. group-based roles
 
 ## Security
 

@@ -70,13 +70,48 @@ public void SaveOrder(CPBaseClass cp, int orderId) {
 
 Every database table and field used in a Contensive project has two mandatory representations:
 
-1. **Collection XML** — The `<CDef>` and `<Field>` elements in the addon collection XML file are the source of truth for database schema. The installer reads this file to create and update tables and columns. A field referenced in code without a matching `<Field>` in the collection XML will not exist in the database at runtime.
+1. **Collection XML** — The `<CDef>` and `<Field>` elements in the addon collection XML file are the **source of truth** for database schema. The installer reads this file to create and update tables and columns. A field referenced in code without a matching `<Field>` in the collection XML will not exist in the database at runtime.
 
 2. **Database Model** — A corresponding C# model class in `source/Models/Models/Db/` documents how the table and its fields are used in code. The model provides type-safe access, CRUD operations, and serves as living documentation of the table's structure and relationships.
 
 Both are required. A table or field must not exist in one without the other:
 - A `<CDef>` or `<Field>` in the collection XML without a corresponding model property means the schema exists but is undocumented and inaccessible through the model API.
 - A model property without a corresponding `<Field>` in the collection XML means the code references a column that will not exist in the database at runtime.
+
+### Collection XML Is the Source of Truth for Names
+
+The collection XML file is the authoritative source for all database table names and field names. Database Models must conform to the collection XML, not the other way around:
+
+- The model's `tableMetadata` content name must match the `<CDef>` `Name` attribute exactly.
+- The model's `tableMetadata` table name must match the `<CDef>` `ContentTableName` attribute exactly.
+- Every public property on the model must correspond to a `<Field>` element in the collection XML with a matching `Name` attribute.
+- If there is a discrepancy between a model property name and the collection XML field name, the collection XML is correct and the model must be updated to match.
+
+### All Database Queries Belong in Models
+
+Best practice is to run all database queries from Model classes rather than from addon or controller code. This centralizes data access logic, makes queries reusable, and keeps addon code focused on presentation and workflow.
+
+- **Single-table queries** belong in the model for that table (e.g., a query against `ccgroups` belongs in `GroupModel`).
+- **Multi-table join queries** belong in the model for the primary table in the query. Which table is "primary" is a judgment call based on the query's purpose — the table whose records are being returned or acted upon is typically the right choice.
+- Model query methods should be `public static` methods that accept `CPBaseClass cp` and return model instances or lists.
+
+```csharp
+// Example: a join query in the model for the primary table
+public class OrderModel : DbBaseModel {
+    public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("orders", "orders", "default", false);
+    //
+    public int customerId { get; set; }
+    public DateTime? orderDate { get; set; }
+    //
+    /// <summary>
+    /// Get orders for a specific customer, joined to customer table for filtering.
+    /// This query lives in OrderModel because orders are the primary records returned.
+    /// </summary>
+    public static List<OrderModel> getOrdersByCustomerEmail(CPBaseClass cp, string email) {
+        return createList<OrderModel>(cp, $"customerId in (select id from customers where email='{DbBaseModel.encodeSQLText(email)}')");
+    }
+}
+```
 
 **Required workflow for new tables:**
 1. Add the `<CDef>` with all `<Field>` elements to the collection XML — see [Addon Collection Pattern](addon-collection-pattern.md)
