@@ -181,9 +181,11 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                 if (EmailToConfirmationMemberId != 0) {
                                                     EmailController.sendConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
                                                     //
-                                                    if (cp.core.doc.userErrorList.Count.Equals(0) && adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
+                                                    // -- sendConfirmationTestEmail adds informational warnings (duplicate/invalid/blank emails)
+                                                    // -- these should not prevent the test date from being set
+                                                    if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
                                                         //
-                                                        // -- if there were no errors, and the table supports lastsendtestdate, update it
+                                                        // -- the table supports lastsendtestdate, update it
                                                         adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
                                                         db.executeNonQuery("update ccemail Set lastsendtestdate=@sendDate where id=@id", new Dictionary<string, object> { { "@sendDate", cp.core.doc.profileStartTime }, { "@id", adminData.editRecord.id } });
                                                         //

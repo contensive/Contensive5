@@ -77,6 +77,15 @@ namespace Contensive.Processor.Controllers {
                     userErrorMessage = "The email address cannot be blank";
                     return false;
                 }
+                //
+                // -- rate limit: max 3 password reset requests per email per 15-minute window
+                string rateLimitKey = $"password-reset-rate/{requestEmail.Trim().ToLowerInvariant()}";
+                int attemptCount = core.cache.getInteger(rateLimitKey);
+                if (attemptCount >= 3) {
+                    //
+                    // -- rate limit exceeded, silently succeed to avoid revealing throttle state
+                    return true;
+                }
                 string currentProtocolDomain = core.cpParent.Request.Protocol + core.cpParent.Request.Host;
                 SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
                 if (email is null) {
@@ -91,8 +100,10 @@ namespace Contensive.Processor.Controllers {
                 List<PersonModel> userList = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(requestEmail)}", "id");
                 string body = "";
                 if (userList.Count == 0) {
-                    userErrorMessage = $"There is no user with this email [{HtmlController.encodeHtml(requestEmail)}].";
-                    return false;
+                    //
+                    // -- no user found, return true to avoid revealing whether the email exists
+                    core.cache.storeObject(rateLimitKey, attemptCount + 1, core.dateTimeNowMockable.AddMinutes(15));
+                    return true;
                 }
                 if (userList.Count == 1) {
                     //
@@ -105,6 +116,7 @@ namespace Contensive.Processor.Controllers {
                             $"An account was found but the username is blank. " +
                             $"Please contact the site administrator to have the account username updated." +
                             $"</p>";
+                        core.cache.storeObject(rateLimitKey, attemptCount + 1, core.dateTimeNowMockable.AddMinutes(15));
                         return EmailController.trySendSystemEmail(core, true, email.id, body, userList.First().id, ref userErrorMessage);
                     }
                     //
@@ -117,6 +129,7 @@ namespace Contensive.Processor.Controllers {
                        $"</p><p>" +
                        $"If you requested this change, <a href=\"{resetUrl}\">please click here</a> to set a new password. If you did not request this change ignore this email." +
                        $"</p>";
+                    core.cache.storeObject(rateLimitKey, attemptCount + 1, core.dateTimeNowMockable.AddMinutes(15));
                     return EmailController.trySendSystemEmail(core, true, email.id, body, userList.First().id, ref userErrorMessage);
                 }
                 //
@@ -144,6 +157,7 @@ namespace Contensive.Processor.Controllers {
                             $"<br>If you requested this change, <a href=\"{resetUrl}\">please click here</a> to set a new password.</p>");
                     }
                 }
+                core.cache.storeObject(rateLimitKey, attemptCount + 1, core.dateTimeNowMockable.AddMinutes(15));
                 return EmailController.trySendSystemEmail(core, true, email.id, body + bodyContent.ToString(), userList.First().id, ref userErrorMessage);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

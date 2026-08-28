@@ -109,9 +109,10 @@ namespace Contensive.Processor.Controllers {
                         userErrorMessage = "Email is required.";
                     } else if (!EmailController.verifyEmailAddress(core, requestEmail)) {
                         userErrorMessage = "Email is not valid.";
-                    } else if (PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage)) {
+                    } else {
+                        PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage);
                         //
-                        // -- display the password recovery instructions page. Access to set-password can only happen from the email
+                        // -- always show confirmation page to prevent user enumeration
                         return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString });
                     }
                 }

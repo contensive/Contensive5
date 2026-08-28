@@ -153,6 +153,75 @@ if (core.session.isAuthenticated && user.lastLoginDate != DateTime.MinValue) { }
 
 ---
 
+## Rate Limiting & Anti-Enumeration
+
+### Rate Limiting for Side-Effect Endpoints
+
+Any endpoint that triggers an external action — sending email, sending SMS, creating tokens, charging money — must be throttled per identifier. Without rate limiting, an attacker can automate requests to flood a user's inbox, exhaust email API quotas, or degrade application performance.
+
+**Endpoints that require rate limiting:**
+- Password reset (per email address)
+- OTP / verification code requests (per email or phone)
+- Contact forms and "email a friend" features (per sender)
+- Account verification re-send (per email)
+- Any "send me a link" flow
+
+**Pattern:** Use `core.cache` to track attempt counts with automatic expiration. The cache is Redis-backed in production (safe across load-balanced servers) with transparent fallback to local memory cache. `getInteger()` returns 0 on cache miss, which is the correct initial value.
+
+```csharp
+// -- rate limit: max N requests per identifier per time window
+string rateLimitKey = $"action-name/{identifier.Trim().ToLowerInvariant()}";
+int attemptCount = core.cache.getInteger(rateLimitKey);
+if (attemptCount >= maxAttempts) {
+    //
+    // -- silently succeed to avoid revealing throttle state
+    return true;
+}
+//
+// ... perform action (send email, create token, etc.) ...
+//
+// -- increment counter with time-window expiration
+core.cache.storeObject(rateLimitKey, attemptCount + 1, core.dateTimeNowMockable.AddMinutes(windowMinutes));
+```
+
+**Key design decisions:**
+- **Silent success on throttle.** Return the same response as a successful request. If the attacker sees a different response when rate-limited, they know the limit exists and can adjust their timing.
+- **Per-identifier, not per-IP.** Rate limit by the target (email address, phone number) to prevent a single target from being bombed regardless of how many source IPs the attacker uses. Per-IP rate limiting is a complementary layer handled separately.
+- **Increment on all code paths.** Whether the action succeeds, the user is not found, or the email fails to send — always increment the counter so that failed lookups still consume rate limit budget.
+
+### Generic Response Pattern (Anti-Enumeration)
+
+Endpoints that look up users by email or username must return identical responses for found and not-found cases. Different responses allow attackers to discover which email addresses have accounts (user enumeration), which enables targeted phishing and credential-stuffing attacks.
+
+**This applies to:**
+- Password reset ("no account found" vs. "reset link sent")
+- Registration ("email already taken" vs. success)
+- Login ("invalid username" vs. "invalid password")
+
+```csharp
+// VULNERABLE - reveals whether the email exists
+if (userList.Count == 0) {
+    userErrorMessage = $"There is no user with this email [{requestEmail}].";
+    return false;
+}
+
+// SECURE - always show the same confirmation regardless of email lookup result
+if (userList.Count == 0) {
+    //
+    // -- no user found, return true to avoid revealing whether the email exists
+    return true;
+}
+// The caller renders the same "check your email" confirmation page in both cases
+```
+
+**Guidelines:**
+- Always return the same HTTP status code for found and not-found cases
+- Always render the same confirmation page or message
+- Avoid timing side channels — don't skip expensive operations (email send, token creation) and return faster for unknown emails. The time difference can reveal account existence.
+- Log the attempt internally for monitoring even when suppressing the user-facing error
+
+---
+
 ## Examples
 
 ### Example 1: Secure Remote Method
@@ -243,6 +312,13 @@ public class SecureApiEndpoint : AddonBaseClass {
 ### UI / Display Logic
 - [ ] Are admin tools hidden from unauthenticated users?
 - [ ] Are sensitive URLs/endpoints not exposed in client-side code?
+
+### Endpoints That Trigger External Actions (Email, SMS, Tokens)
+- [ ] Is the endpoint rate-limited per target identifier (email address, phone number, userId)?
+- [ ] Does the response avoid revealing whether the user or email exists in the system?
+- [ ] Do success and failure code paths return the same response to the caller?
+- [ ] Is the rate limit counter incremented on all code paths (success, user-not-found, send failure)?
+- [ ] Could an attacker use this endpoint to flood a user's inbox or phone with automated requests?
 
 ---
 
