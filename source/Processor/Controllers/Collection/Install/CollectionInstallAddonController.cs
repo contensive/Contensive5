@@ -63,13 +63,18 @@ namespace Contensive.Processor.Controllers {
                             logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                         } else {
                             //
-                            // not found by GUID - search name against name to update legacy Add-ons
+                            // not found by GUID - search by name to update legacy Add-ons or fix Add-ons with incorrect GUIDs
                             //
                             cs.close();
-                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")";
                             cs.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                             if (cs.ok()) {
-                                logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on that has no GUID, Updating legacy Aggregate Function to Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                                string existingGuid = cs.getText(AddonGuidFieldName);
+                                if (string.IsNullOrEmpty(existingGuid)) {
+                                    logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on that has no GUID, Updating legacy Aggregate Function to Add-on [{addonName}], Guid [{addonGuid}]");
+                                } else {
+                                    logger.Warn($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on with a mismatched GUID (existing [{existingGuid}], expected [{addonGuid}]). Updating GUID for Add-on [{addonName}]");
+                                }
                             }
                         }
                         if (!cs.ok()) {

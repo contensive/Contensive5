@@ -1157,14 +1157,20 @@ namespace Contensive.Processor.Controllers {
                         // 
                         if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                             //
-                            // -- not found by GUID - search name to update legacy Add-ons
+                            // -- not found by GUID - search by name to update legacy Add-ons or fix Add-ons with incorrect GUIDs
                             csData.close();
-                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(ccguid is null)";
+                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")";
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
                                 logger.Error(new GenericException($"{MethodInfo.GetCurrentMethod().Name}, installing collection [{parentCollectionName}], addon [{addonName}] (guid [{addonGuid}]) was not found in the database by guid or name. This addon's dependencies (such as IncludeAddon references) will be skipped. Verify the addon is defined in the collection XML and appears before any addons that depend on it."), $"{core.logCommonMessage}");
                                 return;
+                            }
+                            string existingGuid = csData.getText("ccguid");
+                            if (string.IsNullOrEmpty(existingGuid)) {
+                                logger.Info($"{core.logCommonMessage}, {MethodInfo.GetCurrentMethod().Name}, addon [{addonName}] found by name with no GUID, updating legacy Add-on");
+                            } else {
+                                logger.Warn($"{core.logCommonMessage}, {MethodInfo.GetCurrentMethod().Name}, addon [{addonName}] found by name with mismatched GUID (existing [{existingGuid}], expected [{addonGuid}])");
                             }
                         }
                         foreach (XmlNode PageInterface in AddonNode.ChildNodes) {
@@ -1192,6 +1198,18 @@ namespace Contensive.Processor.Controllers {
                                                 CS2.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                                                 if (CS2.ok()) {
                                                     IncludeAddonId = CS2.getInteger("ID");
+                                                }
+                                            }
+                                            //
+                                            // -- if GUID lookup failed and we have a name, fall back to name lookup (handles Add-ons with incorrect GUIDs)
+                                            if (IncludeAddonId == 0 && !string.IsNullOrEmpty(IncludeAddonGuid) && !string.IsNullOrEmpty(IncludeAddonName)) {
+                                                using (var CS2 = new CsModel(core)) {
+                                                    CS2.open(AddonModel.tableMetadata.contentName, "(name=" + DbController.encodeSQLText(IncludeAddonName) + ")", "", false);
+                                                    if (CS2.ok()) {
+                                                        IncludeAddonId = CS2.getInteger("ID");
+                                                        string existingGuid = CS2.getText("ccguid");
+                                                        logger.Warn($"{core.logCommonMessage}, UpgradeAddFromLocalCollection_InstallAddonNode, include add-on [{IncludeAddonName}] found by name with mismatched GUID (existing [{existingGuid}], expected [{IncludeAddonGuid}])");
+                                                    }
                                                 }
                                             }
                                             bool AddRule = false;
