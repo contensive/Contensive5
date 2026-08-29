@@ -266,6 +266,16 @@ if (Test-Path $aspxZipSource) {
     Write-Host "  defaultaspxsite.zip copied to $FrameworkSiteDest" -ForegroundColor Green
 }
 
+# Copy utility scripts if present in the deployment package
+$scriptsSource = Join-Path $SourcePath "scripts"
+if (Test-Path $scriptsSource) {
+    Write-Step "Installing utility scripts"
+    $scriptsDest = Join-Path $InstallPath "scripts"
+    if (-not (Test-Path $scriptsDest)) { New-Item -Path $scriptsDest -ItemType Directory -Force | Out-Null }
+    robocopy $scriptsSource $scriptsDest /MIR /NJH /NJS /NDL /NP | Out-Null
+    Write-Host "  Scripts installed at $scriptsDest" -ForegroundColor Green
+}
+
 # Scheduled task is non-critical — run last so a failure here does not block the rest of the install
 if (-not $SkipCli)         { Install-ScheduledTask }
 

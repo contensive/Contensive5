@@ -365,6 +365,8 @@ copy "C:\Git\Contensive5\etc\upgrade-core.ps1" "%deploymentFolderRoot%%versionNu
 copy "C:\Git\Contensive5\etc\install-core.cmd" "%deploymentFolderRoot%%versionNumber%\install.cmd"
 copy "C:\Git\Contensive5\etc\uninstall-core.cmd" "%deploymentFolderRoot%%versionNumber%\uninstall.cmd"
 copy "C:\Git\Contensive5\etc\upgrade-core.cmd" "%deploymentFolderRoot%%versionNumber%\upgrade.cmd"
+copy "C:\Git\Contensive5\etc\upgrade-full-core.ps1" "%deploymentFolderRoot%%versionNumber%\upgrade-full.ps1"
+copy "C:\Git\Contensive5\etc\upgrade-full-core.cmd" "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd"
 copy "C:\Git\Contensive5\etc\README-core.txt" "%deploymentFolderRoot%%versionNumber%\README.txt"
 copy "C:\Git\Contensive5\etc\clear-c-drive-space.cmd" "%deploymentFolderRoot%%versionNumber%\clear-c-drive-space.cmd"
 
@@ -415,12 +417,15 @@ rd /s /q "%deploymentFolderRoot%%versionNumber%\WebApi" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\Cli" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\TaskService" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\backuptools" 2>nul
+rd /s /q "%deploymentFolderRoot%%versionNumber%\scripts" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\upgrade.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\install.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\uninstall.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\upgrade.cmd" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.ps1" 2>nul
+del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\clear-c-drive-space.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\defaultaspxsite.zip" 2>nul

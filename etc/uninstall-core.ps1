@@ -163,6 +163,12 @@ if (-not $KeepFiles) {
         Write-Host "  Removing defaultaspxsite.zip (legacy location)"
         Remove-Item -Path $aspxZip -Force
     }
+    # Remove utility scripts folder
+    $scriptsPath = Join-Path $InstallPath "scripts"
+    if (Test-Path $scriptsPath) {
+        Write-Host "  Removing scripts folder"
+        Remove-Item -Path $scriptsPath -Recurse -Force
+    }
 }
 
 Write-Step "Uninstall complete"
