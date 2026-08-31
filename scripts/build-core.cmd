@@ -183,15 +183,17 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem move packages to deployment folder and local package cache
-move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
-xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+rem move packages to deployment folder (Nuget subfolder) and local package cache
+md "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
 
-move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
-xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
-move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
-xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+
+move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
 cd ..\scripts
 
@@ -243,7 +245,8 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
+md "%deploymentFolderRoot%%versionNumber%\FrameworkSite" 2>nul
+xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%\FrameworkSite\" /Y
 
 cd ..\scripts
 
@@ -368,7 +371,6 @@ copy "C:\Git\Contensive5\etc\upgrade-core.cmd" "%deploymentFolderRoot%%versionNu
 copy "C:\Git\Contensive5\etc\upgrade-full-core.ps1" "%deploymentFolderRoot%%versionNumber%\upgrade-full.ps1"
 copy "C:\Git\Contensive5\etc\upgrade-full-core.cmd" "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd"
 copy "C:\Git\Contensive5\etc\README-core.txt" "%deploymentFolderRoot%%versionNumber%\README.txt"
-copy "C:\Git\Contensive5\etc\clear-c-drive-space.cmd" "%deploymentFolderRoot%%versionNumber%\clear-c-drive-space.cmd"
 
 rem ==============================================================
 rem
@@ -386,6 +388,7 @@ rem
 
 md "%deploymentFolderRoot%%versionNumber%\scripts" 2>nul
 copy "C:\Git\Contensive5\etc\install-scripts\*" "%deploymentFolderRoot%%versionNumber%\scripts\"
+copy "C:\Git\Contensive5\etc\clear-c-drive-space.cmd" "%deploymentFolderRoot%%versionNumber%\scripts\"
 
 rem ==============================================================
 rem
@@ -427,11 +430,8 @@ del /q "%deploymentFolderRoot%%versionNumber%\upgrade.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.ps1" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
-del /q "%deploymentFolderRoot%%versionNumber%\clear-c-drive-space.cmd" 2>nul
-del /q "%deploymentFolderRoot%%versionNumber%\defaultaspxsite.zip" 2>nul
-del /q "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" 2>nul
-del /q "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" 2>nul
-del /q "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" 2>nul
+rd /s /q "%deploymentFolderRoot%%versionNumber%\FrameworkSite" 2>nul
+rd /s /q "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
 
 rem ==============================================================
 rem

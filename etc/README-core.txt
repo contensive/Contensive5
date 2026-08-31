@@ -110,7 +110,7 @@ UPGRADE
    For .NET Framework ASPX apps:
      Open IIS Manager, click on the site, then on the
      right click "Import Application" and select:
-       C:\Program Files\Contensive\defaultaspxsite.zip
+       C:\Program Files\Contensive\FrameworkSite\defaultaspxsite.zip
      This replaces the site binaries while preserving
      app-specific config files (WebAppSettings.config,
      WebRewrite.config).

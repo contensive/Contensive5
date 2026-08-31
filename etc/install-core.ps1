@@ -257,7 +257,7 @@ if (-not $SkipTaskService) { Install-TaskService }
 if (-not $SkipWebApi)      { Install-WebApiPackage }
 
 # Copy defaultaspxsite.zip for legacy framework site installs and upgrades
-$aspxZipSource = Join-Path $SourcePath "defaultaspxsite.zip"
+$aspxZipSource = Join-Path $SourcePath "FrameworkSite\defaultaspxsite.zip"
 if (Test-Path $aspxZipSource) {
     Write-Step "Installing legacy ASPX deployment package"
     $FrameworkSiteDest = Join-Path $InstallPath "FrameworkSite"
