@@ -126,7 +126,8 @@ namespace Contensive.Processor.Models.Domain {
         /// HTML files (.htm/.html) go to layoutFiles\ in privateFiles (flattened),
         /// all other files go to dstPath in wwwFiles (preserving zip subfolder structure).
         /// </summary>
-        public static void unzipLayoutToTempThenCopy(CoreController core, string dstPath, string zipPathFilename, ResourceManifestModel manifest) {
+        public static List<string> unzipLayoutToTempThenCopy(CoreController core, string dstPath, string zipPathFilename, ResourceManifestModel manifest) {
+            var htmlFilesCopied = new List<string>();
             string tempPath = $"installLayoutZip{GenericController.getRandomInteger()}\\";
             try {
                 core.tempFiles.createPath(tempPath);
@@ -140,17 +141,18 @@ namespace Contensive.Processor.Models.Domain {
                 // -- walk extracted files and split by extension
                 string normalizedDstPath = FileController.normalizeDosPath(dstPath);
                 string layoutFilesDstPath = "layoutFiles\\";
-                copyLayoutTempRecursively(core, tempPath, normalizedDstPath, layoutFilesDstPath, manifest);
+                copyLayoutTempRecursively(core, tempPath, normalizedDstPath, layoutFilesDstPath, manifest, htmlFilesCopied);
             } finally {
                 core.tempFiles.deleteFolder(tempPath);
             }
+            return htmlFilesCopied;
         }
         //
         /// <summary>
         /// Recursively copy layout files from temp: HTML to layoutFiles in privateFiles (flat),
         /// non-HTML to dstPath in wwwFiles (preserving structure).
         /// </summary>
-        private static void copyLayoutTempRecursively(CoreController core, string tempPath, string wwwDstPath, string layoutFilesDstPath, ResourceManifestModel manifest) {
+        private static void copyLayoutTempRecursively(CoreController core, string tempPath, string wwwDstPath, string layoutFilesDstPath, ResourceManifestModel manifest, List<string> htmlFilesCopied) {
             string normalizedTempPath = FileController.normalizeDosPath(tempPath);
             string normalizedWwwDstPath = FileController.normalizeDosPath(wwwDstPath);
             string normalizedLayoutDstPath = FileController.normalizeDosPath(layoutFilesDstPath);
@@ -162,6 +164,7 @@ namespace Contensive.Processor.Models.Domain {
                     string dstFilePath = normalizedLayoutDstPath + file.Name;
                     manifest.resources.Add(new ResourceManifestEntry { type = "layout-private", destinationPath = dstFilePath });
                     core.tempFiles.copyFile(normalizedTempPath + file.Name, dstFilePath, core.privateFiles);
+                    htmlFilesCopied.Add(file.Name);
                 } else {
                     //
                     // -- non-HTML files go to dstPath in wwwFiles (preserving structure)
@@ -181,7 +184,7 @@ namespace Contensive.Processor.Models.Domain {
                     core.wwwFiles.createPath(subWwwDstPath);
                 }
                 // -- recurse, but layoutFiles destination stays flat (no subfolders)
-                copyLayoutTempRecursively(core, subTempPath, subWwwDstPath, normalizedLayoutDstPath, manifest);
+                copyLayoutTempRecursively(core, subTempPath, subWwwDstPath, normalizedLayoutDstPath, manifest, htmlFilesCopied);
             }
         }
     }

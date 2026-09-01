@@ -1,9 +1,13 @@
 
+using Contensive.BaseClasses;
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using HtmlAgilityPack;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using static Contensive.BaseClasses.CPLayoutBaseClass;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -182,8 +186,11 @@ namespace Contensive.Processor.Controllers {
                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-www", folderPath = dstDosPath });
                             }
                             resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-private", folderPath = layoutFilesDstPath });
-                            ResourceManifestModel.unzipLayoutToTempThenCopy(core, dstDosPath, dstDosPath + filename, resourceManifest);
+                            var htmlFilesCopied = ResourceManifestModel.unzipLayoutToTempThenCopy(core, dstDosPath, dstDosPath + filename, resourceManifest);
                             core.wwwFiles.deleteFile(dstDosPath + filename);
+                            //
+                            // -- import HTML files by meta tags into database records
+                            importLayoutFilesByMetaTags(core, collectionName, htmlFilesCopied);
                         } else if (ext == ".htm" || ext == ".html") {
                             //
                             // -- HTML file: copy to layoutFiles\ in privateFiles
@@ -195,6 +202,9 @@ namespace Contensive.Processor.Controllers {
                                 trackedFolders.Add($"layout-private::{layoutFilesDstPath}");
                                 resourceManifest.folders.Add(new ResourceManifestModel.ResourceManifestFolderEntry { type = "layout-private", folderPath = layoutFilesDstPath });
                             }
+                            //
+                            // -- import HTML file by meta tags into database records
+                            importLayoutFilesByMetaTags(core, collectionName, new List<string> { filename });
                         } else {
                             //
                             // -- non-HTML file: copy to dstDosPath in wwwFiles
@@ -216,6 +226,140 @@ namespace Contensive.Processor.Controllers {
                         execFileList = execFileList + Environment.NewLine + filename;
                         break;
                     }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Read each HTML file from privateFiles\layoutFiles\, parse meta tags, and create/update
+        /// the corresponding database records (layout, page template, email template, email).
+        /// This mirrors the meta-tag import logic in ImportController.processImportFile.
+        /// Errors are logged but do not fail the collection install.
+        /// </summary>
+        internal static void importLayoutFilesByMetaTags(CoreController core, string collectionName, List<string> htmlFilenames) {
+            if (htmlFilenames == null || htmlFilenames.Count == 0) { return; }
+            foreach (string htmlFilename in htmlFilenames) {
+                try {
+                    //
+                    // -- read the HTML file from privateFiles\layoutFiles\
+                    string htmlContent = core.privateFiles.readFileText($"layoutFiles\\{htmlFilename}");
+                    if (string.IsNullOrWhiteSpace(htmlContent)) { continue; }
+                    //
+                    // -- parse HTML and scan for meta tags
+                    var htmlDoc = new HtmlDocument();
+                    htmlDoc.LoadHtml(HtmlController.wrapMustacheAttributes(htmlContent));
+                    string layoutRecordName = string.Empty;
+                    string pageTemplateRecordName = string.Empty;
+                    string emailTemplateRecordName = string.Empty;
+                    string emailRecordName = string.Empty;
+                    var metadataList = htmlDoc.DocumentNode.SelectNodes("//meta");
+                    if (metadataList != null) {
+                        foreach (var metadataNode in metadataList) {
+                            switch (metadataNode.GetAttributeValue("name", string.Empty).ToLowerInvariant()) {
+                                case "layout": {
+                                        layoutRecordName = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
+                                case "template":
+                                case "pagetemplate": {
+                                        pageTemplateRecordName = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
+                                case "emailtemplate": {
+                                        emailTemplateRecordName = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
+                                case "email": {
+                                        emailRecordName = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                    //
+                    // -- if no recognized meta tags found, skip this file
+                    if (string.IsNullOrWhiteSpace(layoutRecordName)
+                        && string.IsNullOrWhiteSpace(pageTemplateRecordName)
+                        && string.IsNullOrWhiteSpace(emailTemplateRecordName)
+                        && string.IsNullOrWhiteSpace(emailRecordName)) {
+                        continue;
+                    }
+                    //
+                    // -- determine layout framework version for platform-specific layout content
+                    int layoutFrameworkId = core.siteProperties.htmlPlatformVersion;
+                    //
+                    // -- save layout record
+                    if (!string.IsNullOrWhiteSpace(layoutRecordName)) {
+                        var ignoreErrors = new List<string>();
+                        string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.LayoutForAddon, ref ignoreErrors, layoutRecordName);
+                        if (!string.IsNullOrEmpty(processedHtml)) {
+                            var layout = DbBaseModel.createByUniqueName<LayoutModel>(core.cpParent, layoutRecordName);
+                            if (layout == null) {
+                                layout = DbBaseModel.addDefault<LayoutModel>(core.cpParent);
+                                layout.name = layoutRecordName;
+                            }
+                            if (layoutFrameworkId == 5) {
+                                layout.layoutPlatform5.content = processedHtml;
+                            } else {
+                                layout.layout.content = processedHtml;
+                            }
+                            layout.save(core.cpParent);
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported layout [{layoutRecordName}] from layout file [{htmlFilename}]");
+                        }
+                    }
+                    //
+                    // -- save page template record
+                    if (!string.IsNullOrWhiteSpace(pageTemplateRecordName)) {
+                        var ignoreErrors = new List<string>();
+                        string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.PageTemplate, ref ignoreErrors, pageTemplateRecordName);
+                        if (!string.IsNullOrEmpty(processedHtml)) {
+                            var pageTemplate = DbBaseModel.createByUniqueName<PageTemplateModel>(core.cpParent, pageTemplateRecordName);
+                            if (pageTemplate == null) {
+                                pageTemplate = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
+                                pageTemplate.name = pageTemplateRecordName;
+                            }
+                            pageTemplate.bodyHTML = processedHtml;
+                            pageTemplate.save(core.cpParent);
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported page template [{pageTemplateRecordName}] from layout file [{htmlFilename}]");
+                        }
+                    }
+                    //
+                    // -- save email template record
+                    if (!string.IsNullOrWhiteSpace(emailTemplateRecordName)) {
+                        var ignoreErrors = new List<string>();
+                        string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.EmailTemplate, ref ignoreErrors, emailTemplateRecordName);
+                        if (!string.IsNullOrEmpty(processedHtml)) {
+                            var emailTemplate = DbBaseModel.createByUniqueName<EmailTemplateModel>(core.cpParent, emailTemplateRecordName);
+                            if (emailTemplate == null) {
+                                emailTemplate = DbBaseModel.addDefault<EmailTemplateModel>(core.cpParent);
+                                emailTemplate.name = emailTemplateRecordName;
+                            }
+                            emailTemplate.bodyHTML = processedHtml;
+                            emailTemplate.save(core.cpParent);
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported email template [{emailTemplateRecordName}] from layout file [{htmlFilename}]");
+                        }
+                    }
+                    //
+                    // -- save email record
+                    if (!string.IsNullOrWhiteSpace(emailRecordName)) {
+                        var ignoreErrors = new List<string>();
+                        string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.Eamil, ref ignoreErrors, emailRecordName);
+                        if (!string.IsNullOrEmpty(processedHtml)) {
+                            var email = DbBaseModel.createByUniqueName<EmailModel>(core.cpParent, emailRecordName);
+                            if (email == null) {
+                                email = DbBaseModel.addDefault<EmailModel>(core.cpParent);
+                                email.name = emailRecordName;
+                            }
+                            email.copyFilename.content = processedHtml;
+                            email.save(core.cpParent);
+                            logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported email [{emailRecordName}] from layout file [{htmlFilename}]");
+                        }
+                    }
+                } catch (Exception ex) {
+                    //
+                    // -- log but do not fail the collection install
+                    logger.Error(ex, $"{core.logCommonMessage}, CollectionName [{collectionName}], error importing layout file [{htmlFilename}] by meta tags. The installation will continue.");
+                }
             }
         }
         //

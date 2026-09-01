@@ -218,8 +218,10 @@ else {
                 continue
             }
 
-            # Detect Framework vs Core: Framework sites have default.aspx in the app path
-            $isFramework = Test-Path (Join-Path $targetPath "default.aspx")
+            # Detect Framework vs Core: Core sites have WebApi.dll or WebApi.exe in the app path
+            # Default to Framework since that's the current standard deployment
+            $isCore = (Test-Path (Join-Path $targetPath "WebApi.dll")) -or (Test-Path (Join-Path $targetPath "WebApi.exe"))
+            $isFramework = -not $isCore
 
             try {
                 if ($isFramework) {
@@ -242,8 +244,8 @@ else {
                     Write-Host "  [$appName] Framework site - importing via Web Deploy"
                     $msdeployArgs = @(
                         "-verb:sync",
-                        "-source:package='$frameworkZipPath'",
-                        "-dest:iisApp='$appName'",
+                        "-source:package=$frameworkZipPath",
+                        "-dest:iisApp=$appName",
                         "-skip:objectName=filePath,absolutePath=WebAppSettings\.config$",
                         "-skip:objectName=filePath,absolutePath=WebRewrite\.config$"
                     )
