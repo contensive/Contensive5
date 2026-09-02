@@ -71,14 +71,14 @@ namespace Contensive.Processor {
         /// <summary>
         /// Comprehensive blacklist of characters that cause issues across DOS/Unix/URL/S3 environments
         /// Includes: filesystem restrictions (less than, greater than, colon, quote, forward slash, backslash, pipe, question mark, asterisk)
-        ///          URL/S3 issues (hash, brackets, braces, semicolon, ampersand, dollar, at, backtick, apostrophe, exclamation, tilde, percent, caret, equals)
+        ///          URL/S3 issues (hash, brackets, braces, semicolon, ampersand, dollar, at, backtick, apostrophe, exclamation, tilde, percent, caret, equals, plus)
         ///          Control characters (0-31, 127-159) added in static constructor
         /// </summary>
         public static readonly HashSet<char> crossPlatformInvalidFilenameChars = new HashSet<char> {
             // Filesystem restrictions
             '<', '>', ':', '"', '/', '\\', '|', '?', '*',
             // URL/S3/Shell problematic characters
-            '#', '[', ']', '{', '}', ';', '&', '$', '@', '`', '\'', '!', '~', '%', '^', '='
+            '#', '[', ']', '{', '}', ';', '&', '$', '@', '`', '\'', '!', '~', '%', '^', '=', '+',
             // Control characters added in static constructor
         };
         //
