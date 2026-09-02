@@ -45,9 +45,9 @@
     <Reference Include="Microsoft.VisualBasic" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Contensive.CPBaseClass" Version="26.8.31.36342" />
-    <PackageReference Include="Contensive.DbModels" Version="26.8.31.36342" />
-    <PackageReference Include="Contensive.Processor" Version="26.8.31.36342" />
+    <PackageReference Include="Contensive.CPBaseClass" Version="26.9.1.17613" />
+    <PackageReference Include="Contensive.DbModels" Version="26.9.1.17613" />
+    <PackageReference Include="Contensive.Processor" Version="26.9.1.17613" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationClass.cs" />

@@ -195,18 +195,27 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 //
                 // -- determine custom editor addon
+                // -- TODO: remove diagnostic logging after editor addon debugging is resolved
+                logger.Trace($"{core.logCommonMessage}, EditorRowClass.getEditor DEBUG, field [{request.contentName}.{request.field.nameLc}], fieldId [{request.field.id}], editorAddonGuid [{request.field.editorAddonGuid}]");
                 AddonModel editorAddon = null;
                 if (!string.IsNullOrEmpty(request.field.editorAddonGuid)) {
                     //
                     // -- set editor from field
                     editorAddon = core.cacheRuntime.addonCache.create(request.field.editorAddonGuid);
-                }
-                var fieldEditor = request.fieldTypeEditors.Find(x => (x.fieldTypeId == (int)request.field.fieldTypeId));
-                if (fieldEditor != null) {
-                    //
-                    // -- set editor from field type
-                    int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
-                    editorAddon = core.cacheRuntime.addonCache.create(fieldTypeDefaultEditorAddonId);
+                    if (editorAddon == null) {
+                        logger.Warn($"{core.logCommonMessage}, EditorRowClass, field [{request.contentName}.{request.field.nameLc}] has editorAddonGuid [{request.field.editorAddonGuid}] but the addon was not found in the addon cache. The addon may not be installed or may be inactive.");
+                    }
+                } else {
+                    var fieldEditor = request.fieldTypeEditors.Find(x => (x.fieldTypeId == (int)request.field.fieldTypeId));
+                    if (fieldEditor != null) {
+                        //
+                        // -- set editor from field type
+                        int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
+                        editorAddon = core.cacheRuntime.addonCache.create(fieldTypeDefaultEditorAddonId);
+                        if (editorAddon == null) {
+                            logger.Warn($"{core.logCommonMessage}, EditorRowClass, field [{request.contentName}.{request.field.nameLc}] has a field-type editor rule with editorAddonId [{fieldTypeDefaultEditorAddonId}] but the addon was not found in the addon cache. The addon may not be installed or may be inactive.");
+                        }
+                    }
                 }
                 //
                 // -- style for editor wrapper used to limit the width of some editors like integer
@@ -243,6 +252,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                         errorContextMessage = "field editor id:" + editorAddon.id
                     });
                     useEditorAddon = !string.IsNullOrEmpty(response.editorString);
+                    // -- TODO: remove diagnostic logging after editor addon debugging is resolved
+                    try {
+                        int editorLen = response.editorString?.Length ?? -1;
+                        logger.Trace($"{core.logCommonMessage}, EditorRowClass.getEditor DEBUG-RESULT, addon [{editorAddon.name}] for field [{request.contentName}.{request.field.nameLc}], useEditorAddon [{useEditorAddon}], editorString length [{editorLen}]");
+                    } catch (Exception diagEx) {
+                        logger.Error(diagEx, $"{core.logCommonMessage}, EditorRowClass.getEditor DEBUG-RESULT, diagnostic log failed");
+                    }
                     if (useEditorAddon) {
                         //
                         // -- editor worked
@@ -255,6 +271,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     } else {
                         //
                         // -- editor failed, determine if it is missing (or inactive). If missing, remove it from the members preferences
+                        logger.Warn($"{core.logCommonMessage}, EditorRowClass, editor addon [{editorAddon.name}], id [{editorAddon.id}] for field [{request.contentName}.{request.field.nameLc}] returned empty. Falling back to default editor.");
                         using var csData = new CsModel(core);
                         if (!csData.openSql("select id from ccaggregatefunctions where id=" + editorAddon.id)) {
                             //

@@ -177,13 +177,20 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- set editor from field
                         editorAddon = core.cacheRuntime.addonCache.create(field.editorAddonGuid);
-                    }
-                    var fieldEditor = fieldTypeEditors.Find(x => (x.fieldTypeId == (int)field.fieldTypeId));
-                    if (fieldEditor != null) {
-                        //
-                        // -- set editor from field type
-                        int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
-                        editorAddon = core.cacheRuntime.addonCache.create(fieldTypeDefaultEditorAddonId);
+                        if (editorAddon == null) {
+                            logger.Warn($"{core.logCommonMessage}, EditUIController, field [{contentMetadata.name}.{field.nameLc}] has editorAddonGuid [{field.editorAddonGuid}] but the addon was not found in the addon cache. The addon may not be installed or may be inactive.");
+                        }
+                    } else {
+                        var fieldEditor = fieldTypeEditors.Find(x => (x.fieldTypeId == (int)field.fieldTypeId));
+                        if (fieldEditor != null) {
+                            //
+                            // -- set editor from field type
+                            int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
+                            editorAddon = core.cacheRuntime.addonCache.create(fieldTypeDefaultEditorAddonId);
+                            if (editorAddon == null) {
+                                logger.Warn($"{core.logCommonMessage}, EditUIController, field [{contentMetadata.name}.{field.nameLc}] has a field-type editor rule with editorAddonId [{fieldTypeDefaultEditorAddonId}] but the addon was not found in the addon cache. The addon may not be installed or may be inactive.");
+                            }
+                        }
                     }
                     if (editorAddon is null) { continue; }
                     core.cpParent.Addon.Execute(editorAddon.id, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {

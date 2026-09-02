@@ -87,6 +87,67 @@ The collection XML file is the authoritative source for all database table names
 - Every public property on the model must correspond to a `<Field>` element in the collection XML with a matching `Name` attribute.
 - If there is a discrepancy between a model property name and the collection XML field name, the collection XML is correct and the model must be updated to match.
 
+### Field Documentation Requirements
+
+Every database field must be documented in two places, each serving a different audience:
+
+1. **Collection XML `<HelpDefault>` — User documentation.** The `<HelpDefault>` child element of each `<Field>` provides help text that is displayed to administrators in the admin edit form. This text should explain the field's purpose in plain language that a site administrator can understand — what the field controls, what values are valid, and how it affects site behavior.
+
+2. **Model XML summary comments — Developer documentation.** Each model class and each public property on the model should have a `/// <summary>` comment that briefly describes how the property is used in the codebase. This helps developers understand the field's role without reading through all consuming code.
+
+**Collection XML — user-facing help text:**
+
+```xml
+<Field Name="dateExpires" FieldType="Date" ...>
+    <HelpDefault><![CDATA[The date this group membership expires. Leave blank for memberships that do not expire.]]></HelpDefault>
+</Field>
+<Field Name="groupId" FieldType="Lookup" LookupContent="groups" ...>
+    <HelpDefault><![CDATA[The group this membership belongs to.]]></HelpDefault>
+</Field>
+```
+
+**Model — developer-facing summary comments:**
+
+```csharp
+/// <summary>
+/// Join table linking people to groups with optional expiration and role assignment.
+/// </summary>
+public class MemberRuleModel : DbBaseModel {
+    //
+    public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("member rules", "ccmemberrules", "default", false);
+    //
+    /// <summary>
+    /// When set, the membership is automatically deactivated after this date. Checked during group membership verification.
+    /// </summary>
+    public DateTime? dateExpires { get; set; }
+    /// <summary>
+    /// Foreign key to ccgroups. Identifies which group this membership record belongs to.
+    /// </summary>
+    public int groupId { get; set; }
+    /// <summary>
+    /// Foreign key to ccmembers. Identifies the person who holds this group membership.
+    /// </summary>
+    public int memberId { get; set; }
+    /// <summary>
+    /// Foreign key to group roles. Assigns a specific role within the group (e.g., member, manager).
+    /// </summary>
+    public int groupRoleId { get; set; }
+}
+```
+
+**Guidelines for `<HelpDefault>` (user documentation):**
+- Write for site administrators, not developers
+- Explain what the field controls and what values are expected
+- Mention side effects or dependencies (e.g., "Leave blank for memberships that do not expire")
+- Keep it to one or two sentences
+
+**Guidelines for `/// <summary>` (developer documentation):**
+- Write for developers working in the codebase
+- Describe what the property represents and how it is used
+- For foreign keys, name the target table
+- For models, include a one-line summary of the table's purpose
+- Keep it brief — one or two sentences per property
+
 ### All Database Queries Belong in Models
 
 Best practice is to run all database queries from Model classes rather than from addon or controller code. This centralizes data access logic, makes queries reusable, and keeps addon code focused on presentation and workflow.
@@ -308,6 +369,47 @@ If the addon ships CSS in multiple locations (e.g., both `wwwFiles/` and `layout
 | `line-height` | On specific scoped elements | On `body`, `html`, unscoped selectors |
 | `color` | Prefer `inherit`/`currentColor`; hardcode only for UI-specific elements (warnings, badges) | On `body`, `html`, bare `p`/`a`/`h1` |
 | `background-color` | On scoped addon elements | On `body`, `html` |
+
+## JavaScript: Inline Scripts Must Use DOMContentLoaded
+
+All inline JavaScript that depends on external libraries (jQuery, Bootstrap, Bootstrap Select, or any addon-provided JS) must be wrapped in a `DOMContentLoaded` listener. This ensures the code runs after all deferred scripts have loaded, regardless of whether the site uses `defer` on its `<script>` tags.
+
+This is a universal pattern — use it on all inline scripts, even when the site does not currently defer-load JS. This prevents breakage if `defer` is enabled later and ensures consistent behavior across all Contensive sites.
+
+### Standard Pattern
+
+```javascript
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // -- all inline code that depends on external libraries goes here
+    initSelectPicker();
+});
+</script>
+```
+
+### Defensive Pattern (for AJAX-injected content)
+
+When inline scripts may be injected after the page has already loaded (e.g., content delivered via AJAX into admin edit modals), use this defensive version that handles both cases:
+
+```javascript
+<script>
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        initSelectPicker();
+    });
+} else {
+    initSelectPicker();
+}
+</script>
+```
+
+### Why This Is Required
+
+Contensive addons register their JS libraries as dependencies with an optional `jsDefer` flag. When `jsDefer` is enabled, the `<script>` tag is rendered with the `defer` attribute, meaning it executes after the HTML is fully parsed — but after any non-deferred inline scripts have already run. Without `DOMContentLoaded`, inline code that calls library functions (e.g., `$('.selectpicker').selectpicker()`) will fail with "is not a function" errors because the library hasn't loaded yet.
+
+### Addon JS Libraries Should Use jsDefer
+
+All addon JS library dependencies (jQuery plugins, Bootstrap extensions, etc.) should have `jsDefer` enabled in their addon definition. This improves page load performance by allowing the HTML to render before scripts execute. The `DOMContentLoaded` pattern on inline scripts ensures compatibility with deferred loading.
 
 ## Summary
 
