@@ -80,9 +80,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                     if (!string.IsNullOrEmpty(editReferer)) {
                         //
-                        // -- special case - if coming from advanced search, go back to the list page
-                        editReferer = GenericController.strReplace(editReferer, "&af=39", "");
-                        //
                         // -- if referer includes AdminWarningMsg, remove it -- this edit may fix the problem
                         int pos = editReferer.IndexOf("AdminWarningMsg=", StringComparison.CurrentCulture);
                         if (pos >= 0) {

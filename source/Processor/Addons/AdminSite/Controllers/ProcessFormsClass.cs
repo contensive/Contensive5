@@ -340,6 +340,58 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //        }
                         //        break;
                         //    }
+                        case AdminFormList_SetColumns: {
+                                switch (adminData.srcFormButton) {
+                                    case ButtonOK: {
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
+                                            break;
+                                        }
+                                    default: {
+                                            adminData.dstFormId = AdminFormList_SetColumns;
+                                            break;
+                                        }
+                                }
+                                break;
+                            }
+                        case AdminFormList_AdvancedSearch: {
+                                switch (adminData.srcFormButton) {
+                                    case ButtonSearch: {
+                                            ListViewAdvancedSearch.processSearchCriteria(cp.core, adminData);
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
+                                            break;
+                                        }
+                                    case ButtonCancel: {
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
+                                            break;
+                                        }
+                                    default: {
+                                            adminData.dstFormId = AdminFormList_AdvancedSearch;
+                                            break;
+                                        }
+                                }
+                                break;
+                            }
+                        case AdminFormList_Export: {
+                                switch (adminData.srcFormButton) {
+                                    case ButtonCancel: {
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
+                                            break;
+                                        }
+                                    default: {
+                                            adminData.dstFormId = AdminFormList_Export;
+                                            break;
+                                        }
+                                }
+                                break;
+                            }
                         default: {
                                 // end case
                                 break;

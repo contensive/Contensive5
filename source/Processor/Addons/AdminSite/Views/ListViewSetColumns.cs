@@ -23,15 +23,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string get(CPClass cp, CoreController core, AdminDataModel adminData) {
             string result = "";
             try {
+                Controllers.EditRefererStackController.initializeRefererStack(core);
                 // todo refactor out
                 ContentMetadataModel adminContent = adminData.adminContent;
                 string Button = core.docProperties.getText(RequestNameButton);
-                if (Button == ButtonOK) {
-                    //
-                    // -- Process OK, remove subform from querystring and return empty
-                    cp.Doc.AddRefreshQueryString(RequestNameAdminSubForm, "");
-                    return result;
-                }
                 //
                 //   Load Request
                 if (Button == ButtonReset) {
@@ -329,7 +324,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     InheritedFieldCount = InheritedFieldCount + 1;
                                 }
                                 int ColumnPtr = 0;
-                                string link = "?" + core.doc.refreshQueryString + "&FieldName=" + HtmlController.encodeHtml(field.nameLc) + "&fi=" + fieldId + "&dtcn=" + ColumnPtr + "&" + RequestNameAdminSubForm + "=" + AdminFormList_SetColumns;
+                                string link = "?" + core.doc.refreshQueryString + "&FieldName=" + HtmlController.encodeHtml(field.nameLc) + "&fi=" + fieldId + "&dtcn=" + ColumnPtr;
                                 Stream.add("<td width=\"" + ColumnWidth + "%\" valign=\"top\" align=\"left\">");
                                 Stream.add(HtmlController.div(AdminUIController.getDeleteLink(link + "&dta=" + ToolsActionRemoveField), "text-center"));
                                 Stream.add(HtmlController.div(AdminUIController.getArrowRightLink(link + "&dta=" + ToolsActionMoveFieldRight), "text-center"));
@@ -427,7 +422,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 } else {
                                     //
                                     // can be used as column header
-                                    string link = "?" + core.doc.refreshQueryString + "&fi=" + field.id + "&dta=" + ToolsActionAddField + "&" + RequestNameAddFieldId + "=" + field.id + "&" + RequestNameAdminSubForm + "=" + AdminFormList_SetColumns;
+                                    string link = "?" + core.doc.refreshQueryString + "&fi=" + field.id + "&dta=" + ToolsActionAddField + "&" + RequestNameAddFieldId + "=" + field.id;
                                     validFields.Append(HtmlController.div(AdminUIController.getPlusLink(link, "&nbsp;" + field.caption)));
                                 }
                             }
@@ -459,8 +454,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string Content = ""
                     + Stream.text
                     + HtmlController.inputHidden("cid", adminContent.id.ToString())
-                    + HtmlController.inputHidden(rnAdminForm, "1")
-                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormList_SetColumns)
+                    + HtmlController.inputHidden(rnAdminSourceForm, AdminFormList_SetColumns)
                     + "";
 
                 layout.body = Content;

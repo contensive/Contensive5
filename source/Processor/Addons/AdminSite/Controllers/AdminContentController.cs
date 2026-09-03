@@ -172,6 +172,27 @@ namespace Contensive.Processor.Addons.AdminSite {
                         adminData.dstFormId = AdminFormIndex;
                     }
                 }
+                //
+                // ----------------------------------------------------------------------------------------------------------------------------------
+                // Subform OK/Cancel redirect — pop the referer stack and redirect back to the list page
+                // ----------------------------------------------------------------------------------------------------------------------------------
+                //
+                if (adminData.srcFormId == AdminFormList_SetColumns
+                    || adminData.srcFormId == AdminFormList_AdvancedSearch
+                    || adminData.srcFormId == AdminFormList_Export) {
+                    if (cp.core.doc.userErrorList.Count.Equals(0) && adminData.allowRedirectToRefer) {
+                        string stackEncoded = cp.core.docProperties.getText(RequestNameEditRefererStack);
+                        string redirectUrl = "";
+                        if (!string.IsNullOrEmpty(stackEncoded)) {
+                            redirectUrl = EditRefererStackController.pop(stackEncoded, out _);
+                        }
+                        if (!string.IsNullOrEmpty(redirectUrl)) {
+                            return cp.core.webServer.redirect(redirectUrl, $"Admin subform returning to referer stack (srcFormId={adminData.srcFormId})");
+                        } else {
+                            adminData.dstFormId = AdminFormIndex;
+                        }
+                    }
+                }
                 int HelpAddonId = cp.core.docProperties.getInteger("helpaddonid");
                 int HelpCollectionId = cp.core.docProperties.getInteger("helpcollectionid");
                 if (HelpCollectionId == 0) {
@@ -264,23 +285,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                             }
                         case AdminFormList_Export: {
                                 content = ListViewExport.get(cp.core, adminData);
-                                if(string.IsNullOrEmpty(content)) {
-                                    content = ListView.get(cp, cp.core, adminData);
-                                }
                                 break;
                             }
                         case AdminFormList_SetColumns: {
                                 content = ListViewSetColumns.get(cp, cp.core, adminData);
-                                if (string.IsNullOrEmpty(content)) {
-                                    content = ListView.get(cp, cp.core, adminData);
-                                }
                                 break;
                             }
                         case AdminFormList_AdvancedSearch: {
                                 content = ListViewAdvancedSearch.get(cp, cp.core, adminData);
-                                if (string.IsNullOrEmpty(content)) {
-                                    content = ListView.get(cp, cp.core, adminData);
-                                }
                                 break;
                             }
                         case AdminFormEdit: {

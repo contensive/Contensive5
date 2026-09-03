@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Contensive.Processor.Controllers;
+using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite.Controllers {
     /// <summary>
@@ -82,6 +84,26 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
             var stack = decodeStack(encodedStack);
             if (stack.Count == 0) { return ""; }
             return stack[stack.Count - 1];
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Initialize the referer stack for a form that supports return navigation.
+        /// On first entry (no stack in request), captures from HTTP Referer header and pushes it.
+        /// On form post (stack already in request), preserves the existing stack.
+        /// Adds the stack to the refresh query string so it is carried in the form action.
+        /// </summary>
+        internal static void initializeRefererStack(CoreController core) {
+            string editRefererStackEncoded = core.docProperties.getText(RequestNameEditRefererStack);
+            if (string.IsNullOrEmpty(editRefererStackEncoded)) {
+                string referer = core.webServer.requestReferer;
+                if (!string.IsNullOrEmpty(referer)) {
+                    editRefererStackEncoded = push("", referer);
+                }
+            }
+            if (!string.IsNullOrEmpty(editRefererStackEncoded)) {
+                core.doc.addRefreshQueryString(RequestNameEditRefererStack, editRefererStackEncoded);
+            }
         }
     }
 }

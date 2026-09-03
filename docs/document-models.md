@@ -15,9 +15,10 @@ This plan focuses on developer documentation (XML summary tags in model classes)
 ## Current State
 
 - **Total model classes:** 94 (excluding 3 base classes)
-- **Total properties:** ~686 (excluding inherited base fields)
-- **Currently documented:** ~345 properties (50%)
-- **Need documentation:** ~341 properties (50%)
+- **Total properties (active + authorable only):** ~635 (excluding inherited base fields and non-authorable/inactive fields)
+- **Currently documented:** ~345 properties (54%)
+- **Need documentation:** ~290 properties (46%)
+- **Excluded (non-authorable or inactive):** ~51 fields skipped per documentation strategy
 
 **Fully documented models (26):** ActivityLogModel, AuthoringControlModel, ConditionalEmailModel, ContentFieldTypeModel, ContentWatchListRuleModel, ContentWatchModel, DbTextModel, DomainModel, EmailBounceListModel, EmailGroupModel, EmailLogModel, EmailModel, EmailTopicModel, GroupEmailModel, GroupTextMessageModel, MemberTopicRuleModel, OAuthClientModel, OAuthCodeModel, OrganizationModel, PageContentBlockRuleModel, PageContentTopicRuleModel, PropertyModel, SystemEmailModel, SystemTextMessageModel, TableModel, TaskModel, TopicHabitModel, TopicModel, VisitModel, VisitorModel
 
@@ -29,10 +30,11 @@ This plan focuses on developer documentation (XML summary tags in model classes)
 
 For each undocumented property:
 
-1. **Search the codebase** for all references to the property to understand how it's used
-2. **Check the collection XML** (aoBase51.xml) for corresponding `<Field>` and `<HelpDefault>` — the end-user help text provides context
-3. **Review related code** — controllers, addons, and services that interact with the model
-4. **Write concise XML summary** using these conventions:
+1. **Check the collection XML** (aoBase51.xml) — only document the field if both `Active="true"` and `Authorable="1"`. Fields with `Active="0"` or `Authorable="0"` are deprecated/hidden and should be skipped.
+2. **Search the codebase** for all references to the property to understand how it's used
+3. **Check the `<HelpDefault>` text** in the collection XML — the end-user help text provides context
+4. **Review related code** — controllers, addons, and services that interact with the model
+5. **Write concise XML summary** using these conventions:
    - Boolean flags: "If true, [describe the behavior]"
    - Foreign keys: "FK to [ModelName] ([table].[field])"
    - Date fields: "The date/time when [event occurs]"
@@ -96,15 +98,11 @@ Below are examples of how end-user help text maps to model properties:
    - email : bool [documented: no]
    - filter : bool [documented: no]
    - formXML : string [documented: no]
-   - help : string [documented: no]
-   - helpLink : string [documented: no]
-   - inFrame : bool [documented: no]
    - link : string [documented: no]
    - metaDescription : string [documented: no]
    - metaKeywordList : string [documented: no]
    - onBodyEnd : bool [documented: no]
    - onBodyStart : bool [documented: no]
-   - onNewVisitEvent : bool [documented: no]
    - onPageEndEvent : bool [documented: no]
    - onPageStartEvent : bool [documented: no]
    - htmlDocument : bool [documented: no]
@@ -126,17 +124,6 @@ Below are examples of how end-user help text maps to model properties:
    - jsBodyScriptSrc : string [documented: no]
 
 2. **PersonModel** (content="people", table="ccmembers") — ~42 file references
-   - billAddress : string [documented: no]
-   - billAddress2 : string [documented: no]
-   - billCity : string [documented: no]
-   - billCompany : string [documented: no]
-   - billCountry : string [documented: no]
-   - billEmail : string [documented: no]
-   - billFax : string [documented: no]
-   - billName : string [documented: no]
-   - billPhone : string [documented: no]
-   - billState : string [documented: no]
-   - billZip : string [documented: no]
    - bio : string [documented: no]
    - birthdayDay : int [documented: no]
    - birthdayMonth : int [documented: no]
@@ -152,25 +139,13 @@ Below are examples of how end-user help text maps to model properties:
    - fax : string [documented: no]
    - firstName : string [documented: no]
    - imageFilename : string [documented: no]
-   - imageAltSizeList : string [documented: no]
    - languageId : int [documented: no]
    - lastName : string [documented: no]
    - lastVisit : DateTime? [documented: no]
    - nickName : string [documented: no]
-   - notesFilename : string [documented: no]
    - organizationId : int [documented: no]
-   - shipAddress : string [documented: no]
-   - shipAddress2 : string [documented: no]
-   - shipCity : string [documented: no]
-   - shipCompany : string [documented: no]
-   - shipCountry : string [documented: no]
-   - shipName : string [documented: no]
-   - shipPhone : string [documented: no]
-   - shipState : string [documented: no]
-   - shipZip : string [documented: no]
    - state : string [documented: no]
    - thumbnailFilename : string [documented: no]
-   - thumbnailAltSizeList : string [documented: no]
    - username : string [documented: no]
    - visits : int [documented: no]
    - zip : string [documented: no]
@@ -179,10 +154,7 @@ Below are examples of how end-user help text maps to model properties:
    - adminOnly : bool [documented: no]
    - allowAdd : bool [documented: no]
    - allowContentChildTool : bool [documented: no]
-   - allowContentTracking : bool [documented: no]
    - allowDelete : bool [documented: no]
-   - allowTopicRules : bool [documented: no]
-   - allowWorkflowAuthoring : bool [documented: no]
    - defaultSortMethodId : int [documented: no]
    - developerOnly : bool [documented: no]
    - dropDownFieldList : string [documented: no]
@@ -206,19 +178,14 @@ Below are examples of how end-user help text maps to model properties:
    - allowMetaContentNoFollow : bool [documented: no]
    - allowMoreInfo : bool [documented: no]
    - allowReviewedFooter : bool [documented: no]
-   - allowSeeAlso : bool [documented: no]
    - archiveParentId : int [documented: no]
    - blockContent : bool [documented: no]
-   - blockPage : bool [documented: no]
    - blockSourceId : int [documented: no]
    - briefFilename : FieldTypeHTMLFile [documented: no]
-   - childListInstanceOptions : string [documented: no]
    - childListSortMethodId : int [documented: no]
-   - childPagesFound : bool [documented: no]
    - clicks : int [documented: no]
    - contactMemberId : int [documented: no]
    - contentPadding : int [documented: no]
-   - copyfilename : FieldTypeHTMLFile [documented: no]
    - customBlockMessage : FieldTypeHTMLFile [documented: no]
    - dateArchive : DateTime? [documented: no]
    - dateExpires : DateTime? [documented: no]
@@ -229,7 +196,6 @@ Below are examples of how end-user help text maps to model properties:
    - jSFilename : FieldTypeJavascriptFile [documented: no]
    - jSHead : string [documented: no]
    - jSOnLoad : string [documented: no]
-   - linkAlias : string [documented: no]
    - menuHeadline : string [documented: no]
    - metaDescription : string [documented: no]
    - metaKeywordList : string [documented: no]
@@ -247,14 +213,11 @@ Below are examples of how end-user help text maps to model properties:
    - triggerConditionId : int [documented: no]
    - triggerRemoveGroupId : int [documented: no]
    - triggerSendSystemEmailId : int [documented: no]
-   - viewings : int [documented: no]
-   - link : string [documented: no]
 
 5. **PropertyModel** (content="properties", table="ccProperties") — ~14 file references
    - *(fully documented)*
 
 6. **AddonCollectionModel** (content="Add-on Collections", table="ccaddoncollections") — ~11 file references
-   - otherXML : string [documented: no]
    - system : bool [documented: no]
    - updatable : bool [documented: no]
    - wwwFileList : string [documented: no]
@@ -281,7 +244,6 @@ Below are examples of how end-user help text maps to model properties:
    - scramble : bool [documented: no]
    - textBuffered : bool [documented: no]
    - uniqueName : bool [documented: no]
-   - isBaseField : bool [documented: no]
 
 10. **LayoutModel** (content="layouts", table="cclayouts") — ~8 file references
     - *(fully documented)*
@@ -298,7 +260,6 @@ Below are examples of how end-user help text maps to model properties:
     - queryStringSuffix : string [documented: no]
 
 13. **PageTemplateModel** (content="page templates", table="cctemplates") — ~7 file references
-    - addonList : string [documented: no]
     - bodyHTML : string [documented: no]
     - collectionId : int [documented: no]
     - OtherHeadTags : string [documented: no]
@@ -321,12 +282,10 @@ Below are examples of how end-user help text maps to model properties:
 
 18. **LibraryFilesModel** (content="library Files", table="cclibraryfiles") — ~4 file references
     - altSizeList : string [documented: no]
-    - altText : string [documented: no]
     - clicks : int [documented: no]
     - description : string [documented: no]
     - filename : string [documented: no]
     - fileSize : int [documented: no]
-    - fileTypeId : int [documented: no]
     - folderId : int [documented: no]
     - height : int [documented: no]
     - width : int [documented: no]
@@ -339,8 +298,6 @@ Below are examples of how end-user help text maps to model properties:
 
 20. **NavigatorEntryModel** (content="Navigator Entries", table="ccmenuentries") — ~4 file references
     - parentId : int [documented: no]
-    - navIconTitle : string [documented: no]
-    - navIconType : int [documented: no]
     - addonId : int [documented: no]
     - adminOnly : bool [documented: no]
     - contentId : int [documented: no]
@@ -378,7 +335,6 @@ Below are examples of how end-user help text maps to model properties:
 
 26. **EmailTemplateModel** (content="email templates", table="cctemplates") — ~3 file references
     - bodyHTML : string [documented: no]
-    - source : string [documented: no]
 
 27. **MemberRuleModel** (content="member rules", table="ccmemberrules") — ~3 file references
     - dateExpires : DateTime? [documented: no]
@@ -486,11 +442,6 @@ Below are examples of how end-user help text maps to model properties:
     - count : int [documented: no]
     - dateLastReported : DateTime [documented: no]
     - description : string [documented: no]
-    - generalKey : string [documented: no]
-    - location : string [documented: no]
-    - pageId : int [documented: no]
-    - shortDescription : string [documented: no]
-    - specificKey : string [documented: no]
 
 50. **TemplateDomainRuleModel** (content="Template Domain Rules", table="ccdomaintemplaterules") — ~1 file reference
     - domainId : int [documented: no]

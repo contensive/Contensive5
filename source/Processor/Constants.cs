@@ -804,7 +804,6 @@ namespace Contensive.Processor {
         internal const string rnDownloadFileGuid = "download";
         internal const string rnDownloadFileId = "downloadid";
         internal const string RequestNameAdminForm = "af";
-        internal const string RequestNameAdminSubForm = "subform";
         internal const string RequestNameButton = "button";
         internal const string RequestNameInlineStyles = "InlineStyles";
         internal const string RequestNameToolContentId = "ContentID";

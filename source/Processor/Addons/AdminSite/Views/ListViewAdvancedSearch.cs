@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using Contensive.Processor.Controllers;
@@ -19,6 +19,47 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //=================================================================================
         /// <summary>
+        /// Process search criteria from the advanced search form and save to the grid config.
+        /// Called from ProcessFormController when the Search button is pressed.
+        /// </summary>
+        public static void processSearchCriteria(CoreController core, AdminDataModel adminData) {
+            var gridConfig = new GridConfigClass(core, adminData);
+            int formFieldCnt = core.docProperties.getInteger("fieldcnt");
+            if (formFieldCnt > 0) {
+                for (int formFieldPtr = 0; formFieldPtr < formFieldCnt; formFieldPtr++) {
+                    string fieldName = GenericController.toLCase(core.docProperties.getText("fieldname" + formFieldPtr));
+                    var matchOption = (FindWordMatchEnum)core.docProperties.getInteger("FieldMatch" + formFieldPtr);
+                    string searchValue;
+                    switch (matchOption) {
+                        case FindWordMatchEnum.MatchEquals:
+                        case FindWordMatchEnum.MatchGreaterThan:
+                        case FindWordMatchEnum.matchincludes:
+                        case FindWordMatchEnum.MatchLessThan:
+                            searchValue = core.docProperties.getText("FieldValue" + formFieldPtr);
+                            break;
+                        default:
+                            searchValue = "";
+                            break;
+                    }
+                    if (!gridConfig.findWords.ContainsKey(fieldName)) {
+                        if (matchOption != FindWordMatchEnum.MatchIgnore) {
+                            gridConfig.findWords.Add(fieldName, new GridConfigFindWordClass {
+                                Name = fieldName,
+                                MatchOption = matchOption,
+                                Value = searchValue
+                            });
+                        }
+                    } else {
+                        gridConfig.findWords[fieldName].MatchOption = matchOption;
+                        gridConfig.findWords[fieldName].Value = searchValue;
+                    }
+                }
+            }
+            AdminContentController.setIndexSQL_SaveIndexConfig(core.cpParent, core, gridConfig);
+        }
+        //
+        //=================================================================================
+        /// <summary>
         /// list view advanced search
         /// </summary>
         /// <param name="cp"></param>
@@ -28,11 +69,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string get(CPClass cp, CoreController core, AdminDataModel adminData) {
             string returnForm = "";
             try {
+                Controllers.EditRefererStackController.initializeRefererStack(core);
                 //
                 string SearchValue = null;
                 FindWordMatchEnum MatchOption = 0;
-                int FormFieldPtr = 0;
-                int FormFieldCnt = 0;
                 ContentMetadataModel CDef = null;
                 string FieldName = null;
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
@@ -57,60 +97,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string Title = null;
                 string TitleBar = null;
                 string Content = null;
-
                 //
-                // Process last form
-                //
-                string Button = core.docProperties.getText("button");
-                GridConfigClass gridConfig = null;
-                if (!string.IsNullOrEmpty(Button)) {
-                    switch (Button) {
-                        case ButtonSearch:
-                            gridConfig = new(core, adminData);
-                            FormFieldCnt = core.docProperties.getInteger("fieldcnt");
-                            if (FormFieldCnt > 0) {
-                                for (FormFieldPtr = 0; FormFieldPtr < FormFieldCnt; FormFieldPtr++) {
-                                    FieldName = GenericController.toLCase(core.docProperties.getText("fieldname" + FormFieldPtr));
-                                    MatchOption = (FindWordMatchEnum)core.docProperties.getInteger("FieldMatch" + FormFieldPtr);
-                                    switch (MatchOption) {
-                                        case FindWordMatchEnum.MatchEquals:
-                                        case FindWordMatchEnum.MatchGreaterThan:
-                                        case FindWordMatchEnum.matchincludes:
-                                        case FindWordMatchEnum.MatchLessThan:
-                                            SearchValue = core.docProperties.getText("FieldValue" + FormFieldPtr);
-                                            break;
-                                        default:
-                                            SearchValue = "";
-                                            break;
-                                    }
-                                    if (!gridConfig.findWords.ContainsKey(FieldName)) {
-                                        //
-                                        // fieldname not found, save if not FindWordMatchEnum.MatchIgnore
-                                        //
-                                        if (MatchOption != FindWordMatchEnum.MatchIgnore) {
-                                            gridConfig.findWords.Add(FieldName, new GridConfigFindWordClass {
-                                                Name = FieldName,
-                                                MatchOption = MatchOption,
-                                                Value = SearchValue
-                                            });
-                                        }
-                                    } else {
-                                        //
-                                        // fieldname was found
-                                        //
-                                        gridConfig.findWords[FieldName].MatchOption = MatchOption;
-                                        gridConfig.findWords[FieldName].Value = SearchValue;
-                                    }
-                                }
-                            }
-                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, gridConfig);
-                            return string.Empty;
-                        case ButtonCancel:
-                            return string.Empty;
-                    }
-                }
-                gridConfig = new(core, adminData);
-                Button = "CriteriaSelect";
+                GridConfigClass gridConfig = new(core, adminData);
                 RQS = core.doc.refreshQueryString;
                 //
                 // ----- ButtonBar
@@ -316,7 +304,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 Stream.add(Content);
                 Stream.add(ButtonBar);
                 Stream.add("<input type=hidden name=fieldcnt VALUE=" + FieldCnt + ">");
-                Stream.add("<input type=hidden name=" + RequestNameAdminSubForm + " VALUE=" + AdminFormList_AdvancedSearch + ">");
+                Stream.add(HtmlController.inputHidden(rnAdminSourceForm, AdminFormList_AdvancedSearch));
                 returnForm = HtmlController.form(core, Stream.text);
                 core.html.addTitle(adminData.adminContent.name + " Advanced Search", "admin advanced search" );
             } catch (Exception ex) {
