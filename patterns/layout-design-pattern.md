@@ -65,19 +65,50 @@ You only need resource entries for subfolders that contain files. If a subfolder
 
 #### Special handling for layoutFiles
 
-The `layoutFiles.zip` resource extracts HTML layout files to the server's file system, but this alone does **not** make them available to `cp.Layout.GetLayout()`. Layout files require an additional step: the OnInstall addon must call `cp.Layout.updateLayout()` for each layout file to read it from disk and create or update the corresponding record in the Layouts database table.
+The `layoutFiles.zip` resource extracts HTML layout files to the server's file system. There are two ways these files become Layout database records:
 
-Without this `updateLayout()` call, the HTML file will exist on disk but `cp.Layout.GetLayout()` will return empty because there is no database record pointing to it.
+**Option A — Meta tags in the HTML file (recommended for layoutFiles resources)**
+
+When layout HTML files are installed via a `layoutFiles` resource, the installer automatically scans each HTML file for meta tags and creates or updates the corresponding database records. No OnInstall addon code is needed.
+
+Add these meta tags to the `<head>` of each layout HTML file:
+
+```html
+<meta name="layout" content="My Layout Name">
+<meta name="layout-guid" content="{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}">
+```
+
+- `name="layout"` — the layout record name. This is required for the installer to recognize the file as a layout.
+- `name="layout-guid"` — the GUID that uniquely identifies the layout record. When provided, the installer uses this GUID to find or create the record, ensuring a stable identity across installs. If omitted, the installer falls back to name-based lookup which can cause duplicates if the name changes.
+
+Both meta tags should always be included. The GUID ensures idempotent installs and prevents duplicate records.
+
+**Option B — OnInstall addon with `cp.Layout.updateLayout()`**
+
+If the HTML file does not contain meta tags, the OnInstall addon must call `cp.Layout.updateLayout()` for each layout file to read it from disk and create or update the corresponding record in the Layouts database table.
+
+Without either meta tags or an `updateLayout()` call, the HTML file will exist on disk but `cp.Layout.GetLayout()` will return empty because there is no database record pointing to it.
 
 #### Complete checklist for adding a new layout
 
 Every new layout requires all four steps below. Missing any step will cause the layout to either not deploy or not be available at runtime.
 
-**Step 1 — Create the HTML layout file** in `/ui/layoutFiles/`:
+**Step 1 — Create the HTML layout file** in `/ui/layoutFiles/` with meta tags:
 
+```html
+<!-- ui/layoutFiles/MyNewLayout.html -->
+<html>
+<head>
+    <meta name="layout" content="My New Layout">
+    <meta name="layout-guid" content="{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}">
+</head>
+<body>
+    <!-- layout content here -->
+</body>
+</html>
 ```
-ui/layoutFiles/MyNewLayout.html
-```
+
+With these meta tags, the installer automatically creates or updates the Layout database record when the `layoutFiles.zip` resource is installed. If you use meta tags, Step 4 (the OnInstall `updateLayout()` call) is optional.
 
 **Step 2 — Add constants** for the layout GUID, name, and filename in `constants.cs`:
 

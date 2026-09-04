@@ -34,9 +34,45 @@ Other head tags are added from each addon that executes. The completed head and 
 
 Page Templates are deployed two ways, in a collection file or with the Html Import tools.
 
-In a collection file an addon can either be a data record, which just populates a Page Template record. This is handy when a collection is exported from one site and imported into another. The collection can also include a resource tag to copy an html file into the destination website, then the onInstall addon of the collection can use the cp.Layout.Upgrade() method to create or update the page template record
+In a collection file an addon can either be a data record, which just populates a Page Template record. This is handy when a collection is exported from one site and imported into another. The collection can also include a resource tag to copy an html file into the destination website, then the onInstall addon of the collection can use the cp.Layout.UpdatePageTemplate() method to create or update the page template record.
 
-The html import tool can be used at any time to upload an html template to the page TEmplate record. 
+#### Meta tags for page template HTML files
+
+When page template HTML files are installed via a `layoutFiles` resource or uploaded through the Html Import tool, the system automatically scans each HTML file for meta tags and creates or updates the corresponding database records. No OnInstall addon code is needed when meta tags are present.
+
+Add these meta tags to the `<head>` of each page template HTML file:
+
+```html
+<meta name="template" content="My Page Template Name">
+<meta name="template-guid" content="{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}">
+```
+
+- `name="template"` (or `name="pagetemplate"`) — the page template record name. This is required for the installer to recognize the file as a page template.
+- `name="template-guid"` (or `name="pagetemplate-guid"`) — the GUID that uniquely identifies the page template record. When provided, the installer uses this GUID to find or create the record, ensuring a stable identity across installs. If omitted, the installer falls back to name-based lookup which can cause duplicates if the name changes.
+
+Both meta tags should always be included. The GUID ensures idempotent installs and prevents duplicate records.
+
+**Example page template HTML file:**
+
+```html
+<html>
+<head>
+    <meta name="template" content="My Site Template">
+    <meta name="template-guid" content="{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}">
+</head>
+<body>
+    <header>
+        <nav><!-- site navigation --></nav>
+    </header>
+    <main>
+        <span data-addon="content_box">page content renders here</span>
+    </main>
+    <footer><!-- site footer --></footer>
+</body>
+</html>
+```
+
+The same meta tag patterns are also supported for email templates (`name="emailtemplate"`, `name="emailtemplate-guid"`) and emails (`name="email"`, `name="email-guid"`).
 
 ### Html Import tools
 
