@@ -138,6 +138,7 @@ namespace Contensive.Processor {
                                             //layout.layout.content = htmlDoc.ParsedText;
                                             layout.layout.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                         }
+                                        layout.modifiedDate = DateTime.Now;
                                         layout.save(cp);
                                     }
                                     //
@@ -155,6 +156,7 @@ namespace Contensive.Processor {
                                         } else {
                                             layout.layout.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                         }
+                                        layout.modifiedDate = DateTime.Now;
                                         layout.save(cp);
                                         userMessageList.Add("Saved Layout '" + layoutRecordName + "'.");
                                     }
@@ -175,6 +177,7 @@ namespace Contensive.Processor {
                                             return false;
                                         }
                                         pageTemplate.bodyHTML = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
+                                        pageTemplate.modifiedDate = DateTime.Now;
                                         pageTemplate.save(cp);
                                         userMessageList.Add("Saved Page Template '" + pageTemplateRecordName + "'.");
                                     }
@@ -192,6 +195,7 @@ namespace Contensive.Processor {
                                         string bodyhtml = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                         //
                                         pageTemplate.bodyHTML = bodyhtml;
+                                        pageTemplate.modifiedDate = DateTime.Now;
                                         pageTemplate.save(cp);
                                         userMessageList.Add("Saved Page Template '" + pageTemplateRecordName + "'.");
                                     }
@@ -212,6 +216,7 @@ namespace Contensive.Processor {
                                             return false;
                                         }
                                         emailTemplate.bodyHTML = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
+                                        emailTemplate.modifiedDate = DateTime.Now;
                                         emailTemplate.save(cp);
                                     }
                                     //
@@ -223,6 +228,7 @@ namespace Contensive.Processor {
                                             emailTemplate.name = emailTemplateRecordName;
                                         }
                                         emailTemplate.bodyHTML = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
+                                        emailTemplate.modifiedDate = DateTime.Now;
                                         emailTemplate.save(cp);
                                         userMessageList.Add("Saved Email Template '" + emailTemplateRecordName + "'.");
                                     }
@@ -243,6 +249,7 @@ namespace Contensive.Processor {
                                             return false;
                                         }
                                         email.copyFilename.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
+                                        email.modifiedDate = DateTime.Now;
                                         email.save(cp);
                                         userMessageList.Add("Saved Email '" + emailRecordName + "'.");
                                     }
@@ -255,6 +262,7 @@ namespace Contensive.Processor {
                                             email.name = emailRecordName;
                                         }
                                         email.copyFilename.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
+                                        email.modifiedDate = DateTime.Now;
                                         email.save(cp);
                                         userMessageList.Add("Saved Email '" + emailRecordName + "'.");
                                     }

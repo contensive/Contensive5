@@ -60,8 +60,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 {
                     if (GenericController.toUCase(adminData.adminContent.tableName) == GenericController.toUCase("ccMembers")) {
                         string htmlId = "fieldGuid";
-                        bool AllowEId = (core.siteProperties.getBoolean("AllowLinkLogin", true)) || (core.siteProperties.getBoolean("AllowLinkRecognize", true));
-                        string fieldHelp = "This string is an authentication token that can be used in the URL for the next 15 minutes to log in as this user.";
+                        bool AllowEId = core.siteProperties.getBoolean("AllowLinkLogin", false) || core.siteProperties.getBoolean("AllowLinkRecognize", true);
+                        string fieldHelp = "This string is an authentication token that can be used in the URL for the next 15 minutes to identify this user.";
                         string fieldEditor = "";
                         if (!AllowEId) {
                             fieldEditor = "(link login and link recognize are disabled in security preferences)";
@@ -69,17 +69,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                             fieldEditor = "(available after save)";
                         } else {
                             string eidQueryString = "eid=" + WebUtility.UrlEncode(SecurityController.encodeToken(core, adminData.editRecord.id, core.doc.profileStartTime.AddMinutes(15)));
-                            string sampleUrl = core.webServer.requestProtocol + core.webServer.requestDomain + "/" + core.siteProperties.serverPageDefault + "?" + eidQueryString;
-                            if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
-                                fieldHelp = " If " + eidQueryString + " is added to a url querystring for this site, the user be logged in as this person.";
+                            string sampleUrl = $"{core.webServer.requestProtocol}{core.webServer.requestDomain}/{core.siteProperties.serverPageDefault}?{eidQueryString}";
+                            if (core.siteProperties.getBoolean("AllowLinkLogin", false)) {
+                                fieldHelp = $"If {eidQueryString} is added to a url querystring for this site, the user will be logged in as this person.";
                             } else {
-                                fieldHelp = " If " + eidQueryString + " is added to a url querystring for this site, the user be recognized in as this person, but not logged in.";
+                                fieldHelp = $"If {eidQueryString} is added to a url querystring for this site, the user will be recognized as this person, but not logged in. Recognition tracks the visit but does not grant any permissions.";
                             }
                             fieldHelp += " To enable, disable or modify this feature, use the security tab on the Preferences page.";
-                            fieldHelp += "<br>For example: " + sampleUrl;
+                            fieldHelp += $"<br>For example: {sampleUrl}";
                             fieldEditor = AdminUIEditorController.getTextEditor(core, "ignore_eid", eidQueryString, true, htmlId);
                         }
-                        tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Member Link Login Querystring", fieldHelp, true, false, htmlId));
+                        tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Member Link Querystring", fieldHelp, true, false, htmlId));
                     }
                 }
                 //

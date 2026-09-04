@@ -184,13 +184,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
                 //
-                // Special Case - ccemail table Alloweid should be disabled if siteproperty AllowLinkLogin is false
+                // Special Case - ccemail table Alloweid should be disabled if both AllowLinkLogin and AllowLinkRecognize are false
                 //
                 if (toLCase(request.tableName) == "ccemail" && toLCase(request.field.nameLc) == "allowlinkeid") {
-                    if (!(core.siteProperties.getBoolean("AllowLinkLogin", true))) {
+                    if (!core.siteProperties.getBoolean("AllowLinkLogin", false) && !core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
                         request.currentValue = "0";
                         fieldForceReadOnly = true;
-                        request.currentValue = "0";
                     }
                 }
                 //

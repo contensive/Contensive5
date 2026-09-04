@@ -81,10 +81,10 @@ namespace Contensive.Processor.Controllers {
                 if (!linkToken.id.Equals(0) && linkToken.expires.CompareTo(core.dateTimeNowMockable) > 0) {
                     //
                     // -- valid link token, attempt login/recognize
-                    if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
+                    if (core.siteProperties.getBoolean("AllowLinkLogin", false)) {
                         //
                         // -- allow Link Login
-                        logger.Trace($"{core.logCommonMessage},attempt link Login, userid [" + linkToken.id + "]");
+                        logger.Trace($"{core.logCommonMessage},attempt link Login, userid [{linkToken.id}]");
                         if (AuthController.authenticateById(core, core.session, linkToken.id)) {
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link login", core.session.user.id);
                             return true;

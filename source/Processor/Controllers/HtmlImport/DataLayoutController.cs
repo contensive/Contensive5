@@ -61,6 +61,7 @@ namespace Contensive.Processor {
                             } else {
                                 layout.layout.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.InnerHtml);
                             }
+                            layout.modifiedDate = System.DateTime.Now;
                             layout.save(cp);
                             userMessageList.Add($"Saved Layout '{layoutRecordName}' from data-layout attribute.");
                             //

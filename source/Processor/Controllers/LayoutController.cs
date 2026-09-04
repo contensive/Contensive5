@@ -114,6 +114,7 @@ namespace Contensive.Processor.Controllers {
                 layout.name = defaultLayoutName;
                 layout.layout.content = layout1;
                 layout.layoutPlatform5.content = layout5;
+                layout.modifiedDate = DateTime.Now;
                 layout.save(cp);
                 //
                 if(layoutContentId != 0) {
@@ -225,6 +226,7 @@ namespace Contensive.Processor.Controllers {
                     LayoutModel layout = DbBaseModel.addDefault<LayoutModel>(cp);
                     layout.name = layoutName;
                     layout.layout.content = defaultLayout;
+                    layout.modifiedDate = DateTime.Now;
                     layout.save(cp);
                     //
                     // -- flush caches aftre insert

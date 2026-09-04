@@ -256,6 +256,11 @@ namespace Contensive.CLI {
                                 writeCommandLine("--newappframework", appName);
                                 await NewAppFrameworkCmd.executeAsync(appName, fwDomainName);
                                 break;
+                            case "--appsjson":
+                                //
+                                // -- output apps dictionary as JSON for scripting/automation
+                                AppsJsonCmd.execute(cpServer);
+                                break;
                             case "--status":
                             case "-s":
                                 //

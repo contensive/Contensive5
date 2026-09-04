@@ -168,7 +168,24 @@ else {
     Write-Host ""
 
     $config = Get-Content $configPath -Raw | ConvertFrom-Json
-    $apps = $config.apps
+
+    # When AWS Secrets Manager is enabled, config.json only has bootstrap fields
+    # (useSecretManager, awsRegionName, awsSecretName) — the apps dictionary lives
+    # in Secrets Manager. Use the CLI to resolve the full config in that case.
+    if ($config.useSecretManager -eq $true) {
+        Write-Host "Secrets Manager enabled - reading apps from cc --appsjson" -ForegroundColor Cyan
+        $appsJson = & $ccExe --appsjson 2>&1
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($appsJson)) {
+            Write-Host "ERROR: cc --appsjson failed. Cannot determine application list." -ForegroundColor Red
+            Write-Host $appsJson -ForegroundColor Red
+            $apps = $null
+        } else {
+            $appsObj = $appsJson | ConvertFrom-Json
+            $apps = $appsObj
+        }
+    } else {
+        $apps = $config.apps
+    }
 
     if (-not $apps -or ($apps.PSObject.Properties | Measure-Object).Count -eq 0) {
         Write-Host "No applications found in config.json." -ForegroundColor Yellow

@@ -249,9 +249,13 @@ namespace Contensive.Processor.Controllers {
                     var htmlDoc = new HtmlDocument();
                     htmlDoc.LoadHtml(HtmlController.wrapMustacheAttributes(htmlContent));
                     string layoutRecordName = string.Empty;
+                    string layoutRecordGuid = string.Empty;
                     string pageTemplateRecordName = string.Empty;
+                    string pageTemplateRecordGuid = string.Empty;
                     string emailTemplateRecordName = string.Empty;
+                    string emailTemplateRecordGuid = string.Empty;
                     string emailRecordName = string.Empty;
+                    string emailRecordGuid = string.Empty;
                     var metadataList = htmlDoc.DocumentNode.SelectNodes("//meta");
                     if (metadataList != null) {
                         foreach (var metadataNode in metadataList) {
@@ -260,17 +264,34 @@ namespace Contensive.Processor.Controllers {
                                         layoutRecordName = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
+                                case "layout-guid": {
+                                        layoutRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
                                 case "template":
                                 case "pagetemplate": {
                                         pageTemplateRecordName = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
+                                case "template-guid":
+                                case "pagetemplate-guid": {
+                                        pageTemplateRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
                                 case "emailtemplate": {
                                         emailTemplateRecordName = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
+                                case "emailtemplate-guid": {
+                                        emailTemplateRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
                                 case "email": {
                                         emailRecordName = metadataNode.GetAttributeValue("content", string.Empty);
+                                        break;
+                                    }
+                                case "email-guid": {
+                                        emailRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
                             }
@@ -293,16 +314,27 @@ namespace Contensive.Processor.Controllers {
                         var ignoreErrors = new List<string>();
                         string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.LayoutForAddon, ref ignoreErrors, layoutRecordName);
                         if (!string.IsNullOrEmpty(processedHtml)) {
-                            var layout = DbBaseModel.createByUniqueName<LayoutModel>(core.cpParent, layoutRecordName);
-                            if (layout == null) {
-                                layout = DbBaseModel.addDefault<LayoutModel>(core.cpParent);
+                            LayoutModel layout;
+                            if (!string.IsNullOrWhiteSpace(layoutRecordGuid)) {
+                                //
+                                // -- guid provided, get-or-create by guid (ensures stable identity across installs)
+                                layout = DbBaseModel.verify<LayoutModel>(core.cpParent, layoutRecordGuid);
                                 layout.name = layoutRecordName;
+                            } else {
+                                //
+                                // -- no guid, fall back to name-based lookup
+                                layout = DbBaseModel.createByUniqueName<LayoutModel>(core.cpParent, layoutRecordName);
+                                if (layout == null) {
+                                    layout = DbBaseModel.addDefault<LayoutModel>(core.cpParent);
+                                    layout.name = layoutRecordName;
+                                }
                             }
                             if (layoutFrameworkId == 5) {
                                 layout.layoutPlatform5.content = processedHtml;
                             } else {
                                 layout.layout.content = processedHtml;
                             }
+                            layout.modifiedDate = DateTime.Now;
                             layout.save(core.cpParent);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported layout [{layoutRecordName}] from layout file [{htmlFilename}]");
                         }
@@ -313,12 +345,23 @@ namespace Contensive.Processor.Controllers {
                         var ignoreErrors = new List<string>();
                         string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.PageTemplate, ref ignoreErrors, pageTemplateRecordName);
                         if (!string.IsNullOrEmpty(processedHtml)) {
-                            var pageTemplate = DbBaseModel.createByUniqueName<PageTemplateModel>(core.cpParent, pageTemplateRecordName);
-                            if (pageTemplate == null) {
-                                pageTemplate = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
+                            PageTemplateModel pageTemplate;
+                            if (!string.IsNullOrWhiteSpace(pageTemplateRecordGuid)) {
+                                //
+                                // -- guid provided, get-or-create by guid
+                                pageTemplate = DbBaseModel.verify<PageTemplateModel>(core.cpParent, pageTemplateRecordGuid);
                                 pageTemplate.name = pageTemplateRecordName;
+                            } else {
+                                //
+                                // -- no guid, fall back to name-based lookup
+                                pageTemplate = DbBaseModel.createByUniqueName<PageTemplateModel>(core.cpParent, pageTemplateRecordName);
+                                if (pageTemplate == null) {
+                                    pageTemplate = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
+                                    pageTemplate.name = pageTemplateRecordName;
+                                }
                             }
                             pageTemplate.bodyHTML = processedHtml;
+                            pageTemplate.modifiedDate = DateTime.Now;
                             pageTemplate.save(core.cpParent);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported page template [{pageTemplateRecordName}] from layout file [{htmlFilename}]");
                         }
@@ -329,12 +372,23 @@ namespace Contensive.Processor.Controllers {
                         var ignoreErrors = new List<string>();
                         string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.EmailTemplate, ref ignoreErrors, emailTemplateRecordName);
                         if (!string.IsNullOrEmpty(processedHtml)) {
-                            var emailTemplate = DbBaseModel.createByUniqueName<EmailTemplateModel>(core.cpParent, emailTemplateRecordName);
-                            if (emailTemplate == null) {
-                                emailTemplate = DbBaseModel.addDefault<EmailTemplateModel>(core.cpParent);
+                            EmailTemplateModel emailTemplate;
+                            if (!string.IsNullOrWhiteSpace(emailTemplateRecordGuid)) {
+                                //
+                                // -- guid provided, get-or-create by guid
+                                emailTemplate = DbBaseModel.verify<EmailTemplateModel>(core.cpParent, emailTemplateRecordGuid);
                                 emailTemplate.name = emailTemplateRecordName;
+                            } else {
+                                //
+                                // -- no guid, fall back to name-based lookup
+                                emailTemplate = DbBaseModel.createByUniqueName<EmailTemplateModel>(core.cpParent, emailTemplateRecordName);
+                                if (emailTemplate == null) {
+                                    emailTemplate = DbBaseModel.addDefault<EmailTemplateModel>(core.cpParent);
+                                    emailTemplate.name = emailTemplateRecordName;
+                                }
                             }
                             emailTemplate.bodyHTML = processedHtml;
+                            emailTemplate.modifiedDate = DateTime.Now;
                             emailTemplate.save(core.cpParent);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported email template [{emailTemplateRecordName}] from layout file [{htmlFilename}]");
                         }
@@ -345,12 +399,23 @@ namespace Contensive.Processor.Controllers {
                         var ignoreErrors = new List<string>();
                         string processedHtml = ImportController.processHtml(core.cpParent, htmlContent, ImporttypeEnum.Eamil, ref ignoreErrors, emailRecordName);
                         if (!string.IsNullOrEmpty(processedHtml)) {
-                            var email = DbBaseModel.createByUniqueName<EmailModel>(core.cpParent, emailRecordName);
-                            if (email == null) {
-                                email = DbBaseModel.addDefault<EmailModel>(core.cpParent);
+                            EmailModel email;
+                            if (!string.IsNullOrWhiteSpace(emailRecordGuid)) {
+                                //
+                                // -- guid provided, get-or-create by guid
+                                email = DbBaseModel.verify<EmailModel>(core.cpParent, emailRecordGuid);
                                 email.name = emailRecordName;
+                            } else {
+                                //
+                                // -- no guid, fall back to name-based lookup
+                                email = DbBaseModel.createByUniqueName<EmailModel>(core.cpParent, emailRecordName);
+                                if (email == null) {
+                                    email = DbBaseModel.addDefault<EmailModel>(core.cpParent);
+                                    email.name = emailRecordName;
+                                }
                             }
                             email.copyFilename.content = processedHtml;
+                            email.modifiedDate = DateTime.Now;
                             email.save(core.cpParent);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported email [{emailRecordName}] from layout file [{htmlFilename}]");
                         }

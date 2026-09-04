@@ -633,6 +633,16 @@ namespace Contensive.Processor.Controllers.Build {
                             logger.Error($"{core.logCommonMessage}", ex, "altSizeList field migration");
                         }
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.9.4.1")) {
+                        //
+                        // -- migrate AllowLinkLogin to AllowLinkRecognize
+                        // -- if AllowLinkLogin was enabled, enable AllowLinkRecognize and disable AllowLinkLogin
+                        // -- this preserves link tracking behavior while removing the security risk of automatic login
+                        if (core.siteProperties.getBoolean("AllowLinkLogin", false)) {
+                            core.siteProperties.setProperty("AllowLinkRecognize", "true");
+                            core.siteProperties.setProperty("AllowLinkLogin", "false");
+                        }
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

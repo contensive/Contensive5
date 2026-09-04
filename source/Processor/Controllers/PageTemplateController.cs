@@ -41,6 +41,7 @@ namespace Contensive.Processor.Controllers {
                 PageTemplateModel template = DbBaseModel.verify<PageTemplateModel>(cp, templateGuid);
                 template.name = defaultTemplateName;
                 template.bodyHTML = bodyHtml;
+                template.modifiedDate = DateTime.Now;
                 template.save(cp);
                 //
                 // -- flush caches after insert

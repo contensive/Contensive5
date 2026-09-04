@@ -64,6 +64,7 @@ namespace Contensive.Processor.Controllers {
                     template.ccguid = recordGuid;
                     template.name = templateName;
                     template.collectionId = collectionId;
+                    template.modifiedDate = DateTime.Now;
                     template.save(core.cpParent);
                 }
             } catch (Exception ex) {

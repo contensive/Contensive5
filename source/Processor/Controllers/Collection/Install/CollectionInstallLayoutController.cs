@@ -40,6 +40,7 @@ namespace Contensive.Processor.Controllers {
                     layout.name = layoutName;
                     layout.layout.content = rootNode.InnerText;
                     layout.installedByCollectionId = collectionId;
+                    layout.modifiedDate = DateTime.Now;
                     layout.save(core.cpParent);
                 }
             } catch (Exception ex) {
