@@ -237,19 +237,16 @@ else {
                         continue
                     }
 
-                    # msdeploy imports the Web Deploy package to the IIS site.
-                    # -verb:sync updates files in the package without deleting extra files
-                    # on the destination (like WebAppSettings.config and WebRewrite.config).
-                    # -skip rules preserve user-modified config files that are also in the package.
+                    # Replicate IIS Manager "Deploy > Import Application" behavior.
+                    # Uses -dest:auto so the package manifest selects the correct provider.
+                    # -setParam retargets the package to this IIS site.
+                    # -enableRule:DoNotDeleteRule preserves existing site content (equivalent
+                    #   to unchecking "delete all existing content" in the IIS wizard).
+                    # -disableLink flags and includeAcls match the IIS Manager defaults.
+                    # -skip rules preserve site-specific config files.
                     Write-Host "  [$appName] Framework site - importing via Web Deploy"
-                    $msdeployArgs = @(
-                        "-verb:sync",
-                        "-source:package=$frameworkZipPath",
-                        "-dest:iisApp=$appName",
-                        "-skip:objectName=filePath,absolutePath=WebAppSettings\.config$",
-                        "-skip:objectName=filePath,absolutePath=WebRewrite\.config$"
-                    )
-                    $msdeployOutput = & $msdeployExe @msdeployArgs 2>&1
+                    $msdeployCmd = "`"$msdeployExe`" -verb:sync -source:package=`"$frameworkZipPath`" -dest:auto,includeAcls=`"False`" -setParam:name=`"IIS Web Application Name`",value=`"$appName`" -enableRule:DoNotDeleteRule -disableLink:AppPoolExtension -disableLink:ContentExtension -disableLink:CertificateExtension -skip:objectName=filePath,absolutePath=WebAppSettings\.config$ -skip:objectName=filePath,absolutePath=WebRewrite\.config$"
+                    $msdeployOutput = cmd /c $msdeployCmd 2>&1
                     if ($LASTEXITCODE -ne 0) {
                         Write-Host "  [$appName] Web Deploy output:" -ForegroundColor Red
                         $msdeployOutput | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
