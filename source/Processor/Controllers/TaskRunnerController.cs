@@ -171,6 +171,10 @@ namespace Contensive.Processor.Controllers {
                     foreach (DataRow row in dt.Rows) {
                         //recordsAffected++;
                         TaskModel task = DbBaseModel.create<TaskModel>(cp, cp.Utils.EncodeInteger(row["id"]));
+                        if (task == null) {
+                            logger.Warn($"{cp.core.logCommonMessage},runTasks, app [{appKVP.Value.name}], task id [{row["id"]}] not found, skipping");
+                            continue;
+                        }
                         Stopwatch swTask = new();
                         swTask.Start();
                         //
