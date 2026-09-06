@@ -36,18 +36,20 @@ Guests are promoted to Contacts (and typically un-flagged from `createdByVisit`,
 
 ---
 
-## The Contact Funnel
+## Contact Relationships
 
-Once a People record is classified as a **Contact**, it sits in one of four funnel stages:
+Once a People record is classified as a **Contact**, it is assigned one of six relationship types:
 
-1. **Lead**
-2. **Prospect**
-3. **Qualified Prospect**
-4. **Member**
+1. **Lead** — a population of contacts whose relationship is unknown.
+2. **Unqualified (Prospect)** — contacts that have expressed an interest in a relationship, but we have not yet qualified them to be a member.
+3. **Not-Qualified (Prospect)** — contacts that have shown an interest in a relationship, but we do not think they are qualified to be a member.
+4. **Qualified Prospect** — contacts that have shown an interest, and we agree they are potential members.
+5. **Member** — contacts who have joined.
+6. **Other Contact** — contacts who are not in the member funnel. If Other is selected, the contact can be assigned an other relationship from the `OtherContactRelationships` table.
 
-Admins move contacts forward through these stages manually, and/or the system may auto-advance stages based on defined triggers.
+Admins move contacts through these relationship types manually, and/or the system may auto-advance them based on defined triggers.
 
-The final stage label ("Member") is the underlying platform term. Addons may present vertical-specific labels to admins — for example, "Customer" for generic installs, "Member" for associations, or "Patient" for medical/dental practices. The data model is identical; only the display label changes.
+The "Member" label is the underlying platform term. Addons may present vertical-specific labels to admins — for example, "Customer" for generic installs, "Member" for associations, or "Patient" for medical/dental practices. The data model is identical; only the display label changes.
 
 ---
 
@@ -131,5 +133,10 @@ People record determined from Visit
 (purged) (short-   (permanent)
           term)        |
                        v
-        Lead -> Prospect -> Qualified Prospect -> Member
+        Lead -> Unqualified -> Qualified Prospect -> Member
+                    |
+                    v
+              Not-Qualified
+
+        Other Contact (separate from member funnel)
 ```
