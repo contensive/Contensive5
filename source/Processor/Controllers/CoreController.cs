@@ -795,6 +795,13 @@ namespace Contensive.Processor.Controllers {
                                         visitorProperty.deleteAll(session.user.id);
                                         DbBaseModel.delete<VisitorModel>(cpParent, session.visit.id);
                                     }
+                                    if ((session.user != null) && (session.user.id > 0) && session.user.createdByVisit && session.user.personTypeId == (int)PersonTypeEnum.Guest) {
+                                        //
+                                        // -- delete throwaway guest created for non-web context (CLI task, background job).
+                                        //    Only deletes if still a guest (createdByVisit=true AND personTypeId=Guest).
+                                        //    If an addon promoted the user during the task, it survives.
+                                        DbBaseModel.delete<PersonModel>(cpParent, session.user.id);
+                                    }
                                 }
                             }
                             hint = "50";

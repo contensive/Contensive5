@@ -86,7 +86,8 @@
       "WebFetch(domain:contensive.io)",
       "Bash(git log:*)",
       "WebFetch(domain:vishaljoshi.blogspot.com)",
-      "WebFetch(domain:www.coveros.com)"
+      "WebFetch(domain:www.coveros.com)",
+      "Bash(git mv:*)"
     ]
   }
 }

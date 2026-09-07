@@ -2,6 +2,7 @@
 using Contensive.Processor.Controllers;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Data;
 //
 namespace Contensive.Processor.Addons.ExportSql {
@@ -24,14 +25,36 @@ namespace Contensive.Processor.Addons.ExportSql {
                 logger.Trace($"{core.logCommonMessage},ExportCsvClass.execute, sql [" + cp.Doc.GetText("sql") + "]");
                 //
                 string dataSource = cp.Doc.GetText("datasource");
-                using ( var db = cp.DbNew(dataSource)) {
+                //
+                // -- get password field names to mask in the export
+                string passwordFieldNamesCsv = cp.Doc.GetText("passwordFieldNames");
+                var passwordFieldNames = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+                if (!string.IsNullOrEmpty(passwordFieldNamesCsv)) {
+                    foreach (string fieldName in passwordFieldNamesCsv.Split(',')) {
+                        if (!string.IsNullOrWhiteSpace(fieldName)) {
+                            passwordFieldNames.Add(fieldName.Trim());
+                        }
+                    }
+                }
+                using (var db = cp.DbNew(dataSource)) {
                     //
                     // -- no way to know how big this is. 30 minute timeout
                     db.SQLTimeout = 1800;
                     using (DataTable dt = db.ExecuteQuery(cp.Doc.GetText("sql"))) {
+                        //
+                        // -- mask password columns before converting to csv
+                        if (passwordFieldNames.Count > 0) {
+                            foreach (DataColumn col in dt.Columns) {
+                                if (passwordFieldNames.Contains(col.ColumnName)) {
+                                    foreach (DataRow row in dt.Rows) {
+                                        row[col] = "****";
+                                    }
+                                }
+                            }
+                        }
                         string result = dt.toCsv();
                         //
-                        logger.Trace($"{core.logCommonMessage},ExportCsvClass.execute, result [" + (result.Length>100 ? result.Substring(0,100) : result) + "]");
+                        logger.Trace($"{core.logCommonMessage},ExportCsvClass.execute, result [" + (result.Length > 100 ? result.Substring(0, 100) : result) + "]");
                         //
                         return result;
                     }

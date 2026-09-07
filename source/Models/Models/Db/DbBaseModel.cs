@@ -733,6 +733,7 @@ namespace Contensive.Models.Db {
                 string tableName = derivedTableName(typeof(T));
                 DataTable dt = cp.Db.Insert(tableName, userId);
                 if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { throw new GenericException("Cannot addEmpty to table " + tableName); }
+                //
                 List<string> callersCacheNameList = new();
                 cp.Cache.Invalidate(cp.Cache.CreateTableDependencyKey(tableName, derivedDataSourceName(typeof(T))));
                 return create<T>(cp, dt.Rows[0], ref callersCacheNameList);

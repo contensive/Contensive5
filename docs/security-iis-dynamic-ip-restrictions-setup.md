@@ -194,7 +194,7 @@ To see what is being blocked:
 
 ## Relationship to the Contensive Abuse Detection Addon
 
-See [abuse-detection-ip-blocking-plan.md](abuse-detection-ip-blocking-plan.md) for the full Contensive addon plan.
+See [security-abuse-detection-ip-blocking-plan.md](security-abuse-detection-ip-blocking-plan.md) for the full Contensive addon plan.
 
 With DIPR in place, the two systems complement each other:
 

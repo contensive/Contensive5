@@ -122,9 +122,19 @@ namespace Contensive.Processor.Addons.AdminSite {
                             if (ExportCSVAddon == null) {
                                 logger.Error(new GenericException("ExportCSV addon not found. Task could not be added to task queue."), $"{core.logCommonMessage}");
                             } else {
+                                //
+                                // -- build comma-separated list of field names with password=true so the export can mask them
+                                string passwordFieldNames = "";
+                                foreach (var fieldKvp in adminData.adminContent.fields) {
+                                    if (fieldKvp.Value.password) {
+                                        if (!string.IsNullOrEmpty(passwordFieldNames)) { passwordFieldNames += ","; }
+                                        passwordFieldNames += fieldKvp.Value.nameLc;
+                                    }
+                                }
                                 var docProperties = new Dictionary<string, string> {
                                             { "sql", SQL },
-                                            { "datasource", "default" }
+                                            { "datasource", "default" },
+                                            { "passwordFieldNames", passwordFieldNames }
                                         };
                                 var cmdDetail = new TaskModel.CmdDetailClass {
                                     addonId = ExportCSVAddon.id,

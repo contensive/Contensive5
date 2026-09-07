@@ -613,23 +613,55 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     return;
                 }
                 //
-                // --- create MemberRule records for all selected
+                // --- process exclusive set groups (radio buttons)
+                int exclusiveSetCount = cp.core.docProperties.getInteger("ExclusiveSet.Count");
+                for (int setIndex = 0; setIndex < exclusiveSetCount; setIndex++) {
+                    int selectedGroupId = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}");
+                    int groupCountInSet = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}.GroupCount");
+                    DateTime dateExpires = cp.core.docProperties.getDate($"ExclusiveSet.{setIndex}.DateExpires");
+                    int roleId = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}.RoleId");
+                    //
+                    for (int groupIndex = 0; groupIndex < groupCountInSet; groupIndex++) {
+                        int groupId = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}.{groupIndex}.ID");
+                        bool isSelected = (groupId == selectedGroupId) && (selectedGroupId > 0);
+                        //
+                        using (var csData = new CsModel(cp.core)) {
+                            csData.open("Member Rules", $"(MemberID={DbController.encodeSQLNumber(PeopleID)})and(GroupID={DbController.encodeSQLNumber(groupId)})", "", false, 0);
+                            if (!csData.ok()) {
+                                if (isSelected) {
+                                    csData.insert("Member Rules");
+                                    if (csData.ok()) {
+                                        csData.set("Active", true);
+                                        csData.set("MemberID", PeopleID);
+                                        csData.set("GroupID", groupId);
+                                        csData.set("DateExpires", dateExpires);
+                                        csData.set("GroupRoleId", roleId);
+                                    }
+                                }
+                            } else {
+                                if (isSelected) {
+                                    csData.set("Active", true);
+                                    csData.set("DateExpires", dateExpires);
+                                    csData.set("GroupRoleId", roleId);
+                                } else {
+                                    int memberRuleId = csData.getInteger("ID");
+                                    cp.core.db.delete(memberRuleId, "ccMemberRules");
+                                }
+                            }
+                        }
+                    }
+                }
+                //
+                // --- process normal groups (checkboxes)
                 int GroupCount = cp.core.docProperties.getInteger("MemberRules.RowCount");
                 if (GroupCount > 0) {
-                    int GroupPointer = 0;
-                    for (GroupPointer = 0; GroupPointer < GroupCount; GroupPointer++) {
+                    for (int GroupPointer = 0; GroupPointer < GroupCount; GroupPointer++) {
                         //
                         // ----- Read Response
-                        int GroupId = cp.core.docProperties.getInteger("MemberRules." + GroupPointer + ".ID");
-                        bool RuleNeeded = cp.core.docProperties.getBoolean("MemberRules." + GroupPointer);
-                        DateTime DateExpires = cp.core.docProperties.getDate("MemberRules." + GroupPointer + ".DateExpires");
-                        int groupRoleId = cp.core.docProperties.getInteger("MemberRules." + GroupPointer + ".RoleId");
-                        object DateExpiresVariant = null;
-                        if (DateExpires == DateTime.MinValue) {
-                            DateExpiresVariant = DBNull.Value;
-                        } else {
-                            DateExpiresVariant = DateExpires;
-                        }
+                        int GroupId = cp.core.docProperties.getInteger($"MemberRules.{GroupPointer}.ID");
+                        bool RuleNeeded = cp.core.docProperties.getBoolean($"MemberRules.{GroupPointer}");
+                        DateTime DateExpires = cp.core.docProperties.getDate($"MemberRules.{GroupPointer}.DateExpires");
+                        int groupRoleId = cp.core.docProperties.getInteger($"MemberRules.{GroupPointer}.RoleId");
                         //
                         // ----- Update Record
                         //

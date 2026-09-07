@@ -158,6 +158,61 @@ For example, this xml block defines the Account Manager portal with one Data Fea
 3. **Addon validate-portal requirement**: If an addon includes a validate-portal line (`CP.AdminUI.EndpointContainsPortal()` / `RedirectToPortalFeature`), then the collection file must include a portal feature record assigning that addon to the referenced portal.
 4. **Addons without portal features**: An addon that has neither a portal feature record nor validate-portal code in its class runs outside a portal and is allowed. Do not add a portal feature or portal detection/redirect code independently — they must always be added together.
 
+## Collection XML Grouping Pattern
+
+Portal feature records and their associated addon definitions should be grouped together in the collection XML. For each portal feature that references an addon, use the following pattern:
+
+1. An XML comment with the portal feature name
+2. A `<Data>` block containing the portal feature record
+3. The `<Addon>` definition referenced by that portal feature
+
+This grouping keeps the portal feature record adjacent to the addon it references, making it easy to see what each feature does and verify that the addon GUID matches. When reading the collection XML, you can scan the comments to find any feature.
+
+Empty heading features (no addon) and data features (no addon) follow the same comment + `<Data>` pattern but omit the `<Addon>` since there is none.
+
+Non-portal addons (install hooks, event handlers, remote methods, background processes, body-end addons) should be grouped separately at the top of the collection, before any portal feature groups.
+
+### Example
+
+```xml
+<!--
+    Non-portal addons
+-->
+<Addon Name="My Install" Guid="{install-guid}" Type="Add-on">
+    <DotNetClass><![CDATA[Namespace.InstallAddon]]></DotNetClass>
+</Addon>
+<!--
+    My Portal - Tools (empty heading)
+-->
+<Data>
+    <record content="Portal Features" Guid="{tools-heading-guid}" Name="My Portal - Tools">
+        <field Name="sortorder"><![CDATA[10 Tools]]></field>
+        <field Name="portalid">{portal-guid}</field>
+        <field Name="addonid"></field>
+        <field Name="heading"><![CDATA[Tools]]></field>
+        <field Name="parentfeatureid"></field>
+        <field Name="datacontentid"></field>
+    </record>
+</Data>
+<!--
+    My Portal - Tools - My Feature
+-->
+<Data>
+    <record content="Portal Features" Guid="{feature-guid}" Name="My Portal - Tools - My Feature">
+        <field Name="sortorder"><![CDATA[My Feature]]></field>
+        <field Name="portalid">{portal-guid}</field>
+        <field Name="addonid">{my-feature-addon-guid}</field>
+        <field Name="heading"><![CDATA[My Feature]]></field>
+        <field Name="parentfeatureid">{tools-heading-guid}</field>
+        <field Name="datacontentid"></field>
+    </record>
+</Data>
+<Addon Name="My Feature" Guid="{my-feature-addon-guid}" Type="Tool">
+    <DotNetClass><![CDATA[Namespace.MyFeatureAddon]]></DotNetClass>
+    <BlockEditTools>Yes</BlockEditTools>
+</Addon>
+```
+
 ## Portal and Portal Feature Installation
 
 When a new portal is installed, it should also include portal features for Reports, Tools, and Settings. These will not appear if they have no child records, but they should be created so other collections can install child features under them as needed.

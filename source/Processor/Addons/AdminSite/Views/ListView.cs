@@ -102,6 +102,16 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 }
                             }
                             //
+                            // ----- Clamp page number: if recordTop is beyond available records, reset to the last valid page.
+                            // This handles edge cases like a stale browser tab submitting pagination state after records were deleted.
+                            if (recordCnt > 0 && gridConfig.recordTop >= recordCnt) {
+                                gridConfig.pageNumber = (int)Math.Ceiling(recordCnt / (double)gridConfig.recordsPerPage);
+                                gridConfig.recordTop = DbController.getStartRecord(gridConfig.recordsPerPage, gridConfig.pageNumber);
+                            } else if (recordCnt == 0) {
+                                gridConfig.pageNumber = 1;
+                                gridConfig.recordTop = 0;
+                            }
+                            //
                             // Assumble the SQL
                             //
                             sql = "select";
@@ -401,6 +411,21 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (paginationPageNumber > 0) {
                     gridConfig.pageNumber = paginationPageNumber;
                     gridConfig.recordTop = DbController.getStartRecord(gridConfig.recordsPerPage, gridConfig.pageNumber);
+                }
+                //
+                // ----- Fresh navigation: if the request has no pagination inputs and no button,
+                // reset to page 1 so navigating away and back always starts at the beginning.
+                // Filters, sorts, and columns are preserved from the visit property.
+                {
+                    bool hasRecordTop = !string.IsNullOrEmpty(core.docProperties.getText("rt"));
+                    bool hasRecordsPerPage = !string.IsNullOrEmpty(core.docProperties.getText("RS"));
+                    bool hasPaginationPage = paginationPageNumber > 0;
+                    bool hasButton = !string.IsNullOrEmpty(core.docProperties.getText(RequestNameButton));
+                    bool hasSourceForm = adminData.srcFormId != 0;
+                    if (!hasRecordTop && !hasRecordsPerPage && !hasPaginationPage && !hasButton && !hasSourceForm) {
+                        gridConfig.pageNumber = 1;
+                        gridConfig.recordTop = 0;
+                    }
                 }
                 {
                     //

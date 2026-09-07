@@ -1,8 +1,39 @@
-﻿<div class="p-2 ccEditRow">
+<div class="p-2 ccEditRow">
     <!-- list caption -->
     <label for="name432">{{listCaption}}</label>
     <!-- list -->
     <div class="ml-5 ms-5 ms-5">
+        {{#hasExclusiveSets}}
+        <!-- Exclusive Set Groups (radio buttons) -->
+        {{#exclusiveSetList}}
+        <div class="mb-3">
+            <h6 class="fw-bold border-bottom pb-1">{{setLabel}}</h6>
+            <!-- None option -->
+            <div class="row pb-1 border-bottom border-light">
+                <div class="col-sm-3"><label class="pb-1 pt-2 mb-0">{{{noneRadioInput}}}&nbsp;(None)</label></div>
+                <div class="col-sm-9">&nbsp;</div>
+            </div>
+            {{#rowList}}
+            <!-- radio row -->
+            <div class="row pb-1 border-bottom border-light">
+                <div class="col-sm-3"><label class="pb-1 pt-2 mb-0">{{{radioInput}}}&nbsp;{{{groupCaption}}}</label></div>
+                <div class="col-sm-6">&nbsp;</div>
+                <div class="col-sm-3">{{{relatedButtonList}}}</div>
+                {{{idHidden}}}
+            </div>
+            {{/rowList}}
+            <!-- shared expires/role for the selected group -->
+            <div class="row pt-2 pb-1 border-bottom border-light bg-light">
+                <div class="col-sm-3"><label class="pb-1 pt-2 mb-0 fw-bold">Selected group:</label></div>
+                <div class="col-sm-3"><small class="text-muted d-block">Expires</small>{{{expiresInput}}}</div>
+                <div class="col-sm-3"><small class="text-muted d-block">Role</small>{{{roleInput}}}</div>
+                <div class="col-sm-3">&nbsp;</div>
+            </div>
+            {{{hiddenFields}}}
+        </div>
+        {{/exclusiveSetList}}
+        {{/hasExclusiveSets}}
+        <!-- Normal Groups (checkboxes) -->
         <div class="row pb-1">
             <!-- checkbox and group name -->
             <div class="col-sm-3">&nbsp;</div>

@@ -58,10 +58,7 @@ namespace Contensive.Processor.Controllers {
                                     FieldNameVariant = csData.getFirstFieldName();
                                     while (!string.IsNullOrEmpty(FieldNameVariant)) {
                                         FieldName = GenericController.getText(FieldNameVariant);
-                                        UcaseFieldName = GenericController.toUCase(FieldName);
-                                        if ((UcaseFieldName != "USERNAME") && (UcaseFieldName != "PASSWORD")) {
-                                            sb.Append(Delimiter + "\"" + FieldName + "\"");
-                                        }
+                                        sb.Append(Delimiter + "\"" + FieldName + "\"");
                                         FieldNameVariant = csData.getNextFieldName();
                                     }
                                     sb.Append(Environment.NewLine);
@@ -77,8 +74,9 @@ namespace Contensive.Processor.Controllers {
                                         FieldNameVariant = csData.getFirstFieldName();
                                         while (!string.IsNullOrEmpty(FieldNameVariant)) {
                                             FieldName = GenericController.getText(FieldNameVariant);
-                                            UcaseFieldName = GenericController.toUCase(FieldName);
-                                            if ((UcaseFieldName != "USERNAME") && (UcaseFieldName != "PASSWORD")) {
+                                            if (csData.getFieldPassword(FieldName)) {
+                                                Copy = "****";
+                                            } else {
                                                 Copy = csData.getText(FieldName);
                                                 if (!string.IsNullOrEmpty(Copy)) {
                                                     Copy = GenericController.strReplace(Copy, "\"", "'");
@@ -86,8 +84,8 @@ namespace Contensive.Processor.Controllers {
                                                     Copy = GenericController.strReplace(Copy, "\r", " ");
                                                     Copy = GenericController.strReplace(Copy, "\n", " ");
                                                 }
-                                                sb.Append(Delimiter + "\"" + Copy + "\"");
                                             }
+                                            sb.Append(Delimiter + "\"" + Copy + "\"");
                                             FieldNameVariant = csData.getNextFieldName();
                                         }
                                         sb.Append(Environment.NewLine);
@@ -125,30 +123,35 @@ namespace Contensive.Processor.Controllers {
                                     Delimiter = "";
                                     FieldNameVariant = csData.getFirstFieldName();
                                     while (!string.IsNullOrEmpty(FieldNameVariant)) {
-                                        switch (csData.getFieldTypeId(GenericController.getText(FieldNameVariant))) {
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileText:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                                                Copy = csData.getTextEncoded(GenericController.getText(FieldNameVariant));
-                                                break;
-                                            case CPContentBaseClass.FieldTypeIdEnum.Lookup:
-                                                Copy = csData.getText(GenericController.getText(FieldNameVariant));
-                                                break;
-                                            case CPContentBaseClass.FieldTypeIdEnum.Redirect:
-                                            case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
-                                                break;
-                                            default:
-                                                Copy = csData.getText(GenericController.getText(FieldNameVariant));
-                                                break;
-                                        }
-                                        if (!string.IsNullOrEmpty(Copy)) {
-                                            Copy = GenericController.strReplace(Copy, "\"", "'");
-                                            Copy = GenericController.strReplace(Copy, Environment.NewLine, " ");
-                                            Copy = GenericController.strReplace(Copy, "\r", " ");
-                                            Copy = GenericController.strReplace(Copy, "\n", " ");
+                                        FieldName = GenericController.getText(FieldNameVariant);
+                                        if (csData.getFieldPassword(FieldName)) {
+                                            Copy = "****";
+                                        } else {
+                                            switch (csData.getFieldTypeId(FieldName)) {
+                                                case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                                                case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                                                case CPContentBaseClass.FieldTypeIdEnum.FileXML:
+                                                case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                                                case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                                                case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
+                                                    Copy = csData.getTextEncoded(FieldName);
+                                                    break;
+                                                case CPContentBaseClass.FieldTypeIdEnum.Lookup:
+                                                    Copy = csData.getText(FieldName);
+                                                    break;
+                                                case CPContentBaseClass.FieldTypeIdEnum.Redirect:
+                                                case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
+                                                    break;
+                                                default:
+                                                    Copy = csData.getText(FieldName);
+                                                    break;
+                                            }
+                                            if (!string.IsNullOrEmpty(Copy)) {
+                                                Copy = GenericController.strReplace(Copy, "\"", "'");
+                                                Copy = GenericController.strReplace(Copy, Environment.NewLine, " ");
+                                                Copy = GenericController.strReplace(Copy, "\r", " ");
+                                                Copy = GenericController.strReplace(Copy, "\n", " ");
+                                            }
                                         }
                                         core.wwwFiles.appendFile(TestFilename, Delimiter + "\"" + Copy + "\"");
                                         Delimiter = ",";

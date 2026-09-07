@@ -305,7 +305,8 @@ namespace Contensive.Processor {
         /// <param name="createdByUserId"></param>
         /// <returns></returns>
         public override DataTable Insert(string tableName, int createdByUserId) {
-            return db.insert(tableName, createdByUserId);
+            DataTable result = db.insert(tableName, createdByUserId);
+            return result;
         }
         //
         //====================================================================================================
@@ -317,7 +318,8 @@ namespace Contensive.Processor {
         /// <param name="createdByUserId"></param>
         /// <returns></returns>
         public override DataTable Insert(string tableName, NameValueCollection sqlList, int createdByUserId) {
-            return db.insert(tableName, sqlList, createdByUserId);
+            DataTable result = db.insert(tableName, sqlList, createdByUserId);
+            return result;
         }
         //
         //====================================================================================================

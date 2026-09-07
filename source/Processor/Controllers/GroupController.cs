@@ -48,6 +48,13 @@ namespace Contensive.Processor.Controllers {
                 if (user == null || group == null || user.id <= 0 || group.id <= 0) {
                     return;
                 }
+                //
+                // -- Exclusive Set enforcement: if this group belongs to an exclusive set,
+                //    remove the user from all other groups in the same set before adding
+                if (!string.IsNullOrWhiteSpace(group.exclusiveSet)) {
+                    removeUserFromExclusiveSet(core, group, user);
+                }
+                //
                 var ruleList = DbBaseModel.createList<MemberRuleModel>(core.cpParent, "(MemberID=" + user.id.ToString() + ")and(GroupID=" + group.id.ToString() + ")");
                 if (ruleList.Count == 0) {
                     // -- add new rule
@@ -258,6 +265,18 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="groupName"></param>
         public static void removeUser(CoreController core, int groupId) => removeUser(core, groupId, core.session.user.id);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Remove a user from all groups in the same exclusive set as the target group,
+        /// except the target group itself. Called before adding the user to the target group.
+        /// </summary>
+        private static void removeUserFromExclusiveSet(CoreController core, GroupModel targetGroup, PersonModel user) {
+            var exclusiveSetGroups = DbBaseModel.createList<GroupModel>(core.cpParent, $"(exclusiveSet={DbController.encodeSQLText(targetGroup.exclusiveSet)})and(id<>{targetGroup.id})");
+            foreach (var otherGroup in exclusiveSetGroups) {
+                removeUser(core, otherGroup, user);
+            }
+        }
         //
         //========================================================================
         /// <summary>

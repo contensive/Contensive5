@@ -17,6 +17,7 @@ namespace Contensive.Models.Db {
         public bool allowBulkEmail { get; set; }
         public string caption { get; set; }
         public DbBaseModel.FieldTypeTextFile copyFilename { get; set; }
+        public string exclusiveSet { get; set; }
         public bool publicJoin { get; set; }
         //
         //====================================================================================================

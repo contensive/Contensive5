@@ -55,13 +55,29 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// If the session was initialize without visit tracking, use verifyUser to initialize a user.
-        /// This is called automatically when an addon references cp.user.id
+        /// If the session was initialized without visit tracking, use verifyUser to initialize a user.
+        /// This is called automatically when an addon references cp.user.id (e.g., CLI tasks).
+        /// Creates a guest record and assigns it to the session WITHOUT promoting to Contact.
+        /// The guest stays as personTypeId=Guest and createdByVisit=true so housekeeping cleans it up.
         /// </summary>
         public void verifyUser() {
             if (user.id == 0) {
-                var user = createGuest(core, false);
-                AuthController.recognizeById(core, this, user.id);
+                user = createGuest(core, false);
+                //
+                // -- assign guest to session without calling recognizeById.
+                //    recognizeById promotes to Contact and creates visit/visitor records,
+                //    which is wrong for non-web contexts (CLI tasks, background jobs).
+                if ((visit == null) || (visit.id == 0)) {
+                    visit = DbBaseModel.addEmpty<VisitModel>(core.cpParent);
+                }
+                if ((visitor == null) || (visitor.id == 0)) {
+                    visitor = DbBaseModel.addEmpty<VisitorModel>(core.cpParent);
+                }
+                visit.memberId = user.id;
+                visit.visitorId = visitor.id;
+                visitor.memberId = user.id;
+                visit.save(core.cpParent);
+                visitor.save(core.cpParent);
             }
         }
 
@@ -493,10 +509,11 @@ namespace Contensive.Processor.Controllers {
                             user = createGuest(core, true);
                             resultSessionContext_user_changes = true;
                             //
-                            // -- if this is a bot, name the user record with the bot identifier
+                            // -- if this is a bot, name the user record with the bot identifier and set person type
                             if (visit.bot && !string.IsNullOrEmpty(visit.name) && !visit.name.Equals("user", StringComparison.OrdinalIgnoreCase)) {
                                 user.name = visit.name.substringSafe(0, 100);
                                 user.firstName = visit.name.substringSafe(0, 100);
+                                user.personTypeId = (int)PersonTypeEnum.Bot;
                             }
                             //
                             visit.visitAuthenticated = false;
@@ -610,6 +627,7 @@ namespace Contensive.Processor.Controllers {
             //
             PersonModel user = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
             user.createdByVisit = true;
+            user.personTypeId = (int)PersonTypeEnum.Guest;
             user.name = "Guest";
             user.firstName = "Guest";
             user.createdBy = user.id;

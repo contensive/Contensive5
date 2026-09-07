@@ -110,7 +110,7 @@ namespace Contensive.Processor.Addons.Tools {
                         } catch (Exception ex) {
                             //
                             // ----- error
-                            Stream.add("<br>" + core.dateTimeNowMockable + " SQL execution returned an error. Check the error log for details.");
+                            Stream.add($"<br>{core.dateTimeNowMockable} SQL execution returned an error: {HtmlController.encodeHtml(ex.Message)}");
                             logger.Error(ex, $"{core.logCommonMessage}");
                         }
                         string errSql = ErrorController.getDocExceptionHtmlList(core);

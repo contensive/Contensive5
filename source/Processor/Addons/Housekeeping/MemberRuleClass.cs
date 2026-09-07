@@ -68,6 +68,24 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         + " where ((a.memberid=b.memberid)and(a.groupid=b.groupid)and(a.id<b.id))"
                         + ")";
                 env.core.db.executeNonQuery(sql);
+                //
+                // -- delete exclusive set violations: if a user is in multiple groups
+                //    within the same exclusive set, keep the most recently added rule
+                env.log("Deleting exclusive set violations.");
+                sql = "delete from ccmemberrules where id in ("
+                        + " select id from ("
+                        + " select mr.id,"
+                        + " ROW_NUMBER() over ("
+                        + " partition by mr.MemberID, g.ExclusiveSet"
+                        + " order by mr.id desc"
+                        + " ) as rn"
+                        + " from ccMemberRules mr"
+                        + " inner join ccGroups g on g.id = mr.GroupID"
+                        + " where g.ExclusiveSet is not null and g.ExclusiveSet <> ''"
+                        + " and (mr.Active <> 0 or mr.Active is null)"
+                        + " ) ranked where ranked.rn > 1"
+                        + ")";
+                env.core.db.executeNonQuery(sql);
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");
             }

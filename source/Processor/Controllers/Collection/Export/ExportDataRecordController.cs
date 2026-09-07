@@ -106,6 +106,12 @@ namespace Contensive.Processor.Controllers {
                                             csDataExportRecords.SetField("ccGuid", dataExport.recordGuid);
                                         }
                                         foreach (var contentField in contentFieldExportList) {
+                                            if (contentField.password) {
+                                                //
+                                                // -- password fields are masked for security
+                                                FieldNodes += Environment.NewLine + "\t\t\t" + "<field name=\"" + System.Net.WebUtility.HtmlEncode(contentField.name) + "\">****</field>";
+                                                continue;
+                                            }
                                             switch (contentField.type) {
                                                 case (int)CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
                                                         //

@@ -24,32 +24,57 @@ Every People record has a boolean flag: **`createdByVisit`**
 
 ---
 
-## People Types
+## Person Type (`personTypeId`)
 
-| Type | Description | Retention |
-|---|---|---|
-| **Bot** | A visit determined (via browser signature, IP, and/or behavior) to be non-human. The People record generated for that visit is flagged/named as a bot. | Not retained long-term. |
-| **Guest** | A non-bot person tracked short-term. Default state for new, unrecognized human visitors. | Short-term; purged if never converted. |
-| **Contact** | A person the business wants to retain permanently. | Permanent. |
+Every People record has an integer field **`personTypeId`** that explicitly classifies the record. This is the authoritative system-level classification — it replaces the previous approach of inferring type from scattered signals across multiple tables.
 
-Guests are promoted to Contacts (and typically un-flagged from `createdByVisit`, or otherwise exempted from purge) when they take an action worth remembering — filling out a form, being manually entered by an admin, making a purchase, etc.
+| Value | Enum | Description | Retention |
+|---|---|---|---|
+| 0 | `Unknown` | Legacy records not yet backfilled. | Backfilled by housekeeping. |
+| 1 | `Bot` | Non-human visitor detected via browser signature, IP, and/or behavior. | Purged daily. |
+| 2 | `Guest` | Anonymous human visitor. Default for new, unrecognized visitors. | Purged after retention period. |
+| 3 | `Contact` | A person the business wants to retain permanently. | Permanent. |
+
+The enum is defined in `PersonTypeEnum` (in `Contensive.Models.Db`).
+
+### How `personTypeId` is Set
+
+- **SessionController.createGuest()** — sets `personTypeId = Guest` (2) for every new visitor.
+- **SessionController (bot detection)** — if bot detection identifies the visit as non-human, upgrades the record to `personTypeId = Bot` (1).
+- **AuthController.recognizeById()** — when a user is recognized or authenticated, promotes to `personTypeId = Contact` (3). All authentication paths flow through this method.
+- **Housekeeping backfill** — legacy records with `personTypeId = 0` (Unknown) are backfilled daily using the `createdByVisit` flag and visitor/visit bot flags.
+
+### Relationship to `createdByVisit`
+
+The `createdByVisit` flag and `personTypeId` serve complementary purposes:
+
+- `createdByVisit` answers "who created this record?" (system vs. human)
+- `personTypeId` answers "what kind of record is this?" (bot, guest, or contact)
+
+Both are set on creation, and `personTypeId` is promoted on authentication. The `createdByVisit` flag is still cleared on recognition (for backward compatibility), but `personTypeId` is the primary field for querying and housekeeping.
 
 ---
 
-## Contact Relationships
+## Contact Relationships (Exclusive-Set Groups)
 
-Once a People record is classified as a **Contact**, it is assigned one of six relationship types:
+Once a People record reaches `personTypeId = Contact`, it can be assigned a **Contact Relationship** via exclusive-set groups. These six groups all have `exclusiveSet = "Contact Relationship"`, so a contact can belong to only one at a time. In the admin People form, they render as radio buttons.
 
-1. **Lead** — a population of contacts whose relationship is unknown.
-2. **Unqualified (Prospect)** — contacts that have expressed an interest in a relationship, but we have not yet qualified them to be a member.
-3. **Not-Qualified (Prospect)** — contacts that have shown an interest in a relationship, but we do not think they are qualified to be a member.
-4. **Qualified Prospect** — contacts that have shown an interest, and we agree they are potential members.
-5. **Member** — contacts who have joined.
-6. **Other Contact** — contacts who are not in the member funnel. If Other is selected, the contact can be assigned an other relationship from the `OtherContactRelationships` table.
+| Group Name | Caption | Description |
+|---|---|---|
+| `Contact Relationship Lead` | Lead | A population of contacts whose relationship is unknown. |
+| `Contact Relationship Unqualified` | Unqualified | Contacts that have expressed interest but have not yet been qualified. |
+| `Contact Relationship Not-Qualified` | Not-Qualified | Contacts that have shown interest but we do not think they qualify. |
+| `Contact Relationship Qualified Prospect` | Qualified Prospect | Contacts that have shown interest and we agree they are potential members. |
+| `Contact Relationship Member` | Member | Contacts who have joined. |
+| `Contact Relationship Other` | Other Contact | Contacts not in the member funnel. |
 
 Admins move contacts through these relationship types manually, and/or the system may auto-advance them based on defined triggers.
 
 The "Member" label is the underlying platform term. Addons may present vertical-specific labels to admins — for example, "Customer" for generic installs, "Member" for associations, or "Patient" for medical/dental practices. The data model is identical; only the display label changes.
+
+### Extending Contact Relationships
+
+The six groups above cover the standard CRM funnel. To add custom relationship types (e.g., "Vendor", "Partner", "Volunteer"), admins simply create a new group with `exclusiveSet = "Contact Relationship"`. It will automatically appear as a radio button option alongside the built-in types — no code changes or additional tables required.
 
 ---
 
@@ -125,18 +150,34 @@ Visit (session) determined from Visitor
    |-- stores authentication status (authenticated/recognized/not recognized)
    |
    v
-People record determined from Visit
+People record created (personTypeId = Guest)
    |
-   +--------+--------+
-   v        v         v
- Bot     Guest     Contact
-(purged) (short-   (permanent)
-          term)        |
-                       v
-        Lead -> Unqualified -> Qualified Prospect -> Member
-                    |
-                    v
-              Not-Qualified
+   +-- Bot detection? --> personTypeId = Bot (purged daily)
+   |
+   +-- No auth --> personTypeId = Guest (purged after retention period)
+   |
+   +-- Authenticated/Recognized --> personTypeId = Contact (permanent)
+                                        |
+                                        v
+                          Contact Relationship (exclusive-set groups)
+                                        |
+               +------------------------+------------------------+
+               v                        v                        v
+             Lead --> Unqualified --> Qualified Prospect --> Member
+                          |
+                          v
+                    Not-Qualified
 
-        Other Contact (separate from member funnel)
+             Other Contact (separate from member funnel)
 ```
+
+---
+
+## Housekeeping
+
+Daily housekeeping in `PersonClass.executeDailyTasks()` handles cleanup:
+
+1. **Backfill** — Legacy records with `personTypeId = 0` are classified based on `createdByVisit` and visitor/visit bot flags.
+2. **Bot purge** — Records with `personTypeId = Bot` are deleted unconditionally.
+3. **Guest purge** — Records with `personTypeId = Guest` are deleted if their `lastVisit` exceeds the configurable retention period (2–30 days).
+4. **Legacy fallback** — The original join-based bot and heuristic-based guest cleanup queries still run for any records not yet backfilled.

@@ -679,6 +679,28 @@ namespace Contensive.Processor {
         //
         //========================================================================
         /// <summary>
+        /// get the password property of a field within a csv_ContentSet.
+        /// Returns true if the field's cdef has password set true.
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public bool getFieldPassword(string fieldName) {
+            try {
+                if (ok() && this.createdWithMetaData && !string.IsNullOrEmpty(this.contentMeta.name)) {
+                    string key = fieldName.ToLowerInvariant();
+                    if (this.contentMeta.fields.ContainsKey(key)) {
+                        return this.contentMeta.fields[key].password;
+                    }
+                }
+                return false;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
         /// get the caption of a field within a csv_ContentSet
         /// </summary>
         /// <param name="fieldName"></param>

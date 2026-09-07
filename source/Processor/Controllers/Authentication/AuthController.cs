@@ -67,6 +67,11 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- clear createdByVisit flag so this user is not deleted during housekeeping
                 session.user.createdByVisit = false;
+                //
+                // -- promote to Contact if currently Bot or Guest (or Unknown legacy)
+                if (session.user.personTypeId != (int)PersonTypeEnum.Contact) {
+                    session.user.personTypeId = (int)PersonTypeEnum.Contact;
+                }
                 if (session.user.visits == 1) {
                     session.visit.memberNew = true;
                 } else {

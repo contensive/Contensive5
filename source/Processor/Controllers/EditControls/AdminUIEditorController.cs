@@ -6,6 +6,7 @@ using Contensive.Processor.Properties;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
@@ -879,6 +880,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                 //
                 var groupRuleEditor = new GroupRuleEditorModel {
                     listCaption = "Groups",
+                    exclusiveSetList = new List<ExclusiveSetSectionModel>(),
                     rowList = new List<GroupRuleEditorRowModel>()
                 };
                 //
@@ -915,24 +917,27 @@ namespace Contensive.Processor.Controllers.EditControls {
                         }
                     }
                     //
-                    // ----- read in all the groups, sorted by ContentName
+                    // ----- read in all the groups, including exclusiveSet field
+                    //       exclusive-set groups collected separately, normal groups rendered as checkboxes
+                    var exclusiveSetsDict = new Dictionary<string, List<(int GroupID, string GroupName, string GroupCaption, bool GroupActive, DateTime? DateExpire, int GroupRoleId, string RelatedButtonList)>>();
+                    //
                     using (var csGroups = new CsModel(core)) {
                         bool canSeeHiddenGroups = core.session.isAuthenticatedDeveloper();
-                        csGroups.openSql("select id,name as groupName,caption as groupCaption from ccgroups where (active>0) order by caption,name,id");
+                        csGroups.openSql("select id,name as groupName,caption as groupCaption,exclusiveSet from ccgroups where (active>0) order by exclusiveSet,caption,name,id");
                         while (csGroups.ok()) {
                             string GroupName = csGroups.getText("GroupName");
                             if (GroupName.left(1) != "_" || canSeeHiddenGroups) {
                                 string GroupCaption = csGroups.getText("GroupCaption");
                                 int GroupID = csGroups.getInteger("ID");
+                                string exclusiveSet = csGroups.getText("exclusiveSet");
                                 if (string.IsNullOrEmpty(GroupCaption)) {
                                     GroupCaption = GroupName;
                                     if (string.IsNullOrEmpty(GroupCaption)) {
-                                        GroupCaption = "Group&nbsp;" + GroupID;
+                                        GroupCaption = $"Group&nbsp;{GroupID}";
                                     }
                                 }
                                 bool GroupActive = false;
                                 DateTime? DateExpire = default;
-                                string DateExpireValue = "";
                                 int groupRoleId = 0;
                                 if (membershipCount != 0) {
                                     for (int MembershipPointer = 0; MembershipPointer < membershipCount; MembershipPointer++) {
@@ -940,7 +945,6 @@ namespace Contensive.Processor.Controllers.EditControls {
                                             GroupActive = membershipListActive[MembershipPointer];
                                             if (membershipListDateExpires[MembershipPointer] > DateTime.MinValue) {
                                                 DateExpire = membershipListDateExpires[MembershipPointer];
-                                                DateExpireValue = getText(DateExpire);
                                             }
                                             groupRoleId = membershipListRoleId[MembershipPointer];
                                             break;
@@ -948,33 +952,102 @@ namespace Contensive.Processor.Controllers.EditControls {
                                     }
                                 }
                                 string relatedButtonList = "";
-                                relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Edit", "?af=4&cid=" + ContentMetadataModel.getContentId(core, "Groups") + "&id=" + GroupID);
-                                relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Members", "?af=1&cid=" + ContentMetadataModel.getContentId(core, "people") + "&IndexFilterAddGroup=" + encodeURL(GroupName));
+                                relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Edit", $"?af=4&cid={ContentMetadataModel.getContentId(core, "Groups")}&id={GroupID}");
+                                relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Members", $"?af=1&cid={ContentMetadataModel.getContentId(core, "people")}&IndexFilterAddGroup={encodeURL(GroupName)}");
                                 //
-                                var row = new GroupRuleEditorRowModel {
-                                    idHidden = HtmlController.inputHidden("Memberrules." + GroupCount + ".ID", GroupID),
-                                    checkboxInput = HtmlController.checkbox("MemberRules." + GroupCount, GroupActive),
-                                    groupCaption = GroupCaption,
-                                    expiresInput = getDateTimeEditor(core, "MemberRules." + GroupCount + ".DateExpires", DateExpire, false, "", false),
-                                    relatedButtonList = relatedButtonList,
-                                    roleInput = getRoleSelect(core, RoleSelectDefault, groupRoleId, GroupCount)
-                                };
-                                groupRuleEditor.rowList.Add(row);
-                                GroupCount += 1;
+                                if (!string.IsNullOrWhiteSpace(exclusiveSet)) {
+                                    //
+                                    // -- exclusive set group: collect for radio rendering
+                                    if (!exclusiveSetsDict.ContainsKey(exclusiveSet)) {
+                                        exclusiveSetsDict[exclusiveSet] = new List<(int, string, string, bool, DateTime?, int, string)>();
+                                    }
+                                    exclusiveSetsDict[exclusiveSet].Add((GroupID, GroupName, GroupCaption, GroupActive, DateExpire, groupRoleId, relatedButtonList));
+                                } else {
+                                    //
+                                    // -- normal group: render as checkbox
+                                    var row = new GroupRuleEditorRowModel {
+                                        idHidden = HtmlController.inputHidden($"MemberRules.{GroupCount}.ID", GroupID),
+                                        checkboxInput = HtmlController.checkbox($"MemberRules.{GroupCount}", GroupActive),
+                                        groupCaption = GroupCaption,
+                                        expiresInput = getDateTimeEditor(core, $"MemberRules.{GroupCount}.DateExpires", DateExpire, false, "", false),
+                                        relatedButtonList = relatedButtonList,
+                                        roleInput = getRoleSelect(core, RoleSelectDefault, groupRoleId, GroupCount)
+                                    };
+                                    groupRuleEditor.rowList.Add(row);
+                                    GroupCount += 1;
+                                }
                             }
                             csGroups.goNext();
                         }
+                    }
+                    //
+                    // ----- build exclusive set sections (radio buttons)
+                    int setIndex = 0;
+                    foreach (var kvp in exclusiveSetsDict.OrderBy(k => k.Key)) {
+                        string setLabel = kvp.Key;
+                        var setGroups = kvp.Value;
+                        string radioName = $"ExclusiveSet.{setIndex}";
+                        //
+                        // -- determine which group the user is currently in for this set
+                        int currentGroupId = 0;
+                        DateTime? currentDateExpire = default;
+                        int currentRoleId = 0;
+                        foreach (var sg in setGroups) {
+                            if (sg.GroupActive) {
+                                currentGroupId = sg.GroupID;
+                                currentDateExpire = sg.DateExpire;
+                                currentRoleId = sg.GroupRoleId;
+                                break;
+                            }
+                        }
+                        //
+                        var section = new ExclusiveSetSectionModel {
+                            setLabel = setLabel,
+                            noneRadioInput = HtmlController.inputRadio(radioName, 0, currentGroupId),
+                            rowList = new List<GroupRuleEditorRowModel>()
+                        };
+                        //
+                        // -- build hidden fields for group IDs and counts
+                        var hiddenFieldsBuilder = new StringBuilder();
+                        int groupIndexInSet = 0;
+                        foreach (var sg in setGroups) {
+                            hiddenFieldsBuilder.Append(HtmlController.inputHidden($"ExclusiveSet.{setIndex}.{groupIndexInSet}.ID", sg.GroupID));
+                            section.rowList.Add(new GroupRuleEditorRowModel {
+                                radioInput = HtmlController.inputRadio(radioName, sg.GroupID, currentGroupId),
+                                groupCaption = sg.GroupCaption,
+                                expiresInput = "",
+                                roleInput = "",
+                                relatedButtonList = sg.RelatedButtonList
+                            });
+                            groupIndexInSet++;
+                        }
+                        hiddenFieldsBuilder.Append(HtmlController.inputHidden($"ExclusiveSet.{setIndex}.GroupCount", groupIndexInSet));
+                        //
+                        // -- shared expires/role fields for the selected group in this set
+                        section.expiresInput = getDateTimeEditor(core, $"ExclusiveSet.{setIndex}.DateExpires", currentDateExpire, false, "", false);
+                        section.roleInput = getRoleSelectByName(RoleSelectDefault, currentRoleId, $"ExclusiveSet.{setIndex}.RoleId");
+                        //
+                        section.hiddenFields = hiddenFieldsBuilder.ToString();
+                        groupRuleEditor.exclusiveSetList.Add(section);
+                        setIndex++;
+                    }
+                    groupRuleEditor.hasExclusiveSets = groupRuleEditor.exclusiveSetList.Count > 0;
+                    //
+                    // -- emit exclusive set count hidden field in the first exclusive set section's hiddenFields,
+                    //    or append to the normal group section if no exclusive sets
+                    if (groupRuleEditor.hasExclusiveSets) {
+                        groupRuleEditor.exclusiveSetList[0].hiddenFields += HtmlController.inputHidden("ExclusiveSet.Count", setIndex);
                     }
                 }
                 //
                 // -- add a row for group count and Add Group button
                 groupRuleEditor.rowList.Add(new GroupRuleEditorRowModel {
                     idHidden = HtmlController.inputHidden("MemberRules.RowCount", GroupCount),
-                    checkboxInput = AdminUIController.getButtonPrimaryAnchor("Add Group", "?af=4&cid=" + ContentMetadataModel.getContentId(core, "Groups")),
+                    checkboxInput = AdminUIController.getButtonPrimaryAnchor("Add Group", $"?af=4&cid={ContentMetadataModel.getContentId(core, "Groups")}"),
                     groupCaption = "",
                     expiresInput = "",
                     relatedButtonList = "",
-                    roleInput = AdminUIController.getButtonPrimaryAnchor("Add Role", "?af=4&cid=" + ContentMetadataModel.getContentId(core, "Group Roles"))
+                    roleInput = AdminUIController.getButtonPrimaryAnchor("Add Role", $"?af=4&cid={ContentMetadataModel.getContentId(core, "Group Roles")}")
                 });
                 return MustacheController.renderStringToString(Resources.GroupRuleEditorRow2, groupRuleEditor);
             } catch (Exception ex) {
@@ -986,23 +1059,38 @@ namespace Contensive.Processor.Controllers.EditControls {
         // ====================================================================================================
         //
         private static string getRoleSelect(CoreController core, string RoleSelectDefault, int groupRoleId, int GroupCount) {
-            string find = "value=\"" + groupRoleId + "\"";
+            return getRoleSelectByName(RoleSelectDefault, groupRoleId, $"MemberRules.{GroupCount}.RoleId");
+        }
+        //
+        private static string getRoleSelectByName(string RoleSelectDefault, int groupRoleId, string htmlName) {
+            string find = $"value=\"{groupRoleId}\"";
             return RoleSelectDefault
-                .Replace("{htmlName}", "MemberRules." + GroupCount + ".RoleId")
+                .Replace("{htmlName}", htmlName)
                 .Replace(find, find + " selected");
         }
         //
         public class GroupRuleEditorRowModel {
             public string idHidden;
             public string checkboxInput;
+            public string radioInput;
             public string groupCaption;
             public string expiresInput;
             public string roleInput;
             public string relatedButtonList;
         }
+        public class ExclusiveSetSectionModel {
+            public string setLabel;
+            public string noneRadioInput;
+            public string hiddenFields;
+            public string expiresInput;
+            public string roleInput;
+            public List<GroupRuleEditorRowModel> rowList;
+        }
         public class GroupRuleEditorModel {
             public string listCaption;
             public string helpText;
+            public bool hasExclusiveSets;
+            public List<ExclusiveSetSectionModel> exclusiveSetList;
             public List<GroupRuleEditorRowModel> rowList;
         }
         //

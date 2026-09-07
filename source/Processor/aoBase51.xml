@@ -799,9 +799,12 @@
     </Field>
     <Field Name="CreatedByVisit" Active="true" AdminOnly="0" Authorable="1" Caption="Allow Purge (created by site visit)" DeveloperOnly="0" EditSortPriority="1465" FieldType="Boolean" HtmlContent="0" IndexColumn="4" IndexSortDirection="" IndexSortOrder="5" IndexWidth="10" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="0" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Analytics" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="0" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[Checked automatically if this record was created automatically by a visit to the site. These records are considered guest users and may be purged during housekeep processes. There are also other fields that prevent record purge: username, Password, email, and non-default name.  See preferences for details. ]]></HelpDefault>
-    </Field>    
-    <!-- 
-      Roles 
+    </Field>
+    <Field Name="PersonTypeId" Active="true" AdminOnly="0" Authorable="1" Caption="Person Type" DeveloperOnly="0" EditSortPriority="1470" FieldType="Lookup" HtmlContent="0" IndexColumn="5" IndexSortDirection="" IndexSortOrder="6" IndexWidth="10" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="0" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Analytics" Scramble="false" LookupList="Bot,Guest,Contact" NotEditable="true" Password="false" ReadOnly="true" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" Guid="{FA00ACA2-67DB-4A91-A2A9-C754879597CE}">
+      <HelpDefault><![CDATA[System-managed classification for this person record. 1=Bot (non-human visitor), 2=Guest (anonymous human visitor), 3=Contact (permanent person record). Set automatically by the session and authentication systems.]]></HelpDefault>
+    </Field>
+    <!--
+      Roles
     -->
     <Field Name="Admin" Active="true" AdminOnly="1" Authorable="1" Caption="Administrator" DeveloperOnly="0" EditSortPriority="1000" FieldType="Boolean" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="0" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Roles" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[If checked, this person is an administrator and can edit content.]]></HelpDefault>
@@ -908,6 +911,9 @@
     </Field>
     <Field Name="PublicJoin" Active="true" AdminOnly="0" Authorable="1" Caption="Allow Public Join" DeveloperOnly="0" EditSortPriority="1030" FieldType="Boolean" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[When checked, this group may appear in public lists that uses can join and remove themselves. The My Account addon is an example of this.]]></HelpDefault>
+    </Field>
+    <Field Name="ExclusiveSet" Active="true" AdminOnly="0" Authorable="1" Caption="Exclusive Set" DeveloperOnly="0" EditSortPriority="1035" FieldType="Text" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" Guid="{76C29F20-29FE-4BD3-A6FF-DB1DBFF52035}">
+      <HelpDefault><![CDATA[When blank, this group works as a normal checkbox group. When populated with a label (e.g., "Membership Level"), all groups sharing that same label form an exclusive set: a user can only belong to one group in the set at a time. In the admin People form, exclusive-set groups render as radio buttons instead of checkboxes.]]></HelpDefault>
     </Field>
     <Field Name="SortOrder" Active="true" AdminOnly="0" Authorable="0" Caption="Alpha Sort Order" DeveloperOnly="0" EditSortPriority="2000" FieldType="Text" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[This field can be used to sort the groups.]]></HelpDefault>
@@ -3535,29 +3541,6 @@
 				<SiteProperty Caption="MQTT Certificate Password" Name="mqtt certificate Password" ReadOnly="0" Type="text" Selector="" Description="The Password for the MQTT certificate."></SiteProperty>
 				<SiteProperty Caption="MQTT Root Certificate" Name="mqtt root certificate filename" ReadOnly="0" Type="PrivateFile" Selector="" Description="Upload the root certicate for the broker."></SiteProperty>
 			</Tab>
-			<Tab Name="Security" heading="Security Settings" description="Settings that affect security and authentication">
-				<SiteProperty Caption="Allow Email-As-Username" Name="AllowEmailLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, users can login with their Password and either their username or email address.">false</SiteProperty>
-				<SiteProperty Caption="Allow Password-less Login" Name="AllowNoPasswordLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, non-content managers can login without a Password. Be careful because this makes it easier for someone to guess someone else's login.">false</SiteProperty>
-				<SiteProperty Caption="Allow Auto Login" Name="AllowAutoLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, returning users are automatically logged in to the site. Clear this setting if your site contains sections or pages blocked to only certain users, or if your site controls any private or personal information. If this feature is checked, administrations, developers and content managers should take care to always log-out after visiting the site from a public computer. ">false</SiteProperty>
-				<SiteProperty Caption="Allow Auto Recognize" Name="AllowAutoRecognize" ReadOnly="0" Type="boolean" Selector="" Description="This option is only avilable if Auto Login is disabled. When this option is checked, a returning visitor will not be authenticated, but personalization may still work correctly. Use this option if you can not use Auto Login, but want your visitors greeted with personlization.">false</SiteProperty>
-				<SiteProperty Caption="Allow Link Login" Name="AllowLinkLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, emails that contain links can be encoded so the reader is automatically logged in when they click from the email to the site. This is a security risk because anyone with the link gains full access to the account. Consider using Allow Link Recognize instead, which tracks the visitor without granting permissions.">false</SiteProperty>
-				<SiteProperty Caption="Allow Link Recognize" Name="AllowLinkRecognize" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, emails that contain links can be encoded so the reader is automatically recognized by the site when they click a link from the email. Recognized means the site will track their visit but they will not be authenticated and will not have access to special rights like editing. This is a good tool to track email marketing conversion.">true</SiteProperty>
-				<SiteProperty Caption="Allow Password Recovery" Name="AllowPasswordEmail" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the login page includes a form for users to recover their email.">true</SiteProperty>
-				<SiteProperty Caption="Allow One-Time-Password (OTP) Login" Name="AllowLoginByEmailOtp" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, users will see a link in the login box to visit the One-Time-Password login page, and the One-Time-Password login functionality will be enabled.">true</SiteProperty>
-				<SiteProperty Caption="Allow Public Registrations" Name="AllowMemberJoin" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, the site registration Add-on is enabled, and the page block option for registration is enabled. A user can then register on your site. Registering means when they can select a username and Password to login, and use this to login when they return. The registration form includes the option to join any group marked as public. If this feature is enabled, take care that all sensative groups, such as content manager groups, are NOT marked as public.">false</SiteProperty>
-        <!-- 
-          username/Password security settings 
-        -->
-				<SiteProperty Caption="Allow Plain Text Password" Name="allow plain text Password" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the login process uses the ccmembers.Password field, stored in plain text. When false, the process uses ccmembers.PasswordHash, created by the change-Password form, and the cp.user.setPassword() method.">false</SiteProperty>
-				<SiteProperty Caption="Clear Plain-Text Password When Creating Hash, " Name="clear admin Password on hash" ReadOnly="0" Type="boolean" Selector="" Description="When enabled and plain-text Password is disabled, if the Password field is populated and PasswordHash is blank, a failed login can attempt a plain-text Password then populate PasswordHash. Use this to migrate from plain-text to hash Passwords.">true</SiteProperty>
-				<SiteProperty Caption="Password Minimum Length" Name="Password min length" ReadOnly="0" Type="integer" Selector="" Description="The minimum length of a Password.">10</SiteProperty>
-				<SiteProperty Caption="Password Requires Lowercase" Name="Password requires lowercase" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a lowercase character.">true</SiteProperty>
-				<SiteProperty Caption="Password Requires Uppercase" Name="Password requires uppercase" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require an uppercase character.">true</SiteProperty>
-				<SiteProperty Caption="Password Requires Number" Name="Password requires number" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a number character.">true</SiteProperty>
-				<SiteProperty Caption="Password Requires Special Character" Name="Password requires special character" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a special character.">true</SiteProperty>
-				<SiteProperty Caption="Password Block Used Password Period" Name="Password block used Password period" ReadOnly="0" Type="Integer" Selector="" Description="If not 0 or empty, do not let new users reuse Passwords for this many days.">30</SiteProperty>
-				<SiteProperty Caption="Password Age Lockout Days" Name="Password age lockout days" ReadOnly="0" Type="Integer" Selector="" Description="If not 0 or empty, Passwords must be updated if this many days old."></SiteProperty>
-			</Tab>
 			<Tab Name="Text Messages" heading="Text Message Settings (SMS)" description="When the system sends text messages through SMS, there are mulitple provides that can be used, and each provider has configuration settings. This tab sets up these configurations.">
 				<SiteProperty Caption="SMS Provider" Name="SMS Provider Id" ReadOnly="0" Type="integer" Selector="[none:0|Twillio:1|AWS SNS:2]" Description="Select the Text Messaging provide to be used by the system. AWS permissions must be added to the site's AWS IAM credentials.">2</SiteProperty>
 				<SiteProperty Caption="Twillio Account SID" Name="Twillio Account SID" ReadOnly="0" Type="text" Selector="" Description="If Twillio is selected as the SMS provider, set your Twillio credentials here."></SiteProperty>
@@ -3628,6 +3611,33 @@
 	<Addon Name="AWS SES Email Bounce Process" Guid="{279DEE1C-1FC9-46E9-99C3-A6CA05954352}" Type="Task">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.AwsSesProcessClass]]></DotNetClass>
 		<ProcessInterval>60</ProcessInterval>
+	</Addon>
+	<Addon Name="Security Settings" Guid="{31AF14E8-0B6A-4B77-B2FF-B11190BE2D27}" Type="Setting">
+		<FormXML><![CDATA[<Form>
+				<Description>Security and authentication settings for the site</Description>
+				<Tab Name="Authentication" heading="Authentication Settings" description="Settings that control how users authenticate and login">
+					<SiteProperty Caption="Allow Email-As-Username" Name="AllowEmailLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, users can login with their Password and either their username or email address.">false</SiteProperty>
+					<SiteProperty Caption="Allow Password-less Login" Name="AllowNoPasswordLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, non-content managers can login without a Password. Be careful because this makes it easier for someone to guess someone else's login.">false</SiteProperty>
+					<SiteProperty Caption="Allow Auto Login" Name="AllowAutoLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, returning users are automatically logged in to the site. Clear this setting if your site contains sections or pages blocked to only certain users, or if your site controls any private or personal information. If this feature is checked, administrations, developers and content managers should take care to always log-out after visiting the site from a public computer. ">false</SiteProperty>
+					<SiteProperty Caption="Allow Auto Recognize" Name="AllowAutoRecognize" ReadOnly="0" Type="boolean" Selector="" Description="This option is only avilable if Auto Login is disabled. When this option is checked, a returning visitor will not be authenticated, but personalization may still work correctly. Use this option if you can not use Auto Login, but want your visitors greeted with personlization.">false</SiteProperty>
+					<SiteProperty Caption="Allow Link Login" Name="AllowLinkLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, emails that contain links can be encoded so the reader is automatically logged in when they click from the email to the site. This is a security risk because anyone with the link gains full access to the account. Consider using Allow Link Recognize instead, which tracks the visitor without granting permissions.">false</SiteProperty>
+					<SiteProperty Caption="Allow Link Recognize" Name="AllowLinkRecognize" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, emails that contain links can be encoded so the reader is automatically recognized by the site when they click a link from the email. Recognized means the site will track their visit but they will not be authenticated and will not have access to special rights like editing. This is a good tool to track email marketing conversion.">true</SiteProperty>
+					<SiteProperty Caption="Allow Password Recovery" Name="AllowPasswordEmail" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the login page includes a form for users to recover their email.">true</SiteProperty>
+					<SiteProperty Caption="Allow One-Time-Password (OTP) Login" Name="AllowLoginByEmailOtp" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, users will see a link in the login box to visit the One-Time-Password login page, and the One-Time-Password login functionality will be enabled.">true</SiteProperty>
+					<SiteProperty Caption="Allow Public Registrations" Name="AllowMemberJoin" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, the site registration Add-on is enabled, and the page block option for registration is enabled. A user can then register on your site. Registering means when they can select a username and Password to login, and use this to login when they return. The registration form includes the option to join any group marked as public. If this feature is enabled, take care that all sensative groups, such as content manager groups, are NOT marked as public.">false</SiteProperty>
+					<SiteProperty Caption="Allow Plain Text Password" Name="allow plain text Password" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the login process uses the ccmembers.Password field, stored in plain text. When false, the process uses ccmembers.PasswordHash, created by the change-Password form, and the cp.user.setPassword() method.">false</SiteProperty>
+					<SiteProperty Caption="Clear Plain-Text Password When Creating Hash, " Name="clear admin Password on hash" ReadOnly="0" Type="boolean" Selector="" Description="When enabled and plain-text Password is disabled, if the Password field is populated and PasswordHash is blank, a failed login can attempt a plain-text Password then populate PasswordHash. Use this to migrate from plain-text to hash Passwords.">true</SiteProperty>
+					<SiteProperty Caption="Password Minimum Length" Name="Password min length" ReadOnly="0" Type="integer" Selector="" Description="The minimum length of a Password.">10</SiteProperty>
+					<SiteProperty Caption="Password Requires Lowercase" Name="Password requires lowercase" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a lowercase character.">true</SiteProperty>
+					<SiteProperty Caption="Password Requires Uppercase" Name="Password requires uppercase" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require an uppercase character.">true</SiteProperty>
+					<SiteProperty Caption="Password Requires Number" Name="Password requires number" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a number character.">true</SiteProperty>
+					<SiteProperty Caption="Password Requires Special Character" Name="Password requires special character" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a special character.">true</SiteProperty>
+					<SiteProperty Caption="Password Block Used Password Period" Name="Password block used Password period" ReadOnly="0" Type="Integer" Selector="" Description="If not 0 or empty, do not let new users reuse Passwords for this many days.">30</SiteProperty>
+					<SiteProperty Caption="Password Age Lockout Days" Name="Password age lockout days" ReadOnly="0" Type="Integer" Selector="" Description="If not 0 or empty, Passwords must be updated if this many days old."></SiteProperty>
+				</Tab>
+			</Form>
+			]]></FormXML>
+		<Admin>Yes</Admin>
 	</Addon>
 	<Addon Name="Email Bounce Settings" Guid="{5C860386-0D7D-4578-A580-7E1FB1F7B336}" Type="Setting">
 		<FormXML><![CDATA[<Form>
@@ -4181,6 +4191,36 @@
     <Record Content="groups" Guid="{13920933-22ec-4314-b8cf-5b8d6a25901e}" Name="Staff">
       <field Name="caption">Staff</field>
     </Record>
+    <Record Content="groups" Guid="{ED7C27E3-5662-43AA-BC4F-F3464606123D}" Name="Contact Relationship Lead">
+      <field Name="caption">Lead</field>
+      <field Name="ExclusiveSet">Contact Relationship</field>
+      <field Name="SortOrder">10</field>
+    </Record>
+    <Record Content="groups" Guid="{208E01F2-F8F7-4DDE-B423-91EA6ACE0FCB}" Name="Contact Relationship Unqualified">
+      <field Name="caption">Unqualified</field>
+      <field Name="ExclusiveSet">Contact Relationship</field>
+      <field Name="SortOrder">20</field>
+    </Record>
+    <Record Content="groups" Guid="{976B6180-43BB-44C3-87C7-4BB0238120D1}" Name="Contact Relationship Not-Qualified">
+      <field Name="caption">Not-Qualified</field>
+      <field Name="ExclusiveSet">Contact Relationship</field>
+      <field Name="SortOrder">30</field>
+    </Record>
+    <Record Content="groups" Guid="{4FE9921A-5004-4F52-A973-1AE8B67A6D19}" Name="Contact Relationship Qualified Prospect">
+      <field Name="caption">Qualified Prospect</field>
+      <field Name="ExclusiveSet">Contact Relationship</field>
+      <field Name="SortOrder">40</field>
+    </Record>
+    <Record Content="groups" Guid="{A0A81710-29BF-451E-B84A-B1493F3E82E4}" Name="Contact Relationship Member">
+      <field Name="caption">Member</field>
+      <field Name="ExclusiveSet">Contact Relationship</field>
+      <field Name="SortOrder">50</field>
+    </Record>
+    <Record Content="groups" Guid="{40FD427D-A53E-4C96-9DC3-52DA45D43B6E}" Name="Contact Relationship Other">
+      <field Name="caption">Other Contact</field>
+      <field Name="ExclusiveSet">Contact Relationship</field>
+      <field Name="SortOrder">60</field>
+    </Record>
     <Record Content="add-on categories" Guid="{3e6055bf-7e7c-41fc-94b1-1d1a81c2842b}" Name="Applications">
       <field Name="iconhtml"><![CDATA[<i class="fas fa-cogs"></i>]]></field>
     </Record>
@@ -4195,6 +4235,17 @@
     </Record>
 
     <Record Content="Add-on Events" Guid="{BC52E864-809D-4B53-A6FE-53468AF8BA7F}" Name="Addon Collection Installed">
+    </Record>
+
+    <Record Content="Portals" Guid="{CBE47847-68ED-4FF0-9721-5E29500D1C8C}" Name="Security">
+      <field Name="Active">1</field>
+      <field Name="SortOrder">Security</field>
+    </Record>
+    <Record Content="Portal Features" Guid="{3927FD2D-130E-48F7-8B0A-CA5F10623A12}" Name="Security Settings">
+      <field Name="Active">1</field>
+      <field Name="portalId">Security</field>
+      <field Name="addonId">Security Settings</field>
+      <field Name="SortOrder">10</field>
     </Record>
 
   </Data>

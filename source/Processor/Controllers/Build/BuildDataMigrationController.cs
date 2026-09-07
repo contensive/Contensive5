@@ -278,6 +278,7 @@ namespace Contensive.Processor.Controllers.Build {
                         //
                         //
                         // -- end of 4.1 to 5 conversion
+                        core.siteProperties.dataBuildVersion = "4.1";
                     }
                     //
                     // -- 5.19.1223 conversion -- render AddonList no copyFilename
@@ -294,6 +295,7 @@ namespace Contensive.Processor.Controllers.Build {
                             convertPageContentToAddonList(core, page);
                         }
                         core.siteProperties.setProperty("PageController Render Legacy Copy", false);
+                        core.siteProperties.dataBuildVersion = "5.19.1223";
                     }
                     //
                     // -- 5.2005.9.4 conversion -- collections incorrectly marked not-updateable - mark all except themes (templates)
@@ -301,6 +303,7 @@ namespace Contensive.Processor.Controllers.Build {
                         //
                         // -- 
                         cp.Db.ExecuteNonQuery("update ccaddoncollections set updatable=1 where name not like '%theme%'");
+                        core.siteProperties.dataBuildVersion = "5.2005.9.4";
                     }
                     //
                     // -- 5.2005.19.1 conversion -- rename site property EmailUrlRootRelativePrefix to LocalFileModeProtocolDomain
@@ -310,6 +313,7 @@ namespace Contensive.Processor.Controllers.Build {
                         if (string.IsNullOrWhiteSpace(cp.Site.GetText("webAddressProtocolDomain"))) {
                             cp.Site.SetProperty("webAddressProtocolDomain", cp.Site.GetText("EmailUrlRootRelativePrefix"));
                         }
+                        core.siteProperties.dataBuildVersion = "5.2005.19.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "22.3.15.4")) {
                         //
@@ -333,6 +337,7 @@ namespace Contensive.Processor.Controllers.Build {
                         //
                         // -- 22.3.15.4 -- addon category 'containers' has incorrect guid
                         core.db.executeNonQuery("update ccAddonCategories set ccguid='{bc311ad8-fcae-4228-800d-e432733fdf3e}' where name='Containers'");
+                        core.siteProperties.dataBuildVersion = "22.3.15.4";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "22.4.14.1")) {
                         //
@@ -355,6 +360,7 @@ namespace Contensive.Processor.Controllers.Build {
                             cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}ContentCategoryID] ON [{tableName}]");
                             cp.Db.ExecuteNonQuery($"DROP INDEX IF EXISTS [{tableName}${tableName}EditsourceID] ON [{tableName}]");
                         }
+                        core.siteProperties.dataBuildVersion = "22.4.14.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "22.8.12.1")) {
                         //
@@ -371,6 +377,7 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.privateFiles.renameFile("Config\\SMTPBlockList.txt", "Legacy_SMTPBlockList.txt");
                         core.cdnFiles.renameFile("Config\\SMTPBlockList_" + core.appConfig.name + ".txt", "Legacy_SMTPBlockList_" + core.appConfig.name + ".txt");
+                        core.siteProperties.dataBuildVersion = "22.8.12.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "22.11.27.5")) {
                         //
@@ -382,11 +389,13 @@ namespace Contensive.Processor.Controllers.Build {
                                 logger.Warn(ex, $"{core.logCommonMessage},Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
                             }
                         }
+                        core.siteProperties.dataBuildVersion = "22.11.27.5";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "23.2.25.1")) {
                         //
                         // -- default content populated 
                         core.db.executeNonQuery("update ccPageContent set customblockmessage=null where customblockmessage like '%<%'");
+                        core.siteProperties.dataBuildVersion = "23.2.25.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "23.7.21.1")) {
                         //
@@ -394,11 +403,13 @@ namespace Contensive.Processor.Controllers.Build {
                         core.db.executeNonQuery("delete from ccaggregatefunctions where (objectprogramid is not null)or(objectprogramid='')");
                         // -- no, cannot remove field because it fails old collection installs (and it must be removed from model also)
                         //core.db.executeNonQuery($"delete from ccfields where name='objectprogramid' and contentcontrolid={cp.Content.GetID("Content fields")}");
+                        core.siteProperties.dataBuildVersion = "23.7.21.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "23.7.28.6")) {
                         //
                         // -- remove page edit tag
                         core.siteProperties.setProperty("allow page settings edit", false);
+                        core.siteProperties.dataBuildVersion = "23.7.28.6";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "23.11.26.1")) {
                         //
@@ -413,6 +424,7 @@ namespace Contensive.Processor.Controllers.Build {
                                 core.db.executeNonQuery($"ALTER TABLE {table.name} ALTER COLUMN {cp.Utils.EncodeText(dr[0])} VARCHAR(max)");
                             }
                         }
+                        core.siteProperties.dataBuildVersion = "23.11.26.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "24.1.1.1")) {
                         //
@@ -424,11 +436,13 @@ namespace Contensive.Processor.Controllers.Build {
                         core.siteProperties.passwordRequiresSpecialCharacter = false;
                         core.siteProperties.passwordRequiresUppercase = false;
                         core.siteProperties.clearAdminPasswordOnHash = false;
+                        core.siteProperties.dataBuildVersion = "24.1.1.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "24.7.6.1")) {
                         //
                         // -- remove deprecated fields
                         cp.Db.ExecuteNonQuery("delete from ccfields where name='boaddedupuserid'");
+                        core.siteProperties.dataBuildVersion = "24.7.6.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "24.7.31.1")) {
                         //
@@ -436,19 +450,19 @@ namespace Contensive.Processor.Controllers.Build {
                         cp.Db.ExecuteNonQuery("delete from ccMenuEntries where ccguid='{131E0319-D516-4AB2-BBDA-D7EA63A8AD9E}'");
                         cp.Db.ExecuteNonQuery("update cccontent set isbasecontent=0 where name='Wrappers'");
                         // leave table and content metadata in case an addon accesses the data
-                    }
-                    if (GenericController.versionIsOlder(DataBuildVersion, "24.7.31.1")) {
                         //
                         // -- delete old hardcoded menu entries
                         cp.Db.ExecuteNonQuery("delete from ccMenuEntries where ccguid='{131E0319-D516-4AB2-BBDA-D7EA63A8AD9E}'");
                         cp.Db.ExecuteNonQuery("update cccontent set isbasecontent=0 where name='Wrappers'");
                         // leave table and content metadata in case an addon accesses the data
+                        core.siteProperties.dataBuildVersion = "24.7.31.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "24.12.19.0")) {
                         //
                         // -- update redactor, needed because edit modal needs redactor js to load the redactor library
                         string returnErrorMessage = "";
                         cp.Addon.InstallCollectionFromLibrary(Constants.redactorCollectionGuid, ref returnErrorMessage);
+                        core.siteProperties.dataBuildVersion = "24.12.19.0";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "24.12.28.0")) {
                         //
@@ -464,6 +478,7 @@ namespace Contensive.Processor.Controllers.Build {
                         // -- staff and site manager groups have duplicates because xml installed records by guid after build created them programmatically
                         mergeGroupFixCase(cp, "Staff");
                         mergeGroupFixCase(cp, "Site Managers");
+                        core.siteProperties.dataBuildVersion = "24.12.28.0";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "24.12.28.3")) {
                         //
@@ -497,6 +512,7 @@ namespace Contensive.Processor.Controllers.Build {
 
                         mergeGroupFixCase(cp, "Staff");
                         mergeGroupFixCase(cp, "Site Managers");
+                        core.siteProperties.dataBuildVersion = "24.12.28.3";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "25.3.2.2")) {
                         //
@@ -530,6 +546,7 @@ namespace Contensive.Processor.Controllers.Build {
                                 page.save(cp);
                             }
                         }
+                        core.siteProperties.dataBuildVersion = "25.3.2.2";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "25.5.28.21")) {
                         //
@@ -538,12 +555,14 @@ namespace Contensive.Processor.Controllers.Build {
                         //
                         // -- delete Editor Config Tool (dup of ConfigureListClass)
                         core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{91373E4C-4562-42DD-A121-C5E09DAF1CFE}'");
+                        core.siteProperties.dataBuildVersion = "25.5.28.21";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "25.10.5.3")) {
                         //
                         // -- sprint-10, release edit modal beta
                         cp.Site.SetProperty("allow edit modal beta", true);
                         cp.Site.SetProperty("allow afw pagination beta", true);
+                        core.siteProperties.dataBuildVersion = "25.10.5.3";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "26.4.18.1")) {
                         //
@@ -564,11 +583,13 @@ namespace Contensive.Processor.Controllers.Build {
                         //
                         query = "ALTER TABLE ccSetup ALTER COLUMN FieldValue nvarchar(max) NULL;";
                         core.db.executeNonQuery(query);
+                        core.siteProperties.dataBuildVersion = "26.4.18.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "26.4.19.1")) {
                         //
                         // -- delete deprecated Server Diagnostic addon, replaced by GetServerDiagnosticsSummary in StatusClass
                         core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{58239C18-1B40-4401-9E6F-25E057327393}'");
+                        core.siteProperties.dataBuildVersion = "26.4.19.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "26.4.30.1")) {
                         //
@@ -580,12 +601,14 @@ namespace Contensive.Processor.Controllers.Build {
                                 core.privateFiles.renameFile($"{helpFilesPath}{file.Name}", newFilename);
                             }
                         }
+                        core.siteProperties.dataBuildVersion = "26.4.30.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "26.7.8.1")) {
                         //
                         // -- one-time upgrade: reinstall common addon collections from the library
                         //    because the dotnet framework changed, these collections need to be updated
                         upgradeCommonCollectionsFromLibrary(core, cp, logPrefix);
+                        core.siteProperties.dataBuildVersion = "26.7.8.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "26.8.10.1")) {
                         //
@@ -632,6 +655,7 @@ namespace Contensive.Processor.Controllers.Build {
                         } catch (Exception ex) {
                             logger.Error($"{core.logCommonMessage}", ex, "altSizeList field migration");
                         }
+                        core.siteProperties.dataBuildVersion = "26.8.10.1";
                     }
                     if (GenericController.versionIsOlder(DataBuildVersion, "26.9.4.1")) {
                         //
@@ -642,6 +666,34 @@ namespace Contensive.Processor.Controllers.Build {
                             core.siteProperties.setProperty("AllowLinkRecognize", "true");
                             core.siteProperties.setProperty("AllowLinkLogin", "false");
                         }
+                        core.siteProperties.dataBuildVersion = "26.9.4.1";
+                    }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.9.5.40517")) {
+                        //
+                        // -- one-time backfill of personTypeId for all existing people records.
+                        //    New records are set by SessionController (Guest/Bot) and AuthController (Contact).
+                        //    This migration classifies legacy records that predate the personTypeId field.
+                        //
+                        //    Order matters: bots first (join-based), then guests, then contacts.
+                        //    Only touch records still at 0 (Unknown) so this is safe to re-run.
+                        //
+                        try {
+                            //
+                            // -- bots: createdByVisit=1 with a bot visitor record
+                            core.db.executeNonQuery($"update ccmembers set personTypeId=1 from ccmembers u inner join ccvisitors v on v.MemberID=u.id where (u.personTypeId=0)and(u.createdbyvisit=1)and(v.bot=1)");
+                            //
+                            // -- bots: createdByVisit=1 with a bot visit record (catches visitors without a ccvisitors row)
+                            core.db.executeNonQuery($"update ccmembers set personTypeId=1 from ccmembers u inner join ccvisits v on v.MemberID=u.id where (u.personTypeId=0)and(u.createdbyvisit=1)and(v.bot=1)");
+                            //
+                            // -- guests: createdByVisit=1 and still unknown (not caught as bot above)
+                            core.db.executeNonQuery($"update ccmembers set personTypeId=2 where (personTypeId=0 or personTypeId is null)and(createdbyvisit=1)");
+                            //
+                            // -- contacts: createdByVisit=0 and still unknown (manually created or previously promoted)
+                            core.db.executeNonQuery($"update ccmembers set personTypeId=3 where (personTypeId=0 or personTypeId is null)and(createdbyvisit=0)");
+                        } catch (Exception ex) {
+                            logger.Error($"{core.logCommonMessage}", ex, "personTypeId backfill migration");
+                        }
+                        core.siteProperties.dataBuildVersion = "26.9.5.40517";
                     }
                     //
                     // -- Reload

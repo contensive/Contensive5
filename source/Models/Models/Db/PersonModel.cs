@@ -8,6 +8,17 @@ using System.Security.Cryptography;
 
 namespace Contensive.Models.Db {
     /// <summary>
+    /// System-level classification for a People record.
+    /// 0=Unknown (legacy records), 1=Bot, 2=Guest, 3=Contact.
+    /// Set by the session controller on creation and promoted by the authentication system.
+    /// </summary>
+    public enum PersonTypeEnum {
+        Unknown = 0,
+        Bot = 1,
+        Guest = 2,
+        Contact = 3
+    }
+    /// <summary>
     /// person model
     /// </summary>
     public class PersonModel : DbBaseModel {
@@ -62,6 +73,11 @@ namespace Contensive.Models.Db {
         public string company { get; set; }
         public string country { get; set; }
         public bool createdByVisit { get; set; }
+        /// <summary>
+        /// System-managed person type: 0=Unknown, 1=Bot, 2=Guest, 3=Contact.
+        /// Set by SessionController on creation, promoted to Contact on authentication.
+        /// </summary>
+        public int personTypeId { get; set; }
         public DateTime? dateExpires { get; set; }
         public bool developer { get; set; }
         public string email { get; set; }
