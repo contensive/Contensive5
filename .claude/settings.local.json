@@ -87,7 +87,14 @@
       "Bash(git log:*)",
       "WebFetch(domain:vishaljoshi.blogspot.com)",
       "WebFetch(domain:www.coveros.com)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(cmd /c scripts\\\\build-core.cmd:*)",
+      "Bash(dotnet pack:*)",
+      "Bash(\"c:/program files/7-zip/7z.exe\" e -so Contensive.CPBaseClass.99.9.9.9.nupkg Contensive.CPBaseClass.nuspec)",
+      "Bash(for pkg in CPBase/bin/Debug/Contensive.CPBaseClass.99.9.9.9.nupkg Models/bin/Debug/Contensive.DbModels.99.9.9.9.nupkg Processor/bin/Debug/Contensive.Processor.99.9.9.9.nupkg)",
+      "Bash(do echo \"=== $pkg ===\")",
+      "Bash(\"c:/program files/7-zip/7z.exe\" l \"$pkg\")",
+      "Bash(done)"
     ]
   }
 }

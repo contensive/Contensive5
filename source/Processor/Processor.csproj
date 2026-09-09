@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Nuget">
-    <!-- 
+    <!--
     <Version>20.0.0.0</Version>
     -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -37,12 +37,15 @@
     <Authors>Contensive</Authors>
     <Company>Contensive</Company>
     <Product>Contensive Processor</Product>
-    <PackageTags>Contensive</PackageTags>
+    <PackageTags>contensive;cms;content-management;processor</PackageTags>
     <Copyright>Copyright 2024</Copyright>
-    <Description>This package installs the library files required to create an instance of cp within an application.</Description>
-    <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
+    <Description>Core processor library for the Contensive Platform - provides the implementation for cp (CPClass) and all platform services including content management, user authentication, email, caching, and file operations.</Description>
+    <PackageProjectUrl>https://github.com/contensive/Contensive5</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <!-- 
+    <RepositoryUrl>https://github.com/contensive/Contensive5</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <!--
     <PackageIcon>LogoBalls.png</PackageIcon>
     -->
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -93,6 +96,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="app.ico" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     <!--<None Include="bin\debug\net472\Stubble.Core.dll" Pack="true" PackagePath="" />-->
   </ItemGroup>
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Contensive.BaseClasses;
 using Contensive.BaseModels;
 using Contensive.CPBase.BaseModels;
@@ -32,6 +33,26 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override string AdminHint(string innerHtml) => HtmlController.adminHint(cp.core, innerHtml);
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Sanitize HTML to prevent XSS attacks by removing dangerous tags while preserving safe formatting.
+        /// Allowed tags: b, i, u, em, strong, br, p, div, span, ul, ol, li, h1-h6, a, table, tr, td, th, thead, tbody, img.
+        /// All other tags are stripped (their content is preserved, but the tags themselves are removed).
+        /// </summary>
+        public override string Sanitize(string htmlSource) {
+            if (string.IsNullOrEmpty(htmlSource)) {
+                return "";
+            }
+            string allowedPattern = "b|i|u|em|strong|br|p|div|span|ul|ol|li|h[1-6]|a|table|tr|td|th|thead|tbody|img";
+            string result = Regex.Replace(
+                htmlSource,
+                @"</?(?!(?:" + allowedPattern + @")(?:\s|/?>))[a-zA-Z][a-zA-Z0-9]*\b[^>]*>",
+                "",
+                RegexOptions.IgnoreCase
+            );
+            return result;
+        }
         //
         // ====================================================================================================
         //

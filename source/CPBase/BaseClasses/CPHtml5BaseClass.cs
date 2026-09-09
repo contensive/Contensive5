@@ -373,6 +373,15 @@ namespace Contensive.BaseClasses {
         public abstract string AdminHint(string innerHtml);
         //
         /// <summary>
+        /// Sanitize HTML to prevent XSS attacks by removing dangerous tags while preserving safe formatting.
+        /// Allowed tags: b, i, u, em, strong, br, p, div, span, ul, ol, li, h1-h6, a, table, tr, td, th, thead, tbody, img.
+        /// All other tags are stripped (their content is preserved, but the tags themselves are removed).
+        /// </summary>
+        /// <param name="htmlSource">The HTML content to sanitize</param>
+        /// <returns>Sanitized HTML with only safe tags preserved</returns>
+        public abstract string Sanitize(string htmlSource);
+        //
+        /// <summary>
         /// Return an html hidden input element with a string value.
         /// </summary>
         public abstract string Hidden(string htmlName, string htmlValue, string htmlClass, string htmlId);

@@ -206,6 +206,59 @@ else {
         $skipCount = 0
         $failCount = 0
 
+        function Set-DynamicIpRestrictions {
+            param([string]$SiteName)
+
+            # Requires the WebAdministration module (already imported earlier in the script)
+            if (-not $iisModuleAvailable) { return }
+
+            # Verify the IP Security feature is installed before attempting config
+            if (Get-Command Get-WindowsFeature -ErrorAction SilentlyContinue) {
+                $feature = Get-WindowsFeature -Name Web-IP-Security
+                if (-not $feature.Installed) {
+                    Write-Host "  [$SiteName] IIS IP Security feature not installed, skipping DIPR config" -ForegroundColor Yellow
+                    return
+                }
+            }
+
+            try {
+                # Write to applicationHost.config using -Location so the settings
+                # go into a <location path="SiteName"> block. This avoids conflicts
+                # with the <security> section in the site's web.config (which contains
+                # requestFiltering) that blocks writing dynamicIpSecurity via -pspath.
+                $pspath = "MACHINE/WEBROOT/APPHOST"
+
+                # Request rate limiting: 200 requests per 10 seconds
+                Set-WebConfigurationProperty -pspath $pspath -Location $SiteName `
+                    -filter "system.webServer/security/dynamicIpSecurity/denyByRequestRate" `
+                    -name "enabled" -value "True"
+                Set-WebConfigurationProperty -pspath $pspath -Location $SiteName `
+                    -filter "system.webServer/security/dynamicIpSecurity/denyByRequestRate" `
+                    -name "maxRequests" -value 200
+                Set-WebConfigurationProperty -pspath $pspath -Location $SiteName `
+                    -filter "system.webServer/security/dynamicIpSecurity/denyByRequestRate" `
+                    -name "requestIntervalInMilliseconds" -value 10000
+
+                # Concurrent connection limiting: 25 per IP
+                Set-WebConfigurationProperty -pspath $pspath -Location $SiteName `
+                    -filter "system.webServer/security/dynamicIpSecurity/denyByConcurrentRequests" `
+                    -name "enabled" -value "True"
+                Set-WebConfigurationProperty -pspath $pspath -Location $SiteName `
+                    -filter "system.webServer/security/dynamicIpSecurity/denyByConcurrentRequests" `
+                    -name "maxConcurrentRequests" -value 25
+
+                # Deny action: silently abort connection
+                Set-WebConfigurationProperty -pspath $pspath -Location $SiteName `
+                    -filter "system.webServer/security/dynamicIpSecurity" `
+                    -name "denyAction" -value "AbortRequest"
+
+                Write-Host "  [$SiteName] Dynamic IP Restrictions configured" -ForegroundColor Green
+            }
+            catch {
+                Write-Host "  [$SiteName] Could not configure Dynamic IP Restrictions: $_" -ForegroundColor Yellow
+            }
+        }
+
         foreach ($prop in $apps.PSObject.Properties) {
             $appName = $prop.Name
             $app = $prop.Value
@@ -320,6 +373,9 @@ else {
                         }
                     }
                 }
+
+                # Apply Dynamic IP Restrictions to this site
+                Set-DynamicIpRestrictions -SiteName $appName
 
                 Write-Host "  [$appName] Done" -ForegroundColor Green
                 $successCount++

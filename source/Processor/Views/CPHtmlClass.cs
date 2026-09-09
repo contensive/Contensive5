@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
@@ -321,6 +322,26 @@ namespace Contensive.Processor {
         public override string InputTextExpandable(string htmlName, string htmlValue) => HtmlController.inputTextarea(cp.core, htmlName, htmlValue, 4, -1, "", false, false, "", false, -1);
         //
         public override string InputTextExpandable(string htmlName) => HtmlController.inputTextarea(cp.core, htmlName, "", 4, -1, "", false, false, "", false, -1);
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Sanitize HTML to prevent XSS attacks by removing dangerous tags while preserving safe formatting.
+        /// Allowed tags: b, i, u, em, strong, br, p, div, span, ul, ol, li, h1-h6, a, table, tr, td, th, thead, tbody, img.
+        /// All other tags are stripped (their content is preserved, but the tags themselves are removed).
+        /// </summary>
+        public override string Sanitize(string htmlSource) {
+            if (string.IsNullOrEmpty(htmlSource)) {
+                return "";
+            }
+            string allowedPattern = "b|i|u|em|strong|br|p|div|span|ul|ol|li|h[1-6]|a|table|tr|td|th|thead|tbody|img";
+            string result = Regex.Replace(
+                htmlSource,
+                @"</?(?!(?:" + allowedPattern + @")(?:\s|/?>))[a-zA-Z][a-zA-Z0-9]*\b[^>]*>",
+                "",
+                RegexOptions.IgnoreCase
+            );
+            return result;
+        }
         //
         //
         public override void ProcessInputFile(string htmlName, string VirtualFilePath) {

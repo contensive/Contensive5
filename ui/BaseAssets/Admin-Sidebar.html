@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta name="Layout" content="Admin Sidebar Layout">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Sidebar</title>
@@ -107,28 +108,28 @@
   
   
         .sidebar {
-          width: 6.5rem;
+          width: 3.5rem;
           min-height: 100vh;
-          padding-top: 40px;
+          padding-top: 10px;
         }
-  
+
         .sidebar .nav-item {
           position: relative;
         }
-  
+
         .sidebar .nav-item:last-child {
-          margin-bottom: 1rem;
+          margin-bottom: 0.5rem;
         }
-  
+
         .sidebar .nav-item .nav-link {
           text-align: center;
-          padding: 0.75rem 1rem;
-          width: 6.5rem;
+          padding: 0.5rem;
+          width: 3.5rem;
         }
-  
+
         .sidebar .nav-item .nav-link span {
           font-size: 0.65rem;
-          display: block;
+          display: none;
         }
   
         .sidebar .nav-item.active .nav-link {
@@ -137,7 +138,7 @@
   
         .sidebar .nav-item .collapse {
           position: absolute;
-          left: 7.25rem;
+          left: 3.5rem;
           z-index: 1;
           top: 2px;
         }
@@ -202,16 +203,16 @@
         }
   
         .sidebar #sidebarToggle {
-          width: 2.5rem;
-          height: 2.5rem;
+          width: 2rem;
+          height: 2rem;
           text-align: center;
-          margin-bottom: 1rem;
+          margin-bottom: 0.5rem;
           cursor: pointer;
         }
   
         .sidebar #sidebarToggle::after {
           font-weight: 900;
-          content: "\f00d";
+          content: "\f104";
           font-family: "Font Awesome 6 Free";
           margin-right: 0.1rem;
         }
@@ -225,7 +226,7 @@
         }
   
         .sidebar.toggled {
-          width: 0 !important;
+          width: 3.5rem !important;
           overflow: hidden;
         }
   
@@ -260,8 +261,8 @@
 
        .sidebar .nav-item .nav-link img {
             height: 18px;
-            padding-bottom: 4px;
-            margin-right: 0.25rem;
+            padding-bottom: 0;
+            margin-right: 0;
           }
   
   
@@ -270,14 +271,15 @@
         }
   
         .sidebar hr.sidebar-divider {
-          margin: 0 1rem 1rem;
+          margin: 0 0.5rem 0.25rem;
         }
   
         .sidebar .sidebar-heading {
           text-align: center;
-          padding: 0 1rem;
+          padding: 0 0.25rem;
           font-weight: 800;
           font-size: 0.65rem;
+          display: none;
         }
   
         .sidebar .sidebar-card {
@@ -312,7 +314,7 @@
           .sidebar {
             width: 14rem !important;
           }
-  
+
           .sidebar .nav-item .collapse {
             position: relative;
             left: 0;
@@ -321,42 +323,49 @@
             -webkit-animation: none;
             animation: none;
           }
-  
+
           .sidebar .nav-item .collapse .collapse-inner {
             border-radius: 0;
             box-shadow: none;
           }
-  
+
           .sidebar .nav-item .collapsing {
             display: block;
             transition: height 0.15s ease-in-out;
           }
-  
+
           .sidebar .nav-item .collapse,
-        .sidebar .nav-item .collapsing {
-            margin: 0 1rem;
+          .sidebar .nav-item .collapsing {
+            margin: 0 0.5rem;
           }
-  
+
+          .sidebar .nav-item:last-child {
+            margin-bottom: 0.5rem;
+          }
+
           .sidebar .nav-item .nav-link {
             display: block;
             width: 100%;
             text-align: left;
-            padding: 1rem;
+            padding: 0.4rem 0.75rem;
             width: 14rem;
           }
-  
+
           .sidebar .nav-item .nav-link i {
             font-size: 0.85rem;
             margin-right: 0.25rem;
           }
 
-        
-  
+          .sidebar .nav-item .nav-link img {
+            padding-bottom: 2px;
+            margin-right: 0.25rem;
+          }
+
           .sidebar .nav-item .nav-link span {
             font-size: 0.85rem;
             display: inline;
           }
-  
+
           .sidebar .nav-item .nav-link[data-bs-toggle=collapse]::after {
             width: 1rem;
             text-align: center;
@@ -368,31 +377,37 @@
             font-family: "Font Awesome 6 Free";
             font-size: 14px !important;
           }
-  
+
           .sidebar .nav-item .nav-link[data-bs-toggle=collapse].collapsed::after {
             content: "\f105";
           }
-  
+
           .sidebar .sidebar-brand .sidebar-brand-icon i {
             font-size: 2rem;
           }
-  
+
           .sidebar .sidebar-brand .sidebar-brand-text {
             display: inline;
           }
-  
+
           .sidebar .sidebar-heading {
             text-align: left;
+            display: block;
           }
-  
+
+          .sidebar hr.sidebar-divider {
+            margin: 0 0.5rem 0.25rem;
+          }
+
+          /* -- toggled (narrow/icons-only, default state) -- */
           .sidebar.toggled {
             overflow: visible;
-            width: 6.5rem !important;
+            width: 3.5rem !important;
           }
-  
+
           .sidebar.toggled .nav-item .collapse {
             position: absolute;
-            left: 7.25rem;
+            left: 3.5rem;
             z-index: 1;
             top: 2px;
             -webkit-animation-name: smooth;
@@ -402,55 +417,55 @@
             -webkit-animation-timing-function: transform cubic-bezier(0.18, 1.25, 0.4, 1), opacity cubic-bezier(0, 1, 0.4, 1);
             animation-timing-function: transform cubic-bezier(0.18, 1.25, 0.4, 1), opacity cubic-bezier(0, 1, 0.4, 1);
           }
-  
+
           .sidebar.toggled .nav-item .collapse .collapse-inner {
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
             border-radius: 0.35rem;
           }
-  
+
           .sidebar.toggled .nav-item .collapsing {
             display: none;
-            transition:smooth;
+            transition: smooth;
           }
-  
+
           .sidebar.toggled .nav-item .collapse,
-        .sidebar.toggled .nav-item .collapsing {
+          .sidebar.toggled .nav-item .collapsing {
             margin: 0;
           }
-  
+
           .sidebar.toggled .nav-item:last-child {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
           }
-  
+
           .sidebar.toggled .nav-item .nav-link {
             text-align: center;
-            padding: 0.75rem 1rem;
-            width: 6.5rem;
+            padding: 0.5rem;
+            width: 3.5rem;
           }
-  
+
           .sidebar.toggled .nav-item .nav-link span {
-            font-size: 0.65rem;
-            display: block;
+            display: none;
           }
-  
+
           .sidebar.toggled .nav-item .nav-link i, .sidebar.toggled .nav-item .nav-link img {
             margin-right: 0;
           }
-  
+
           .sidebar.toggled .nav-item .nav-link[data-bs-toggle=collapse]::after {
             display: none;
           }
-  
+
           .sidebar.toggled .sidebar-brand .sidebar-brand-icon i {
             font-size: 2rem;
           }
-    
+
           .sidebar.toggled .sidebar-brand .sidebar-brand-text {
             display: none;
           }
-  
+
           .sidebar.toggled .sidebar-heading {
             text-align: center;
+            display: none;
           }
         }
         .accordion {
@@ -617,6 +632,14 @@
             <hr class="sidebar-divider d-none d-md-block">
             -->
         </ul>
+        <script>
+          (function(){
+            if (localStorage.getItem('sidebarExpanded') === 'true') {
+              var sb = document.getElementById('accordionSidebar');
+              if (sb) { sb.classList.remove('toggled'); }
+            }
+          })();
+        </script>
     </div>
     
     <script data-delete src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>

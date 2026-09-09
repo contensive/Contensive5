@@ -1381,6 +1381,41 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Sync a list of blocked IP addresses to the IIS ipSecurity deny list for the specified site.
+        /// Clears existing deny entries and replaces them with the provided list.
+        /// Requires admin privileges — must run from the TaskService process, not the app pool worker.
+        /// </summary>
+        /// <param name="core">The core controller instance.</param>
+        /// <param name="siteName">The IIS site name to apply the IP blocks to.</param>
+        /// <param name="blockedIpAddresses">List of IP addresses to deny. All existing deny entries are replaced.</param>
+        public static void syncIpBlocksToIIS(CoreController core, string siteName, List<string> blockedIpAddresses) {
+            try {
+                using var serverManager = new ServerManager();
+                var config = serverManager.GetApplicationHostConfiguration();
+                //
+                // -- always use site-level config, never server-level
+                var ipSecuritySection = config.GetSection("system.webServer/security/ipSecurity", siteName);
+                var ipSecurityCollection = ipSecuritySection.GetCollection();
+                ipSecurityCollection.Clear();
+                //
+                // -- default: allow all unmatched IPs, deny only the blocked ones
+                ipSecuritySection["allowUnlisted"] = true;
+                //
+                foreach (var ipAddress in blockedIpAddresses) {
+                    if (string.IsNullOrWhiteSpace(ipAddress)) { continue; }
+                    var addElement = ipSecurityCollection.CreateElement("add");
+                    addElement["ipAddress"] = ipAddress.Trim();
+                    addElement["allowed"] = false;
+                    ipSecurityCollection.Add(addElement);
+                }
+                serverManager.CommitChanges();
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// nlog class instance
         /// </summary>
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

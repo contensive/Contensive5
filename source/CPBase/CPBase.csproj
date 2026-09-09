@@ -10,6 +10,22 @@
 	<PackageId>Contensive.CPBaseClass</PackageId>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<NoWarn>1591</NoWarn>
+
+	<!-- NuGet Package Metadata -->
+	<Authors>Contensive</Authors>
+	<Company>Contensive</Company>
+	<Product>Contensive Platform</Product>
+	<Description>Base classes for the Contensive Platform - provides the public API surface for addon development including cp.Html, cp.User, cp.Content, and other core interfaces.</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageProjectUrl>https://github.com/contensive/Contensive5</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/contensive/Contensive5</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageTags>contensive;cms;content-management;addon-api</PackageTags>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>

@@ -330,6 +330,15 @@ namespace Contensive.BaseClasses {
         public abstract string ThrowEventByGuid(string eventGuid);
         //
         //====================================================================================================
+        /// <summary>
+        /// Sync a list of blocked IP addresses to the IIS ipSecurity deny list for the current site.
+        /// Clears existing deny entries and replaces them with the provided list.
+        /// Requires admin privileges — must be called from a scheduled addon running in the TaskService process.
+        /// </summary>
+        /// <param name="blockedIpAddresses">List of IP addresses to deny.</param>
+        public abstract void SyncIpBlocksToIIS(System.Collections.Generic.List<string> blockedIpAddresses);
+        //
+        //====================================================================================================
         // deprecated
         //
         /// <summary>

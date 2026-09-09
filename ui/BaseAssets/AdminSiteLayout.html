@@ -1664,9 +1664,10 @@
             if ($(".sidebar").hasClass("toggled")) {
                 $('.sidebar .collapse').collapse('hide');
                 $('#sidebarToggleTop span').replaceWith('<span><i class="fa-solid fa-angle-right"></i></span>');
+                localStorage.setItem('sidebarExpanded', 'false');
             } else {
-
                $('#sidebarToggleTop span').replaceWith('<span><i class="fa-solid fa-xmark"></i></span>');
+               localStorage.setItem('sidebarExpanded', 'true');
             };
           });
           

@@ -3612,33 +3612,6 @@
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.AwsSesProcessClass]]></DotNetClass>
 		<ProcessInterval>60</ProcessInterval>
 	</Addon>
-	<Addon Name="Security Settings" Guid="{31AF14E8-0B6A-4B77-B2FF-B11190BE2D27}" Type="Setting">
-		<FormXML><![CDATA[<Form>
-				<Description>Security and authentication settings for the site</Description>
-				<Tab Name="Authentication" heading="Authentication Settings" description="Settings that control how users authenticate and login">
-					<SiteProperty Caption="Allow Email-As-Username" Name="AllowEmailLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, users can login with their Password and either their username or email address.">false</SiteProperty>
-					<SiteProperty Caption="Allow Password-less Login" Name="AllowNoPasswordLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, non-content managers can login without a Password. Be careful because this makes it easier for someone to guess someone else's login.">false</SiteProperty>
-					<SiteProperty Caption="Allow Auto Login" Name="AllowAutoLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, returning users are automatically logged in to the site. Clear this setting if your site contains sections or pages blocked to only certain users, or if your site controls any private or personal information. If this feature is checked, administrations, developers and content managers should take care to always log-out after visiting the site from a public computer. ">false</SiteProperty>
-					<SiteProperty Caption="Allow Auto Recognize" Name="AllowAutoRecognize" ReadOnly="0" Type="boolean" Selector="" Description="This option is only avilable if Auto Login is disabled. When this option is checked, a returning visitor will not be authenticated, but personalization may still work correctly. Use this option if you can not use Auto Login, but want your visitors greeted with personlization.">false</SiteProperty>
-					<SiteProperty Caption="Allow Link Login" Name="AllowLinkLogin" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, emails that contain links can be encoded so the reader is automatically logged in when they click from the email to the site. This is a security risk because anyone with the link gains full access to the account. Consider using Allow Link Recognize instead, which tracks the visitor without granting permissions.">false</SiteProperty>
-					<SiteProperty Caption="Allow Link Recognize" Name="AllowLinkRecognize" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, emails that contain links can be encoded so the reader is automatically recognized by the site when they click a link from the email. Recognized means the site will track their visit but they will not be authenticated and will not have access to special rights like editing. This is a good tool to track email marketing conversion.">true</SiteProperty>
-					<SiteProperty Caption="Allow Password Recovery" Name="AllowPasswordEmail" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the login page includes a form for users to recover their email.">true</SiteProperty>
-					<SiteProperty Caption="Allow One-Time-Password (OTP) Login" Name="AllowLoginByEmailOtp" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, users will see a link in the login box to visit the One-Time-Password login page, and the One-Time-Password login functionality will be enabled.">true</SiteProperty>
-					<SiteProperty Caption="Allow Public Registrations" Name="AllowMemberJoin" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, the site registration Add-on is enabled, and the page block option for registration is enabled. A user can then register on your site. Registering means when they can select a username and Password to login, and use this to login when they return. The registration form includes the option to join any group marked as public. If this feature is enabled, take care that all sensative groups, such as content manager groups, are NOT marked as public.">false</SiteProperty>
-					<SiteProperty Caption="Allow Plain Text Password" Name="allow plain text Password" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the login process uses the ccmembers.Password field, stored in plain text. When false, the process uses ccmembers.PasswordHash, created by the change-Password form, and the cp.user.setPassword() method.">false</SiteProperty>
-					<SiteProperty Caption="Clear Plain-Text Password When Creating Hash, " Name="clear admin Password on hash" ReadOnly="0" Type="boolean" Selector="" Description="When enabled and plain-text Password is disabled, if the Password field is populated and PasswordHash is blank, a failed login can attempt a plain-text Password then populate PasswordHash. Use this to migrate from plain-text to hash Passwords.">true</SiteProperty>
-					<SiteProperty Caption="Password Minimum Length" Name="Password min length" ReadOnly="0" Type="integer" Selector="" Description="The minimum length of a Password.">10</SiteProperty>
-					<SiteProperty Caption="Password Requires Lowercase" Name="Password requires lowercase" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a lowercase character.">true</SiteProperty>
-					<SiteProperty Caption="Password Requires Uppercase" Name="Password requires uppercase" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require an uppercase character.">true</SiteProperty>
-					<SiteProperty Caption="Password Requires Number" Name="Password requires number" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a number character.">true</SiteProperty>
-					<SiteProperty Caption="Password Requires Special Character" Name="Password requires special character" ReadOnly="0" Type="Boolean" Selector="" Description="If checked, new Passwords added will require a special character.">true</SiteProperty>
-					<SiteProperty Caption="Password Block Used Password Period" Name="Password block used Password period" ReadOnly="0" Type="Integer" Selector="" Description="If not 0 or empty, do not let new users reuse Passwords for this many days.">30</SiteProperty>
-					<SiteProperty Caption="Password Age Lockout Days" Name="Password age lockout days" ReadOnly="0" Type="Integer" Selector="" Description="If not 0 or empty, Passwords must be updated if this many days old."></SiteProperty>
-				</Tab>
-			</Form>
-			]]></FormXML>
-		<Admin>Yes</Admin>
-	</Addon>
 	<Addon Name="Email Bounce Settings" Guid="{5C860386-0D7D-4578-A580-7E1FB1F7B336}" Type="Setting">
 		<FormXML><![CDATA[<Form>
 				<Description></Description>
@@ -4237,16 +4210,6 @@
     <Record Content="Add-on Events" Guid="{BC52E864-809D-4B53-A6FE-53468AF8BA7F}" Name="Addon Collection Installed">
     </Record>
 
-    <Record Content="Portals" Guid="{CBE47847-68ED-4FF0-9721-5E29500D1C8C}" Name="Security">
-      <field Name="Active">1</field>
-      <field Name="SortOrder">Security</field>
-    </Record>
-    <Record Content="Portal Features" Guid="{3927FD2D-130E-48F7-8B0A-CA5F10623A12}" Name="Security Settings">
-      <field Name="Active">1</field>
-      <field Name="portalId">Security</field>
-      <field Name="addonId">Security Settings</field>
-      <field Name="SortOrder">10</field>
-    </Record>
 
   </Data>
 

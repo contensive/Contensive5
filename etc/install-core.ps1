@@ -70,6 +70,29 @@ function Test-DotNetRuntime {
     }
 }
 
+function Test-IISIpSecurity {
+    # Only applicable on Windows Server with the ServerManager module
+    if (-not (Get-Command Get-WindowsFeature -ErrorAction SilentlyContinue)) {
+        Write-Host "NOTE: Get-WindowsFeature not available (not Windows Server). Skipping IIS IP Security check." -ForegroundColor Yellow
+        return
+    }
+    $feature = Get-WindowsFeature -Name Web-IP-Security
+    if ($feature.Installed) {
+        Write-Host "  IIS IP Security feature: installed" -ForegroundColor Green
+        return
+    }
+    Write-Host "  IIS IP Security feature not installed. Installing..." -ForegroundColor Cyan
+    try {
+        Install-WindowsFeature -Name Web-IP-Security -ErrorAction Stop | Out-Null
+        Write-Host "  IIS IP Security feature installed" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "WARNING: Could not install IIS IP Security feature: $_" -ForegroundColor Yellow
+        Write-Host "  Dynamic IP Restrictions will not be available." -ForegroundColor Yellow
+        Write-Host "  Install manually: Install-WindowsFeature -Name Web-IP-Security" -ForegroundColor Yellow
+    }
+}
+
 function Test-ExistingInstallation {
     # Check if any Contensive components already exist at the install path
     $cliExists = Test-Path (Join-Path $InstallPath "Cli\cc.exe")
@@ -250,6 +273,7 @@ Write-Host "Target:  $InstallPath"
 Write-Host ""
 
 Test-DotNetRuntime
+Test-IISIpSecurity
 Test-ExistingInstallation
 
 if (-not $SkipCli)         { Install-Cli }

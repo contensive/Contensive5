@@ -567,6 +567,16 @@ namespace Contensive.Processor {
                 return cp.core.appConfig.cdnFileUrl;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Sync a list of blocked IP addresses to the IIS ipSecurity deny list for the current site.
+        /// </summary>
+        /// <param name="blockedIpAddresses">List of IP addresses to deny.</param>
+        public override void SyncIpBlocksToIIS(System.Collections.Generic.List<string> blockedIpAddresses) {
+            WebServerController.syncIpBlocksToIIS(cp.core, cp.core.appConfig.name, blockedIpAddresses);
+        }
+        //
         [Obsolete("Use CP.Site.AddAdminWarning", false)]
         public override void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey) {
             LogController.setSiteWarning(cp.core, name, description, true);

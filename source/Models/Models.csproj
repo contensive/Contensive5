@@ -9,6 +9,19 @@
 	  <AssemblyOriginatorKeyFile>CPModelKey.snk</AssemblyOriginatorKeyFile>
 	  <PackageId>Contensive.DbModels</PackageId>
 	  <NoWarn>1591</NoWarn>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+	  <!-- NuGet Package Metadata -->
+	  <Authors>Contensive</Authors>
+	  <Company>Contensive</Company>
+	  <Product>Contensive Platform</Product>
+	  <Description>Database models for the Contensive Platform - provides strongly-typed data access classes for all Contensive content definitions, metadata tables, and system tables.</Description>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <PackageProjectUrl>https://github.com/contensive/Contensive5</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/contensive/Contensive5</RepositoryUrl>
+	  <RepositoryType>git</RepositoryType>
+	  <PackageTags>contensive;cms;content-management;data-models;orm</PackageTags>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +30,10 @@
 
   <ItemGroup>
     <Folder Include="Attributes\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
