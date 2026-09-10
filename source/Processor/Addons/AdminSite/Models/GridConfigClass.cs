@@ -45,6 +45,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         public List<IndexConfigColumnClass> columns { get; set; }
         public int subCDefID { get; set; }
         /// <summary>
+        /// Person type filter for ccmembers tables.
+        /// -1 = All Types (no filter), 1 = Bot, 2 = Guest, 3 = Contact.
+        /// Defaults to 3 (Contact) when no visit config exists yet.
+        /// </summary>
+        public int personTypeId { get; set; }
+        /// <summary>
         /// if true, the listgrid includes a delete checkbox row
         /// </summary>
         public bool allowDelete { get; set; }
@@ -85,6 +91,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 recordTop = 0;
                 groupList = new string[groupListCntMax];
                 groupListCnt = 0;
+                personTypeId = adminData.adminContent.tableName.Equals("ccmembers", StringComparison.InvariantCultureIgnoreCase) ? 3 : -1;
                 columns = new List<IndexConfigColumnClass>();
                 sorts = new Dictionary<string, GridConfigSortClass>(StringComparer.InvariantCultureIgnoreCase);
                 findWords = new Dictionary<string, GridConfigFindWordClass>(StringComparer.InvariantCultureIgnoreCase);
@@ -224,6 +231,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 case "indexfilteropen":
                                     open = true;
                                     break;
+                                case "indexfilterpersontypeid":
+                                    Ptr += 1;
+                                    personTypeId = GenericController.getInteger(ConfigListLines[Ptr]);
+                                    break;
                                 case "recordsperpage":
                                     Ptr += 1;
                                     recordsPerPage = GenericController.getInteger(ConfigListLines[Ptr]);
@@ -288,6 +299,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 recordTop = 0;
                 groupList = new string[groupListCntMax];
                 groupListCnt = 0;
+                personTypeId = -1;
                 columns = new List<IndexConfigColumnClass>();
                 sorts = new Dictionary<string, GridConfigSortClass>(StringComparer.InvariantCultureIgnoreCase);
                 findWords = new Dictionary<string, GridConfigFindWordClass>(StringComparer.InvariantCultureIgnoreCase);
@@ -422,6 +434,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 case "indexfilteropen":
                                     open = true;
+                                    break;
+                                case "indexfilterpersontypeid":
+                                    Ptr += 1;
+                                    personTypeId = GenericController.getInteger(ConfigListLines[Ptr]);
                                     break;
                                 case "recordsperpage":
                                     Ptr += 1;

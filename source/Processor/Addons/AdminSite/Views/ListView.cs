@@ -343,6 +343,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
             }
             //
+            // add person type to caption
+            //
+            if (content.tableName.Equals("ccmembers", StringComparison.InvariantCultureIgnoreCase) && gridConfig.personTypeId >= 0) {
+                string personTypeName = gridConfig.personTypeId switch {
+                    1 => "Bots",
+                    2 => "Guests",
+                    3 => "Contacts",
+                    _ => $"Type {gridConfig.personTypeId}"
+                };
+                filterLine.Append($", person type '{personTypeName}'");
+            }
+            //
             // add sort details to caption
             //
             string sortLine = "";
@@ -535,6 +547,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     gridConfig.lastEditedToday = false;
                     gridConfig.lastEditedPast7Days = false;
                     gridConfig.lastEditedPast30Days = false;
+                    gridConfig.personTypeId = -1;
                 } else {
                     int VarInteger;
                     //
@@ -639,6 +652,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                     VarText = core.docProperties.getText("IndexFilterOpen");
                     if (!string.IsNullOrEmpty(VarText)) {
                         gridConfig.open = GenericController.getBoolean(VarText);
+                        gridConfig.pageNumber = 1;
+                    }
+                    //
+                    // Read IndexFilterPersonTypeId
+                    VarText = core.docProperties.getText("IndexFilterPersonTypeId");
+                    if (!string.IsNullOrEmpty(VarText)) {
+                        gridConfig.personTypeId = GenericController.getInteger(VarText);
                         gridConfig.pageNumber = 1;
                     }
                     if (core.docProperties.getBoolean("IndexSortRemoveAll")) {
@@ -790,6 +810,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                             }
                         }
                     }
+                }
+                //
+                // Where Clause: PersonType filter (ccmembers only)
+                if (adminData.adminContent.tableName.Equals("ccmembers", StringComparison.InvariantCultureIgnoreCase) && gridConfig.personTypeId >= 0) {
+                    sqlWhere.Append($"AND({adminData.adminContent.tableName}.PersonTypeId={gridConfig.personTypeId})");
                 }
                 //
                 // Add Name into Return_sqlFieldList
@@ -1185,7 +1210,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Remove filters
                 // ----------------------------------------------------------------------------------------------------------------------------------------
                 //
-                if ((gridConfig.subCDefID > 0) || (gridConfig.groupListCnt != 0) || (gridConfig.findWords.Count != 0) || gridConfig.activeOnly || gridConfig.lastEditedByMe || gridConfig.lastEditedToday || gridConfig.lastEditedPast7Days || gridConfig.lastEditedPast30Days) {
+                if ((gridConfig.subCDefID > 0) || (gridConfig.groupListCnt != 0) || (gridConfig.findWords.Count != 0) || gridConfig.activeOnly || gridConfig.lastEditedByMe || gridConfig.lastEditedToday || gridConfig.lastEditedPast7Days || gridConfig.lastEditedPast30Days || (adminData.adminContent.tableName.Equals("ccmembers", StringComparison.InvariantCultureIgnoreCase) && gridConfig.personTypeId >= 0)) {
                     //
                     // Remove Filters
                     //
@@ -1235,6 +1260,25 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                     if (!string.IsNullOrEmpty(SubFilterList)) {
                         returnContent += "<div class=\"ccFilterSubHead\">In Sub-content</div>" + SubFilterList;
+                    }
+                    //
+                    // Person Type filter (ccmembers only)
+                    //
+                    SubFilterList = "";
+                    if (adminData.adminContent.tableName.Equals("ccmembers", StringComparison.InvariantCultureIgnoreCase) && gridConfig.personTypeId >= 0) {
+                        string personTypeName = gridConfig.personTypeId switch {
+                            1 => "Bots",
+                            2 => "Guests",
+                            3 => "Contacts",
+                            _ => $"Type {gridConfig.personTypeId}"
+                        };
+                        QS = RQS;
+                        QS = GenericController.modifyQueryString(QS, "IndexFilterPersonTypeId", "-1");
+                        Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                        SubFilterList += HtmlController.div(getDeleteLink(Link) + $"&nbsp;{personTypeName}", "ccFilterIndent");
+                    }
+                    if (!string.IsNullOrEmpty(SubFilterList)) {
+                        returnContent += "<div class=\"ccFilterSubHead\">Person&nbsp;Type</div>" + SubFilterList;
                     }
                     //
                     // Group Filter List
@@ -1365,6 +1409,29 @@ namespace Contensive.Processor.Addons.AdminSite {
                         SubFilterList = SubFilterList + "<div class=\"ccFilterIndent\"><a class=\"ccFilterLink\" href=\"" + Link + "\">" + Caption + "</a></div>";
                     }
                     returnContent += "<div class=\"ccFilterSubHead\">In Sub-content</div>" + SubFilterList;
+                }
+                //
+                // Person Type (ccmembers only)
+                //
+                SubFilterList = "";
+                if (adminData.adminContent.tableName.Equals("ccmembers", StringComparison.InvariantCultureIgnoreCase)) {
+                    var personTypeOptions = new (int id, string label)[] {
+                        (-1, "All&nbsp;Types"),
+                        (1, "Bots"),
+                        (2, "Guests"),
+                        (3, "Contacts")
+                    };
+                    foreach (var option in personTypeOptions) {
+                        if (gridConfig.personTypeId != option.id) {
+                            QS = RQS;
+                            QS = GenericController.modifyQueryString(QS, "IndexFilterPersonTypeId", option.id.ToString(), true);
+                            Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                            SubFilterList += $"<div class=\"ccFilterIndent\"><a class=\"ccFilterLink\" href=\"{Link}\">{option.label}</a></div>";
+                        }
+                    }
+                }
+                if (!string.IsNullOrEmpty(SubFilterList)) {
+                    returnContent += "<div class=\"ccFilterSubHead\">Person&nbsp;Type</div>" + SubFilterList;
                 }
                 //
                 // people filters

@@ -726,6 +726,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + Environment.NewLine + "IndexFilterOpen";
             }
             //
+            // -- person type filter
+            FilterText += Environment.NewLine
+                + Environment.NewLine + "IndexFilterPersonTypeId"
+                + Environment.NewLine + gridConfig.personTypeId;
+            //
             cp.core.visitProperty.setProperty(AdminDataModel.IndexConfigPrefix + getText(gridConfig.contentID), FilterText);
             //
             //   Member Properties (persistant)
