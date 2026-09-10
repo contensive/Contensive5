@@ -94,7 +94,8 @@
       "Bash(for pkg in CPBase/bin/Debug/Contensive.CPBaseClass.99.9.9.9.nupkg Models/bin/Debug/Contensive.DbModels.99.9.9.9.nupkg Processor/bin/Debug/Contensive.Processor.99.9.9.9.nupkg)",
       "Bash(do echo \"=== $pkg ===\")",
       "Bash(\"c:/program files/7-zip/7z.exe\" l \"$pkg\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }

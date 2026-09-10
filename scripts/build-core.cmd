@@ -374,15 +374,11 @@ copy "C:\Git\Contensive5\etc\README-core.txt" "%deploymentFolderRoot%%versionNum
 
 rem ==============================================================
 rem
-rem copy install-scripts and backuptools into the deployment scripts folder
+rem copy install-scripts into the deployment scripts folder
 rem
 
 md "%deploymentFolderRoot%%versionNumber%\scripts" 2>nul
 copy "C:\Git\Contensive5\etc\install-scripts\*" "%deploymentFolderRoot%%versionNumber%\scripts\"
-copy "C:\Git\Contensive5\etc\clear-c-drive-space.cmd" "%deploymentFolderRoot%%versionNumber%\scripts\"
-copy "C:\Git\Contensive5\etc\backuptools\RunBackup.cmd" "%deploymentFolderRoot%%versionNumber%\scripts\"
-copy "C:\Git\Contensive5\etc\backuptools\SQLExpressBackup.sql" "%deploymentFolderRoot%%versionNumber%\scripts\"
-copy "C:\Git\Contensive5\etc\restart-service.cmd" "%deploymentFolderRoot%%versionNumber%\scripts\"
 
 rem ==============================================================
 rem
