@@ -486,7 +486,10 @@ namespace Contensive.Processor.Controllers {
                 bool blockSiteWithLogin = false;
                 string contentBoxHtml = getHtmlBody_BodyTag_ContentBox(core, ref blockSiteWithLogin);
                 if (!core.doc.continueProcessing) { return string.Empty; }
-                if (blockSiteWithLogin) { return "<div class=\"ccLoginPageCon\">" + contentBoxHtml + "\r</div>"; }
+                if (blockSiteWithLogin) {
+                    string loginPageHtml = $"<div class=\"ccLoginPageCon\">{contentBoxHtml}\r</div>";
+                    return AuthWorkflowController.wrapInSystemTemplate(core, loginPageHtml);
+                }
                 //
                 // -- get template
                 {

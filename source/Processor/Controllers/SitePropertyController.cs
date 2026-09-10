@@ -318,6 +318,42 @@ namespace Contensive.Processor.Controllers {
         private const string anonymousUserResponseId_spName = "anonymousUserResponseID";
         private int? anonymousUserResponseID_local;
         //
+        /// <summary>
+        /// Optional logo image displayed at the top of all login, password recovery, and OTP forms.
+        /// When empty, no logo is shown.
+        /// </summary>
+        public string loginLogoSrc {
+            get {
+                if (loginLogoSrc_local != null) { return loginLogoSrc_local; }
+                loginLogoSrc_local = getText(loginLogoSrc_spName, "");
+                return loginLogoSrc_local;
+            }
+            set {
+                loginLogoSrc_local = value;
+                setProperty(loginLogoSrc_spName, loginLogoSrc_local);
+            }
+        }
+        private const string loginLogoSrc_spName = "Login Logo Src";
+        private string loginLogoSrc_local;
+        //
+        /// <summary>
+        /// Optional template applied to system pages such as login, password recovery, and OTP forms.
+        /// When 0, these pages render without a template.
+        /// </summary>
+        public int systemPageTemplateId {
+            get {
+                if (systemPageTemplateId_local != null) { return (int)systemPageTemplateId_local; }
+                systemPageTemplateId_local = getInteger(systemPageTemplateId_spName, 0);
+                return (int)systemPageTemplateId_local;
+            }
+            set {
+                systemPageTemplateId_local = value;
+                setProperty(systemPageTemplateId_spName, (int)systemPageTemplateId_local);
+            }
+        }
+        private const string systemPageTemplateId_spName = "System Page Template Id";
+        private int? systemPageTemplateId_local;
+        //
         //====================================================================================================
         /// <summary>
         /// clear a value from the database

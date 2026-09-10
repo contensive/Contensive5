@@ -113,7 +113,9 @@ namespace Contensive.Processor.Controllers {
                         PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage);
                         //
                         // -- always show confirmation page to prevent user enumeration
-                        return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString });
+                        string loginLogoSrc_resetSent = core.siteProperties.loginLogoSrc;
+                        string resetSentHtml = core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString, loginLogoSrc = loginLogoSrc_resetSent });
+                        return wrapInSystemTemplate(core, resetSentHtml);
                     }
                 }
                 if (processFormType == FormTypeLoginByEmailOtpRequest) {
@@ -229,7 +231,8 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- add user errors and template variables
-                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, allowLoginByEmailOtp });
+                string loginLogoSrc = core.siteProperties.loginLogoSrc;
+                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, allowLoginByEmailOtp, loginLogoSrc });
                 layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
                 // -- wrap in form that sumbits to the same request URL, to return to the same page after login
@@ -244,12 +247,13 @@ namespace Contensive.Processor.Controllers {
                 //
                 result = HtmlController.div(result, "ccLoginFormCon pt-4");
                 if (string.IsNullOrWhiteSpace(result)) { return result; }
-                return ""
+                string loginFormHtml = ""
                     + "<div style=\"width:100%;padding:50px 20px\">"
                     + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">"
                     + result
                     + "</div>"
                     + "</div>";
+                return wrapInSystemTemplate(core, loginFormHtml);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -261,18 +265,20 @@ namespace Contensive.Processor.Controllers {
         /// Returns the OTP email entry form wrapped in the standard login container
         /// </summary>
         private static string getLoginOtpEmailForm(CoreController core, string userErrorMessage) {
+            string loginLogoSrc = core.siteProperties.loginLogoSrc;
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, "");
-            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage });
+            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpRequest);
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);
             result = HtmlController.div(result, "ccLoginFormCon pt-4");
-            return ""
+            string otpEmailFormHtml = ""
                 + "<div style=\"width:100%;padding:50px 20px\">"
                 + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">"
                 + result
                 + "</div>"
                 + "</div>";
+            return wrapInSystemTemplate(core, otpEmailFormHtml);
         }
         //
         //====================================================================================================
@@ -280,18 +286,70 @@ namespace Contensive.Processor.Controllers {
         /// Returns the OTP code verification form wrapped in the standard login container
         /// </summary>
         private static string getLoginOtpCodeForm(CoreController core, string otpEmail, string userErrorMessage) {
+            string loginLogoSrc = core.siteProperties.loginLogoSrc;
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpCodeGuid, layoutLoginOtpCodeName, layoutLoginOtpCodeCdnPathFilename, "");
-            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, otpEmail });
+            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, otpEmail, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpVerify);
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);
             result = HtmlController.div(result, "ccLoginFormCon pt-4");
-            return ""
+            string otpCodeFormHtml = ""
                 + "<div style=\"width:100%;padding:50px 20px\">"
                 + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">"
                 + result
                 + "</div>"
                 + "</div>";
+            return wrapInSystemTemplate(core, otpCodeFormHtml);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// If a system page template is configured, wrap the login HTML inside that template.
+        /// If no template is configured (default), return the login HTML unchanged.
+        /// </summary>
+        internal static string wrapInSystemTemplate(CoreController core, string loginHtml) {
+            int templateId = core.siteProperties.systemPageTemplateId;
+            if (templateId == 0) { return loginHtml; }
+            var template = DbBaseModel.create<PageTemplateModel>(core.cpParent, templateId);
+            if (template == null) { return loginHtml; }
+            string templateHtml = template.bodyHTML;
+            if (string.IsNullOrEmpty(templateHtml)) { return loginHtml; }
+            //
+            // -- add template head tags
+            core.html.addStructuredData(template.StructuredData, "system page template structured data");
+            core.html.addHeadTag(template.OtherHeadTags, "system page template head tags");
+            //
+            // -- Mustache dataset addon (if configured)
+            if (template.mustacheDataSetAddonId > 0) {
+                string dataSetJson = core.addon.execute(template.mustacheDataSetAddonId, new CPUtilsBaseClass.addonExecuteContext {
+                    addonType = CPUtilsBaseClass.addonContext.ContextTemplate
+                });
+                if (!string.IsNullOrWhiteSpace(dataSetJson)) {
+                    try {
+                        object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
+                        if (dataSet != null) {
+                            templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                        }
+                    } catch (Newtonsoft.Json.JsonException) {
+                        //
+                        // -- addon returned non-JSON content, skip Mustache rendering
+                    }
+                }
+            }
+            //
+            // -- render template HTML (executes addons embedded in template)
+            string renderedTemplate = ContentRenderController.renderHtmlForWeb(
+                core, templateHtml, "Page Templates", template.id, 0,
+                $"{core.webServer.requestProtocol}{core.webServer.requestDomain}",
+                0, CPUtilsBaseClass.addonContext.ContextTemplate);
+            //
+            // -- replace content placeholder with login form
+            if (renderedTemplate.IndexOf(fpoContentBox) != -1) {
+                renderedTemplate = GenericController.strReplace(renderedTemplate, fpoContentBox, loginHtml);
+            } else {
+                renderedTemplate = loginHtml + renderedTemplate;
+            }
+            return renderedTemplate;
         }
         //
         //====================================================================================================
