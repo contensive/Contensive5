@@ -210,10 +210,15 @@
     /*
         legacy
     */
+    .ccAdminFlex {
+        display: flex;
+        align-items: stretch;
+    }
     .ccCon .ccToolsCon {
         margin: 0;
         padding: 0;
         min-height: 100vh;
+        flex-shrink: 0;
     }
     
     .ccCon .ccToolsCon .ccHeaderCon {
@@ -244,12 +249,12 @@
         text-align: right
     }
     
-    .ccCon .ccToolsCon .ccContentCon {
-        width: 100%;
+    .ccCon .ccContentCon, .ccAdminFlex > .ccContentCon {
+        flex: 1;
+        min-width: 0;
         margin: 0;
         background-color: white;
         min-height: 100vh;
-        
     }
     
     .ccCon .ccToolsCon .ccContentCon .opened {
@@ -1638,18 +1643,16 @@
         </nav>
 
  
-        <table border="0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td class="ccToolsCon" valign="top">{{{adminNav}}}</td>
-                <td class="ccContentCon" valign="top" id="desktop">
+        <div class="ccAdminFlex">
+                <div class="ccToolsCon">{{{adminNav}}}</div>
+                <div class="ccContentCon" id="desktop">
                         <div>
                         <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle"><span><i class="fa-solid fa-angle-right"></i></span></button>
 
                         </div>
                     {{{adminContent}}}
-                </td>
-            </tr>
-        </table>
+                </div>
+        </div>
      
     </div>
 
@@ -1664,9 +1667,11 @@
             if ($(".sidebar").hasClass("toggled")) {
                 $('.sidebar .collapse').collapse('hide');
                 $('#sidebarToggleTop span').replaceWith('<span><i class="fa-solid fa-angle-right"></i></span>');
+                $('#sidebarToggle i').attr('class', 'fa-solid fa-angle-right');
                 localStorage.setItem('sidebarExpanded', 'false');
             } else {
                $('#sidebarToggleTop span').replaceWith('<span><i class="fa-solid fa-xmark"></i></span>');
+               $('#sidebarToggle i').attr('class', 'fa-solid fa-angle-left');
                localStorage.setItem('sidebarExpanded', 'true');
             };
           });

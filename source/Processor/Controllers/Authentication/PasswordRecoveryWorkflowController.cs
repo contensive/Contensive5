@@ -28,7 +28,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
                     returnResult += LayoutController.getLayout(core.cpParent, layoutRecoverPasswordGuid, layoutRecoverPasswordName, layoutRecoverPasswordCdnPathFilename, "");
-                    string loginLogoSrc = core.siteProperties.loginLogoSrc;
+                    string loginLogoSrc = string.IsNullOrEmpty(core.siteProperties.loginLogoSrc) ? "" : $"{core.cpParent.Http.CdnFilePathPrefix}{core.siteProperties.loginLogoSrc}";
                     returnResult = MustacheController.renderStringToString(returnResult, new { loginLogoSrc });
                     returnResult += HtmlController.inputHidden("Type", FormTypePasswordRecovery);
                     return HtmlController.form(core, returnResult, core.cpParent.Request.QueryString);

@@ -65,19 +65,19 @@
           .sidebar  #sidebarToggle {
             background-color: rgba(255, 255, 255, 0.2);
           }
-          .sidebar  #sidebarToggle::after {
+          .sidebar  #sidebarToggle i {
             color: rgba(255, 255, 255, 0.5);
           }
           .sidebar  #sidebarToggle:hover {
             background-color: rgba(255, 255, 255, 0.25);
           }
-          .sidebar .toggled #sidebarToggle::after {
+          .sidebar .toggled #sidebarToggle i {
             color: rgba(255, 255, 255, 0.5);
           }
           .sidebar #sidebarToggle {
             background-color: rgba(255, 255, 255, 0.2);
           }
-          .sidebar #sidebarToggle::after {
+          .sidebar #sidebarToggle i {
             color: rgba(255, 255, 255, 0.5);
           }
           .sidebar #sidebarToggle:hover {
@@ -210,11 +210,10 @@
           cursor: pointer;
         }
   
-        .sidebar #sidebarToggle::after {
-          font-weight: 900;
-          content: "\f104";
-          font-family: "Font Awesome 6 Free";
-          margin-right: 0.1rem;
+        .sidebar #sidebarToggle i {
+          font-size: 0.85rem;
+          line-height: 2rem;
+          color: inherit;
         }
   
         .sidebar #sidebarToggle:hover {
@@ -231,10 +230,8 @@
         }
   
         
-        .sidebar.toggled #sidebarToggle::after {
-          content: "\f105";
-          font-family: "Font Awesome 6 Free";
-          margin-left: 0.25rem;
+        .sidebar.toggled #sidebarToggle i {
+          font-size: 0.85rem;
         }
         
     
@@ -261,8 +258,11 @@
 
        .sidebar .nav-item .nav-link img {
             height: 18px;
+            width: 1.25em;
+            object-fit: contain;
             padding-bottom: 0;
             margin-right: 0;
+            text-align: center;
           }
   
   
@@ -312,7 +312,8 @@
   
         @media (min-width: 768px) {
           .sidebar {
-            width: 14rem !important;
+            width: max-content !important;
+            flex-shrink: 0;
           }
 
           .sidebar .nav-item .collapse {
@@ -345,10 +346,10 @@
 
           .sidebar .nav-item .nav-link {
             display: block;
-            width: 100%;
+            width: auto;
             text-align: left;
             padding: 0.4rem 0.75rem;
-            width: 14rem;
+            white-space: nowrap;
           }
 
           .sidebar .nav-item .nav-link i {
@@ -367,19 +368,7 @@
           }
 
           .sidebar .nav-item .nav-link[data-bs-toggle=collapse]::after {
-            width: 1rem;
-            text-align: center;
-            float: right;
-            vertical-align: 0;
-            border: 0;
-            font-weight: 900;
-            content: "\f107";
-            font-family: "Font Awesome 6 Free";
-            font-size: 14px !important;
-          }
-
-          .sidebar .nav-item .nav-link[data-bs-toggle=collapse].collapsed::after {
-            content: "\f105";
+            display: none;
           }
 
           .sidebar .sidebar-brand .sidebar-brand-icon i {
@@ -548,12 +537,12 @@
         <ul class="navbar-nav sidebar accordion toggled" id="accordionSidebar">
                <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center  d-none d-md-block">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                <button class="rounded-circle border-0" id="sidebarToggle"><i class="fa-solid fa-angle-right"></i></button>
             </div>
             {{#publicDomains}}
               <li class="nav-item">
                   <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#publicSiteCollapse" aria-expanded="true" aria-controls="publicSiteCollapse" title="Public Site">
-                      <i class="fa-solid fa-globe"></i>
+                      <i class="fa-solid fa-fw fa-globe"></i>
                       <span>Public Site</span>
                   </a>
                   <div id="publicSiteCollapse" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
@@ -637,6 +626,8 @@
             if (localStorage.getItem('sidebarExpanded') === 'true') {
               var sb = document.getElementById('accordionSidebar');
               if (sb) { sb.classList.remove('toggled'); }
+              var icon = document.querySelector('#sidebarToggle i');
+              if (icon) { icon.className = 'fa-solid fa-angle-left'; }
             }
           })();
         </script>

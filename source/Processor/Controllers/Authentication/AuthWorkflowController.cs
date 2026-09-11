@@ -113,7 +113,7 @@ namespace Contensive.Processor.Controllers {
                         PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage);
                         //
                         // -- always show confirmation page to prevent user enumeration
-                        string loginLogoSrc_resetSent = core.siteProperties.loginLogoSrc;
+                        string loginLogoSrc_resetSent = getLoginLogoUrl(core);
                         string resetSentHtml = core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString, loginLogoSrc = loginLogoSrc_resetSent });
                         return wrapInSystemTemplate(core, resetSentHtml);
                     }
@@ -231,7 +231,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- add user errors and template variables
-                string loginLogoSrc = core.siteProperties.loginLogoSrc;
+                string loginLogoSrc = getLoginLogoUrl(core);
                 layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, allowLoginByEmailOtp, loginLogoSrc });
                 layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
@@ -265,7 +265,7 @@ namespace Contensive.Processor.Controllers {
         /// Returns the OTP email entry form wrapped in the standard login container
         /// </summary>
         private static string getLoginOtpEmailForm(CoreController core, string userErrorMessage) {
-            string loginLogoSrc = core.siteProperties.loginLogoSrc;
+            string loginLogoSrc = getLoginLogoUrl(core);
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, "");
             layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpRequest);
@@ -286,7 +286,7 @@ namespace Contensive.Processor.Controllers {
         /// Returns the OTP code verification form wrapped in the standard login container
         /// </summary>
         private static string getLoginOtpCodeForm(CoreController core, string otpEmail, string userErrorMessage) {
-            string loginLogoSrc = core.siteProperties.loginLogoSrc;
+            string loginLogoSrc = getLoginLogoUrl(core);
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpCodeGuid, layoutLoginOtpCodeName, layoutLoginOtpCodeCdnPathFilename, "");
             layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, otpEmail, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpVerify);
@@ -300,6 +300,16 @@ namespace Contensive.Processor.Controllers {
                 + "</div>"
                 + "</div>";
             return wrapInSystemTemplate(core, otpCodeFormHtml);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Returns the login logo URL with CDN path prefix, or empty string if not configured.
+        /// </summary>
+        private static string getLoginLogoUrl(CoreController core) {
+            string loginLogoSrc = core.siteProperties.loginLogoSrc;
+            if (string.IsNullOrEmpty(loginLogoSrc)) { return ""; }
+            return $"{core.cpParent.Http.CdnFilePathPrefix}{loginLogoSrc}";
         }
         //
         //====================================================================================================
