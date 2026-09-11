@@ -20,6 +20,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 if (!string.IsNullOrEmpty(UserError)) {
                     logger.Info($"{core.logCommonMessage},{UserError}");
+                    Processor.Controllers.ErrorController.addUserError(core, UserError);
                     result = AdminDataModel.AdminFormErrorOpen + Processor.Controllers.ErrorController.getUserError(core) + AdminDataModel.AdminFormErrorClose;
                 }
                 //

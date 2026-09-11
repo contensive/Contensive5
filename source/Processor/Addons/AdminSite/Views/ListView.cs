@@ -34,6 +34,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // --- make sure required fields are present
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
+                //
+                // -- if fields are empty, force-reload metadata to recover from a possible transient field-load error
+                if (adminData.adminContent.id != 0 && !string.IsNullOrEmpty(adminData.adminContent.tableName) && adminData.adminContent.fields.Count.Equals(0)) {
+                    var reloadedContent = ContentMetadataModel.create(core, adminData.adminContent.id, false, true);
+                    if (reloadedContent != null && reloadedContent.fields.Count > 0) {
+                        adminData.adminContent = reloadedContent;
+                    }
+                }
                 if (adminData.adminContent.id == 0) {
                     //
                     // Bad content id
@@ -48,12 +56,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                     Stream.add(AdminErrorController.get(core, "The content definition [" + adminData.adminContent.name + "] is not associated with a valid database table. Please contact your application developer for more assistance.", "Content [" + adminData.adminContent.name + "] ContentTablename is empty."));
                 } else if (adminData.adminContent.fields.Count.Equals(0)) {
                     //
-                    // No Fields
-                    Stream.add(AdminErrorController.get(core, "This content [" + adminData.adminContent.name + "] cannot be accessed because it has no fields. Please contact your application developer for more assistance.", "Content [" + adminData.adminContent.name + "] has no field records."));
+                    // No Fields - force-reload already attempted above, still no fields
+                    Stream.add(AdminErrorController.get(core, $"Content [{adminData.adminContent.name}] field definitions could not be loaded. Please try again or contact your application developer for assistance.", $"Content [{adminData.adminContent.name}] has no field records after force-reload, content id [{adminData.adminContent.id}]."));
                 } else if (adminData.adminContent.developerOnly && (!core.session.isAuthenticatedDeveloper())) {
                     //
                     // Developer Content and not developer
-                    Stream.add(AdminErrorController.get(core, "Access to this content [" + adminData.adminContent.name + "] requires developer permissions. Please contact your application developer for more assistance.", "Content [" + adminData.adminContent.name + "] has no field records."));
+                    Stream.add(AdminErrorController.get(core, $"Access to this content [{adminData.adminContent.name}] requires developer permissions. Please contact your application developer for more assistance.", $"Content [{adminData.adminContent.name}] requires developer access."));
                 } else {
                     List<string> tmp = new List<string> { };
                     DataSourceModel datasource = DataSourceModel.create(core.cpParent, adminData.adminContent.dataSourceId, ref tmp);

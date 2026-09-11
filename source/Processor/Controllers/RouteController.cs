@@ -142,7 +142,15 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // -- legacy form process methods 
+                // -- staging gate: block unauthenticated access when passphrase is set
+                {
+                    string stagingGateResult = StagingGateController.processGate(core, requestedRoute);
+                    if (!string.IsNullOrEmpty(stagingGateResult)) {
+                        return stagingGateResult;
+                    }
+                }
+                //
+                // -- legacy form process methods
                 // todo -- move legacy form process methods to process within their own code
                 string ajaxfnRouteResult = "";
                 if (tryExecuteAjaxfnRoute(core, requestedRoute, ref ajaxfnRouteResult)) {

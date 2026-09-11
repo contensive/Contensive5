@@ -72,6 +72,25 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Staging gate passphrase. When non-empty, anonymous visitors must enter this word
+        /// before viewing any page. Set in Site Settings > Website tab.
+        /// </summary>
+        public string stagingGatePassphrase {
+            get {
+                if (_stagingGatePassphrase != null) { return _stagingGatePassphrase; }
+                _stagingGatePassphrase = getText(spStagingGatePassphrase, "");
+                return _stagingGatePassphrase;
+            }
+            set {
+                _stagingGatePassphrase = value;
+                setProperty(spStagingGatePassphrase, value);
+            }
+        }
+        private readonly string spStagingGatePassphrase = "stagingGatePassphrase";
+        private string _stagingGatePassphrase = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// if not null, all email will be sent to this address. used for testing
         /// </summary>
         public string testEmailAddress {

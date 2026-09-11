@@ -299,6 +299,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public static ContentMetadataModel create(CoreController core, ContentModel content, bool loadInvalidFields, bool forceDbLoad) {
             ContentMetadataModel result = null;
+            bool fieldLoadException = false;
             try {
                 if (content == null) { return null; }
                 if ((!forceDbLoad) && (core.cacheRuntime.metaDataDictionary.ContainsKey(content.id.ToString()))) { return core.cacheRuntime.metaDataDictionary[content.id.ToString()]; }
@@ -614,7 +615,8 @@ namespace Contensive.Processor.Models.Domain {
                             } catch (Exception exFields) {
                                 //
                                 // -- field loading is non-critical during upgrade; log and continue with metadata without fields
-                                logger.Error(exFields, $"{core.logCommonMessage},ContentMetadataModel.create, non-critical error loading fields for content [{content.name}], id [{content.id}], continuing without fields");
+                                fieldLoadException = true;
+                                logger.Error(exFields, $"{core.logCommonMessage},ContentMetadataModel.create, error loading fields for content [{content.name}], id [{content.id}], continuing without fields");
                             }
                             //
                             // ----- Create the LegacyContentControlCriteria. For compatibility, if support=false, return (1=1)
@@ -623,9 +625,13 @@ namespace Contensive.Processor.Models.Domain {
                             create_setAdminColumns(core, result);
                         }
                     }
-                    setCache(core, content.id, result);
+                    if (!fieldLoadException) {
+                        setCache(core, content.id, result);
+                    }
                 }
-                core.cacheRuntime.metaDataDictionary.Add(content.id.ToString(), result);
+                if (!fieldLoadException) {
+                    core.cacheRuntime.metaDataDictionary.Add(content.id.ToString(), result);
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
