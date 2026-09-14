@@ -36,6 +36,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         // -- if email is not in the system, add it
                         var newUser = DbBaseModel.addDefault<PersonModel>(cp);
                         newUser.email = emailInput;
+                        newUser.personTypeId = (int)PersonTypeEnum.Contact;
                         newUser.save(cp);
                     }
                 }

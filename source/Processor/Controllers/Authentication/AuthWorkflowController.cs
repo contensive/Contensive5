@@ -164,6 +164,7 @@ namespace Contensive.Processor.Controllers {
                         var newUser = DbBaseModel.addDefault<PersonModel>(core.cpParent);
                         newUser.email = otpEmail;
                         newUser.name = otpEmail;
+                        newUser.personTypeId = (int)PersonTypeEnum.Contact;
                         newUser.save(core.cpParent);
                         userId = newUser.id;
                     }
