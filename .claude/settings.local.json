@@ -95,7 +95,8 @@
       "Bash(do echo \"=== $pkg ===\")",
       "Bash(\"c:/program files/7-zip/7z.exe\" l \"$pkg\")",
       "Bash(done)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(git -C /c/Git/Contensive5 log --oneline -- source/ContensiveMcpServer/)"
     ]
   }
 }
