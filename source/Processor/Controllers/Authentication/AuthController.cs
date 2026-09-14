@@ -261,8 +261,8 @@ namespace Contensive.Processor.Controllers {
                 logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId enter");
                 //
                 // -- track the visit attempt
-                core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
-                core.db.executeNonQuery($"update ccvisits set loginattempts={core.session.visit.loginAttempts} where id={core.session.visit.id}");
+                session.visit.loginAttempts = session.visit.loginAttempts + 1;
+                core.db.executeNonQuery($"update ccvisits set loginattempts={session.visit.loginAttempts} where id={session.visit.id}");
                 //
                 userErrorMessage = "";
                 if (string.IsNullOrEmpty(requestUsername)) {
@@ -372,7 +372,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- check for password age (over 180 days) force mfa/fail
-                        if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                        if ((record.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (record.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
                             //
                             // -- fail, password must be updated
                             // -- this should exit with mfa requirement
@@ -438,7 +438,7 @@ namespace Contensive.Processor.Controllers {
                             }
                             //
                             // -- check for password age (over 180 days) force mfa/fail
-                            if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                            if ((record.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (record.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
                                 //
                                 // -- fail, password must be updated
                                 // -- this should exit with mfa requirement
@@ -477,7 +477,7 @@ namespace Contensive.Processor.Controllers {
                             }
                             //
                             // -- check for password age (over 180 days) force mfa/fail
-                            if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                            if ((record.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (record.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
                                 //
                                 // -- fail, password must be updated
                                 // -- this should exit with mfa requirement
