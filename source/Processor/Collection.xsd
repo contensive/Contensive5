@@ -212,6 +212,9 @@
 											<xs:attribute name="uniqueName" type="xs:boolean">
 												<xs:annotation><xs:documentation>When true, value must be unique across all records in this content.</xs:documentation></xs:annotation>
 											</xs:attribute>
+											<xs:attribute name="deprecated" type="xs:boolean">
+												<xs:annotation><xs:documentation>When true, the field is marked as deprecated. If the field does not exist, it will not be installed. If the field exists, its ccFields metadata record will be deleted while preserving the SQL database column and data.</xs:documentation></xs:annotation>
+											</xs:attribute>
 										</xs:complexType>
 									</xs:element>
 								</xs:choice>

@@ -64,6 +64,7 @@ namespace Contensive.Processor.Models.Domain {
                 scramble = false,
                 textBuffered = false,
                 uniqueName = false,
+                deprecated = false,
                 textLength = 0
             };
             fieldMeta.memberSelectGroupId_set(core, 0);
@@ -280,6 +281,12 @@ namespace Contensive.Processor.Models.Domain {
         /// if true this field is saved in a two-way encoding format
         /// </summary>
         public bool scramble { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if true this field is deprecated and should not be installed if new, or should be deleted if it exists
+        /// </summary>
+        public bool deprecated { get; set; }
         //
         //====================================================================================================
         /// <summary>

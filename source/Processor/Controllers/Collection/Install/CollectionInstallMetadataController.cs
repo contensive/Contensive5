@@ -279,6 +279,7 @@ namespace Contensive.Processor.Controllers {
                                             metaDataField.installedByCollectionGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "installedByCollectionId", DefaultMetaDataField.installedByCollectionGuid);
                                             metaDataField.editorAddonGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "editorAddonId", DefaultMetaDataField.editorAddonGuid);
                                             metaDataField.textLength = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "TextLength", DefaultMetaDataField.textLength);
+                                            metaDataField.deprecated = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Deprecated", DefaultMetaDataField.deprecated);
                                             metaDataField.id = DbController.getContentFieldId(core, targetMetaData.id, metaDataField.nameLc);
                                             metaDataField.dataChanged = setAllDataChanged;
                                             //
@@ -572,8 +573,17 @@ namespace Contensive.Processor.Controllers {
                         core.db.createSQLTable(metaKvp.Value.tableName);
                         foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in metaKvp.Value.fields) {
                             if (string.IsNullOrWhiteSpace(fieldKvp.Value.nameLc)) {
-                                logger.Warn($"{core.logCommonMessage}, Field [# " + fieldKvp.Value.id + "] in content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
+                                logger.Warn($"{core.logCommonMessage}, Field [# " + fieldKvp.Value.id + "] in content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the field name is empty.");
                                 continue;
+                            }
+                            //
+                            // -- if field is deprecated and does not exist, skip SQL column creation entirely
+                            if (fieldKvp.Value.deprecated) {
+                                int existingFieldId = DbController.getContentFieldId(core, metaKvp.Value.id, fieldKvp.Value.nameLc);
+                                if (existingFieldId == 0) {
+                                    logger.Info($"{core.logCommonMessage}, Field [{fieldKvp.Value.nameLc}] in content [{metaKvp.Value.name}] is deprecated and does not exist. Skipping installation.");
+                                    continue;
+                                }
                             }
                             core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId, fieldKvp.Value.textLength);
                         }
@@ -870,6 +880,35 @@ namespace Contensive.Processor.Controllers {
                     foreach (var nameValuePair in contentMetadata.fields) {
                         ContentFieldMetadataModel fieldMetadata = nameValuePair.Value;
                         if (fieldMetadata.dataChanged) {
+                            //
+                            // -- prevent deprecation of base fields
+                            if (fieldMetadata.deprecated && fieldMetadata.isBaseField) {
+                                logger.Warn($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] in content [{contentMetadata.name}] is marked as deprecated but is a base field. Ignoring deprecated flag.");
+                                fieldMetadata.deprecated = false;
+                            }
+                            //
+                            // -- handle deprecated fields: delete existing, skip non-existent
+                            if (fieldMetadata.deprecated) {
+                                bool fieldExists = existingFieldsByName.ContainsKey(fieldMetadata.nameLc.ToLowerInvariant());
+                                if (!fieldExists && fieldMetadata.id > 0) {
+                                    //
+                                    // -- edge case: field has an ID but wasn't in preloaded dictionary
+                                    logger.Warn($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] has id={fieldMetadata.id} but not in existingFieldsByName dictionary. Treating as exists.");
+                                    fieldExists = true;
+                                }
+                                if (fieldExists) {
+                                    //
+                                    // -- field exists: delete the ccFields record entirely
+                                    var existingField = existingFieldsByName[fieldMetadata.nameLc.ToLowerInvariant()];
+                                    logger.Info($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] in content [{contentMetadata.name}] is deprecated and exists. Deleting ccFields record (id={existingField.id}).");
+                                    batchSqlList.Add($"DELETE FROM ccFields WHERE id={existingField.id};");
+                                } else {
+                                    //
+                                    // -- field does not exist: skip installation entirely
+                                    logger.Info($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] in content [{contentMetadata.name}] is deprecated and does not exist. Skipping ccFields record creation.");
+                                }
+                                continue;
+                            }
                             contentMetadata.verifyContentField(core, fieldMetadata, false, logMsgContext, existingFieldsByName, guidToIdCache, batchSqlList);
                         }
                         //

@@ -199,6 +199,26 @@ Each `<Field>` within a CDef defines a database column and its admin editor beha
 | `ReadOnly` | `"1"` = never editable |
 | `Authorable` | `"0"` = hidden from the edit form |
 
+### Deprecated Field Attribute
+
+Mark fields as deprecated to phase them out while maintaining backward compatibility:
+
+- **deprecated="false"** or omitted: Normal installation (default)
+- **deprecated="true"** + field doesn't exist: Skip installation entirely
+- **deprecated="true"** + field exists: Delete ccFields metadata record, preserve SQL column and data
+
+#### Example
+
+```xml
+<Field name="OldLegacyField" deprecated="true" />
+```
+
+#### Important Notes
+
+- Base fields cannot be deprecated
+- SQL columns and their data are never deleted, only ccFields metadata records are removed
+- Use this to phase out fields while maintaining data compatibility for historical access
+
 ## Addon Element
 
 An `<Addon>` registers an executable addon with the system.

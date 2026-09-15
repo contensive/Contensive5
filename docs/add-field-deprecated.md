@@ -261,11 +261,7 @@ Mark fields as deprecated to phase them out while maintaining backward compatibi
 ### Example
 
 ```xml
-<Field name="OldLegacyField"
-       caption="Legacy Field (Deprecated)"
-       fieldType="text"
-       deprecated="true"
-       active="false" />
+<Field name="OldLegacyField" deprecated="true" />
 ```
 
 ### Important Notes
