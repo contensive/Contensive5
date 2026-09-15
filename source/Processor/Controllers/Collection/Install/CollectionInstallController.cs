@@ -880,6 +880,11 @@ namespace Contensive.Processor.Controllers {
                         string contentRecordName = XmlController.getXMLAttribute(core, contentNode, "name", "");
                         if ((!string.IsNullOrEmpty(contentRecordGuid)) || (!string.IsNullOrEmpty(contentRecordName))) {
                             ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, contentName);
+                            if (metaData == null) {
+                                logger.Warn($"{core.logCommonMessage}, installDataNode, content definition not found: [{contentName}]");
+                                return_ErrorMessage.errors.Add($"Data record for content [{contentName}] could not be installed because the content definition was not found.");
+                                continue;
+                            }
                             bool isPageContent = metaData.name.ToLower().Equals("page content");
                             bool pageCopyFilenameNotNull = false;
                             bool pageAddonListNotNull = false;
