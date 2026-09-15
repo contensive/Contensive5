@@ -369,6 +369,13 @@ namespace Contensive.Processor.Controllers {
                     toMemberId = 0,
                 };
                 if (isImmediate) {
+                    // -- check if email is enabled before immediate send
+                    if (!core.siteProperties.allowEmailSend) {
+                        // -- email disabled, queue instead of immediate send
+                        logger.Info($"{core.logCommonMessage},sendAdHocEmail, email disabled, converting immediate send to queued, toAddress [{sendRequest.toAddress}], fromAddress [{sendRequest.fromAddress}], subject [{sendRequest.subject}]");
+                        queueEmail(core, false, sendRequest);
+                        return true;
+                    }
                     return trySendImmediate(core, sendRequest, ref userErrorMessage);
                 }
                 queueEmail(core, false, sendRequest);
@@ -519,6 +526,13 @@ namespace Contensive.Processor.Controllers {
                 }
                 if (Immediate) {
                     //
+                    // -- check if email is enabled before immediate send
+                    if (!core.siteProperties.allowEmailSend) {
+                        // -- email disabled, queue instead of immediate send
+                        logger.Info($"{core.logCommonMessage},trySendPersonEmail, email disabled, converting immediate send to queued, toAddress [{sendRequest.toAddress}], fromAddress [{sendRequest.fromAddress}], subject [{sendRequest.subject}]");
+                        queueEmail(core, false, sendRequest);
+                        return true;
+                    }
                     // -- send immediate
                     return trySendImmediate(core, sendRequest, ref userErrorMessage);
                 }
@@ -1411,6 +1425,15 @@ namespace Contensive.Processor.Controllers {
                         return false;
                     }
                     sendRequest.fromAddress = core.siteProperties.emailFromAddress;
+                }
+                //
+                // -- check if email is enabled globally
+                if (!core.siteProperties.allowEmailSend) {
+                    //
+                    // -- email disabled, block send
+                    AddEmailLog(core, sendRequest, true, $"Email blocked because email is disabled in site settings. context [{sendRequest.emailContextMessage}]");
+                    logger.Info($"{core.logCommonMessage},Email blocked because email disabled in site settings, toAddress [{sendRequest.toAddress}], fromAddress [{sendRequest.fromAddress}], subject [{sendRequest.subject}]");
+                    return true;
                 }
                 //
                 // -- do the actual send

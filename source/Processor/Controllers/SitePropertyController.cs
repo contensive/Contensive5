@@ -72,6 +72,24 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Master email on/off switch. When false, emails are queued but not sent.
+        /// </summary>
+        public bool allowEmailSend {
+            get {
+                if (_allowEmailSend != null) { return (bool)_allowEmailSend; }
+                _allowEmailSend = getBoolean(spAllowEmailSend, true);
+                return (bool)_allowEmailSend;
+            }
+            set {
+                _allowEmailSend = value;
+                setProperty(spAllowEmailSend, value);
+            }
+        }
+        private readonly string spAllowEmailSend = "Allow Email Send";
+        private bool? _allowEmailSend = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// Staging gate passphrase. When non-empty, anonymous visitors must enter this word
         /// before viewing any page. Set in Site Settings > Website tab.
         /// </summary>
