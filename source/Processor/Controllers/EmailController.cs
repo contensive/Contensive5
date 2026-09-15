@@ -1361,6 +1361,17 @@ namespace Contensive.Processor.Controllers {
                 using var sesClient = AwsSesController.getSesClient(core);
                 foreach (EmailQueueModel queueEmail in queueEmailList) {
                     //
+                    // -- check if email is enabled globally before processing queue
+                    if (!core.siteProperties.allowEmailSend) {
+                        // -- email disabled, skip this email but leave it in queue
+                        // -- clear the process key so it can be picked up later when email is re-enabled
+                        queueEmail.sendingProcessKey = "";
+                        queueEmail.sendingProcessExpiration = null;
+                        queueEmail.save(core.cpParent);
+                        logger.Info($"{core.logCommonMessage},sendImmediateFromQueue, email disabled, skipping queued email, toAddress [{queueEmail.toAddress}], subject [{queueEmail.subject}]");
+                        continue;
+                    }
+                    //
                     // -- this queue record is not shared with another process, send it
                     DbBaseModel.delete<EmailQueueModel>(core.cpParent, queueEmail.id);
                     EmailSendRequest sendRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<EmailSendRequest>(queueEmail.content);
@@ -1397,6 +1408,14 @@ namespace Contensive.Processor.Controllers {
                 core.db.update(EmailQueueModel.tableMetadata.tableNameLower, "(ccguid=" + DbController.encodeSQLText(queueSample.ccguid) + ")", new System.Collections.Specialized.NameValueCollection { { "ccguid", DbController.encodeSQLText(targetGuid) } });
                 EmailQueueModel targetQueueRecord = DbBaseModel.create<EmailQueueModel>(core.cpParent, targetGuid);
                 if (targetQueueRecord != null) {
+                    //
+                    // -- check if email is enabled globally before processing queue
+                    if (!core.siteProperties.allowEmailSend) {
+                        // -- email disabled, skip this email but leave it in queue by resetting the guid
+                        core.db.update(EmailQueueModel.tableMetadata.tableNameLower, "(ccguid=" + DbController.encodeSQLText(targetGuid) + ")", new System.Collections.Specialized.NameValueCollection { { "ccguid", DbController.encodeSQLText(queueSample.ccguid) } });
+                        logger.Info($"{core.logCommonMessage},sendImmediateFromQueue_Legacy, email disabled, skipping queued email, toAddress [{targetQueueRecord.toAddress}], subject [{targetQueueRecord.subject}]");
+                        continue;
+                    }
                     //
                     // -- this queue record is not shared with another process, send it
                     DbBaseModel.delete<EmailQueueModel>(core.cpParent, targetQueueRecord.id);
