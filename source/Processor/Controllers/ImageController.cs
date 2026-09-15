@@ -322,16 +322,30 @@ namespace Contensive.Processor.Controllers {
                     logger.Error(new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imageCdnPathFilename + "]"), $"{core.logCommonMessage}");
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
-                // 
+                //
                 // -- first resize - determine the if the width or the height is the rezie fit
                 // -- then crop to the final size
                 core.cdnFiles.copyFileRemoteToLocal(imageCdnPathFilename);
-                using Image image = Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"));
-                //
-                // -- if image load issue, return un-resized
-                if (image.Width.Equals(0) || image.Height.Equals(0)) {
+                Image image;
+                try {
+                    image = Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"));
+                } catch (InvalidImageContentException ex) {
+                    //
+                    // -- corrupted or truncated image file, return original image
+                    logger.Warn(ex, $"{core.logCommonMessage},Corrupted or truncated image file [" + imageCdnPathFilename + "]");
+                    return imageCdnPathFilename.Replace(@"\", "/");
+                } catch (NotSupportedException ex) {
+                    //
+                    // -- unsupported image operation, return original image
+                    logger.Warn(ex, $"{core.logCommonMessage},Unsupported image operation [" + imageCdnPathFilename + "]");
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
+                using (image) {
+                    //
+                    // -- if image load issue, return un-resized
+                    if (image.Width.Equals(0) || image.Height.Equals(0)) {
+                        return imageCdnPathFilename.Replace(@"\", "/");
+                    }
                 //
                 int proportionalWidth = image.Width;
                 int proportionalHeight = image.Height;
@@ -508,29 +522,30 @@ namespace Contensive.Processor.Controllers {
                             image.Mutate(x => x.Resize(options).BackgroundColor(new Rgba32(255, 255, 255, 0)));
                         }
                     }
+                    }
+                    //
+                    // -- save the resized/cropped image to the new filename and upload
+                    if (saveAsWebP) {
+                        image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")), new WebpEncoder());
+                    } else {
+                        image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
+                    }
+                    core.cdnFiles.copyFileLocalToRemote(newImageFilename);
+                    //
+                    // -- save the new size back to the model and cache
+                    altSizeModel.sizes.Add(new ImageAltSizeEntry {
+                        w = holeWidth,
+                        h = holeHeight,
+                        ah = proportionalHeight,
+                        aw = proportionalWidth,
+                        f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
+                        crop = cropOrPad
+                    });
+                    imageAltSizes = serializeAltSizeList(altSizeModel);
+                    isNewSize = true;
+                    core.cache.storeObject(imageExistsKey, true);
+                    return newImageFilename.Replace(@"\", "/");
                 }
-                // 
-                // -- save the resized/cropped image to the new filename and upload
-                if (saveAsWebP) {
-                    image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")), new WebpEncoder());
-                } else {
-                    image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
-                }
-                core.cdnFiles.copyFileLocalToRemote(newImageFilename);
-                //
-                // -- save the new size back to the model and cache
-                altSizeModel.sizes.Add(new ImageAltSizeEntry {
-                    w = holeWidth,
-                    h = holeHeight,
-                    ah = proportionalHeight,
-                    aw = proportionalWidth,
-                    f = $"{cropOrPadPrefix}{holeWidth}x{holeHeight}{filenameExt}",
-                    crop = cropOrPad
-                });
-                imageAltSizes = serializeAltSizeList(altSizeModel);
-                isNewSize = true;
-                core.cache.storeObject(imageExistsKey, true);
-                return newImageFilename.Replace(@"\", "/");
             } catch (UnknownImageFormatException ex) {
                 //
                 // -- unknown image error, return original image
