@@ -126,8 +126,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                 Array.Resize(ref FieldMatchOptions, FieldSize + 1);
                 Array.Resize(ref FieldLookupContentName, FieldSize + 1);
                 Array.Resize(ref FieldLookupList, FieldSize + 1);
+                var fieldsThatAllowNotAuthorable = new List<string> { "id", "dateadded", "createdby", "modifieddate", "modifiedby", "ccguid", "contentcontrolid", "sortorder", "active" };
                 foreach (KeyValuePair<string, ContentFieldMetadataModel> keyValuePair in adminData.adminContent.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
+                    //
+                    // skip fields that are not active or not authorable (unless they are system fields that are allowed)
+                    if (!field.active) {
+                        continue;
+                    }
+                    if (!field.authorable && !fieldsThatAllowNotAuthorable.Contains(field.nameLc, StringComparer.OrdinalIgnoreCase)) {
+                        continue;
+                    }
                     if (FieldPtr >= FieldSize) {
                         FieldSize = FieldSize + 100;
                         Array.Resize(ref FieldNames, FieldSize + 1);
