@@ -293,6 +293,310 @@ public class SecureApiEndpoint : AddonBaseClass {
 
 ---
 
+## Form Security & Spam Prevention
+
+### Overview
+
+Form-handling addons (contact forms, comment submission, user registration, etc.) are prime targets for spam bots and abuse. Contensive provides built-in security methods to protect forms with minimal code.
+
+### Required Security Layers
+
+Every form-handling addon should implement these protections in order:
+
+1. **Honeypot Check** — catches simple bots (fastest check)
+2. **Rate Limiting** — prevents spam bursts and abuse
+3. **Authentication Check** — if the form requires login
+4. **Input Validation** — business logic validation
+5. **ORM for Database Operations** — prevents SQL injection
+
+### cp.Security API Methods
+
+#### CheckHoneypot() — Bot Detection
+
+Detects if a hidden "honeypot" field was filled by a bot. Returns `true` if spam detected.
+
+```csharp
+public override object Execute(CPBaseClass cp) {
+    // One-line bot detection
+    if (cp.Security.CheckHoneypot()) {
+        // Return fake success so bot thinks it succeeded
+        return cp.JSON.Serialize(new { success = true, message = "Thank you!" });
+    }
+
+    // Process legitimate form...
+}
+```
+
+**Usage Notes:**
+- Automatically logs spam attempts
+- Integrates with abuse detection system
+- Default field name is "website_url" (customize if needed)
+- Must pair with `GetHoneypotHtml()` in your form template
+
+#### GetHoneypotHtml() — HTML Generation
+
+Generates the honeypot field HTML for your form template. Field is hidden from real users but visible to bots.
+
+```csharp
+// In your addon's HTML/template generation:
+string formHtml = $@"
+    <form method='post' action='/submitform'>
+        {cp.Security.GetHoneypotHtml()}
+        <input type='email' name='email' placeholder='Your Email' required>
+        <textarea name='message' placeholder='Your Message' required></textarea>
+        <button type='submit'>Send</button>
+    </form>
+";
+return formHtml;
+```
+
+**Generated HTML:**
+```html
+<div style="position:absolute;left:-9999px;" aria-hidden="true">
+    <input type="text" name="website_url" tabindex="-1" autocomplete="off" value="">
+</div>
+```
+
+#### CheckRateLimit() — Spam Burst Prevention
+
+Prevents rapid-fire submissions from the same visitor. Returns `true` if rate limit exceeded.
+
+```csharp
+public override object Execute(CPBaseClass cp) {
+    // Check honeypot first (cheapest)
+    if (cp.Security.CheckHoneypot()) {
+        return FakeSuccessResponse();
+    }
+
+    // Check rate limit (prevent spam bursts and double-submits)
+    if (cp.Security.CheckRateLimit("contactFormSubmit", cooldownSeconds: 15)) {
+        return cp.JSON.Serialize(new {
+            success = false,
+            error = "Please wait a moment before submitting again."
+        });
+    }
+
+    // Process form...
+    ProcessFormSubmission();
+
+    // Record successful action AFTER processing
+    cp.Security.RecordAction("contactFormSubmit");
+
+    return cp.JSON.Serialize(new { success = true });
+}
+```
+
+**Parameters:**
+- `actionKey` — Unique identifier for this action (e.g., "contactForm", "commentPost")
+- `cooldownSeconds` — Seconds required between submissions (default: 15)
+
+**Usage Notes:**
+- Automatically logs rate limit violations
+- Uses visit-level storage (tied to IP + browser)
+- Thread-safe for concurrent requests
+- Must call `RecordAction()` after successful form processing
+
+#### RecordAction() — Mark Successful Action
+
+Records that the visitor successfully completed an action, starting the rate limit cooldown timer.
+
+```csharp
+// Call AFTER successful form processing
+cp.Security.RecordAction("contactFormSubmit");
+```
+
+**Important:** Only call this after the form has been successfully processed (validation passed, email sent, data saved, etc.). Don't call it if form validation fails.
+
+#### SanitizeInput() — Input Cleaning
+
+Sanitizes user input for safe display or storage.
+
+```csharp
+// For displaying user input in HTML
+string safeName = cp.Security.SanitizeInput(userName, "display");
+string html = $"<p>Thank you, {safeName}!</p>";
+
+// For embedding in URLs
+string safeQuery = cp.Security.SanitizeInput(searchTerm, "url");
+string redirectUrl = $"/search?q={safeQuery}";
+
+// For extra safety when storing searchable text
+string safeBio = cp.Security.SanitizeInput(userBio, "sql");
+```
+
+**Modes:**
+- `"display"` — HTML-encodes dangerous characters (default)
+- `"url"` — URL-encodes per RFC 3986
+- `"sql"` — Strips common SQL injection patterns (still use ORM for queries!)
+
+**Important:** This does NOT replace parameterized queries. Always use `DbBaseModel` for database operations.
+
+### Complete Form Security Example
+
+```csharp
+public class ContactFormSubmit : AddonBaseClass {
+    public override object Execute(CPBaseClass cp) {
+        try {
+            // 1. Check honeypot (catches bots - cheapest check)
+            if (cp.Security.CheckHoneypot()) {
+                cp.Utils.AppendLog("ContactForm: honeypot triggered");
+                return cp.JSON.Serialize(new {
+                    success = true,
+                    message = "Thank you for your message!"
+                });
+            }
+
+            // 2. Check rate limit (prevents spam bursts)
+            if (cp.Security.CheckRateLimit("contactFormSubmit", 15)) {
+                return cp.JSON.Serialize(new {
+                    success = false,
+                    error = "Please wait a moment before submitting again."
+                });
+            }
+
+            // 3. Validate required fields
+            string email = cp.Doc.GetText("email");
+            string message = cp.Doc.GetText("message");
+
+            if (string.IsNullOrWhiteSpace(email)) {
+                return cp.JSON.Serialize(new {
+                    success = false,
+                    error = "Email is required."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(message)) {
+                return cp.JSON.Serialize(new {
+                    success = false,
+                    error = "Message is required."
+                });
+            }
+
+            // 4. Sanitize input for storage and display
+            string safeEmail = cp.Security.SanitizeInput(email, "display");
+            string safeMessage = cp.Security.SanitizeInput(message, "display");
+
+            // 5. Save to database using ORM (prevents SQL injection)
+            var submission = ContactSubmission.addDefault<ContactSubmission>(cp);
+            submission.email = safeEmail.Substring(0, Math.Min(safeEmail.Length, 255));
+            submission.message = safeMessage;
+            submission.submittedDate = DateTime.Now;
+            submission.save(cp);
+
+            // 6. Send notification email
+            string emailBody = $"<p>New contact form submission:</p><p><strong>From:</strong> {safeEmail}</p><p><strong>Message:</strong> {safeMessage}</p>";
+            cp.Email.send("admin@example.com", "Contact Form Submission", emailBody);
+
+            // 7. Record successful action (starts rate limit cooldown)
+            cp.Security.RecordAction("contactFormSubmit");
+
+            return cp.JSON.Serialize(new {
+                success = true,
+                message = "Thank you for your message!"
+            });
+
+        } catch (Exception ex) {
+            cp.Site.ErrorReport(ex);
+            return cp.JSON.Serialize(new {
+                success = false,
+                error = "An error occurred. Please try again later."
+            });
+        }
+    }
+}
+```
+
+### Form Template Example
+
+```html
+<div class="contact-form">
+    <form id="contactForm" method="post" action="/contactformsubmit">
+        <!-- Honeypot field (hidden from users, visible to bots) -->
+        <div style="position:absolute;left:-9999px;" aria-hidden="true">
+            <input type="text" name="website_url" tabindex="-1" autocomplete="off" value="">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Your Email *</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="message">Message *</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+```
+
+**Or use the helper method:**
+
+```csharp
+string formHtml = $@"
+<div class='contact-form'>
+    <form id='contactForm' method='post' action='/contactformsubmit'>
+        {cp.Security.GetHoneypotHtml()}
+
+        <div class='form-group'>
+            <label for='email'>Your Email *</label>
+            <input type='email' id='email' name='email' required>
+        </div>
+
+        <div class='form-group'>
+            <label for='message'>Message *</label>
+            <textarea id='message' name='message' rows='5' required></textarea>
+        </div>
+
+        <button type='submit'>Send Message</button>
+    </form>
+</div>
+";
+```
+
+### Security Processing Order
+
+Execute security checks in this order for optimal performance:
+
+1. **Honeypot** — Cheapest check, eliminates most bots
+2. **Rate Limit** — Prevents processing load from rapid submissions
+3. **Authentication** — If form requires login
+4. **Business Validation** — Required fields, format checks
+5. **Database Operations** — Using ORM with parameterized queries
+6. **Record Action** — Only after all validation passes
+
+### Form Security Checklist
+
+When building or auditing a form-handling addon:
+
+#### Client-Side (HTML Template)
+- [ ] Honeypot field added via `cp.Security.GetHoneypotHtml()` or manual HTML
+- [ ] Honeypot positioned off-screen with `position:absolute;left:-9999px;`
+- [ ] Honeypot has `aria-hidden="true"` for accessibility
+- [ ] Honeypot has `tabindex="-1"` to prevent keyboard navigation
+- [ ] Form uses HTTPS (automatically handled by Contensive)
+
+#### Server-Side (Addon Execute Method)
+- [ ] Check honeypot: `if (cp.Security.CheckHoneypot()) return FakeSuccess();`
+- [ ] Check rate limit: `if (cp.Security.CheckRateLimit("actionKey")) return Error();`
+- [ ] Validate authentication if required: `if (!cp.User.IsAuthenticated) return Unauthorized();`
+- [ ] Validate required fields and business logic
+- [ ] Sanitize output when displaying user input: `cp.Security.SanitizeInput(input, "display")`
+- [ ] Use ORM (`DbBaseModel`) for all database operations (never raw SQL)
+- [ ] Truncate text fields to prevent database overflow
+- [ ] Record action after success: `cp.Security.RecordAction("actionKey");`
+- [ ] Log important events: `cp.Utils.AppendLog("description")`
+- [ ] Wrap in try/catch with proper error response
+
+#### Security Features
+- [ ] Different responses for bot detection (fake success) vs. rate limits (error)
+- [ ] Same cooldown key used in `CheckRateLimit()` and `RecordAction()`
+- [ ] Rate limit cooldown appropriate for use case (15s for contact forms, 60s+ for password resets)
+- [ ] No sensitive information leaked in error messages
+
+---
+
 ## Security Checklist
 
 ### All Sensitive Operations
@@ -319,6 +623,16 @@ public class SecureApiEndpoint : AddonBaseClass {
 - [ ] Do success and failure code paths return the same response to the caller?
 - [ ] Is the rate limit counter incremented on all code paths (success, user-not-found, send failure)?
 - [ ] Could an attacker use this endpoint to flood a user's inbox or phone with automated requests?
+
+### Form-Handling Addons (Contact Forms, Comments, Registration, etc.)
+- [ ] Honeypot field included in HTML template via `cp.Security.GetHoneypotHtml()`
+- [ ] Server checks honeypot: `cp.Security.CheckHoneypot()` returns fake success if spam
+- [ ] Server checks rate limit: `cp.Security.CheckRateLimit("actionKey")` before processing
+- [ ] Server records action: `cp.Security.RecordAction("actionKey")` after successful submit
+- [ ] User input sanitized before display: `cp.Security.SanitizeInput(input, "display")`
+- [ ] All database operations use ORM (`DbBaseModel.create`, `model.save()`)
+- [ ] Text fields truncated to database column length limits
+- [ ] Security checks executed in correct order: honeypot → rate limit → auth → validation → processing
 
 ---
 
