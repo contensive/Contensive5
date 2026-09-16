@@ -30,7 +30,18 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The sql orderby clause used to order the data set. Created from the user clicking on a column header.
         /// </summary>
+        [Obsolete("Deprecated. Use sortField and sortDirection instead to build your own ORDER BY clause.", false)]
         public abstract string sqlOrderBy { get; }
+        /// <summary>
+        /// The column name currently being sorted by the user clicking a sortable column header.
+        /// Empty string if no sort is active. Use with sortDirection to build your ORDER BY clause.
+        /// </summary>
+        public abstract string sortField { get; }
+        /// <summary>
+        /// The current sort direction: "asc", "desc", or "" (empty = no sort).
+        /// Tri-state cycle: first click = asc, second click = desc, third click = cleared.
+        /// </summary>
+        public abstract string sortDirection { get; }
         /// <summary>
         /// reset pagination back to page 1. Use to force the view to page when when the query filter changes.
         /// Mus tbe called before accessing pagination fields or query elements.

@@ -73,8 +73,24 @@
 <script>
 	document.addEventListener('DOMContentLoaded', function(event) {
 		console.log("AdminUILayoutBuilderList, binding");
-		$('.afw').on('click','.sortLink',function(p){
-			console.log("AdminUILayoutBuilderList, sortLink click");
+		$('.afw').on('click','.columnSort',function(e){
+			e.preventDefault();
+			let field = $(this).data('columnsort');
+			let currentField = $('#sortField').val();
+			let currentDir = $('#sortDirection').val();
+			if (field === currentField) {
+				if (currentDir === 'asc') {
+					$('#sortDirection').val('desc');
+				} else {
+					$('#sortField').val('');
+					$('#sortDirection').val('');
+				}
+			} else {
+				$('#sortField').val(field);
+				$('#sortDirection').val('asc');
+			}
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if(pageNumber.length>0) {pageNumber[0].value='1';}
 			submitAfwAjaxListForm();
 		});
 		// -- click pagination link

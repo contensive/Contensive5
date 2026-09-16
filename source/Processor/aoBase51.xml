@@ -4246,6 +4246,7 @@
   <ImportCollection Name="Personalization">{1339F712-17F7-408A-B021-92DF846BD486}</ImportCollection>
   <ImportCollection Name="Tool Basics">{0abd30d8-1ac0-4f6a-b572-106b9ef6af18}</ImportCollection>
   <ImportCollection Name="Status">{647FB77C-86BA-435D-8DEB-2B916343494F}</ImportCollection>
+  <ImportCollection Name="CRM Portal">{790be14e-e889-4538-9451-db94b7e5f474}</ImportCollection>
   <!-- blocked until upgrade
   <ImportCollection Name="File Manager">{0A080FBC-2814-407F-8F8C-CD06F422789D}</ImportCollection>
   <ImportCollection Name="Site Explorer">{5426E6D5-05A8-4A87-B535-CD0FABA04F29}</ImportCollection>

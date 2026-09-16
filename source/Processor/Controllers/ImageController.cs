@@ -329,16 +329,16 @@ namespace Contensive.Processor.Controllers {
                 Image image;
                 try {
                     image = Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"));
-                } catch (InvalidImageContentException ex) {
+                } catch (InvalidImageContentException) {
                     //
-                    // -- corrupted or truncated image file, return original image
-                    logger.Warn(ex, $"{core.logCommonMessage},Corrupted or truncated image file [" + imageCdnPathFilename + "]");
-                    return imageCdnPathFilename.Replace(@"\", "/");
-                } catch (NotSupportedException ex) {
+                    // -- corrupted or truncated image file, return placeholder
+                    logger.Warn($"{core.logCommonMessage},Corrupted or truncated image file [{imageCdnPathFilename}]");
+                    return createPlaceholderImage(core, imageCdnPathFilename, holeWidth, holeHeight);
+                } catch (NotSupportedException) {
                     //
-                    // -- unsupported image operation, return original image
-                    logger.Warn(ex, $"{core.logCommonMessage},Unsupported image operation [" + imageCdnPathFilename + "]");
-                    return imageCdnPathFilename.Replace(@"\", "/");
+                    // -- unsupported image operation, return placeholder
+                    logger.Warn($"{core.logCommonMessage},Unsupported image operation [{imageCdnPathFilename}]");
+                    return createPlaceholderImage(core, imageCdnPathFilename, holeWidth, holeHeight);
                 }
                 using (image) {
                     //
@@ -546,16 +546,43 @@ namespace Contensive.Processor.Controllers {
                     core.cache.storeObject(imageExistsKey, true);
                     return newImageFilename.Replace(@"\", "/");
                 }
-            } catch (UnknownImageFormatException ex) {
+            } catch (UnknownImageFormatException) {
                 //
-                // -- unknown image error, return original image
-                logger.Warn(ex, $"{core.logCommonMessage},Unknown image type [" + imageCdnPathFilename + "]");
-                return imageCdnPathFilename.Replace(@"\", "/");
+                // -- unknown image format, return placeholder
+                logger.Warn($"{core.logCommonMessage},Unknown image type [{imageCdnPathFilename}]");
+                return createPlaceholderImage(core, imageCdnPathFilename, holeWidth, holeHeight);
             } catch (Exception ex) {
                 //
                 // -- unknown exception
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return imageCdnPathFilename;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Create a solid gray placeholder PNG for an invalid/corrupt image.
+        /// Saved alongside the original so it is only generated once per size.
+        /// </summary>
+        private static string createPlaceholderImage(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight) {
+            try {
+                int width = holeWidth > 0 ? holeWidth : 200;
+                int height = holeHeight > 0 ? holeHeight : 200;
+                string filePath = FileController.getPath(imageCdnPathFilename);
+                string filenameNoExt = Path.GetFileNameWithoutExtension(imageCdnPathFilename);
+                string placeholderFilename = $"{filePath}{filenameNoExt}-placeholder-{width}x{height}.png";
+                string localAbsPath = core.cdnFiles.convertRelativeToLocalAbsPath(placeholderFilename.Replace("/", @"\"));
+                if (!core.cdnFiles.fileExists(placeholderFilename)) {
+                    using var placeholderImage = new Image<Rgba32>(width, height, new Rgba32(224, 224, 224, 255));
+                    placeholderImage.Save(localAbsPath, new PngEncoder());
+                    core.cdnFiles.copyFileLocalToRemote(placeholderFilename);
+                }
+                return placeholderFilename.Replace(@"\", "/");
+            } catch (Exception ex) {
+                //
+                // -- if placeholder creation fails, fall back to original path
+                logger.Error(ex, $"{core.logCommonMessage},Failed to create placeholder image for [{imageCdnPathFilename}]");
+                return imageCdnPathFilename.Replace(@"\", "/");
             }
         }
         //

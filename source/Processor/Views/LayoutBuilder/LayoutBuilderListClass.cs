@@ -1,6 +1,5 @@
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
-using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
@@ -91,17 +90,6 @@ namespace Contensive.Processor.LayoutBuilder {
         // ====================================================================================================
         // privates
         //
-        //
-        private GridConfigClass gridConfig {
-            get {
-                var request = new GridConfigRequest {
-                    defaultRecordsPerPage = paginationPageSizeDefault,
-                    gridPropertiesSaveName = "",
-                    sortableFields = []
-                };
-                return new GridConfigClass(cp.core, request);
-            }
-        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -299,20 +287,91 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
+        [Obsolete("Deprecated. Use sortField and sortDirection instead to build your own ORDER BY clause.", false)]
         public override string sqlOrderBy {
             get {
                 if (_sqlOrderBy != null) { return _sqlOrderBy; }
-                _sqlOrderBy = "";
-                string orderByDelim = " ";
-                foreach (var kvp in gridConfig.sorts) {
-                    _sqlOrderBy += orderByDelim + kvp.Value.fieldName;
-                    if (kvp.Value.direction > 1) { _sqlOrderBy += " Desc"; }
-                    orderByDelim = ",";
+                if (string.IsNullOrEmpty(sortField)) {
+                    _sqlOrderBy = "";
+                } else {
+                    _sqlOrderBy = sortDirection == "desc" ? $"{sortField} desc" : sortField;
                 }
                 return _sqlOrderBy;
             }
         }
         private string _sqlOrderBy = null;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The column name currently being sorted. Empty if no sort is active.
+        /// Reads from the request on ajax callbacks and persists per-addon in visit properties.
+        /// </summary>
+        public override string sortField {
+            get {
+                if (_sortField != null) { return _sortField; }
+                loadSortState();
+                return _sortField;
+            }
+        }
+        private string _sortField = null;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The current sort direction: "asc", "desc", or "" (empty = no sort).
+        /// Tri-state cycle: first click = asc, second click = desc, third click = cleared.
+        /// </summary>
+        public override string sortDirection {
+            get {
+                if (_sortDirection != null) { return _sortDirection; }
+                loadSortState();
+                return _sortDirection;
+            }
+        }
+        private string _sortDirection = null;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Load sort state from request or visit property.
+        /// On ajax callback with sortField in request, cycle the tri-state (asc->desc->clear).
+        /// Otherwise load persisted state from visit property.
+        /// </summary>
+        private void loadSortState() {
+            if (string.IsNullOrEmpty(callbackAddonGuid)) {
+                _sortField = "";
+                _sortDirection = "";
+                return;
+            }
+            string propertyKey = $"AdminUIListSort_{callbackAddonGuid}";
+            if (cp.Doc.IsProperty("sortField")) {
+                //
+                // -- ajax callback with sort request, cycle the tri-state
+                string requestedField = cp.Request.GetText("sortField");
+                string requestedDirection = cp.Request.GetText("sortDirection");
+                _sortField = requestedField;
+                _sortDirection = requestedDirection;
+                //
+                // -- persist state
+                if (string.IsNullOrEmpty(_sortField)) {
+                    cp.Visit.SetProperty(propertyKey, "");
+                } else {
+                    cp.Visit.SetProperty(propertyKey, $"{_sortField},{_sortDirection}");
+                }
+                return;
+            }
+            //
+            // -- no sort in request, load from visit property
+            string persisted = cp.Visit.GetText(propertyKey);
+            if (!string.IsNullOrEmpty(persisted)) {
+                string[] parts = persisted.Split(',');
+                if (parts.Length == 2) {
+                    _sortField = parts[0];
+                    _sortDirection = parts[1];
+                    return;
+                }
+            }
+            _sortField = "";
+            _sortDirection = "";
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         public override void paginationReset() {
@@ -609,11 +668,15 @@ namespace Contensive.Processor.LayoutBuilder {
                                 classAttribute = " class=\"" + classAttribute + "\"";
                             }
                             string content = columns[colPtr].caption;
-                            string sortField = columns[colPtr].name;
+                            string colSortField = columns[colPtr].name;
                             if (content == "") {
                                 content = "&nbsp;";
                             } else if (columns[colPtr].sortable) {
-                                content = $"<a class=\"columnSort\" data-columnSort=\"{sortField}\" href=\"#\">" + content + "</a>";
+                                string sortIndicator = "";
+                                if (!string.IsNullOrEmpty(this.sortField) && colSortField.Equals(this.sortField, StringComparison.OrdinalIgnoreCase)) {
+                                    sortIndicator = this.sortDirection == "asc" ? " &#9650;" : " &#9660;";
+                                }
+                                content = $"<a class=\"columnSort\" data-columnsort=\"{cp.Utils.EncodeHTML(colSortField)}\" href=\"#\">{content}{sortIndicator}</a>";
                             }
                             string styleAttribute = "";
                             if (columns[colPtr].columnWidthPercent > 0) {
@@ -735,7 +798,8 @@ namespace Contensive.Processor.LayoutBuilder {
                     + "</tbody>"
                     + "</table>"
                     + "</div>"
-                    + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
+                    + $"<input type=\"hidden\" name=\"sortField\" id=\"sortField\" value=\"{cp.Utils.EncodeHTML(sortField)}\">"
+                    + $"<input type=\"hidden\" name=\"sortDirection\" id=\"sortDirection\" value=\"{cp.Utils.EncodeHTML(sortDirection)}\">"
                     + "";
                 //
                 cp.Log.Debug("LayoutBuilderListClass.getGridHtml(), exit");

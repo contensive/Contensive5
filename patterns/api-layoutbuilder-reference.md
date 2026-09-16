@@ -165,12 +165,35 @@ Constructor: `LayoutBuilderListBaseClass(CPBaseClass cp)`
 void paginationReset()   // reset to page 1 (call before accessing pagination when filter changes)
 ```
 
+### Sorting
+
+Sortable columns use a tri-state click cycle on their header: first click = ascending, second click = descending, third click = sort cleared. The sort state persists across AJAX reloads via visit properties.
+
+To make a column sortable, set `columnName` (the SQL field name) and `columnSortable = true` when defining the column. The active sort column displays &#9650; (ascending) or &#9660; (descending) in its header.
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `sortField` | `string` (read-only) | Column name currently being sorted, or empty if no sort active |
+| `sortDirection` | `string` (read-only) | `"asc"`, `"desc"`, or `""` (empty = no sort) |
+
+Use these properties to build your ORDER BY clause:
+
+```csharp
+string sql = "select * from myTable where (1=1)";
+if (!string.IsNullOrEmpty(list.sortField)) {
+    sql += $" order by {list.sortField}";
+    if (list.sortDirection == "desc") { sql += " desc"; }
+} else {
+    sql += " order by name";
+}
+```
+
 ### SQL Helpers (read-only)
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `sqlSearchTerm` | `string` | SQL-safe search term from user's search box input |
-| `sqlOrderBy` | `string` | SQL ORDER BY clause from user clicking column headers |
+| `sqlOrderBy` | `string` | **(Deprecated)** Use `sortField` and `sortDirection` instead |
 
 ### Column Definition
 
@@ -258,7 +281,10 @@ public override object Execute(CPBaseClass cp) {
     if (!string.IsNullOrEmpty(list.sqlSearchTerm)) {
         criteria += $" and (name like '%{list.sqlSearchTerm}%' or email like '%{list.sqlSearchTerm}%')";
     }
-    string orderBy = string.IsNullOrEmpty(list.sqlOrderBy) ? "name" : list.sqlOrderBy;
+    string orderBy = "name";
+    if (!string.IsNullOrEmpty(list.sortField)) {
+        orderBy = list.sortDirection == "desc" ? $"{list.sortField} desc" : list.sortField;
+    }
 
     var people = DbBaseModel.createList<PersonModel>(cp, criteria, orderBy, list.paginationPageSize, list.paginationPageNumber);
     list.recordCount = /* total count query */;

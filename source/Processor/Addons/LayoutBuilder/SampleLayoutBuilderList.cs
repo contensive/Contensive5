@@ -96,24 +96,27 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 layoutBuilder.columnDownloadable = false;
                 layoutBuilder.columnVisible = true;
                 layoutBuilder.columnSortable = false;
-                // 
+                //
                 layoutBuilder.addColumn();
+                layoutBuilder.columnName = "id";
                 layoutBuilder.columnCaption = "ID";
                 layoutBuilder.columnCaptionClass = $"{AfwStyles.afwWidth100px} {AfwStyles.afwTextAlignCenter}";
                 layoutBuilder.columnCellClass = $"{AfwStyles.afwWidth100px} {AfwStyles.afwTextAlignCenter}";
                 layoutBuilder.columnDownloadable = true;
                 layoutBuilder.columnVisible = true;
                 layoutBuilder.columnSortable = true;
-                // 
+                //
                 layoutBuilder.addColumn();
+                layoutBuilder.columnName = "dateAdded";
                 layoutBuilder.columnCaption = "Date Added";
                 layoutBuilder.columnCaptionClass = $"{AfwStyles.afwWidth200px} {AfwStyles.afwTextAlignCenter}";
                 layoutBuilder.columnCellClass = $"{AfwStyles.afwWidth200px} {AfwStyles.afwTextAlignLeft}";
                 layoutBuilder.columnDownloadable = true;
                 layoutBuilder.columnVisible = true;
                 layoutBuilder.columnSortable = true;
-                // 
+                //
                 layoutBuilder.addColumn();
+                layoutBuilder.columnName = "name";
                 layoutBuilder.columnCaption = "Name";
                 layoutBuilder.columnCaptionClass = $"{AfwStyles.afwTextAlignLeft}";
                 layoutBuilder.columnCellClass = $"{AfwStyles.afwTextAlignLeft}";
@@ -138,7 +141,12 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 string sql = $"select id,dateAdded,name from ccmembers where {sqlWhere}";
                 //
                 // -- sort
-                sql += string.IsNullOrEmpty(layoutBuilder.sqlOrderBy) ? " order by name" : $" order by {layoutBuilder.sqlOrderBy}";
+                if (!string.IsNullOrEmpty(layoutBuilder.sortField)) {
+                    sql += $" order by {layoutBuilder.sortField}";
+                    if (layoutBuilder.sortDirection == "desc") { sql += " desc"; }
+                } else {
+                    sql += " order by name";
+                }
                 //
                 // -- Limit
                 sql += $" OFFSET {(layoutBuilder.paginationPageNumber - 1) * layoutBuilder.paginationPageSize} ROWS FETCH NEXT {layoutBuilder.paginationPageSize} ROWS ONLY";
