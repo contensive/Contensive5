@@ -158,9 +158,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsDownloaded">Collections downloaded but not installed yet. Do not need to download them again.</param>
         /// <param name="isDependency"></param>
         /// <returns></returns>
-        public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool installDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
+        public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool installDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall, string contextHint = "") {
             bool result = false;
             try {
+                if (string.IsNullOrEmpty(contextHint)) { contextHint = "entry"; }
                 //
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + collectionGuid + "]");
                 traceContextLog(core, contextLog);
@@ -176,7 +177,9 @@ namespace Contensive.Processor.Controllers {
                     collectionsInstalledList.Add(collectionGuid.ToLower(CultureInfo.InvariantCulture));
                 }
                 //
+                contextHint = "before-getCollectionFolderConfig";
                 var collectionFolderConfig = CollectionFolderModel.getCollectionFolderConfig(core, collectionGuid);
+                contextHint = "after-getCollectionFolderConfig";
                 if ((collectionFolderConfig == null) || string.IsNullOrEmpty(collectionFolderConfig.path)) {
                     //
                     // -- ERROR, collection folder not found
@@ -187,8 +190,11 @@ namespace Contensive.Processor.Controllers {
                 //
                 // Search Local Collection Folder for collection config file (xml file)
                 //
+                contextHint = "before-build-CollectionVersionFolder";
                 string CollectionVersionFolder = AddonController.getPrivateFilesAddonPath() + collectionFolderConfig.path + "\\";
+                contextHint = "before-getFileList";
                 List<FileDetail> srcFileInfoArray = core.privateFiles.getFileList(CollectionVersionFolder);
+                contextHint = "after-getFileList";
                 if (srcFileInfoArray.Count == 0) {
                     //
                     // -- EXIT, ERROR, collection folder was empty
@@ -231,6 +237,7 @@ namespace Contensive.Processor.Controllers {
 #endif
                 //
                 // -- Process the other files
+                contextHint = "stage-1-process-xml-files";
                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], process xml files.");
                 foreach (FileDetail file in srcFileInfoArray) {
                     if (file.Extension == ".xml") {
@@ -251,7 +258,13 @@ namespace Contensive.Processor.Controllers {
                             loadOK = false;
                         }
                         if (loadOK) {
+                            contextHint = $"after-load-xml-file-{file.Name}";
+                            if (Doc.DocumentElement == null) {
+                                logger.Error($"{core.logCommonMessage}, XML file [{file.Name}] has null DocumentElement");
+                                continue;
+                            }
                             if ((Doc.DocumentElement.Name.ToLowerInvariant() == GenericController.toLCase(CollectionFileRootNode)) || (Doc.DocumentElement.Name.ToLowerInvariant() == GenericController.toLCase(CollectionFileRootNodeOld))) {
+                                contextHint = $"processing-collection-xml-{file.Name}";
                                 //
                                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------
                                 // Collection File - import from sub so it can be re-entrant
@@ -361,7 +374,9 @@ namespace Contensive.Processor.Controllers {
                                                 } else {
                                                     //
                                                     // -- all included collections should already be installed, because buildfolder is called before call
-                                                    installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall);
+                                                    contextHint = $"before-recursive-call-dependency-{ChildCollectionGUId}";
+                                                    installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall, $"dependency-of-{CollectionName}");
+                                                    contextHint = $"after-recursive-call-dependency-{ChildCollectionGUId}";
                                                 }
                                                 break;
                                             }
@@ -381,6 +396,7 @@ namespace Contensive.Processor.Controllers {
                                 CollectionInstallResourceController.saveManifestAndCleanupOrphans(core, CollectionName, collectionGuid, CollectionVersionFolder, resourceManifest);
                                 //
                                 // ----------------------------------------------------------------------------------------------------------------------------------
+                                contextHint = "stage-2-determine-if-installed";
                                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], stage-2, determine if this collection is already installed");
                                 // ----------------------------------------------------------------------------------------------------------------------------------
                                 //
@@ -418,6 +434,7 @@ namespace Contensive.Processor.Controllers {
                                 } else {
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-3-prepare-import";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-3, prepare to import full collection");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -462,6 +479,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-4-process-schema-metadata";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-4, isolate and process schema-relatednodes (metadata,index,etc)");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -553,6 +571,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-5-create-data-records";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-5, create data records from data nodes, ignore fields");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -618,6 +637,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-6-install-addon-nodes";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-6, install addon nodes, set importcollection relationships");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -713,6 +733,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-6b-resolve-editorAddonId";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], stage-6b, resolve editorAddonId guids in cdef fields now that addons are installed");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -739,6 +760,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-7-set-addon-dependencies";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-7, set addon dependency relationships");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -770,6 +792,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // ----------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "stage-8-process-data-set-fields";
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-8, process data nodes, set record fields");
                                     // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -782,6 +805,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                    contextHint = "verify-navigator-menu-entries";
                                     logger.Info($"{core.logCommonMessage}, verify all navigator menu entries for updated addons");
                                     // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                     //
@@ -796,6 +820,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 //
                                 // -- setup onInstall if included
+                                contextHint = "setup-onInstall-addon";
                                 int collectionOninstalladdonid = 0;
                                 if (!string.IsNullOrWhiteSpace(collectionOninstalladdonGuid)) {
                                     var addon = core.cacheRuntime.addonCache.create(collectionOninstalladdonGuid);
@@ -820,6 +845,7 @@ namespace Contensive.Processor.Controllers {
                                 } else {
                                     //
                                     // -- install the install addon
+                                    contextHint = "execute-onInstall-addon";
                                     var addon = core.cacheRuntime.addonCache.create(collectionOninstalladdonGuid);
                                     if (addon != null) {
                                         var executeContext = new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
@@ -848,8 +874,8 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 //
                 // Log error and exit with failure. This way any other upgrading will still continue
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
+                logger.Error(ex, $"{core.logCommonMessage}, contextHint=[{contextHint}], collectionGuid=[{collectionGuid}]");
+                throw new Exception($"installCollectionFromCollectionFolder failed at contextHint=[{contextHint}], collectionGuid=[{collectionGuid}]", ex);
             } finally {
                 contextLog.Pop();
             }
@@ -1069,7 +1095,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 returnSuccess = true;
                 foreach (string collectionGuid in collectionsToInstall) {
-                    if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded, skipCdefInstall)) {
+                    if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded, skipCdefInstall, "from-installCollectionsFromTempFolder")) {
                         logger.Warn($"{core.logCommonMessage}, installCollectionFromCollectionFolder returned false for collection [{collectionGuid}] with Error Message [{return_ErrorMessage}]. The installation will continue.");
                         returnSuccess = false;
                         continue;
@@ -1115,7 +1141,7 @@ namespace Contensive.Processor.Controllers {
                 if (collectionsDownloaded.Count > 0) {
                     return_CollectionGUID = collectionsDownloaded.First();
                     foreach (var collection in collectionsDownloaded) {
-                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collection, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, true, ref collectionsDownloaded, skipCdefInstall)) {
+                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collection, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, true, ref collectionsDownloaded, skipCdefInstall, "from-installCollectionFromTempFile")) {
                             //
                             // -- Collection install failed, log warning and continue
                             returnSuccess = false;
