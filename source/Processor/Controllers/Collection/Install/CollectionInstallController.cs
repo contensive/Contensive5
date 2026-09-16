@@ -540,7 +540,7 @@ namespace Contensive.Processor.Controllers {
                                                 return_ErrorMessage.errors.Add(" The collection was not installed because the xml collection file has an error.");
                                                 return false;
                                             }
-                                            if (loadOK) {
+                                            if (loadOK && NavDoc.DocumentElement != null) {
                                                 foreach (XmlNode metaDataNode in NavDoc.DocumentElement.ChildNodes) {
                                                     switch (GenericController.toLCase(metaDataNode.Name)) {
                                                         case "cdef": {
@@ -609,8 +609,13 @@ namespace Contensive.Processor.Controllers {
                                                                     //
                                                                     // create or update the record
                                                                     ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
+                                                                    if (metaData == null) {
+                                                                        logger.Warn($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], content definition not found: [{ContentName}]");
+                                                                        return_ErrorMessage.errors.Add($"Data record for content [{ContentName}] could not be installed because the content definition was not found.");
+                                                                        continue;
+                                                                    }
                                                                     using var csData = new CsModel(core);
-                                                                    if (metaData.fields["name"].uniqueName) {
+                                                                    if (metaData.fields.ContainsKey("name") && metaData.fields["name"].uniqueName) {
                                                                         //
                                                                         // -- content's name field requires unique. Insert and update based on name and update guid
                                                                         csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName), "", false);
@@ -811,8 +816,10 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     if (!skipCdefInstall) {
                                         MetadataMiniCollectionModel Collection = CollectionInstallMetadataController.loadXML(core, collectionFileContent, isBaseCollection, false, IsNewBuild, "");
-                                        foreach (var kvp in Collection.menus) {
-                                            BuildController.verifyNavigatorEntry(core, kvp.Value, 0);
+                                        if (Collection != null && Collection.menus != null) {
+                                            foreach (var kvp in Collection.menus) {
+                                                BuildController.verifyNavigatorEntry(core, kvp.Value, 0);
+                                            }
                                         }
                                     }
                                     //
