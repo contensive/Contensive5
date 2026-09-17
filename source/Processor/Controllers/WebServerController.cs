@@ -612,9 +612,7 @@ namespace Contensive.Processor.Controllers {
                 if (!string.IsNullOrEmpty(path)) {
                     httpContext.Response.cookies[name].path = path;
                 }
-                if (secure) {
-                    httpContext.Response.cookies[name].secure = secure;
-                }
+                httpContext.Response.cookies[name].secure = secure;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -659,7 +657,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             }
-            addResponseCookie(name, value, dateExpires, cookieDomain, "/", false);
+            addResponseCookie(name, value, dateExpires, cookieDomain, "/", true);
         }
         //
         //====================================================================================================

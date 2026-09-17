@@ -1005,7 +1005,8 @@ namespace Contensive.Processor.Controllers {
             innerHtml = csrfHidden + innerHtml;
             StringBuilder result = new("<form");
             result.Append((string.IsNullOrWhiteSpace(attributes.acceptcharset)) ? "" : $" accept-charset=\"{attributes.acceptcharset}\"");
-            result.Append($" action=\"{(string.IsNullOrWhiteSpace(attributes.action) ? "?" + core.doc.refreshQueryString : attributes.action)}\"");
+            string actionValue = string.IsNullOrWhiteSpace(attributes.action) ? $"?{core.doc.refreshQueryString}" : attributes.action;
+            result.Append($" action=\"{encodeHtml(actionValue)}\"");
             result.Append((attributes.autocomplete) ? " autocomplete=\"on\"" : " autocomplete=\"off\"");
             switch (attributes.enctype) {
                 case HtmlAttributesForm.HtmlEncTypeEnum.application_x_www_form_urlencoded: {

@@ -233,17 +233,21 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Report an error, logging it and sending notifications as the app is confirgured. Does not rethrow the error.
+        /// Report an error, logging it at ERROR level and sending notifications as the app is configured. Does not rethrow the error.
+        /// Use for unexpected exceptions that need admin notification. For routine logging without notifications, use cp.Log.Error() instead.
+        /// For expected/recoverable issues (rate limits, retryable failures), use cp.Log.Warn().
         /// </summary>
         /// <param name="message"></param>
         public abstract void ErrorReport(string message);
         /// <summary>
-        /// Report an error, logging it and sending notifications as the app is confirgured. Does not rethrow the error.
+        /// Report an error, logging it at ERROR level and sending notifications as the app is configured. Does not rethrow the error.
+        /// Use for unexpected exceptions that need admin notification. For routine logging without notifications, use cp.Log.Error() instead.
         /// </summary>
         /// <param name="Ex"></param>
         public abstract void ErrorReport(System.Exception Ex);
         /// <summary>
-        /// Report an error, logging it and sending notifications as the app is confirgured. Does not rethrow the error.
+        /// Report an error, logging it at ERROR level and sending notifications as the app is configured. Does not rethrow the error.
+        /// Use for unexpected exceptions that need admin notification. For routine logging without notifications, use cp.Log.Error() instead.
         /// </summary>
         /// <param name="Ex"></param>
         /// <param name="message"></param>
@@ -282,6 +286,9 @@ namespace Contensive.BaseClasses {
         //====================================================================================================
         /// <summary>
         /// Log an Alarm. Alarms are saved in the \Contensive\Alarms folder, and will automatically cause the server alarm to fail.
+        /// Use only for fatal/critical issues that require immediate admin intervention (e.g. server down, data corruption).
+        /// For application-level logging, use cp.Log (Trace, Debug, Info, Warn, Error, Fatal).
+        /// For error reporting with notifications, use cp.Site.ErrorReport().
         /// </summary>
         /// <param name="cause"></param>
         public abstract void LogAlarm(string cause);

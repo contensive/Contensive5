@@ -158,7 +158,7 @@ namespace Contensive.Processor {
         /// <param name="DateExpires"></param>
         /// <param name="Domain"></param>
         public override void SetCookie(string CookieName, string CookieValue, DateTime DateExpires, string Domain) {
-            cp.core.webServer.addResponseCookie(CookieName, CookieValue, DateExpires, Domain, "/", false);
+            cp.core.webServer.addResponseCookie(CookieName, CookieValue, DateExpires, Domain, "/", true);
         }
         //
         //====================================================================================================
@@ -171,7 +171,7 @@ namespace Contensive.Processor {
         /// <param name="Domain"></param>
         /// <param name="Path"></param>
         public override void SetCookie(string CookieName, string CookieValue, DateTime DateExpires, string Domain, string Path) {
-            cp.core.webServer.addResponseCookie(CookieName, CookieValue, DateExpires, Domain, Path, false);
+            cp.core.webServer.addResponseCookie(CookieName, CookieValue, DateExpires, Domain, Path, true);
         }
         //
         //====================================================================================================
