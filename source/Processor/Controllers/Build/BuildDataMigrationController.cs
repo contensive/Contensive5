@@ -685,7 +685,10 @@ namespace Contensive.Processor.Controllers.Build {
                             // -- bots: createdByVisit=1 with a bot visit record (catches visitors without a ccvisitors row)
                             core.db.executeNonQuery($"update ccmembers set personTypeId=1 from ccmembers u inner join ccvisits v on v.MemberID=u.id where (u.personTypeId=0)and(u.createdbyvisit=1)and(v.bot=1)");
                             //
-                            // -- guests: createdByVisit=1 and still unknown (not caught as bot above)
+                            // -- contacts: createdByVisit=1 but have an email address (real people who arrived via a visit)
+                            core.db.executeNonQuery($"update ccmembers set personTypeId=3 where (personTypeId=0 or personTypeId is null)and(createdbyvisit=1)and(email is not null)and(email<>'')");
+                            //
+                            // -- guests: createdByVisit=1 and still unknown (not caught as bot or contact above)
                             core.db.executeNonQuery($"update ccmembers set personTypeId=2 where (personTypeId=0 or personTypeId is null)and(createdbyvisit=1)");
                             //
                             // -- contacts: createdByVisit=0 and still unknown (manually created or previously promoted)
