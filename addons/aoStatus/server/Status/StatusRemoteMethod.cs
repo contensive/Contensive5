@@ -81,10 +81,33 @@ namespace Contensive.Addons.Status {
                     return BuildResponse(cp, "error", errorMsg, showDetail);
                 }
                 hint = 60;
+                //
+                // -- backup/reliability check. A missing or failed backup is a monitor error.
+                //
+                var reliability = ReliabilityDiagnosticsController.GetReliabilityInfo(cp);
+                if (reliability == null) {
+                    string errorMsg = showDetail
+                        ? "ERROR, backup check failed, reliability diagnostics returned null."
+                        : "ERROR, backup check failed.";
+                    return BuildResponse(cp, "error", errorMsg, showDetail);
+                }
+                if (!string.IsNullOrEmpty(reliability.backupCheckError)) {
+                    string errorMsg = showDetail
+                        ? $"ERROR, backup check failed: {reliability.backupCheckError}"
+                        : "ERROR, backup check failed.";
+                    return BuildResponse(cp, "error", errorMsg, showDetail);
+                }
+                if (!reliability.lastBackupDate.HasValue) {
+                    string errorMsg = showDetail
+                        ? "ERROR, backup check failed: no backup found."
+                        : "ERROR, backup check failed.";
+                    return BuildResponse(cp, "error", errorMsg, showDetail);
+                }
+                hint = 70;
                 string successMessage = showDetail
                     ? $"ok, all tests passed.{Environment.NewLine}{resultList}{diagnosticDetail}"
                     : "ok, all tests passed.";
-                return BuildResponse(cp, "ok", successMessage, showDetail);
+                return BuildResponse(cp, "ok", successMessage, showDetail, reliability);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
                 return "ERROR, unexpected exception during diagnostics.";
@@ -314,7 +337,7 @@ namespace Contensive.Addons.Status {
         /// <summary>
         /// Return plain text or JSON depending on the format query parameter
         /// </summary>
-        private static string BuildResponse(CPBaseClass cp, string status, string message, bool showDetail) {
+        private static string BuildResponse(CPBaseClass cp, string status, string message, bool showDetail, StatusResponseModel.StatusReliabilityModel reliabilityOverride = null) {
             string version = cp.Version;
             string format = cp.Doc.GetText("format");
             if (!format.Equals("json", StringComparison.OrdinalIgnoreCase)) {
@@ -343,9 +366,9 @@ namespace Contensive.Addons.Status {
                 // same as security above -- does not affect status/statusOk.
                 performance = PerformanceDiagnosticsController.GetPerformanceInfo(cp);
                 //
-                // -- backup/reliability info (Site Monitor roadmap Phase 3, items 2-4). Informational only,
-                // same as security/performance above -- does not affect status/statusOk.
-                reliability = ReliabilityDiagnosticsController.GetReliabilityInfo(cp);
+                // -- backup/reliability info (Site Monitor roadmap Phase 3, items 2-4).
+                // Use the pre-computed result when available to avoid a duplicate API call.
+                reliability = reliabilityOverride ?? ReliabilityDiagnosticsController.GetReliabilityInfo(cp);
                 //
                 // -- read performance metrics from site property (written periodically by the Processor)
                 metricsModel = GetMetricsFromSiteProperty(cp);

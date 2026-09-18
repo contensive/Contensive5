@@ -103,7 +103,7 @@ namespace Contensive.Addons.Status {
                     return latest;
                 }
             } catch (Exception ex) {
-                error = "Could not reach the AWS RDS API -- " + ex.Message;
+                error = $"Could not reach the AWS RDS API -- {(ex is AggregateException agg ? agg.InnerException?.Message ?? ex.Message : ex.Message)}";
                 return null;
             }
         }
