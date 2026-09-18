@@ -276,6 +276,13 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// True if the current session is an admin impersonating another user.
+        /// Use this to determine whether to show an "unimpersonate" control.
+        /// </summary>
+        public abstract bool IsImpersonated { get; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// returns true if the credentials are valid, and not currently in user (the current user can use them)
         /// </summary>
         /// <param name="username"></param>

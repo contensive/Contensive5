@@ -403,6 +403,16 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// True if the current session is an admin impersonating another user.
+        /// </summary>
+        public override bool IsImpersonated {
+            get {
+                return cp.core.visitProperty.getInteger("adminImpersonation") > 0;
+            }
+        }
+        //
+        //====================================================================================================
         //
         public override string Name {
             get {
