@@ -4,7 +4,7 @@
   <Fragment>
     <ComponentGroup Id="ComponentTaskServiceExe" Directory="INSTALLFOLDER">
       <Component Id="asdfafdawerqwer" Guid="{58F52C5F-E2FD-4CF8-A505-1D52D86B6593}">
-        <fg:HarvestFile Source="$(var.BasePath)/TaskService.exe" />
+        <fg:HarvestFile Source="$(var.BasePath)/ContensiveTaskService.exe" />
 
         <ServiceInstall
           Id="ServiceInstaller"

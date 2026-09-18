@@ -107,7 +107,7 @@ In a Contensive installation, you can create one or more Contensive Applcations.
 
 There are three primary Contensive execution environments.
 1) The command line tool cc.exe with access to all applications in the node
-2) The Windows Service TaskService.exe  with access to all applications in the node
+2) The Windows Service ContensiveTaskService.exe  with access to all applications in the node
 3) An ASPX website created with the IIS deployment file DefaultAspxSite.zip that has access to only one application in the node.
 
 Contensive Command line and windows servcie are installed with the installation file ContensiveConsole-Debug-x64.msi. After installation the command >cc -u is run to upgrade existing applications. 

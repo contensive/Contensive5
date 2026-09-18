@@ -226,7 +226,7 @@ The Task Service runs the Contensive task scheduler, task runner, and MQTT subsc
 
 3. Install the new service using `sc.exe` from an elevated command prompt:
    ```
-   sc.exe create "Contensive Task Service" binPath="C:\Program Files\Contensive\TaskService\TaskService.exe" start=auto
+   sc.exe create "Contensive Task Service" binPath="C:\Program Files\Contensive\TaskService\ContensiveTaskService.exe" start=auto
    ```
 
 4. Start the service:
@@ -236,7 +236,7 @@ The Task Service runs the Contensive task scheduler, task runner, and MQTT subsc
 
 #### Running from the command line
 
-For testing and debugging, you can run `TaskService.exe` directly from a command prompt. When not installed as a Windows service, it runs as a console application and can be stopped with Ctrl+C.
+For testing and debugging, you can run `ContensiveTaskService.exe` directly from a command prompt. When not installed as a Windows service, it runs as a console application and can be stopped with Ctrl+C.
 
 ### 3. WebApi Package
 

@@ -96,7 +96,7 @@ function Test-IISIpSecurity {
 function Test-ExistingInstallation {
     # Check if any Contensive components already exist at the install path
     $cliExists = Test-Path (Join-Path $InstallPath "Cli\cc.exe")
-    $taskExists = Test-Path (Join-Path $InstallPath "TaskService\TaskService.exe")
+    $taskExists = Test-Path (Join-Path $InstallPath "TaskService\ContensiveTaskService.exe")
     $webApiExists = Test-Path (Join-Path $InstallPath "WebApi\WebApi.dll")
 
     if ($cliExists -or $taskExists -or $webApiExists) {
@@ -104,7 +104,7 @@ function Test-ExistingInstallation {
         Write-Host "An existing Contensive installation was found at $InstallPath" -ForegroundColor Yellow
         Write-Host ""
         if ($cliExists)  { Write-Host "  - CLI:         $(Join-Path $InstallPath 'Cli\cc.exe')" }
-        if ($taskExists) { Write-Host "  - TaskService: $(Join-Path $InstallPath 'TaskService\TaskService.exe')" }
+        if ($taskExists) { Write-Host "  - TaskService: $(Join-Path $InstallPath 'TaskService\ContensiveTaskService.exe')" }
         if ($webApiExists) { Write-Host "  - WebApi:      $(Join-Path $InstallPath 'WebApi\WebApi.dll')" }
         Write-Host ""
         Write-Host "Please run uninstall.ps1 to remove the previous installation before installing." -ForegroundColor Yellow
@@ -177,7 +177,7 @@ function Install-TaskService {
     }
 
     Write-Host "  Creating Windows service: $ServiceName"
-    $exePath = Join-Path $taskDest "TaskService.exe"
+    $exePath = Join-Path $taskDest "ContensiveTaskService.exe"
     New-Service -Name $ServiceName -BinaryPathName $exePath -DisplayName $ServiceName -Description "Manages Contensive Task Scheduler, Task Runner, and MQTT services" -StartupType Automatic | Out-Null
 
     Write-Host "  Starting service: $ServiceName"

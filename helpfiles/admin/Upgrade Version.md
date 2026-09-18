@@ -14,5 +14,5 @@ from Contensive.io/downloads
 - When the upgrade is complete, upgrade each IIS site using iis web deploy, and the DefaultAspxSite.zip
 - If migrating from the x86 to the x64 version, uninstall the windows service and reinstall the new service
 -- sc delete "contensive task service"
--- from the c:\programFiles\Contensive folder, run c:\iwndows\MicrosoftDotnet\framework64\v4.0]installutil "TaskService.exe"
+-- from the c:\programFiles\Contensive folder, run c:\iwndows\MicrosoftDotnet\framework64\v4.0]installutil "ContensiveTaskService.exe"
 - Start the windows task service

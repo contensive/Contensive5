@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net9.0-windows</TargetFramework>
     <RootNamespace>Contensive.Services</RootNamespace>
-    <AssemblyName>TaskService</AssemblyName>
+    <AssemblyName>ContensiveTaskService</AssemblyName>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>1591</NoWarn>

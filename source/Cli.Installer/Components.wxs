@@ -86,8 +86,8 @@
       <Component Id="TaskServiceComponent" Guid="{D4E5F6A7-B8C9-0123-DEF0-123456789ABC}">
         <File
           Id="TaskServiceExe"
-          Name="TaskService.exe"
-          Source="$(var.BasePath)\TaskService.exe"
+          Name="ContensiveTaskService.exe"
+          Source="$(var.BasePath)\ContensiveTaskService.exe"
           Vital="yes"
           KeyPath="yes" />
 
