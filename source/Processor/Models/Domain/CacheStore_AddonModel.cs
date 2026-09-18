@@ -116,8 +116,10 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="guid"></param>
         /// <returns></returns>
         public AddonModel create(string guid) {
-            if (dictGuidId.ContainsKey(guid.ToLowerInvariant())) {
-                return create(this.dictGuidId[guid.ToLowerInvariant()]);
+            if (string.IsNullOrWhiteSpace(guid)) { return null; }
+            string guidLower = guid.Trim().ToLowerInvariant();
+            if (dictGuidId.ContainsKey(guidLower)) {
+                return create(this.dictGuidId[guidLower]);
             }
             return null;
         }
