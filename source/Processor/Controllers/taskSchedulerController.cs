@@ -119,8 +119,8 @@ namespace Contensive.Processor.Controllers {
             using CPClass cpApp = new(appKvp.Value.name);
             try {
                 //
-                // -- delete stale tasks that have a runner assigned but are more than 24 hours old
-                cpApp.Db.ExecuteNonQuery("delete from cctasks where (cmdRunner is not null) and (DateAdded < DATEADD(hour, -24, GETDATE()))");
+                // -- delete stale tasks more than 24 hours old (both claimed and unclaimed)
+                cpApp.Db.ExecuteNonQuery("delete from cctasks where (DateAdded < DATEADD(hour, -24, GETDATE()))");
                 //
                 // -- runonce
                 string sql = $@"
@@ -281,7 +281,7 @@ namespace Contensive.Processor.Controllers {
                 if (blockDuplicates) {
                     //
                     // -- Search for a duplicate
-                    string sql = "select top 1 id from cctasks where ((cmdDetail=" + DbController.encodeSQLText(cmdDetailJson) + ")and(datestarted is null)and(datecompleted is null)and(cmdRunner is null))";
+                    string sql = "select top 1 id from cctasks where ((cmdDetail=" + DbController.encodeSQLText(cmdDetailJson) + ")and(cmdRunner is null))";
                     using (var csData = new CsModel(core)) {
                         allowAdd = !csData.openSql(sql);
                     }

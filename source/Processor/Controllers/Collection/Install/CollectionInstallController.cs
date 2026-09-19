@@ -184,7 +184,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- ERROR, collection folder not found
                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder not found.");
-                    return_ErrorMessage.errors.Add("The collection was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally.");
+                    return_ErrorMessage.errors.Add($"The collection [{collectionGuid}] was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally [{contextHint}].");
                     return false;
                 }
                 //
@@ -199,7 +199,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- EXIT, ERROR, collection folder was empty
                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder is empty.");
-                    return_ErrorMessage.errors.Add("The collection was not installed because the folder containing the Add-on's resources was empty.");
+                    return_ErrorMessage.errors.Add($"The collection [{collectionGuid}] was not installed because the folder containing the Add-on's resources was empty [{contextHint}].");
                     return false;
                 }
                 //
@@ -375,7 +375,9 @@ namespace Contensive.Processor.Controllers {
                                                     //
                                                     // -- all included collections should already be installed, because buildfolder is called before call
                                                     contextHint = $"before-recursive-call-dependency-{ChildCollectionGUId}";
-                                                    installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall, $"dependency-of-{CollectionName}");
+                                                    if (!installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall, $"dependency-of-{CollectionName}")) {
+                                                        return_ErrorMessage.warnings.Add($"The collection [{CollectionName}] installed, but dependency [{ChildCollectionName}, {ChildCollectionGUId}] could not be installed.");
+                                                    }
                                                     contextHint = $"after-recursive-call-dependency-{ChildCollectionGUId}";
                                                 }
                                                 break;

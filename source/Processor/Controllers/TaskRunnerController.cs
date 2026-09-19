@@ -160,12 +160,12 @@ namespace Contensive.Processor.Controllers {
                     string sqlCmdRunner = DbController.encodeSQLText(runnerGuid);
                     string sql = @$"
                             BEGIN TRANSACTION
-                            update cctasks 
-                            set 
-                                cmdRunner={sqlCmdRunner}    
+                            update cctasks
+                            set
+                                cmdRunner={sqlCmdRunner}
                             output inserted.id
-                            where 
-                                id in (select top 1 id from cctasks where (cmdRunner is null) order by id)
+                            where
+                                id in (select top 1 id from cctasks where (cmdRunner is null) and (DateAdded > DATEADD(hour, -24, GETDATE())) order by id)
                             COMMIT TRANSACTION";
                     DataTable dt = cp.core.db.executeQuery(sql);
                     foreach (DataRow row in dt.Rows) {
@@ -209,8 +209,11 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // -- determine how long to wait
                                 int timeoutMsec = 0;
-                                if ((int.MaxValue / 1000) >= task.timeout) {
-                                    // minus 1 because maxvalue causes wait for ever
+                                if (task.timeout <= 0) {
+                                    // no timeout configured, wait indefinitely
+                                    timeoutMsec = 0;
+                                } else if (task.timeout >= (int.MaxValue / 1000)) {
+                                    // timeout too large to convert to ms without overflow, cap at max
                                     timeoutMsec = int.MaxValue - 1;
                                 } else {
                                     timeoutMsec = task.timeout * 1000;
