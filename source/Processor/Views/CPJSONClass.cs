@@ -15,7 +15,12 @@ namespace Contensive.Processor {
         /// <param name="obj"></param>
         /// <returns></returns>
         public override string Serialize(object obj) {
-            return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            try {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            } catch (Exception ex) {
+                string typeName = obj == null ? "(null)" : obj.GetType().FullName;
+                throw new InvalidOperationException($"CPJSONClass.Serialize error, object type [{typeName}]", ex);
+            }
         }
         //
         //====================================================================================================
@@ -26,7 +31,12 @@ namespace Contensive.Processor {
         /// <param name="JSON"></param>
         /// <returns></returns>
         public override T Deserialize<T>(string JSON) {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(JSON);
+            try {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(JSON);
+            } catch (Exception ex) {
+                string preview = string.IsNullOrEmpty(JSON) ? "(null or empty)" : JSON.Substring(0, Math.Min(JSON.Length, 100));
+                throw new InvalidOperationException($"CPJSONClass.Deserialize<{typeof(T).Name}> error, JSON preview [{preview}]", ex);
+            }
         }
         //
         //====================================================================================================
@@ -36,7 +46,12 @@ namespace Contensive.Processor {
         /// <param name="JSON"></param>
         /// <returns></returns>
         public override object Deserialize(string JSON) {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(JSON);
+            try {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject(JSON);
+            } catch (Exception ex) {
+                string preview = string.IsNullOrEmpty(JSON) ? "(null or empty)" : JSON.Substring(0, Math.Min(JSON.Length, 100));
+                throw new InvalidOperationException($"CPJSONClass.Deserialize error, JSON preview [{preview}]", ex);
+            }
         }
     }
 }
