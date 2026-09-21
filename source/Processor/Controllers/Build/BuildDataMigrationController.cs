@@ -698,6 +698,45 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.siteProperties.dataBuildVersion = "26.9.5.40517";
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.9.21.1")) {
+                        //
+                        // -- one-time backfill of fileTypeId on all library files.
+                        //    Matches each file's extension against ccLibraryFileTypes.extensionList
+                        //    to assign the correct fileTypeId. Files with no extension match get the Default type.
+                        //
+                        try {
+                            var fileTypes = DbBaseModel.createList<LibraryFileTypeModel>(cp);
+                            int defaultFileTypeId = 0;
+                            foreach (var fileType in fileTypes) {
+                                if (string.IsNullOrWhiteSpace(fileType.extensionList) && fileType.name.Equals("Default", StringComparison.InvariantCultureIgnoreCase)) {
+                                    defaultFileTypeId = fileType.id;
+                                }
+                            }
+                            //
+                            // -- for each file type with extensions, update all library files whose extension matches
+                            foreach (var fileType in fileTypes) {
+                                if (string.IsNullOrWhiteSpace(fileType.extensionList)) { continue; }
+                                string[] extensions = fileType.extensionList.Split(',').Select(e => e.Trim()).Where(e => !string.IsNullOrEmpty(e)).ToArray();
+                                if (extensions.Length == 0) { continue; }
+                                //
+                                // -- build WHERE clause matching files ending with each extension
+                                var whereParts = new List<string>();
+                                foreach (string ext in extensions) {
+                                    whereParts.Add($"filename LIKE '%.{ext}'");
+                                }
+                                string whereClause = string.Join(" OR ", whereParts);
+                                core.db.executeNonQuery($"UPDATE cclibraryfiles SET fileTypeId={fileType.id} WHERE ({whereClause})");
+                            }
+                            //
+                            // -- assign Default type to any files that still have no fileTypeId
+                            if (defaultFileTypeId > 0) {
+                                core.db.executeNonQuery($"UPDATE cclibraryfiles SET fileTypeId={defaultFileTypeId} WHERE (fileTypeId=0 OR fileTypeId IS NULL)");
+                            }
+                        } catch (Exception ex) {
+                            logger.Error($"{core.logCommonMessage}", ex, "library file fileTypeId backfill migration");
+                        }
+                        core.siteProperties.dataBuildVersion = "26.9.21.1";
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

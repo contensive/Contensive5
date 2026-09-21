@@ -21,7 +21,7 @@ So "update the meta data for this blog post" must land on Tier C (`BlogEntryMode
 
 The admin who types "update the meta data on this blog post URL" is connected only to the deployed MCP server — they have not read this repo's `patterns/` docs, and won't in general. Whatever explains the model has to travel over the MCP protocol itself. Three channels exist; use each for what it's good at, and don't rely on the AI having any out-of-band knowledge:
 
-1. **Server-level instructions, once per session.** The MCP spec's `initialize` response carries a free-text `instructions` field; most clients (Claude Desktop, Claude Code) surface it to the model as context automatically — this is exactly the "MCP Server Instructions" block already used by other connectors in this environment. `ContensiveMcpServer`'s `Program.cs` should set this (`AddMcpServer(options => options.ServerInstructions = "...")` — confirm the exact hook against the installed `ModelContextProtocol` SDK version) with a short primer: pages vs. widget-instance-settings vs. dynamic child content; URLs are the only identifier you need; **always call `page_get` first — its response tells you exactly which tool edits which piece of what you see.**
+1. **Server-level instructions, once per session.** The MCP spec's `initialize` response carries a free-text `instructions` field; most clients (Claude Desktop, Claude Code) surface it to the model as context automatically. **This is now implemented** via the `MCP Server Instructions` content definition (CDef) in the aoMCP collection. Each addon collection contributes one data record with its workflow guidance; the MCP server concatenates all active records (sorted by `sortOrder`) into the `instructions` field of the initialize response. See §5 for the full implementation pattern.
 
 2. **Self-describing `page_get` results, every call.** This is the load-bearing mechanism, because it's dynamic — it can say "this specific URL currently shows post #6" instead of a static generality. See the schema change in §3. A tool result that names the exact follow-up tool and arguments removes the need for the client to have memorized any convention at all.
 
@@ -96,3 +96,41 @@ that a Page Widget addon implements only if it owns dynamic, URL-addressable chi
 - Add Tier C as its own concept — addon-owned dynamic content, addressed by URL, edited through addon-specific but consistently-named tools (`blog_post_update`, etc.), grouped into SEO/Content/Info fields the same way the existing admin forms already do.
 - Don't rely on the connected AI having read this document — push the hierarchy into the protocol itself via server instructions (static, once) and a self-describing `page_get` response (dynamic, every call, names the exact tool + args to use next).
 - Give widget addons one small opt-in interface (`IUrlAddressableContent`) so the core Page/Widget system never has to know what a "blog post" is, while `page_get` can still point straight at it.
+
+## 5. MCP Server Instructions — implementation pattern
+
+The MCP protocol (2025-11-25) supports an `instructions` field in the `initialize` response. This is a single natural-language string that the AI client receives once at session start, providing cross-tool workflow guidance that individual tool descriptions can't convey — prerequisite steps, content hierarchy, and the relationship between addon tools.
+
+### How it works
+
+The aoMCP collection defines a CDef called **"MCP Server Instructions"** (table `mcpServerInstructions`) with three fields:
+
+| Field | Type | Purpose |
+|---|---|---|
+| `instructions` | LongText | Natural-language guidance text for the AI client |
+| `category` | Text | Label matching the tool category (e.g., "Core", "Blog", "Newsletter") |
+| `sortOrder` | Text | Controls concatenation order; core instructions sort first ("0010"), addon instructions after ("1000"+) |
+
+At `initialize` time, the MCP server queries all active records sorted by `sortOrder`, concatenates the `instructions` fields separated by double newlines, and returns the result in the `initialize` response's `instructions` field.
+
+### Contributing instructions from an addon collection
+
+Each addon collection that provides MCP tools should also contribute one `MCP Server Instructions` data record in its collection XML. This record is installed alongside the tool definition records when the collection is installed.
+
+**Example (from Blog collection XML):**
+
+```xml
+<record content="MCP Server Instructions" guid="{UNIQUE-GUID}" name="Blog">
+    <field name="sortOrder">1000</field>
+    <field name="category">Blog</field>
+    <field name="instructions"><![CDATA[Blog: A blog is created by adding a Blog widget to a page using page_widget_add. Each Blog widget instance represents one blog. If no blogs exist, first use widget_types to find the Blog widget, then add it to a page. Use blog_list to see existing blogs. Each blog contains posts managed with blog_post_list, blog_post_get, blog_post_create, blog_post_update, and blog_post_delete. Blog-level settings are updated with blog_update.]]></field>
+</record>
+```
+
+### Writing effective instructions
+
+- **Lead with the content type and how it's created.** The most common mistake an AI makes is trying to use addon tools (e.g., `newsletter_issue_create`) before the parent record exists. The instruction should explain the prerequisite: "A newsletter is created by adding a Newsletter widget to a page."
+- **List the tool names.** The AI uses these to map user intent to available tools.
+- **Keep it under 500 characters per record.** The full concatenated instructions string should stay under 2KB (Claude Code's practical limit for server instructions).
+- **Use sortOrder "0010" for core, "1000"+ for addons.** Core instructions provide the foundational content model; addon instructions extend it with their specific workflows.
+- **Don't duplicate tool descriptions.** The `instructions` field explains workflows and prerequisites. Per-tool details belong in each tool's `description` field in the MCP Tool Definitions table.

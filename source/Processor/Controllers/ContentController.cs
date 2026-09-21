@@ -6,6 +6,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml;
 
 namespace Contensive.Processor.Controllers {
@@ -115,6 +116,47 @@ namespace Contensive.Processor.Controllers {
             //
             // if a AltSizeList is blank, make large,medium,small and thumbnails
             //
+            if (isDelete) { return; }
+            try {
+                //
+                // -- auto-assign fileTypeId based on file extension
+                var libraryFile = DbBaseModel.create<LibraryFilesModel>(core.cpParent, recordID);
+                if (libraryFile == null) { return; }
+                if (string.IsNullOrWhiteSpace(libraryFile.filename)) { return; }
+                string extension = System.IO.Path.GetExtension(libraryFile.filename).TrimStart('.').ToUpper(CultureInfo.InvariantCulture);
+                if (string.IsNullOrEmpty(extension)) { return; }
+                //
+                // -- find the matching file type by extension
+                int matchingFileTypeId = getLibraryFileTypeIdByExtension(core, extension);
+                if (matchingFileTypeId > 0 && matchingFileTypeId != libraryFile.fileTypeId) {
+                    libraryFile.fileTypeId = matchingFileTypeId;
+                    libraryFile.save(core.cpParent);
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Find the library file type id that matches the given file extension.
+        /// Returns the matching fileTypeId, or the Default type id, or 0 if not found.
+        /// </summary>
+        public static int getLibraryFileTypeIdByExtension(CoreController core, string extension) {
+            int defaultFileTypeId = 0;
+            foreach (var fileType in DbBaseModel.createList<LibraryFileTypeModel>(core.cpParent)) {
+                if (string.IsNullOrWhiteSpace(fileType.extensionList)) {
+                    if (fileType.name.Equals("Default", System.StringComparison.InvariantCultureIgnoreCase)) {
+                        defaultFileTypeId = fileType.id;
+                    }
+                    continue;
+                }
+                string[] extensions = fileType.extensionList.Split(',').Select(e => e.Trim().ToUpper(CultureInfo.InvariantCulture)).ToArray();
+                if (extensions.Contains(extension)) {
+                    return fileType.id;
+                }
+            }
+            return defaultFileTypeId;
         }
         //
         //====================================================================================================

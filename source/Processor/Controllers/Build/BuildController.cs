@@ -634,17 +634,17 @@ namespace Contensive.Processor.Controllers.Build {
                 //
                 // Load basic records -- default images are handled in the REsource Library through the " + cdnPrefix + "config/DefaultValues.txt GetDefaultValue(key) mechanism
                 if (MetadataController.getRecordIdByUniqueName(core, "Library File Types", "Image") == 0) {
-                    verifyRecord(core, "Library File Types", "Image", "ExtensionList", "'GIF,JPG,JPE,JPEG,BMP,PNG'");
+                    verifyRecord(core, "Library File Types", "Image", "ExtensionList", "'GIF,JPG,JPE,JPEG,BMP,PNG,SVG,WEBP,ICO'");
                     verifyRecord(core, "Library File Types", "Image", "IsImage", "1");
                     verifyRecord(core, "Library File Types", "Image", "IsVideo", "0");
-                    verifyRecord(core, "Library File Types", "Image", "IsDownload", "1");
+                    verifyRecord(core, "Library File Types", "Image", "IsDownload", "0");
                     verifyRecord(core, "Library File Types", "Image", "IsFlash", "0");
                 }
                 if (MetadataController.getRecordIdByUniqueName(core, "Library File Types", "Video") == 0) {
-                    verifyRecord(core, "Library File Types", "Video", "ExtensionList", "'ASX,AVI,WMV,MOV,MPG,MPEG,MP4,QT,RM'");
+                    verifyRecord(core, "Library File Types", "Video", "ExtensionList", "'ASX,AVI,WMV,MOV,MPG,MPEG,MP4,QT,RM,WEBM,MKV,M4V,FLV'");
                     verifyRecord(core, "Library File Types", "Video", "IsImage", "0");
                     verifyRecord(core, "Library File Types", "Video", "IsVideo", "1");
-                    verifyRecord(core, "Library File Types", "Video", "IsDownload", "1");
+                    verifyRecord(core, "Library File Types", "Video", "IsDownload", "0");
                     verifyRecord(core, "Library File Types", "Video", "IsFlash", "0");
                 }
                 //
@@ -657,7 +657,7 @@ namespace Contensive.Processor.Controllers.Build {
                 }
                 //
                 if (MetadataController.getRecordIdByUniqueName(core, "Library File Types", "Word") == 0) {
-                    verifyRecord(core, "Library File Types", "Word", "ExtensionList", "'DOC'");
+                    verifyRecord(core, "Library File Types", "Word", "ExtensionList", "'DOC,DOCX'");
                     verifyRecord(core, "Library File Types", "Word", "IsImage", "0");
                     verifyRecord(core, "Library File Types", "Word", "IsVideo", "0");
                     verifyRecord(core, "Library File Types", "Word", "IsDownload", "1");
@@ -681,7 +681,7 @@ namespace Contensive.Processor.Controllers.Build {
                 }
                 //
                 if (MetadataController.getRecordIdByUniqueName(core, "Library File Types", "XLS") == 0) {
-                    verifyRecord(core, "Library File Types", "Excel", "ExtensionList", "'XLS'");
+                    verifyRecord(core, "Library File Types", "Excel", "ExtensionList", "'XLS,XLSX,CSV'");
                     verifyRecord(core, "Library File Types", "Excel", "IsImage", "0");
                     verifyRecord(core, "Library File Types", "Excel", "IsVideo", "0");
                     verifyRecord(core, "Library File Types", "Excel", "IsDownload", "1");
@@ -689,7 +689,7 @@ namespace Contensive.Processor.Controllers.Build {
                 }
                 //
                 if (MetadataController.getRecordIdByUniqueName(core, "Library File Types", "PPT") == 0) {
-                    verifyRecord(core, "Library File Types", "Power Point", "ExtensionList", "'PPT,PPS'");
+                    verifyRecord(core, "Library File Types", "Power Point", "ExtensionList", "'PPT,PPS,PPTX'");
                     verifyRecord(core, "Library File Types", "Power Point", "IsImage", "0");
                     verifyRecord(core, "Library File Types", "Power Point", "IsVideo", "0");
                     verifyRecord(core, "Library File Types", "Power Point", "IsDownload", "1");

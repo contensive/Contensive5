@@ -761,6 +761,7 @@
 	  min-width: 250px;
 	  padding: 10px 0;
 	  font-size: 16px;
+	  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .dropdown-filter .dropdown-header {
@@ -787,7 +788,7 @@
 
   .dropdown-filter .dropdown-item {
 		overflow: visible;
-		padding: 0 1.5rem;
+		padding: 0.5rem 0.75rem;
 		white-space: normal;
   }
 
@@ -871,14 +872,13 @@
 									<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filters
 								</a>
 								<div class="dropdown-menu dropdown-menu-start" aria-labelledby="filterDropdown">
-									<div class="w-100 text-center">
+									<div class="pb-2 w-100 text-center">
 										<button type="submit" name="button" value="Apply Filter" id="js-afwApplyFilterButton" class="btn btn-primary btn-sm ">Apply Filter</button>
 									</div>
 									{{#includeResetFilterButton}}
 										<a href="" class="text-center small"><i class="fa-solid fa-xmark text-danger"></i> Remove All</a>
 									{{/includeResetFilterButton}}
 									{{#filterGroups}}
-										<h6 class="dropdown-header fw-bold">{{filterGroupCaption}}</h6>
 										{{#filterInputs}}
 											<div class="dropdown-item">
 											
