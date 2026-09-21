@@ -634,7 +634,7 @@ namespace Contensive.Processor.Controllers.Build {
                 //
                 // Load basic records -- default images are handled in the REsource Library through the " + cdnPrefix + "config/DefaultValues.txt GetDefaultValue(key) mechanism
                 if (MetadataController.getRecordIdByUniqueName(core, "Library File Types", "Image") == 0) {
-                    verifyRecord(core, "Library File Types", "Image", "ExtensionList", "'GIF,JPG,JPE,JPEG,BMP,PNG,SVG,WEBP,ICO'");
+                    verifyRecord(core, "Library File Types", "Image", "ExtensionList", "'GIF,JPG,JPE,JPEG,JFIF,BMP,PNG,SVG,WEBP,ICO'");
                     verifyRecord(core, "Library File Types", "Image", "IsImage", "1");
                     verifyRecord(core, "Library File Types", "Image", "IsVideo", "0");
                     verifyRecord(core, "Library File Types", "Image", "IsDownload", "0");

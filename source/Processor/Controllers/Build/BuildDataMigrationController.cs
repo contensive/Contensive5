@@ -698,7 +698,23 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.siteProperties.dataBuildVersion = "26.9.5.40517";
                     }
-                    if (GenericController.versionIsOlder(DataBuildVersion, "26.9.21.1")) {
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.9.21.2")) {
+                        //
+                        // -- update existing library file type extension lists and flags to current values.
+                        //    verifyLibraryFileTypes only creates records that don't exist, so existing
+                        //    databases need their extension lists and flags corrected here.
+                        //
+                        try {
+                            updateLibraryFileTypeRecord(core, "Image", "GIF,JPG,JPE,JPEG,JFIF,BMP,PNG,SVG,WEBP,ICO", isImage: true, isVideo: false, isDownload: false);
+                            updateLibraryFileTypeRecord(core, "Video", "ASX,AVI,WMV,MOV,MPG,MPEG,MP4,QT,RM,WEBM,MKV,M4V,FLV", isImage: false, isVideo: true, isDownload: false);
+                            updateLibraryFileTypeRecord(core, "Audio", "AIF,AIFF,ASF,CDA,M4A,M4P,MP2,MP3,MPA,WAV,WMA", isImage: false, isVideo: false, isDownload: true);
+                            updateLibraryFileTypeRecord(core, "Word", "DOC,DOCX", isImage: false, isVideo: false, isDownload: true);
+                            updateLibraryFileTypeRecord(core, "PDF", "PDF", isImage: false, isVideo: false, isDownload: true);
+                            updateLibraryFileTypeRecord(core, "Excel", "XLS,XLSX,CSV", isImage: false, isVideo: false, isDownload: true);
+                            updateLibraryFileTypeRecord(core, "Power Point", "PPT,PPS,PPTX", isImage: false, isVideo: false, isDownload: true);
+                        } catch (Exception ex) {
+                            logger.Error($"{core.logCommonMessage}", ex, "library file type extension list update");
+                        }
                         //
                         // -- one-time backfill of fileTypeId on all library files.
                         //    Matches each file's extension against ccLibraryFileTypes.extensionList
@@ -735,7 +751,7 @@ namespace Contensive.Processor.Controllers.Build {
                         } catch (Exception ex) {
                             logger.Error($"{core.logCommonMessage}", ex, "library file fileTypeId backfill migration");
                         }
-                        core.siteProperties.dataBuildVersion = "26.9.21.1";
+                        core.siteProperties.dataBuildVersion = "26.9.21.2";
                     }
                     //
                     // -- Reload
@@ -745,6 +761,20 @@ namespace Contensive.Processor.Controllers.Build {
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "Warning during upgrade, data migration");
             }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Update an existing library file type record's extension list and flags.
+        /// </summary>
+        private static void updateLibraryFileTypeRecord(CoreController core, string name, string extensionList, bool isImage, bool isVideo, bool isDownload) {
+            core.db.executeNonQuery(
+                $"UPDATE ccLibraryFileTypes SET extensionList={DbController.encodeSQLText(extensionList)}"
+                + $",isImage={(isImage ? 1 : 0)}"
+                + $",isVideo={(isVideo ? 1 : 0)}"
+                + $",isDownload={(isDownload ? 1 : 0)}"
+                + $" WHERE name={DbController.encodeSQLText(name)}"
+            );
         }
         //
         // ====================================================================================================
