@@ -18,6 +18,7 @@ namespace Contensive.Models.Db {
         public string caption { get; set; }
         public DbBaseModel.FieldTypeTextFile copyFilename { get; set; }
         public string exclusiveSet { get; set; }
+        public int exclusiveSetOrder { get; set; }
         public bool publicJoin { get; set; }
         //
         //====================================================================================================

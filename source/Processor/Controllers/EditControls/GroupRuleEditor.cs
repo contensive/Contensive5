@@ -32,7 +32,7 @@ namespace Contensive.Processor.Controllers.EditControls {
         }
         public class ExclusiveSetSectionModel {
             public string setLabel;
-            public string noneRadioInput;
+            public string selectInput;
             public string hiddenFields;
             public string expiresInput;
             public string roleInput;

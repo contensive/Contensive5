@@ -919,17 +919,18 @@ namespace Contensive.Processor.Controllers.EditControls {
                     //
                     // ----- read in all the groups, including exclusiveSet field
                     //       exclusive-set groups collected separately, normal groups rendered as checkboxes
-                    var exclusiveSetsDict = new Dictionary<string, List<(int GroupID, string GroupName, string GroupCaption, bool GroupActive, DateTime? DateExpire, int GroupRoleId, string RelatedButtonList)>>();
+                    var exclusiveSetsDict = new Dictionary<string, List<(int GroupID, string GroupName, string GroupCaption, bool GroupActive, DateTime? DateExpire, int GroupRoleId, string RelatedButtonList, int ExclusiveSetOrder)>>();
                     //
                     using (var csGroups = new CsModel(core)) {
                         bool canSeeHiddenGroups = core.session.isAuthenticatedDeveloper();
-                        csGroups.openSql("select id,name as groupName,caption as groupCaption,exclusiveSet from ccgroups where (active>0) order by exclusiveSet,caption,name,id");
+                        csGroups.openSql("select id,name as groupName,caption as groupCaption,exclusiveSet,exclusiveSetOrder from ccgroups where (active>0) order by exclusiveSet,exclusiveSetOrder,caption,name,id");
                         while (csGroups.ok()) {
                             string GroupName = csGroups.getText("GroupName");
                             if (GroupName.left(1) != "_" || canSeeHiddenGroups) {
                                 string GroupCaption = csGroups.getText("GroupCaption");
                                 int GroupID = csGroups.getInteger("ID");
                                 string exclusiveSet = csGroups.getText("exclusiveSet");
+                                int exclusiveSetOrder = csGroups.getInteger("exclusiveSetOrder");
                                 if (string.IsNullOrEmpty(GroupCaption)) {
                                     GroupCaption = GroupName;
                                     if (string.IsNullOrEmpty(GroupCaption)) {
@@ -957,11 +958,11 @@ namespace Contensive.Processor.Controllers.EditControls {
                                 //
                                 if (!string.IsNullOrWhiteSpace(exclusiveSet)) {
                                     //
-                                    // -- exclusive set group: collect for radio rendering
+                                    // -- exclusive set group: collect for select dropdown rendering
                                     if (!exclusiveSetsDict.ContainsKey(exclusiveSet)) {
-                                        exclusiveSetsDict[exclusiveSet] = new List<(int, string, string, bool, DateTime?, int, string)>();
+                                        exclusiveSetsDict[exclusiveSet] = new List<(int, string, string, bool, DateTime?, int, string, int)>();
                                     }
-                                    exclusiveSetsDict[exclusiveSet].Add((GroupID, GroupName, GroupCaption, GroupActive, DateExpire, groupRoleId, relatedButtonList));
+                                    exclusiveSetsDict[exclusiveSet].Add((GroupID, GroupName, GroupCaption, GroupActive, DateExpire, groupRoleId, relatedButtonList, exclusiveSetOrder));
                                 } else {
                                     //
                                     // -- normal group: render as checkbox
@@ -981,12 +982,12 @@ namespace Contensive.Processor.Controllers.EditControls {
                         }
                     }
                     //
-                    // ----- build exclusive set sections (radio buttons)
+                    // ----- build exclusive set sections (select dropdowns)
                     int setIndex = 0;
                     foreach (var kvp in exclusiveSetsDict.OrderBy(k => k.Key)) {
                         string setLabel = kvp.Key;
                         var setGroups = kvp.Value;
-                        string radioName = $"ExclusiveSet.{setIndex}";
+                        string selectName = $"ExclusiveSet.{setIndex}.SelectedGroupId";
                         //
                         // -- determine which group the user is currently in for this set
                         int currentGroupId = 0;
@@ -1001,33 +1002,34 @@ namespace Contensive.Processor.Controllers.EditControls {
                             }
                         }
                         //
-                        var section = new ExclusiveSetSectionModel {
-                            setLabel = setLabel,
-                            noneRadioInput = HtmlController.inputRadio(radioName, 0, currentGroupId),
-                            rowList = new List<GroupRuleEditorRowModel>()
-                        };
+                        // -- build select dropdown HTML, sorted by exclusiveSetOrder (already sorted in SQL query)
+                        var selectBuilder = new StringBuilder();
+                        selectBuilder.Append($"<select name=\"{selectName}\" class=\"form-control\">");
+                        selectBuilder.Append($"<option value=\"0\"{(currentGroupId == 0 ? " selected" : "")}>(None)</option>");
+                        foreach (var sg in setGroups) {
+                            string selectedAttr = sg.GroupID == currentGroupId ? " selected" : "";
+                            selectBuilder.Append($"<option value=\"{sg.GroupID}\"{selectedAttr}>{sg.GroupCaption}</option>");
+                        }
+                        selectBuilder.Append("</select>");
                         //
-                        // -- build hidden fields for group IDs and counts
+                        // -- build hidden fields for group IDs
                         var hiddenFieldsBuilder = new StringBuilder();
                         int groupIndexInSet = 0;
                         foreach (var sg in setGroups) {
                             hiddenFieldsBuilder.Append(HtmlController.inputHidden($"ExclusiveSet.{setIndex}.{groupIndexInSet}.ID", sg.GroupID));
-                            section.rowList.Add(new GroupRuleEditorRowModel {
-                                radioInput = HtmlController.inputRadio(radioName, sg.GroupID, currentGroupId),
-                                groupCaption = sg.GroupCaption,
-                                expiresInput = "",
-                                roleInput = "",
-                                relatedButtonList = sg.RelatedButtonList
-                            });
                             groupIndexInSet++;
                         }
                         hiddenFieldsBuilder.Append(HtmlController.inputHidden($"ExclusiveSet.{setIndex}.GroupCount", groupIndexInSet));
                         //
-                        // -- shared expires/role fields for the selected group in this set
-                        section.expiresInput = getDateTimeEditor(core, $"ExclusiveSet.{setIndex}.DateExpires", currentDateExpire, false, "", false);
-                        section.roleInput = getRoleSelectByName(RoleSelectDefault, currentRoleId, $"ExclusiveSet.{setIndex}.RoleId");
+                        var section = new ExclusiveSetSectionModel {
+                            setLabel = setLabel,
+                            selectInput = selectBuilder.ToString(),
+                            expiresInput = getDateTimeEditor(core, $"ExclusiveSet.{setIndex}.DateExpires", currentDateExpire, false, "", false),
+                            roleInput = getRoleSelectByName(RoleSelectDefault, currentRoleId, $"ExclusiveSet.{setIndex}.RoleId"),
+                            hiddenFields = hiddenFieldsBuilder.ToString(),
+                            rowList = new List<GroupRuleEditorRowModel>()
+                        };
                         //
-                        section.hiddenFields = hiddenFieldsBuilder.ToString();
                         groupRuleEditor.exclusiveSetList.Add(section);
                         setIndex++;
                     }
@@ -1080,7 +1082,7 @@ namespace Contensive.Processor.Controllers.EditControls {
         }
         public class ExclusiveSetSectionModel {
             public string setLabel;
-            public string noneRadioInput;
+            public string selectInput;
             public string hiddenFields;
             public string expiresInput;
             public string roleInput;
