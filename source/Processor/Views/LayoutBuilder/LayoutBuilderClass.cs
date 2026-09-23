@@ -459,7 +459,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options, string defaultValue = "") {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
             filterGroups[^1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
@@ -471,6 +471,10 @@ namespace Contensive.Processor.LayoutBuilder {
             });
             NameValueSelected selectedOption = options.Find((x) => x.selected);
             if(selectedOption!=null && !string.IsNullOrEmpty(selectedOption.value)) {
+                // Skip chip if this matches the explicit default value
+                if (!string.IsNullOrEmpty(defaultValue) && selectedOption.value == defaultValue) {
+                    return;
+                }
                 int maxLength = 20;
                 string selectedOptionName = selectedOption.name.Length <= maxLength ? selectedOption.name : selectedOption.name[..maxLength];
                 addActiveFilter($"{caption}:{selectedOptionName}", "removeFilter", htmlName);

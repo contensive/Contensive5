@@ -371,7 +371,7 @@ These methods add filter UI controls to the current filter group. When a filter 
 
 - **addFilterDateInput(caption, htmlName, htmlDateValue)** - Adds a date input filter. `htmlDateValue` is a `DateTime?` from `getFilterDate()`.
 
-- **addFilterSelect(caption, htmlName, options)** - Adds a select dropdown filter. `options` is a `List<NameValueSelected>` where each item has `name` (display text), `value` (html value), and `selected` (bool).
+- **addFilterSelect(caption, htmlName, options, defaultValue = "")** - Adds a select dropdown filter. `options` is a `List<NameValueSelected>` where each item has `name` (display text), `value` (html value), and `selected` (bool). Optional `defaultValue` parameter: if specified, no active filter chip will be displayed when the selected value matches `defaultValue` — this prevents showing chips for the default state, which would otherwise allow users to click X without any visible effect.
 
 - **addFilterSelectContent(caption, htmlName, htmlValue, content, sqlCriteria)** - Adds a select dropdown filter populated from a content table. `content` is the content name, `sqlCriteria` is an optional SQL where clause to filter the options, and `htmlValue` is the currently selected id from `getFilterInteger()`.
 
@@ -410,6 +410,39 @@ if (filterCategoryId > 0) { sqlWhere += $" and(categoryId={filterCategoryId})"; 
 if (!string.IsNullOrEmpty(filterName)) { sqlWhere += $" and(name like {cp.Db.EncodeSQLTextLike(filterName)})"; }
 if (filterAfterDate.HasValue) { sqlWhere += $" and(dateAdded>={cp.Db.EncodeSQLDate((DateTime)filterAfterDate)})"; }
 ```
+
+#### Hiding Default Filter Chips
+
+When a filter select has a meaningful default value (like "All", "Current Week", or value "0"), you can prevent the chip from displaying when that default is selected. This avoids the confusing UX where clicking the X button doesn't appear to do anything because it just returns to the default state.
+
+```csharp
+// Read filter value with default handling
+string filterPeriod = layoutBuilder.getFilterText("filterPeriod", "myReport");
+if (string.IsNullOrEmpty(filterPeriod)) {
+    filterPeriod = "currentWeek";  // default value
+}
+
+// Build options list
+var periodOptions = new List<NameValueSelected> {
+    new NameValueSelected("Current Week", "currentWeek", filterPeriod == "currentWeek"),
+    new NameValueSelected("Previous Week", "previousWeek", filterPeriod == "previousWeek"),
+    new NameValueSelected("All Time", "all", filterPeriod == "all")
+};
+
+// Add filter with defaultValue parameter - no chip shown when "currentWeek" is selected
+layoutBuilder.addFilterSelect("Period", "filterPeriod", periodOptions, defaultValue: "currentWeek");
+
+// Example with integer default (like "All Sources" = 0)
+int filterSourceId = layoutBuilder.getFilterInteger("filterSourceId", "myReport");
+var sourceOptions = new List<NameValueSelected> {
+    new NameValueSelected("All Sources", "0", filterSourceId == 0),
+    new NameValueSelected("Source A", "1", filterSourceId == 1),
+    new NameValueSelected("Source B", "2", filterSourceId == 2)
+};
+layoutBuilder.addFilterSelect("Source", "filterSourceId", sourceOptions, defaultValue: "0");
+```
+
+The `defaultValue` parameter is optional with an empty string default. If you don't specify it, chips will display for all selected values (existing behavior is preserved).
 
 ### CSV Export / Download
 

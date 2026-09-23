@@ -85,7 +85,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue) {
             throw new NotImplementedException();
         }
-        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options, string defaultValue = "") {
             throw new NotImplementedException();
         }
         public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria) {
