@@ -332,6 +332,10 @@ The `OFFSET` is calculated as `(paginationPageNumber - 1) * paginationPageSize` 
 
 ### Adding Filters to Reports
 
+**IMPORTANT: Always use the built-in LayoutBuilder filter methods.** Do NOT implement filters by manually adding HTML inputs (e.g., `cp.Html.SelectContent()`, `cp.Html.InputText()`) to `htmlBeforeBody`, `htmlLeftOfBody`, or the body, and then reading them with `cp.Doc.GetText()` / `cp.Doc.GetInteger()` / `cp.Doc.GetBoolean()`. That approach bypasses the LayoutBuilder's filter persistence (values are lost on AJAX refresh), does not render active filter indicators (removable pills), and does not integrate with the filter dropdown UI.
+
+Instead, use `layoutBuilder.getFilterText()` / `getFilterInteger()` / `getFilterBoolean()` / `getFilterDate()` to read filter values, and `layoutBuilder.addFilterTextInput()` / `addFilterSelect()` / `addFilterSelectContent()` / `addFilterCheckbox()` / `addFilterRadio()` / `addFilterDateInput()` to add filter UI. These methods handle visit persistence, active filter badges, and AJAX compatibility automatically.
+
 Filters allow users to narrow down report data. They appear in a filter dropdown panel on the layout and persist across page loads within a visit. The filter system has three parts: reading filter values, adding filter UI inputs, and managing active filter indicators.
 
 #### Filter Groups
@@ -673,8 +677,8 @@ The correct order of operations when building a LayoutBuilderList:
 
 1. **Create** the layout builder with `cp.AdminUI.CreateLayoutBuilderList()`
 2. **Set** `callbackAddonGuid` and initialization properties (`title`, `allowDownloadButton`, etc.)
-3. **Read** filter values with `getFilterBoolean()`, `getFilterInteger()`, etc.
-4. **Add** filter UI with `addFilterGroup()`, `addFilterCheckbox()`, etc.
+3. **Read** filter values with `getFilterBoolean()`, `getFilterInteger()`, etc. — never use `cp.Doc.GetText()` for filters
+4. **Add** filter UI with `addFilterGroup()`, `addFilterCheckbox()`, etc. — never add raw HTML filter inputs to the body or htmlLeftOfBody
 5. **Define** columns (set properties + `addColumn()` for each)
 6. **Build** your SQL WHERE clause from filters and `sqlSearchTerm`
 7. **Query** record count and set `layoutBuilder.recordCount`
