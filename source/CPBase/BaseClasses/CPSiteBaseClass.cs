@@ -164,12 +164,12 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Deprecated. Use LogActivity(subject, degtails, userId)
+        /// Deprecated. Use Site.AddActivity
         /// </summary>
         /// <param name="details"></param>
         /// <param name="userId"></param>
         /// <param name="ignoreId"></param>
-        [Obsolete("Use LogActivity(message, user)", false)] public abstract void LogActivity(string details, int userId, int ignoreId);
+        [Obsolete("Deprecated. Use Site.AddActivity", false)] public abstract void LogActivity(string details, int userId, int ignoreId);
         //
         //====================================================================================================
         /// <summary>
