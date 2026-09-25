@@ -356,6 +356,7 @@ namespace Contensive.Addons.Status {
             StatusResponseModel.StatusSecurityModel security = null;
             StatusResponseModel.StatusPerformanceModel performance = null;
             StatusResponseModel.StatusReliabilityModel reliability = null;
+            StatusResponseModel.StatusSeoModel seo = null;
             if (showDetail) {
                 //
                 // -- security/update-hygiene info (Site Monitor roadmap Phase 1). Informational only --
@@ -402,6 +403,10 @@ namespace Contensive.Addons.Status {
                 } catch (Exception) {
                     // -- if we can't read the server diagnostics, leave windowsUpdates null
                 }
+                //
+                // -- SEO audit summary (Site Monitor roadmap Phase 5a). Written to a site property by
+                // -- aoAnalytics after each spider run -- same pattern as PerformanceMetricsStatus above.
+                seo = GetSeoFromSiteProperty(cp);
             }
             var response = new StatusResponseModel {
                 version = version,
@@ -411,7 +416,8 @@ namespace Contensive.Addons.Status {
                 windowsUpdates = windowsUpdates,
                 security = security,
                 performance = performance,
-                reliability = reliability
+                reliability = reliability,
+                seo = seo
             };
             return JsonConvert.SerializeObject(response);
         }
@@ -426,6 +432,21 @@ namespace Contensive.Addons.Status {
                 string json = cp.Site.GetText("PerformanceMetricsStatus");
                 if (string.IsNullOrEmpty(json)) { return null; }
                 return JsonConvert.DeserializeObject<StatusResponseModel.StatusMetricsModel>(json);
+            } catch (Exception) {
+                return null;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Read the SEO audit summary from the site property written by aoAnalytics after each spider run.
+        /// Returns null if the property is missing or invalid (collection not installed, spider hasn't run).
+        /// </summary>
+        private static StatusResponseModel.StatusSeoModel GetSeoFromSiteProperty(CPBaseClass cp) {
+            try {
+                string json = cp.Site.GetText("SeoAuditStatus");
+                if (string.IsNullOrEmpty(json)) { return null; }
+                return JsonConvert.DeserializeObject<StatusResponseModel.StatusSeoModel>(json);
             } catch (Exception) {
                 return null;
             }

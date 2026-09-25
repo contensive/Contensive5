@@ -48,6 +48,12 @@ namespace Contensive.BaseModels {
         /// built by the WordPress Site-Status plugin rather than this model.
         /// </summary>
         public StatusReliabilityModel reliability { get; set; }
+        /// <summary>
+        /// SEO audit summary from the site's own aoAnalytics spider (Site Monitor roadmap Phase 5a).
+        /// Populated from a site property written after each spider run -- null if aoAnalytics hasn't
+        /// run yet or the collection isn't installed.
+        /// </summary>
+        public StatusSeoModel seo { get; set; }
         //
         /// <summary>
         /// Performance metrics included in the status response
@@ -321,6 +327,27 @@ namespace Contensive.BaseModels {
             /// How many hours back the debug.log scan covers. WordPress only.
             /// </summary>
             public int? scanWindowHours { get; set; }
+        }
+        //
+        /// <summary>
+        /// SEO audit summary included in the status response (Site Monitor roadmap Phase 5a).
+        /// Written to a site property by aoAnalytics after each spider run, then read by aoStatus
+        /// the same way security/performance/reliability are. Only present on sites where the
+        /// aoAnalytics collection is installed and the spider has completed at least one run.
+        /// </summary>
+        public class StatusSeoModel {
+            /// <summary>
+            /// Site-wide SEO score (0-100) computed by SeoSiteScoreCalculator.
+            /// </summary>
+            public int seoScore { get; set; }
+            /// <summary>
+            /// Letter grade derived from the score: A (90+), B (75+), C (50+), D (&lt;50).
+            /// </summary>
+            public string seoGrade { get; set; }
+            /// <summary>
+            /// Total number of SEO issues found across all spidered pages.
+            /// </summary>
+            public int seoIssueCount { get; set; }
         }
     }
 }
