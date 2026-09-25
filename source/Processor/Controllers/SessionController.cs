@@ -506,15 +506,16 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- setup new user if nothing else
                         if ((user is null) || user.id.Equals(0)) {
-                            user = createGuest(core, true);
-                            resultSessionContext_user_changes = true;
                             //
-                            // -- if this is a bot, name the user record with the bot identifier and set person type
+                            // -- create the correct person type based on bot detection (already resolved above).
+                            //    Bot visits get personTypeId=Bot so housekeeping deletes them.
+                            //    Non-bot visits get personTypeId=Guest.
                             if (visit.bot && !string.IsNullOrEmpty(visit.name) && !visit.name.Equals("user", StringComparison.OrdinalIgnoreCase)) {
-                                user.name = visit.name.substringSafe(0, 100);
-                                user.firstName = visit.name.substringSafe(0, 100);
-                                user.personTypeId = (int)PersonTypeEnum.Bot;
+                                user = createPerson(core, PersonTypeEnum.Bot, visit.name, true);
+                            } else {
+                                user = createGuest(core, true);
                             }
+                            resultSessionContext_user_changes = true;
                             //
                             visit.visitAuthenticated = false;
                             visit.memberNew = true;
@@ -536,9 +537,14 @@ namespace Contensive.Processor.Controllers {
                     visit.visitorId = visitor.id;
                     //
                     // -- set visitor fields needed for tracking
-                    if (visitor.bot != visit.bot) {
-                        visitor.bot = visit.bot;
-                        resultSessionContect_visitor_changes = true;
+                    //    only flag visitor as bot if the associated person is not a Guest or Contact.
+                    //    once visitor.bot is true it stays true (sticky) to prevent a single non-bot
+                    //    visit from clearing the flag on a known bot visitor.
+                    if (!visitor.bot && visit.bot) {
+                        if (user == null || user.id == 0 || user.personTypeId <= (int)PersonTypeEnum.Bot) {
+                            visitor.bot = true;
+                            resultSessionContect_visitor_changes = true;
+                        }
                     }
                     if (visitor.cookieSupport != visit.cookieSupport) {
                         visitor.cookieSupport = visit.cookieSupport;
@@ -621,15 +627,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="exitWithoutSave"></param>
         /// <returns></returns>
-        public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
+        /// <summary>
+        /// Create a new person record with the specified type. Use for visit-created records
+        /// where the type is known at creation time (Bot or Guest). Sets createdByVisit=true.
+        /// </summary>
+        public static PersonModel createPerson(CoreController core, PersonTypeEnum personTypeId, string name, bool exitWithoutSave) {
             //
-            logger.Trace($"{core.logCommonMessage},SessionController.createGuest, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.createPerson, enter, personTypeId={personTypeId}");
             //
             PersonModel user = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
             user.createdByVisit = true;
-            user.personTypeId = (int)PersonTypeEnum.Guest;
-            user.name = "Guest";
-            user.firstName = "Guest";
+            user.personTypeId = (int)personTypeId;
+            user.name = name.substringSafe(0, 100);
+            user.firstName = name.substringSafe(0, 100);
             user.createdBy = user.id;
             user.dateAdded = core.doc.profileStartTime;
             user.modifiedBy = user.id;
@@ -642,6 +652,12 @@ namespace Contensive.Processor.Controllers {
             user.allowBulkEmail = true;
             if (!exitWithoutSave) { user.save(core.cpParent); }
             return user;
+        }
+        /// <summary>
+        /// Create a new guest person record. Wrapper for createPerson with Guest type.
+        /// </summary>
+        public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
+            return createPerson(core, PersonTypeEnum.Guest, "Guest", exitWithoutSave);
         }
         //
         //========================================================================

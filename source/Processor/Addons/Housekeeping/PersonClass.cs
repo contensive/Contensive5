@@ -102,7 +102,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     // -- delete bot people by legacy join (fallback for records not yet backfilled)
                     env.log("Housekeep, delete people created by bots (visitor)");
                     //
-                    string sql = "delete from ccmembers from ccmembers u left join ccvisitors v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)";
+                    string sql = $"delete from ccmembers from ccmembers u left join ccvisitors v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)and(u.personTypeId<={(int)PersonTypeEnum.Bot})";
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.cpParent.Db.ExecuteNonQuery(sql);
                     //
@@ -111,7 +111,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     env.log("Housekeep, delete people created by bots (visits)");
                     //
-                    string sql = "delete from ccmembers from ccmembers u left join ccvisits v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)";
+                    string sql = $"delete from ccmembers from ccmembers u left join ccvisits v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)and(u.personTypeId<={(int)PersonTypeEnum.Bot})";
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.cpParent.Db.ExecuteNonQuery(sql);
                     //
