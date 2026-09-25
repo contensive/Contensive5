@@ -18,6 +18,17 @@ The collection XML file is how Contensive creates and updates database schema wh
 See [Addon Collection Pattern](patterns/addon-collection-pattern.md) for CDef and Field XML syntax.
 See [Database Models Pattern](patterns/database-models-pattern.md) for C# model conventions.
 
+## Critical Rule: CPBase Binary Compatibility
+
+**Never make a breaking change to the `source/CPBase` project.** CPBase is the public API surface consumed by separately compiled addon assemblies (Blog, CRM, etc.). Those addons are not recompiled when CPBase is updated, so any signature change that removes or alters an existing method will cause `MissingMethodException` at runtime.
+
+**Rules:**
+1. **Never delete a public method, property, or class** — if it's no longer needed, mark it `[Obsolete]`
+2. **Never change the parameters of an existing public method** — instead, add a new overload with the additional parameters
+3. **Never add optional parameters to existing methods** — in .NET, optional parameters are baked into the caller at compile time. Adding `string foo = ""` to an existing method is a binary-breaking change even though it's source-compatible. Always add a separate overload instead.
+4. **Obsolete attributes must be warnings, not errors** — use `[Obsolete("message", false)]`, never `[Obsolete("message", true)]`
+5. **Obsolete messages must include migration instructions** — tell the consumer what replacement method to use (e.g., `[Obsolete("Use addFilterSelect(caption, name, options, defaultValue) instead.", false)]`)
+
 ## Testing
 
 - [Contensive Testing Pattern](patterns/testing-pattern.md)

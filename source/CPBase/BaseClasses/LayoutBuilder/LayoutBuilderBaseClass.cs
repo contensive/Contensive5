@@ -135,8 +135,16 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="caption">The label displayed for this filter</param>
         /// <param name="filterHtmlName">The HTML field name used to store/retrieve the filter value</param>
         /// <param name="options">List of available options with name, value, and selected state</param>
-        /// <param name="defaultValue">Optional: If specified, no chip will be displayed when this value is selected (prevents showing chips for default state)</param>
-        public abstract void addFilterSelect(string caption, string filterHtmlName, List<NameValueSelected> options, string defaultValue = "");
+        public abstract void addFilterSelect(string caption, string filterHtmlName, List<NameValueSelected> options);
+        //
+        /// <summary>
+        /// Add a filter to the current filter group. This is a select input with a list of options.
+        /// </summary>
+        /// <param name="caption">The label displayed for this filter</param>
+        /// <param name="filterHtmlName">The HTML field name used to store/retrieve the filter value</param>
+        /// <param name="options">List of available options with name, value, and selected state</param>
+        /// <param name="defaultValue">If specified, no chip will be displayed when this value is selected (prevents showing chips for default state)</param>
+        public abstract void addFilterSelect(string caption, string filterHtmlName, List<NameValueSelected> options, string defaultValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

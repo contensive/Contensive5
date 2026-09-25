@@ -234,7 +234,10 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue) {
             layoutBuilderBase.addFilterDateInput(caption, htmlName, htmlDateValue);
         }
-        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options, string defaultValue = "") {
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
+            layoutBuilderBase.addFilterSelect(caption, htmlName, options, "");
+        }
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options, string defaultValue) {
             layoutBuilderBase.addFilterSelect(caption, htmlName, options, defaultValue);
         }
         public override void addFilterSelectContent(string caption, string htmlName, int htmlValue, string content, string sqlCriteria) {

@@ -459,7 +459,11 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options, string defaultValue = "") {
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
+            addFilterSelect(caption, htmlName, options, "");
+        }
+        //
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options, string defaultValue) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
             filterGroups[^1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
