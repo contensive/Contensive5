@@ -61,7 +61,7 @@ function Invoke-AddonLibraryDeploy {
         [Parameter(Mandatory)][string]$CollectionPath,
         [Parameter(Mandatory)][string]$DeploymentPath,
         [string]$UiPath = '',
-        [string]$TargetDomain = 'contensive.com'
+        [string]$TargetDomain = 'www.contensive.com'
     )
 
     Write-Host ""
@@ -78,7 +78,7 @@ function Invoke-AddonLibraryDeploy {
     if (-not (Test-Path $CollectionPath)) {
         throw "Collection path not found: $CollectionPath"
     }
-    $xmlFiles = Get-ChildItem -Path $CollectionPath -Filter '*.xml' -File
+    $xmlFiles = @(Get-ChildItem -Path $CollectionPath -Filter '*.xml' -File)
     if ($xmlFiles.Count -eq 0) {
         throw "No XML file found in: $CollectionPath"
     }
@@ -109,7 +109,7 @@ function Invoke-AddonLibraryDeploy {
     if ($UiPath -and (Test-Path $UiPath)) {
         $libraryFilesPath = Join-Path $UiPath 'libraryFiles'
         if (Test-Path $libraryFilesPath) {
-            $imageFiles = Get-ChildItem -Path $libraryFilesPath -Include '*.png','*.jpg','*.jpeg','*.gif' -File -Recurse
+            $imageFiles = @(Get-ChildItem -Path $libraryFilesPath -Include '*.png','*.jpg','*.jpeg','*.gif' -File -Recurse)
             if ($imageFiles.Count -gt 0) {
                 $imageFile = $imageFiles[0]
                 $promoImageBase64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($imageFile.FullName))
@@ -158,14 +158,14 @@ function Invoke-AddonLibraryDeploy {
     $zipFile = $null
 
     # First look for .zip files directly in DeploymentPath
-    $directZips = Get-ChildItem -Path $DeploymentPath -Filter '*.zip' -File -ErrorAction SilentlyContinue
+    $directZips = @(Get-ChildItem -Path $DeploymentPath -Filter '*.zip' -File -ErrorAction SilentlyContinue)
     if ($directZips.Count -gt 0) {
         $zipFile = $directZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     } else {
         # Look in the most recent subfolder (version subfolders sorted descending)
         $subfolders = Get-ChildItem -Path $DeploymentPath -Directory | Sort-Object Name -Descending
         foreach ($sf in $subfolders) {
-            $sfZips = Get-ChildItem -Path $sf.FullName -Filter '*.zip' -File -ErrorAction SilentlyContinue
+            $sfZips = @(Get-ChildItem -Path $sf.FullName -Filter '*.zip' -File -ErrorAction SilentlyContinue)
             if ($sfZips.Count -gt 0) {
                 $zipFile = $sfZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
                 break
@@ -176,6 +176,19 @@ function Invoke-AddonLibraryDeploy {
         throw "No collection zip found in: $DeploymentPath"
     }
     Write-Host "Collection zip: $($zipFile.FullName) ($($zipFile.Length) bytes)"
+
+    # -- extract version from the zip's parent folder name (e.g., "26.9.25.28323")
+    $collectionVersion = ''
+    $zipParent = Split-Path $zipFile.FullName -Parent
+    $zipParentName = Split-Path $zipParent -Leaf
+    if ($zipParentName -match '^\d+\.\d+\.\d+\.\d+$') {
+        $collectionVersion = $zipParentName
+    }
+    if ($collectionVersion) {
+        Write-Host "Version:        $collectionVersion"
+    } else {
+        Write-Host "Version:        (not detected)"
+    }
 
     # -------------------------------------------------------------------
     # Step 4: Bearer token (cached per domain)
@@ -216,6 +229,7 @@ function Invoke-AddonLibraryDeploy {
         description          = if ($helpText) { $helpText } else { '' }
         collectionFileBase64 = $zipBase64
         collectionFileName   = $zipFile.Name
+        collectionVersion    = $collectionVersion
     }
     if ($promoImageBase64) {
         $payload['promoImageBase64']   = $promoImageBase64
@@ -229,33 +243,48 @@ function Invoke-AddonLibraryDeploy {
     # -------------------------------------------------------------------
     $url = "https://$TargetDomain/addon-library-upload"
     Write-Host "Uploading to $url..."
+    Write-Host "Payload size:   $([Math]::Round($jsonPayload.Length / 1MB, 1)) MB"
+    Write-Host "Token prefix:   $($token.Substring(0, [Math]::Min(8, $token.Length)))..."
     Write-Host ""
 
-    try {
-        $response = Invoke-LibraryUploadRequest -BearerToken $token -Url $url -Body $jsonPayload
-    } catch {
-        $statusCode = $_.Exception.Response.StatusCode.value__
-        if ($statusCode -eq 401 -or $statusCode -eq 403) {
-            Write-Host "Token rejected (HTTP $statusCode). Please provide a new token."
-            $token = Read-Host "Enter new bearer token for $TargetDomain"
-            if ([string]::IsNullOrWhiteSpace($token)) { throw "No token provided." }
-            Set-Content -Path $tokenFile -Value $token -NoNewline
+    $uploaded = $false
+    while (-not $uploaded) {
+        $response = $null
+        try {
             $response = Invoke-LibraryUploadRequest -BearerToken $token -Url $url -Body $jsonPayload
-        } else {
-            throw
+        } catch {
+            $statusCode = if ($_.Exception.Response) { $_.Exception.Response.StatusCode.value__ } else { 0 }
+            if ($statusCode -eq 401 -or $statusCode -eq 403) {
+                Write-Host "Token rejected (HTTP $statusCode)." -ForegroundColor Yellow
+            } else {
+                throw
+            }
         }
+        # Handle auth failures returned in the response body (HTTP 200 with success=false)
+        if ($response -and (-not $response.success) -and $response.error -match '(?i)auth|token|bearer') {
+            Write-Host "FAILED: $($response.error)" -ForegroundColor Yellow
+        } elseif ($response -and $response.success) {
+            $uploaded = $true
+            continue
+        } elseif ($response) {
+            Write-Host "FAILED: $($response.error)" -ForegroundColor Red
+            throw "Addon library upload failed: $($response.error)"
+        }
+        # Prompt for a new token
+        Write-Host ""
+        Write-Host "Enter a new bearer token or press Enter to cancel."
+        $token = Read-Host "Bearer token for $TargetDomain"
+        if ([string]::IsNullOrWhiteSpace($token)) { throw "No token provided." }
+        Set-Content -Path $tokenFile -Value $token -NoNewline
+        Write-Host ""
+        Write-Host "Retrying upload..."
     }
 
     # -------------------------------------------------------------------
     # Step 8: Display result
     # -------------------------------------------------------------------
-    if ($response.success) {
-        Write-Host "SUCCESS: $($response.message)"
-        Write-Host "Record ID: $($response.recordId)"
-    } else {
-        Write-Host "FAILED: $($response.error)" -ForegroundColor Red
-        throw "Addon library upload failed: $($response.error)"
-    }
+    Write-Host "SUCCESS: $($response.message)"
+    Write-Host "Record ID: $($response.recordId)"
 
     Write-Host ""
     Write-Host "========================================"
@@ -269,11 +298,26 @@ function Invoke-AddonLibraryDeploy {
 
 function Invoke-LibraryUploadRequest {
     param([string]$BearerToken, [string]$Url, [string]$Body)
-    $headers = @{
-        'Authorization' = "Bearer $BearerToken"
-        'Content-Type'  = 'application/json'
+    #
+    # -- Use -MaximumRedirection 0 to prevent Invoke-RestMethod from silently
+    #    following redirects (e.g. 301 from contensive.com -> www.contensive.com),
+    #    which strips the Authorization header per HTTP spec.
+    #
+    try {
+        $headers = @{
+            'Authorization' = "Bearer $BearerToken"
+            'Content-Type'  = 'application/json'
+        }
+        return Invoke-RestMethod -Uri $Url -Method Post -Headers $headers -Body $Body -TimeoutSec 120 -MaximumRedirection 0
+    } catch {
+        # -- detect redirect and report it clearly
+        $statusCode = if ($_.Exception.Response) { [int]$_.Exception.Response.StatusCode } else { 0 }
+        if ($statusCode -ge 300 -and $statusCode -lt 400) {
+            $location = $_.Exception.Response.Headers.Location
+            throw "HTTP $statusCode redirect from $Url to $location. Update TargetDomain to match the canonical host (e.g. 'www.contensive.com' instead of 'contensive.com'). Redirects strip the Authorization header."
+        }
+        throw
     }
-    return Invoke-RestMethod -Uri $Url -Method Post -Headers $headers -Body $Body -TimeoutSec 120
 }
 
 # ===========================================================================
