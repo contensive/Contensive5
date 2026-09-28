@@ -1,5 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
+using Contensive.Models.Db;
+using Contensive.Processor.Addons.PortalFramework.Models.Db;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -304,6 +306,15 @@ namespace Contensive.Processor.Controllers {
                                 {
                                     int parentId = contentCs.GetInteger("ParentID");
                                     sb.Append($" Parent=\"{encodeXMLattribute(contents.ContainsKey(parentId) ? contents[parentId] : "")}\"");
+                                }
+                                {
+                                    int portalFeatureId = contentCs.GetInteger("portalFeatureId");
+                                    string portalFeatureGuid = "";
+                                    if (portalFeatureId > 0) {
+                                        var portalFeature = DbBaseModel.create<PortalFeatureModel>(cp, portalFeatureId);
+                                        if (portalFeature != null) { portalFeatureGuid = portalFeature.ccguid ?? ""; }
+                                    }
+                                    sb.Append($" PortalFeatureGuid=\"{encodeXMLattribute(portalFeatureGuid)}\"");
                                 }
                             }
                             sb.Append($" Guid=\"{GetRSXMLAttribute(contentCs, "ccGuid")}\"");

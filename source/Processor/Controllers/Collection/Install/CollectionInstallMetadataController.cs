@@ -181,6 +181,7 @@ namespace Contensive.Processor.Controllers {
                                     targetMetaData.addonCategoryText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", DefaultMetaData.addonCategoryText);
                                     //
                                     targetMetaData.abbreviation = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "abbreviation", DefaultMetaData.abbreviation);
+                                    targetMetaData.portalFeatureGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "PortalFeatureGuid", DefaultMetaData.portalFeatureGuid);
                                     //
                                     // -- determine id
                                     targetMetaData.id = DbController.getContentId(core, contentName);

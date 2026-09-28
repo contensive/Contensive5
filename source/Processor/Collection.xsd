@@ -377,6 +377,9 @@
 							<xs:attribute name="ignoreContentControl" type="xs:boolean">
 								<xs:annotation><xs:documentation>When true, bypasses content control security checks.</xs:documentation></xs:annotation>
 							</xs:attribute>
+							<xs:attribute name="portalFeatureGuid" type="xs:string">
+								<xs:annotation><xs:documentation>GUID of portal feature for edit modal Advanced Edit link. When set, the link navigates to this portal feature instead of the default admin edit form.</xs:documentation></xs:annotation>
+							</xs:attribute>
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="Addon" minOccurs="1" maxOccurs="unbounded" >

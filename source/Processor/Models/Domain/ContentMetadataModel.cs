@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using Contensive.Processor.Addons.PortalFramework.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Exceptions;
 using System;
@@ -198,6 +199,11 @@ namespace Contensive.Processor.Models.Domain {
         /// FK to Portal Features - when set, edit modal Advanced Edit link navigates to this portal feature
         /// </summary>
         public int portalFeatureId { get; set; }
+        //
+        /// <summary>
+        /// GUID of portal feature, read from collection XML during import, resolved to portalFeatureId during save
+        /// </summary>
+        public string portalFeatureGuid { get; set; }
         //
         /// <summary>
         /// consider deprecation - read from xml, used to set parentId
@@ -1277,6 +1283,14 @@ namespace Contensive.Processor.Models.Domain {
                     }
                     if (ccContentColumns.Contains("abbreviation")) {
                         sqlList.Add("abbreviation", DbController.encodeSQLText(getText(contentMetadata.abbreviation, "")));
+                    }
+                    if (ccContentColumns.Contains("portalfeatureid")) {
+                        int portalFeatureId = 0;
+                        if (!string.IsNullOrEmpty(contentMetadata.portalFeatureGuid)) {
+                            var portalFeature = DbBaseModel.create<PortalFeatureModel>(core.cpParent, contentMetadata.portalFeatureGuid);
+                            if (portalFeature != null) { portalFeatureId = portalFeature.id; }
+                        }
+                        sqlList.Add("portalfeatureid", DbController.encodeSQLNumber(portalFeatureId));
                     }
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
                     //
