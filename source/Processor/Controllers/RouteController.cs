@@ -150,13 +150,6 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // -- legacy form process methods
-                // todo -- move legacy form process methods to process within their own code
-                string ajaxfnRouteResult = "";
-                if (tryExecuteAjaxfnRoute(core, requestedRoute, ref ajaxfnRouteResult)) {
-                    return ajaxfnRouteResult;
-                }
-                //
                 // -- legacy email intercept methods
                 // todo -- convert email intercept methods to remote methods
                 if (core.docProperties.getInteger(rnEmailOpenFlag) > 0) {
@@ -615,69 +608,6 @@ namespace Contensive.Processor.Controllers {
                         }
                     default: {
                             return;
-                        }
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
-            }
-        }
-        //
-        /// <summary>
-        /// legacy built in ajax functions.
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="normalizedRoute"></param>
-        /// <param name="returnResult"></param>
-        /// <returns></returns>
-        public static bool tryExecuteAjaxfnRoute(CoreController core, string normalizedRoute, ref string returnResult) {
-            try {
-                string AjaxFunction = core.docProperties.getText(RequestNameAjaxFunction);
-                if (string.IsNullOrEmpty(AjaxFunction)) { return false; }
-                //
-                // -- Need to be converted to Url parameter addons
-                switch ((AjaxFunction)) {
-                    case AjaxSetVisitProperty: {
-                            //
-                            // moved to Addons.AdminSite
-                            returnResult = (new Contensive.Processor.Addons.AdminSite.SetAjaxVisitPropertyClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
-                    case AjaxGetVisitProperty: {
-                            //
-                            // moved to Addons.AdminSite
-                            returnResult = (new Contensive.Processor.Addons.AdminSite.GetAjaxVisitPropertyClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
-                    case AjaxData: {
-                            //
-                            // moved to Addons.AdminSite
-                            returnResult = (new Contensive.Processor.Addons.AdminSite.ProcessAjaxDataClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
-                    case AjaxOpenIndexFilter: {
-                            //
-                            // moved to Addons.AdminSite
-                            returnResult = (new Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
-                    case AjaxOpenIndexFilterGetContent: {
-                            //
-                            // moved to Addons.AdminSite
-                            returnResult = (new Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterGetContentClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
-                    case AjaxCloseIndexFilter: {
-                            //
-                            // moved to Addons.AdminSite
-                            returnResult = (new Contensive.Processor.Addons.AdminSite.CloseAjaxIndexFilterClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
-                    default: {
-                            //
-                            // -- unknown method, log warning
-                            returnResult = string.Empty;
-                            return true;
                         }
                 }
             } catch (Exception ex) {

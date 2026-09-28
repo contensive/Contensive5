@@ -180,9 +180,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     + Environment.NewLine + "<div id=\"IndexFilterContentClosed\" class=\"closed\" style=\"display:none;\">" + adminIndexFilterClosedLabel + "</div>"
                                     + Environment.NewLine + "</div>";
                                 IndexFilterJS = ""
-                                    + Environment.NewLine + "<script Language=\"JavaScript\" type=\"text/javascript\">"
-                                    + Environment.NewLine + "function CloseIndexFilter()  {SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','none');SetDisplay('IndexFilterContentOpened','none');SetDisplay('IndexFilterHeadClosed','block');SetDisplay('IndexFilterContentClosed','block');cj.ajax.qs('" + RequestNameAjaxFunction + "=" + AjaxCloseIndexFilter + "','','')}"
-                                    + Environment.NewLine + "function OpenIndexFilter()  {SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','block');SetDisplay('IndexFilterContentOpened','block');SetDisplay('IndexFilterHeadClosed','none');SetDisplay('IndexFilterContentClosed','none');cj.ajax.qs('" + RequestNameAjaxFunction + "=" + AjaxOpenIndexFilter + "&cid=" + adminData.adminContent.id + "','','')}"
+                                    + Environment.NewLine + "<script type=\"text/javascript\">"
+                                    + Environment.NewLine + "function CloseIndexFilter(){SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','none');SetDisplay('IndexFilterContentOpened','none');SetDisplay('IndexFilterHeadClosed','block');SetDisplay('IndexFilterContentClosed','block');fetch('/adminCloseIndexFilter')}"
+                                    + Environment.NewLine + "function OpenIndexFilter(){SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','block');SetDisplay('IndexFilterContentOpened','block');SetDisplay('IndexFilterHeadClosed','none');SetDisplay('IndexFilterContentClosed','none');fetch('/adminOpenIndexFilter?cid=" + adminData.adminContent.id + "')}"
                                     + Environment.NewLine + "</script>";
                             } else {
                                 //
@@ -207,12 +207,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     + Environment.NewLine + "<div id=\"IndexFilterContentClosed\" class=\"closed\">" + adminIndexFilterClosedLabel + "</div>"
                                     + Environment.NewLine + "<div id=\"IndexFilterContentMinWidth\" style=\"display:none;\"><img alt=\"space\" src=\"" + cdnPrefix + "images/spacer.gif\" width=\"200\" height=\"1\" style=\"clear:both\"></div>"
                                     + Environment.NewLine + "</div>";
-                                string AjaxQS = GenericController.modifyQueryString(core.doc.refreshQueryString, RequestNameAjaxFunction, AjaxOpenIndexFilterGetContent);
                                 IndexFilterJS = ""
-                                    + Environment.NewLine + "<script Language=\"JavaScript\" type=\"text/javascript\">"
+                                    + Environment.NewLine + "<script type=\"text/javascript\">"
                                     + Environment.NewLine + "var IndexFilterPop=false;"
-                                    + Environment.NewLine + "function CloseIndexFilter()  {SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','none');SetDisplay('IndexFilterHeadClosed','block');SetDisplay('IndexFilterContentOpened','none');SetDisplay('IndexFilterContentMinWidth','none');SetDisplay('IndexFilterContentClosed','block');cj.ajax.qs('" + RequestNameAjaxFunction + "=" + AjaxCloseIndexFilter + "','','')}"
-                                    + Environment.NewLine + "function OpenIndexFilter()  {SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','block');SetDisplay('IndexFilterHeadClosed','none');SetDisplay('IndexFilterContentOpened','block');SetDisplay('IndexFilterContentMinWidth','block');SetDisplay('IndexFilterContentClosed','none');if(!IndexFilterPop){cj.ajax.qs('" + AjaxQS + "','','IndexFilterContentOpened');IndexFilterPop=true;}else{cj.ajax.qs('" + RequestNameAjaxFunction + "=" + AjaxOpenIndexFilter + "','','');}}"
+                                    + Environment.NewLine + "function CloseIndexFilter(){SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','none');SetDisplay('IndexFilterHeadClosed','block');SetDisplay('IndexFilterContentOpened','none');SetDisplay('IndexFilterContentMinWidth','none');SetDisplay('IndexFilterContentClosed','block');fetch('/adminCloseIndexFilter')}"
+                                    + Environment.NewLine + "function OpenIndexFilter(){SetDisplay('IndexFilterHeCursorTypeEnum.ADOPENed','block');SetDisplay('IndexFilterHeadClosed','none');SetDisplay('IndexFilterContentOpened','block');SetDisplay('IndexFilterContentMinWidth','block');SetDisplay('IndexFilterContentClosed','none');if(!IndexFilterPop){fetch('/adminOpenIndexFilterGetContent?cid=" + adminData.adminContent.id + "').then(function(r){return r.text()}).then(function(html){document.getElementById('IndexFilterContentOpened').innerHTML=html});IndexFilterPop=true;}else{fetch('/adminOpenIndexFilter?cid=" + adminData.adminContent.id + "')}}"
                                     + Environment.NewLine + "</script>";
                             }
                             //

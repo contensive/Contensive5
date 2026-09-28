@@ -467,25 +467,6 @@ namespace Contensive.Processor {
         // --------------------------------------------------------------------------------------------------------------------------
         // Ajax functions intercepted during init, answered and response closed
         // todo - convert built-in request name functions to remoteMethods
-        //   These are hard-coded internal Contensive functions
-        //   These should eventually be replaced with (HardcodedAddons) remote methods
-        //   They should all be prefixed "cc"
-        //   They are called with cj.ajax.qs(), setting RequestNameAjaxFunction=name in the qs
-        //   These name=value pairs go in the QueryString argument of the javascript cj.ajax.qs() function
-        // --------------------------------------------------------------------------------------------------------------------------
-        //
-        internal const string RequestNameAjaxFunction = "ajaxfn";
-        internal const string RequestNameAjaxFastFunction = "ajaxfastfn";
-        //
-        internal const string AjaxCloseIndexFilter = "k48smckdhorle0";
-        internal const string AjaxOpenIndexFilter = "Ls8jCDt87kpU45YH";
-        internal const string AjaxOpenIndexFilterGetContent = "llL98bbJQ38JC0KJm";
-        internal const string AjaxStyleEditorAddStyle = "ajaxstyleeditoradd";
-        internal const string AjaxGetFormEditTabContent = "ajaxgetformedittabcontent";
-        internal const string AjaxData = "data";
-        internal const string AjaxGetVisitProperty = "getvisitproperty";
-        internal const string AjaxSetVisitProperty = "setvisitproperty";
-        //
         // --------------------------------------------------------------------------------------------------------------------------
         //   Remote Methods
         //       ?RemoteMethodAddon=string
@@ -652,7 +633,6 @@ namespace Contensive.Processor {
         internal const string ButtonRun = "Run";
         internal const string ButtonSelect = "Select";
         internal const string ButtonFindAndReplace = "Find and Replace";
-        internal const string ButtonIISReset = "IIS Reset";
         internal const string ButtonCancel = "Cancel";
         
         internal const string ButtonApply = "Apply";

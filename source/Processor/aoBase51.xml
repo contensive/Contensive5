@@ -3368,13 +3368,6 @@
     <BlockEditTools>Yes</BlockEditTools>
   </Addon>
 
-  <Addon Name="IISReset Tool" Guid="{B8FB9221-5A8E-4A8B-90C1-388F47BB0A02}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.IISResetToolClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[Advanced]]></Category>
-    <BlockEditTools>Yes</BlockEditTools>
-  </Addon>
-
   <Addon Name="Content Schema Tool" Guid="{ADFFC728-3C07-4873-9EFF-65F1DE557376}" Type="Tool">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ContentSchemaToolClass]]></DotNetClass>
     <Admin>Yes</Admin>
@@ -3675,6 +3668,18 @@
   </Addon>
   <Addon Name="AdminAutocompleteCommands" Guid="{FBD591E1-F1CD-4E7D-BD2B-F760C313C568}" Type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.AdminAutocompleteCommands]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
+  <Addon Name="adminOpenIndexFilter" Guid="{59898DAA-D722-43CE-8C62-B6B66BD97186}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterClass]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
+  <Addon Name="adminCloseIndexFilter" Guid="{B21E826B-36C3-4BD3-BF9D-C78A853E6821}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.CloseAjaxIndexFilterClass]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
+  <Addon Name="adminOpenIndexFilterGetContent" Guid="{E2A91936-A368-44DA-8C87-BC58325273C1}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterGetContentClass]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
   <Addon Name="setAdminSiteFieldHelp" Guid="{a89a0a11-cbdd-4bb5-995e-0dfaaf3e3111}" Type="Add-on">

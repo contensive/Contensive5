@@ -485,131 +485,6 @@ function cjAjaxQsCallback(QueryString, Callback, CallbackArg) {
     cjAjaxAddonCallback("", QueryString, Callback, CallbackArg);
 }
 //
-//-------------------------------------------------------------------------
-//
-function cjAjaxData(handler, queryKey, args, pageSize, pageNumber, responseFormat, ajaxMethod) {
-    var xmlHttp;
-    var url;
-    var serverResponse;
-    var el1;
-    var pos;
-    var response;
-    try {
-        // Firefox, Opera 8.0+, Safari
-        xmlHttp = new XMLHttpRequest();
-    } catch (e) {
-        // Internet Explorer
-        try {
-            xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
-        } catch (e) {
-            try {
-                xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
-            } catch (e) {
-                alert("Your browser does not support this function");
-                return false;
-            }
-        }
-    }
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
-            response = xmlHttp.responseText;
-            var str = response.toLowerCase();
-            pos = str.indexOf("</data>");
-            if (pos !== -1) { response = response.substr(0, pos) }
-            pos = str.indexOf("<data>")
-            if (pos !== -1) { response = response.substr(pos + 6) }
-            if (handler) { handler(response) }
-        }
-    }
-    // get url w/o QS
-    url = document.URL;
-    pos = url.indexOf("#");
-    if (pos !== -1) { url = url.substr(0, pos) }
-    pos = url.indexOf("://");
-    if (pos !== -1) {
-        pos = url.indexOf("/", pos + 3);
-        if (pos !== -1) { url = url.substr(0, pos + 1) }
-    }
-    pos = url.indexOf("?")
-    if (pos = -1) { url += "?" } else { url += "&" }
-    url += "ajaxfn=" + ajaxMethod;
-    url += "&key=" + queryKey;
-    if (pageSize) url += "&pagesize=" + escape(pageSize)
-    if (pageNumber) url += "&pagenumber=" + escape(pageNumber)
-    if (args) url += "&args=" + escape(args)
-    url += "&nocache=" + Math.random();
-    url += "&responseformat=" + responseFormat;
-    xmlHttp.open("GET", url, true);
-    xmlHttp.send(null);
-}
-//
-//-------------------------------------------------------------------------
-// cjAjaxGetTable
-//	runs cj.ajax.data with a "jsontable" responseFormat
-//-------------------------------------------------------------------------
-//
-function cjAjaxGetTable(handler, queryKey, args, pageSize, pageNumber) {
-    return this.data(handler, queryKey, args, pageSize, pageNumber, "jsontable", "data")
-}
-//
-//-------------------------------------------------------------------------
-// cjAjaxGetNameArray
-//	runs cj.ajax.data with a "namearray" responseFormat
-//-------------------------------------------------------------------------
-//
-function cjAjaxGetNameArray(handler, queryKey, args, pageSize, pageNumber) {
-    return this.data(handler, queryKey, args, pageSize, pageNumber, "jsonnamearray", "data")
-}
-//
-//-------------------------------------------------------------------------
-// cjAjaxGetNameValue
-//	runs cj.ajax.data with 1 row and a "namevalue" responseFormat
-//-------------------------------------------------------------------------
-//
-function cjAjaxGetNameValue(handler, queryKey, args) {
-    return this.data(handler, queryKey, args, 1, 1, "jsonnamevalue", "data")
-}
-//
-//-------------------------------------------------------------------------
-// cjAjaxSetVisitProperty
-//	sets a visit property for the current visit
-//-------------------------------------------------------------------------
-//
-function cjAjaxSetVisitProperty(handler, propertyName, propertyValue) {
-    return this.data(handler, "", escape(propertyName) + "=" + escape(propertyValue), 0, 0, "jsonnamevalue", "setvisitproperty")
-}
-//
-//-------------------------------------------------------------------------
-// cjAjaxGetVisitProperty
-//	gets a visit property for the current visit
-//	it is returned in jsonnamevalue format, so you use it like jo.PropertyName=PropertyValue
-//-------------------------------------------------------------------------
-//
-function cjAjaxGetVisitProperty(handler, propertyName, propertyValueDefault) {
-    return this.data(handler, "", escape(propertyName) + "=" + escape(propertyValueDefault), 0, 0, "jsonnamevalue", "getvisitproperty")
-}
-//
-//-------------------------------------------------------------------------
-// cjAjaxUpdate
-//	Runs a Content Update query
-//	handler - the routine called when the results return
-//	queryKey - the key used to lookup the query (ccLib.getAjaxQueryKey) for this update
-//	criteria - sql compatible criteria
-//	setPairs - array of name=value pairs formatted as:
-//		setPair=[["name0","value0"],["name1","value1"],...]
-//		where names are valid field names in the content
-//-------------------------------------------------------------------------
-//
-function cjAjaxUpdate(handler, queryKey, criteria, setPairs) {
-    var nameValue, argSet, args, x;
-    argSet = "";
-    for (x = 0; x < setPairs.length; x++) {
-        argSet += "&" + escape(setPairs[x][0]) + "=" + escape(setPairs[x][1])
-    }
-    args = "criteria=" + escape(criteria) + "&setpairs=" + escape(argSet);
-    return this.data(handler, queryKey, args, 0, 0, "", "data")
-}
-//
 function cjAddListener(element, event, listener, bubble) {
     if (element.addEventListener) {
         if (typeof (bubble) === "undefined") bubble = false;
@@ -765,18 +640,9 @@ function cjAdminClass() {
 //-------------------------------------------------------------------------
 // cj.ajax object
 //	perform remote calls back to the server (ajax)
-//	cj.ajax.getTable()
-//	cj.ajax.getRow()
 //-------------------------------------------------------------------------
 //
 function cjAjaxClass() {
-    this.getTable = cjAjaxGetTable;
-    this.getNameArray = cjAjaxGetNameArray;
-    this.getNameValue = cjAjaxGetNameValue;
-    this.update = cjAjaxUpdate;
-    this.data = cjAjaxData;
-    this.setVisitProperty = cjAjaxSetVisitProperty;
-    this.getVisitProperty = cjAjaxGetVisitProperty;
     this.url = cjAjaxURL;
     this.addon = cjAjaxAddon;
     this.addonCallback = cjAjaxAddonCallback;

@@ -12,6 +12,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="cp"></param>
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
+            if (!cp.User.IsAdmin) { return ""; }
             string returnHtml = "";
             try {
                 CoreController core = ((CPClass)cp).core;
