@@ -74,6 +74,10 @@ namespace Contensive.Models.Db {
         /// used for navigation for table names that are very long
         /// </summary>
         public string abbreviation { get; set; }
+        /// <summary>
+        /// FK to PortalFeatureModel (ccPortalFeatures.id) - when set, edit modal Advanced Edit link navigates to this portal feature
+        /// </summary>
+        public int portalFeatureId { get; set; }
         //
         //====================================================================================================
         /// <summary>

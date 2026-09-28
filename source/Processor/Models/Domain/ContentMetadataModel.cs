@@ -195,6 +195,11 @@ namespace Contensive.Processor.Models.Domain {
         public int parentId { get; set; }
         //
         /// <summary>
+        /// FK to Portal Features - when set, edit modal Advanced Edit link navigates to this portal feature
+        /// </summary>
+        public int portalFeatureId { get; set; }
+        //
+        /// <summary>
         /// consider deprecation - read from xml, used to set parentId
         /// </summary>
         public string parentName { get; set; }
@@ -342,6 +347,7 @@ namespace Contensive.Processor.Models.Domain {
                         + ", ccAddonCollections.ccguid as addonCollectionGuid"
                         + ", c.isBaseContent"
                         + ", c.ccGuid"
+                        + ", c.portalFeatureId"
                         + "";
                     //
                     sql += ""
@@ -391,7 +397,8 @@ namespace Contensive.Processor.Models.Domain {
                                 aliasName = "NAME",
                                 installedByCollectionGuid = getText(contentRow["addonCollectionGuid"]),
                                 isBaseContent = getBoolean(contentRow["isBaseContent"]),
-                                guid = getText(contentRow["ccGuid"])
+                                guid = getText(contentRow["ccGuid"]),
+                                portalFeatureId = getInteger(contentRow["portalFeatureId"])
                             };
                             //
                             // load parent metadata fields first so we can overlay the current metadata field

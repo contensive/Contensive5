@@ -1,6 +1,7 @@
 ﻿using Amazon.SimpleEmail;
 using Contensive.BaseClasses;
 using Contensive.Processor.Addons.AdminSite;
+using Contensive.Processor.Addons.PortalFramework.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Db;
 using NUglify.JavaScript.Syntax;
@@ -47,6 +48,15 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public string adminEditUrl {
             get {
+                if (contentMetadata.portalFeatureId > 0) {
+                    var portalFeature = Contensive.Models.Db.DbBaseModel.create<PortalFeatureModel>(core.cpParent, contentMetadata.portalFeatureId);
+                    if (portalFeature != null && portalFeature.portalId > 0) {
+                        var portal = Contensive.Models.Db.DbBaseModel.create<PortalModel>(core.cpParent, portalFeature.portalId);
+                        if (portal != null && !string.IsNullOrEmpty(portal.ccguid) && !string.IsNullOrEmpty(portalFeature.ccguid)) {
+                            return $"/{core.appConfig.adminRoute}?addonGuid={Constants.guidAddonPortalFramework}&setPortalGuid={portal.ccguid}&dstFeatureGuid={portalFeature.ccguid}";
+                        }
+                    }
+                }
                 return EditUIController.getEditUrl(core, contentMetadata.id, recordGuid);
             }
         }
