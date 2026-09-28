@@ -151,6 +151,45 @@ In the Portals record there is a selection for the default Feature which is run 
 
 For example, this xml block defines the Account Manager portal with one Data Feature and two Addon Features. One of the Addon Features is in the Portal, and one is a dashboard widget that displays when the portal is opened
 
+## Portal Feature Record ID Convention
+
+Portal features that edit a specific record should accept the query string parameter `id` as the primary record identifier. This enables the platform to link directly to a portal feature from contexts like the edit modal's "advanced edit" link, where only the record ID and target portal feature are known.
+
+### Rules
+
+1. **Detail/edit features** read `id` first, falling back to their legacy parameter name for backward compatibility with existing portal navigation links.
+
+2. **List features** (features that show a list of records, not a single record for editing) do not use `id`. They continue using their existing parameter names for filtering.
+
+3. **Parent context derivation**: When a portal feature requires parent record context (e.g., a blog post editor needs the parent blog ID), the addon derives it from the target record rather than requiring it on the query string. This is only needed when the parent parameter is missing (i.e., when entering via "advanced edit").
+
+### Example
+
+A portal feature that edits a blog post:
+
+```csharp
+// -- read the primary record ID: prefer "id", fall back to legacy name
+int postId = cp.Doc.GetInteger("id");
+if (postId == 0) { postId = cp.Doc.GetInteger("blogPostId"); }
+
+// -- derive parent context if not provided
+int blogId = cp.Doc.GetInteger("blogId");
+if (blogId == 0 && postId > 0) {
+    var post = DbBaseModel.create<BlogEntryModel>(cp, postId);
+    if (post != null) { blogId = post.blogId; }
+}
+```
+
+Internal portal navigation links (built with `GetPortalFeatureLink()`) may continue to use legacy parameter names. The fallback ensures both paths work.
+
+### Rendering order
+
+The portal executes the feature addon first, then wraps the result with portal navigation. During `getForm()`, the addon calls `cp.Doc.AddRefreshQueryString()` to set query string values that the portal uses for breadcrumb navigation links. These refresh query string values should continue to use the legacy parameter names so that portal navigation links remain consistent.
+
+### Form postback
+
+Hidden form fields (`addFormHidden`) should also continue using legacy parameter names. When a form is submitted, the addon reads the record ID from the hidden field using the legacy name, which is handled by the fallback pattern.
+
 ## Portal and Portal Feature Installation Rules
 
 1. **Collections that define a portal**: All portal features in that collection should belong to that portal.

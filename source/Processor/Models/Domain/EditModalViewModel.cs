@@ -53,7 +53,10 @@ namespace Contensive.Processor.Models.Domain {
                     if (portalFeature != null && portalFeature.portalId > 0) {
                         var portal = Contensive.Models.Db.DbBaseModel.create<PortalModel>(core.cpParent, portalFeature.portalId);
                         if (portal != null && !string.IsNullOrEmpty(portal.ccguid) && !string.IsNullOrEmpty(portalFeature.ccguid)) {
-                            return $"/{core.appConfig.adminRoute}?addonGuid={Constants.guidAddonPortalFramework}&setPortalGuid={portal.ccguid}&dstFeatureGuid={portalFeature.ccguid}";
+                            int recordId = contentMetadata.getRecordId(core, recordGuid);
+                            string url = $"/{core.appConfig.adminRoute}?addonGuid={Constants.guidAddonPortalFramework}&setPortalGuid={portal.ccguid}&dstFeatureGuid={portalFeature.ccguid}";
+                            if (recordId > 0) { url += $"&id={recordId}"; }
+                            return url;
                         }
                     }
                 }

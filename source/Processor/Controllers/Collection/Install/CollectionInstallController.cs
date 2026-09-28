@@ -160,6 +160,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool installDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall, string contextHint = "") {
             bool result = false;
+            string collectionNameForLog = "";
             try {
                 if (string.IsNullOrEmpty(contextHint)) { contextHint = "entry"; }
                 //
@@ -271,6 +272,7 @@ namespace Contensive.Processor.Controllers {
                                 // ---------------------------------------------------------------------------------------------------------------------------------------------------------
                                 //
                                 string CollectionName = XmlController.getXMLAttribute(core, Doc.DocumentElement, "name", "");
+                                collectionNameForLog = CollectionName;
                                 if (string.IsNullOrEmpty(CollectionName)) {
                                     //
                                     // ----- Error condition -- it must have a collection name
@@ -526,7 +528,11 @@ namespace Contensive.Processor.Controllers {
                                             //
                                             // -- Use the upgrade code to import this part
                                             metaDataMiniCollection = "<" + CollectionFileRootNode + " name=\"" + CollectionName + "\" guid=\"" + collectionGuid + "\">" + metaDataMiniCollection + "</" + CollectionFileRootNode + ">";
-                                            CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, metaDataMiniCollection, IsNewBuild, installDependencies, isBaseCollection, logPrefix);
+                                            try {
+                                                CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, metaDataMiniCollection, IsNewBuild, installDependencies, isBaseCollection, logPrefix);
+                                            } catch (Exception exMetadata) {
+                                                throw new Exception($"Error processing schema metadata (CDefs/fields/indexes) for collection [{CollectionName}], guid [{collectionGuid}]. Review CDef and Field elements in the collection XML. Inner error: {exMetadata.Message}", exMetadata);
+                                            }
                                             //
                                             // -- Process nodes to save Collection data
                                             XmlDocument NavDoc = new();
@@ -883,8 +889,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 //
                 // Log error and exit with failure. This way any other upgrading will still continue
-                logger.Error(ex, $"{core.logCommonMessage}, contextHint=[{contextHint}], collectionGuid=[{collectionGuid}]");
-                throw new Exception($"installCollectionFromCollectionFolder failed at contextHint=[{contextHint}], collectionGuid=[{collectionGuid}]", ex);
+                string innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                logger.Error(ex, $"{core.logCommonMessage}, collection=[{collectionNameForLog}], contextHint=[{contextHint}], collectionGuid=[{collectionGuid}], error=[{innerMessage}]");
+                throw new Exception($"installCollectionFromCollectionFolder failed, collection=[{collectionNameForLog}], contextHint=[{contextHint}], collectionGuid=[{collectionGuid}], error=[{innerMessage}]", ex);
             } finally {
                 contextLog.Pop();
             }
@@ -1116,7 +1123,11 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 returnSuccess = false;
-                return_ErrorMessage.errors.Add("There was an unexpected error installing the collection, details [" + ex.Message + "]");
+                string errorDetail = ex.Message;
+                if (ex.InnerException != null) {
+                    errorDetail += $" --> {ex.InnerException.Message}";
+                }
+                return_ErrorMessage.errors.Add($"There was an unexpected error installing the collection, details [{errorDetail}]");
             } finally {
                 contextLog.Pop();
             }
@@ -1168,7 +1179,11 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 returnSuccess = false;
-                return_ErrorMessage.errors.Add("There was an unexpected error installing the collection, details [" + ex.Message + "]");
+                string errorDetail = ex.Message;
+                if (ex.InnerException != null) {
+                    errorDetail += $" --> {ex.InnerException.Message}";
+                }
+                return_ErrorMessage.errors.Add($"There was an unexpected error installing the collection, details [{errorDetail}]");
             } finally {
                 contextLog.Pop();
             }
@@ -1177,7 +1192,7 @@ namespace Contensive.Processor.Controllers {
         //
         //======================================================================================================
         /// <summary>
-        /// process the include add-on node of the add-on nodes. 
+        /// process the include add-on node of the add-on nodes.
         /// this is the second pass, so all add-ons should be added
         /// no errors for missing addones, except the include add-on case
         /// </summary>

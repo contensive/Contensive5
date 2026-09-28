@@ -666,7 +666,14 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public static ContentMetadataModel create(CoreController core, string contentGuid, bool loadInvalidFields, bool forceDbLoad) {
             var ContentGuidDict = core.cacheRuntime.ContentGuidDict;
-            if (!ContentGuidDict.ContainsKey(contentGuid)) { return null; }
+            if (!ContentGuidDict.ContainsKey(contentGuid)) {
+                if (!forceDbLoad) { return null; }
+                //
+                // -- contentGuid not in cache, force reload and retry
+                core.cacheRuntime.content_Clear();
+                ContentGuidDict = core.cacheRuntime.ContentGuidDict;
+                if (!ContentGuidDict.ContainsKey(contentGuid)) { return null; }
+            }
             return create(core, ContentGuidDict[contentGuid], loadInvalidFields, forceDbLoad);
         }
         //

@@ -42,9 +42,8 @@ namespace Contensive.Processor.Controllers {
         /// Must load before any other Db tables are gauranteed (Model load and CS will fail)
         /// </summary>
         public static MetadataMiniCollectionModel loadXML(CoreController core, string srcCollecionXml, bool isBaseCollection, bool setAllDataChanged, bool IsNewBuild, string logPrefix) {
+            var result = new MetadataMiniCollectionModel();
             try {
-                //
-                var result = new MetadataMiniCollectionModel();
                 if (string.IsNullOrEmpty(srcCollecionXml)) {
                     //
                     // -- empty collection is an error
@@ -94,7 +93,10 @@ namespace Contensive.Processor.Controllers {
                                         // -- if base collection loaded, attmpt load. Some cases during startup happen before content is available so exceptions should be skipped
                                         if (!string.IsNullOrWhiteSpace(contentGuid)) {
                                             DefaultMetaData = ContentMetadataModel.create(core, contentGuid);
-                                        } else {
+                                        }
+                                        if (DefaultMetaData == null && !string.IsNullOrWhiteSpace(contentName)) {
+                                            //
+                                            // -- guid lookup failed or no guid, fall back to name lookup
                                             DefaultMetaData = ContentMetadataModel.createByUniqueName(core, contentName);
                                         }
                                     }
@@ -548,7 +550,8 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
+                string cdefContext = !string.IsNullOrEmpty(result.name) ? $", collection [{result.name}]" : "";
+                logger.Error(ex, $"{core.logCommonMessage}{cdefContext}");
                 throw;
             }
         }
@@ -571,7 +574,11 @@ namespace Contensive.Processor.Controllers {
                             logger.Warn($"{core.logCommonMessage}, Content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
                             continue;
                         }
-                        core.db.createSQLTable(metaKvp.Value.tableName);
+                        try {
+                            core.db.createSQLTable(metaKvp.Value.tableName);
+                        } catch (Exception exTable) {
+                            throw new Exception($"Error creating SQL table [{metaKvp.Value.tableName}] for content [{metaKvp.Value.name}] in collection [{Collection.name}]", exTable);
+                        }
                         foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in metaKvp.Value.fields) {
                             if (string.IsNullOrWhiteSpace(fieldKvp.Value.nameLc)) {
                                 logger.Warn($"{core.logCommonMessage}, Field [# " + fieldKvp.Value.id + "] in content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the field name is empty.");
@@ -586,7 +593,11 @@ namespace Contensive.Processor.Controllers {
                                     continue;
                                 }
                             }
-                            core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId, fieldKvp.Value.textLength);
+                            try {
+                                core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId, fieldKvp.Value.textLength);
+                            } catch (Exception exField) {
+                                throw new Exception($"Error creating SQL field [{fieldKvp.Value.nameLc}] (typeId={fieldKvp.Value.fieldTypeId}) in table [{metaKvp.Value.tableName}] for content [{metaKvp.Value.name}] in collection [{Collection.name}]", exField);
+                            }
                         }
                     }
                     core.cacheRuntime.clear();

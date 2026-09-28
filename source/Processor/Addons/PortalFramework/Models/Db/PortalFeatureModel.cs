@@ -3,7 +3,7 @@
 namespace Contensive.Processor.Addons.PortalFramework.Models.Db {
     public class PortalFeatureModel : DbBaseModel {
         //
-        public static readonly DbBaseTableMetadataModel tableMetadata = new DbBaseTableMetadataModel("Portal Features", "ccPortalFeatures", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Portal Features", "ccPortalFeatures", "default", false);
         //
         //====================================================================================================
         //
