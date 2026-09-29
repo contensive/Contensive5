@@ -253,7 +253,8 @@ function Invoke-AddonLibraryDeploy {
         try {
             $response = Invoke-LibraryUploadRequest -BearerToken $token -Url $url -Body $jsonPayload
         } catch {
-            $statusCode = if ($_.Exception.Response) { $_.Exception.Response.StatusCode.value__ } else { 0 }
+            $exResponse = $_.Exception | Select-Object -ExpandProperty Response -ErrorAction SilentlyContinue
+            $statusCode = if ($exResponse) { try { [int]$exResponse.StatusCode } catch { 0 } } else { 0 }
             if ($statusCode -eq 401 -or $statusCode -eq 403) {
                 Write-Host "Token rejected (HTTP $statusCode)." -ForegroundColor Yellow
             } else {
@@ -261,14 +262,25 @@ function Invoke-AddonLibraryDeploy {
             }
         }
         # Handle auth failures returned in the response body (HTTP 200 with success=false)
-        if ($response -and (-not $response.success) -and $response.error -match '(?i)auth|token|bearer') {
-            Write-Host "FAILED: $($response.error)" -ForegroundColor Yellow
-        } elseif ($response -and $response.success) {
+        $respSuccess  = $null
+        $respError    = $null
+        $respMessage  = $null
+        $respRecordId = $null
+        if ($response) {
+            $respSuccess  = $response.PSObject.Properties.Match('success')  | ForEach-Object { $_.Value }
+            $respError    = $response.PSObject.Properties.Match('error')    | ForEach-Object { $_.Value }
+            $respMessage  = $response.PSObject.Properties.Match('message')  | ForEach-Object { $_.Value }
+            $respRecordId = $response.PSObject.Properties.Match('recordId') | ForEach-Object { $_.Value }
+        }
+        if ($response -and (-not $respSuccess) -and $respError -match '(?i)auth|token|bearer') {
+            Write-Host "FAILED: $respError" -ForegroundColor Yellow
+        } elseif ($response -and $respSuccess) {
             $uploaded = $true
             continue
         } elseif ($response) {
-            Write-Host "FAILED: $($response.error)" -ForegroundColor Red
-            throw "Addon library upload failed: $($response.error)"
+            $errText = if ($respError) { $respError } else { "Unexpected response: $($response | ConvertTo-Json -Depth 2 -Compress)" }
+            Write-Host "FAILED: $errText" -ForegroundColor Red
+            throw "Addon library upload failed: $errText"
         }
         # Prompt for a new token
         Write-Host ""
@@ -283,8 +295,8 @@ function Invoke-AddonLibraryDeploy {
     # -------------------------------------------------------------------
     # Step 8: Display result
     # -------------------------------------------------------------------
-    Write-Host "SUCCESS: $($response.message)"
-    Write-Host "Record ID: $($response.recordId)"
+    Write-Host "SUCCESS: $respMessage"
+    Write-Host "Record ID: $respRecordId"
 
     Write-Host ""
     Write-Host "========================================"
@@ -310,10 +322,12 @@ function Invoke-LibraryUploadRequest {
         }
         return Invoke-RestMethod -Uri $Url -Method Post -Headers $headers -Body $Body -TimeoutSec 120 -MaximumRedirection 0
     } catch {
-        # -- detect redirect and report it clearly
-        $statusCode = if ($_.Exception.Response) { [int]$_.Exception.Response.StatusCode } else { 0 }
+        # -- detect redirect and report it clearly (safe property access for Set-StrictMode)
+        $exResponse = $_.Exception | Select-Object -ExpandProperty Response -ErrorAction SilentlyContinue
+        $statusCode = if ($exResponse) { try { [int]$exResponse.StatusCode } catch { 0 } } else { 0 }
         if ($statusCode -ge 300 -and $statusCode -lt 400) {
-            $location = $_.Exception.Response.Headers.Location
+            $location = $exResponse | Select-Object -ExpandProperty Headers -ErrorAction SilentlyContinue |
+                        Select-Object -ExpandProperty Location -ErrorAction SilentlyContinue
             throw "HTTP $statusCode redirect from $Url to $location. Update TargetDomain to match the canonical host (e.g. 'www.contensive.com' instead of 'contensive.com'). Redirects strip the Authorization header."
         }
         throw
