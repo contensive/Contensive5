@@ -170,10 +170,10 @@ namespace Contensive.Processor.Controllers {
             AddonModel addon = core.cacheRuntime.addonCache.create(addonGuid);
             if (addon == null) {
                 if (executeContext == null) {
-                    logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext is null");
+                    logger.Warn($"{core.logCommonMessage}, cp.addon.execute, no addon found with guid [{addonGuid}]. The addon may have been deleted or its collection is not installed. Verify the addon exists in the Addon Manager.");
                     return "";
                 }
-                logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext [" + executeContext.errorContextMessage + "]");
+                logger.Warn($"{core.logCommonMessage}, cp.addon.execute, no addon found with guid [{addonGuid}], context [{executeContext.errorContextMessage}]. The addon may have been deleted or its collection is not installed. Verify the addon exists in the Addon Manager.");
                 return "";
             }
             return execute(addon, executeContext);
@@ -218,18 +218,18 @@ namespace Contensive.Processor.Controllers {
                 if (executeContext == null) {
                     //
                     // -- no addon and no context
-                    logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon and null executeContext."));
+                    logger.Warn($"{core.logCommonMessage}, AddonController.execute called with null addon and null executeContext. A caller passed an addon that could not be found. Check the addonList on the page or template for this url to find and fix the missing addon reference.");
                     return "";
                 }
                 //
                 // -- no addon
-                logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
+                logger.Warn($"{core.logCommonMessage}, AddonController.execute called with null addon, executeContext [{executeContext.errorContextMessage}]. A caller passed an addon that could not be found. Check the addonList on the page or template for this url to find and fix the missing addon reference.");
                 return "";
             }
             if (executeContext == null) {
                 //
                 // -- no context
-                logger.Error(new ArgumentException($"AddonController.execute call with invalid executeContext,  was not configured for addon [#{addon.id}, {addon.name}]."), $"{core.logCommonMessage}");
+                logger.Error($"{core.logCommonMessage}, AddonController.execute called with null executeContext for addon [#{addon.id}, {addon.name}]. The caller did not provide an executeContext.");
                 return "";
             }
             //
