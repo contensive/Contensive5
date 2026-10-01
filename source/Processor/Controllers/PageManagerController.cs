@@ -1113,7 +1113,7 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- render addonList
-                        resultInnerContent.Append(AddonListItemModel_Dup.render(core, core.doc.pageController.page.addonList));
+                        resultInnerContent.Append(core.cpParent.Addon.RenderAddonList(core.doc.pageController.page.addonList));
                     }
                 }
                 // -- End Text Search

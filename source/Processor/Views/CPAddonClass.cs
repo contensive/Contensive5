@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
+using Newtonsoft.Json;
 using NLog;
 
 namespace Contensive.Processor {
@@ -329,6 +331,64 @@ namespace Contensive.Processor {
             } catch (Exception) {
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON into HTML for view mode using the default execute context.
+        /// </summary>
+        public override string RenderAddonList(string addonListJson) {
+            return RenderAddonList(addonListJson, new CPUtilsBaseClass.addonExecuteContext());
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON into HTML for view mode with an explicit execute context.
+        /// </summary>
+        public override string RenderAddonList(string addonListJson, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (string.IsNullOrWhiteSpace(addonListJson)) { return string.Empty; }
+            var addonList = JsonConvert.DeserializeObject<List<AddonListItemModel>>(addonListJson);
+            if (addonList == null || addonList.Count == 0) { return string.Empty; }
+            return AddonListItemModel.render(cp, addonList, executeContext);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON for edit mode, populating renderedHtml and renderedAssets on each item.
+        /// Returns the modified addonList as a JSON string.
+        /// </summary>
+        public override string RenderEditAddonList(string addonListJson, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (string.IsNullOrWhiteSpace(addonListJson)) { return "[]"; }
+            var addonList = JsonConvert.DeserializeObject<List<AddonListItemModel>>(addonListJson);
+            if (addonList == null) { return "[]"; }
+            AddonListItemModel.renderEdit(cp, addonList, executeContext);
+            return JsonConvert.SerializeObject(addonList);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Normalize the addonList JSON by clearing transient view properties and updating addon names.
+        /// Returns the cleaned addonList as a JSON string.
+        /// </summary>
+        public override string NormalizeAddonList(string addonListJson) {
+            if (string.IsNullOrWhiteSpace(addonListJson)) { return "[]"; }
+            var addonList = JsonConvert.DeserializeObject<List<AddonListItemModel>>(addonListJson);
+            if (addonList == null) { return "[]"; }
+            AddonListItemModel.normalizeAddonList(cp, addonList);
+            return JsonConvert.SerializeObject(addonList);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Remove an addon instance from the addonList by its instanceGuid.
+        /// Returns the updated addonList as a JSON string.
+        /// </summary>
+        public override string DeleteAddonListInstance(string addonListJson, string instanceGuid) {
+            if (string.IsNullOrWhiteSpace(addonListJson)) { return "[]"; }
+            var addonList = JsonConvert.DeserializeObject<List<AddonListItemModel>>(addonListJson);
+            if (addonList == null) { return "[]"; }
+            AddonListItemModel.deleteInstance(cp, addonList, instanceGuid);
+            return JsonConvert.SerializeObject(addonList);
         }
         //
         //====================================================================================================

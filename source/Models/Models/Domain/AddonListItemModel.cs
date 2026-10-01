@@ -53,7 +53,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonListItem"></param>
-        private static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        public static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
             cp.Doc.SetProperty("instanceId", addonListItem.instanceGuid);
             return cp.Addon.Execute(addonListItem.designBlockTypeGuid, executeContext).ToString();
         }
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
-        private static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        public static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
             var result = new StringBuilder();
             foreach (var addon in addonList) {
                 var addonHtml = render(cp, addon, executeContext);
@@ -159,7 +159,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
-        private static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        public static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
             foreach (var addonListItem in addonList) {
                 if (addonListItem.columns != null) {
                     foreach (var column in addonListItem.columns) {
@@ -205,7 +205,7 @@ namespace Contensive.Processor.Models {
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
         /// <returns></returns>
-        private static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
+        public static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
             try {
                 foreach (var addon in addonList) {
                     addon.renderedHtml = string.Empty;

@@ -236,6 +236,57 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Render the addonList JSON into HTML for view mode using the default execute context.
+        /// The addonListJson is a JSON serialized List of AddonListItemModel objects stored in page and template records.
+        /// Returns the rendered HTML string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <returns>Rendered HTML</returns>
+        public abstract string RenderAddonList(string addonListJson);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON into HTML for view mode with an explicit execute context.
+        /// The addonListJson is a JSON serialized List of AddonListItemModel objects stored in page and template records.
+        /// Returns the rendered HTML string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <param name="executeContext">The context where the addons are being executed (on a page, in an email, etc.).</param>
+        /// <returns>Rendered HTML</returns>
+        public abstract string RenderAddonList(string addonListJson, CPUtilsBaseClass.addonExecuteContext executeContext);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON for edit mode. Each addon item is rendered and the renderedHtml and renderedAssets
+        /// properties are populated on the items. Returns the modified addonList as a JSON string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <param name="executeContext">The context where the addons are being executed.</param>
+        /// <returns>JSON serialized List of AddonListItemModel with renderedHtml and renderedAssets populated</returns>
+        public abstract string RenderEditAddonList(string addonListJson, CPUtilsBaseClass.addonExecuteContext executeContext);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Normalize the addonList JSON by clearing transient view properties (renderedHtml, renderedAssets)
+        /// and updating addon names from the database. Returns the cleaned addonList as a JSON string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <returns>JSON serialized List of AddonListItemModel with transient properties cleared</returns>
+        public abstract string NormalizeAddonList(string addonListJson);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Remove an addon instance from the addonList by its instanceGuid.
+        /// Traverses the list including nested column structures.
+        /// Returns the updated addonList as a JSON string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <param name="instanceGuid">The instanceGuid of the addon to remove</param>
+        /// <returns>JSON serialized List of AddonListItemModel with the instance removed</returns>
+        public abstract string DeleteAddonListInstance(string addonListJson, string instanceGuid);
+        //
+        //====================================================================================================
+        /// <summary>
         /// The id of the addon currently executing.
         /// </summary>
         public abstract int ID { get; }

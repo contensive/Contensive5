@@ -1,6 +1,7 @@
 
 using Contensive.Models.Db;
 using Contensive.Processor;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Tests;
 using Contensive.Processor.Tests.Helpers;
@@ -41,8 +42,8 @@ public class ExecuteRoute_Page_Tests {
             string testString = cp.Utils.GetRandomInteger().ToString();
             cp.Doc.SetProperty("test-in", testString);
             // -- addonList for page
-            List<AddonListItemModel_Dup> testAddonList = new();
-            testAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> testAddonList = new();
+            testAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = testAddon.ccguid,
                 designBlockTypeName = "test addon"
             });
@@ -102,8 +103,8 @@ public class ExecuteRoute_Page_Tests {
             cp.Doc.SetProperty("test-in", renderPageContent);
             //
             // -- addonList for page
-            List<AddonListItemModel_Dup> testAddonList = new();
-            testAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> testAddonList = new();
+            testAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = renderPageAddon.ccguid,
                 designBlockTypeName = "test addon"
             });
@@ -127,8 +128,8 @@ public class ExecuteRoute_Page_Tests {
             loginAddon.save(cp);
             //
             // -- addonList for login form
-            List<AddonListItemModel_Dup> loginAddonList = new();
-            loginAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> loginAddonList = new();
+            loginAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = loginAddon.ccguid,
                 designBlockTypeName = "login addon"
             });
@@ -199,8 +200,8 @@ public class ExecuteRoute_Page_Tests {
             loginAddon.save(cp);
             //
             // -- addonList for login form
-            List<AddonListItemModel_Dup> loginAddonList = new();
-            loginAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> loginAddonList = new();
+            loginAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = loginAddon.ccguid,
                 designBlockTypeName = "login addon"
             });
@@ -265,8 +266,8 @@ public class ExecuteRoute_Page_Tests {
             cp.Doc.SetProperty("test-in", renderPageContent);
             //
             // -- addonList for page
-            List<AddonListItemModel_Dup> testAddonList = new();
-            testAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> testAddonList = new();
+            testAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = renderPageAddon.ccguid,
                 designBlockTypeName = "test addon"
             });
@@ -290,8 +291,8 @@ public class ExecuteRoute_Page_Tests {
             loginAddon.save(cp);
             //
             // -- addonList for login form
-            List<AddonListItemModel_Dup> loginAddonList = new();
-            loginAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> loginAddonList = new();
+            loginAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = loginAddon.ccguid,
                 designBlockTypeName = "login addon"
             });
@@ -344,8 +345,8 @@ public class ExecuteRoute_Page_Tests {
             cp.Doc.SetProperty("test-in", renderPageContent);
             //
             // -- addonList for page
-            List<AddonListItemModel_Dup> testAddonList = new();
-            testAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> testAddonList = new();
+            testAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = renderPageAddon.ccguid,
                 designBlockTypeName = "test addon"
             });
@@ -369,8 +370,8 @@ public class ExecuteRoute_Page_Tests {
             loginAddon.save(cp);
             //
             // -- addonList for login form
-            List<AddonListItemModel_Dup> loginAddonList = new();
-            loginAddonList.Add(new AddonListItemModel_Dup() {
+            List<AddonListItemModel> loginAddonList = new();
+            loginAddonList.Add(new AddonListItemModel() {
                 designBlockTypeGuid = loginAddon.ccguid,
                 designBlockTypeName = "login addon"
             });

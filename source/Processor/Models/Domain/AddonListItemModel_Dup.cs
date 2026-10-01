@@ -16,6 +16,7 @@ namespace Contensive.Processor.Models.Domain {
     /// Short term, internal methods should call this model, adn this model will call the pagebuilder addons
     /// </summary>
     //
+    [Obsolete("Use cp.Addon.RenderAddonList() and Contensive.Processor.Models.AddonListItemModel instead.", false)]
     public class AddonListItemModel_Dup {
         //
         // static logger
