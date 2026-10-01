@@ -53,7 +53,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonListItem"></param>
-        public static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        private static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
             cp.Doc.SetProperty("instanceId", addonListItem.instanceGuid);
             return cp.Addon.Execute(addonListItem.designBlockTypeGuid, executeContext).ToString();
         }
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
-        public static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        private static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
             var result = new StringBuilder();
             foreach (var addon in addonList) {
                 var addonHtml = render(cp, addon, executeContext);
@@ -159,7 +159,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
-        public static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        private static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
             foreach (var addonListItem in addonList) {
                 if (addonListItem.columns != null) {
                     foreach (var column in addonListItem.columns) {
@@ -205,7 +205,7 @@ namespace Contensive.Processor.Models {
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
         /// <returns></returns>
-        public static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
+        private static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
             try {
                 foreach (var addon in addonList) {
                     addon.renderedHtml = string.Empty;
@@ -238,7 +238,7 @@ namespace Contensive.Processor.Models {
         /// <param name="contentId"></param>
         /// <param name="instanceGuid"></param>
         /// <returns></returns>
-        public static string getAdminEditUrl(CPBaseClass cp, int contentId, string instanceGuid) {
+        private static string getAdminEditUrl(CPBaseClass cp, int contentId, string instanceGuid) {
             return $"/{cp.GetAppConfig(cp.Site.Name).adminRoute}?af=4&aa=2&ad=1&cid={contentId}&guid={instanceGuid}";
         }
 
@@ -278,25 +278,25 @@ namespace Contensive.Processor.Models {
         /// </summary>
         public List<AddonListItemModel> addonList;
     }
-    //
-    //====================================================================================================
-    /// <summary>
-    /// This is a static property cache, so it's persistence is the appDomain and there is no invalidation. It is fast, but addon updates require an iisreset
-    /// Removed for now.
-    /// Original name from PageBuilder collection was just CacheAside
-    /// </summary>
-    public static class AddonCacheAsideController {
-        //
-        public static Dictionary<string, AddonModel> AddonCacheAside = new Dictionary<string, AddonModel>();
-        //
-        public static AddonModel createAddon(CPBaseClass cp, string addonGuid) {
-            if (AddonCacheAside.ContainsKey(addonGuid)) {
-                return AddonCacheAside[addonGuid];
-            }
-            AddonModel addon = DbBaseModel.create<AddonModel>(cp, addonGuid);
-            AddonCacheAside.Add(addonGuid, addon);
-            return addon;
-        }
+    ////
+    ////====================================================================================================
+    ///// <summary>
+    ///// This is a static property cache, so it's persistence is the appDomain and there is no invalidation. It is fast, but addon updates require an iisreset
+    ///// Removed for now.
+    ///// Original name from PageBuilder collection was just CacheAside
+    ///// </summary>
+    //public static class AddonCacheAsideController {
+    //    //
+    //    public static Dictionary<string, AddonModel> AddonCacheAside = new Dictionary<string, AddonModel>();
+    //    //
+    //    public static AddonModel createAddon(CPBaseClass cp, string addonGuid) {
+    //        if (AddonCacheAside.ContainsKey(addonGuid)) {
+    //            return AddonCacheAside[addonGuid];
+    //        }
+    //        AddonModel addon = DbBaseModel.create<AddonModel>(cp, addonGuid);
+    //        AddonCacheAside.Add(addonGuid, addon);
+    //        return addon;
+    //    }
 
-    }
+    //}
 }

@@ -256,19 +256,15 @@ namespace Contensive.Addons.Status {
                 }
                 resultList.AppendLine("ok, no site warning alarms.");
                 //
-                // -- verify no Script Code addons exist (legacy VBScript/JScript addons are a security risk)
+                // -- check for Script Code addons (legacy VBScript/JScript addons are a security risk)
                 {
-                    var scriptAddons = DbBaseModel.createList<AddonModel>(cp, "((scriptingCode is not null)and(scriptingCode<>'')and(active>0))");
-                    if (scriptAddons.Count > 0) {
-                        string addonNames = "";
-                        foreach (var addon in scriptAddons) {
-                            addonNames += $", {addon.name}";
-                        }
-                        errorMessage = $"ERROR, [{scriptAddons.Count}] active addon(s) use Script Code, which is a deprecated and unsafe execution method. Convert to .NET assemblies or remove: [{addonNames.Substring(2)}].";
-                        return false;
+                    int scriptAddonCount = DbBaseModel.getCount<AddonModel>(cp, "((scriptingCode is not null)and(scriptingCode<>'')and(active>0))");
+                    if (scriptAddonCount > 0) {
+                        resultList.AppendLine($"warning, [{scriptAddonCount}] active addon(s) use Script Code, which is a deprecated and unsafe execution method.");
+                    } else {
+                        resultList.AppendLine("ok, no script code addons.");
                     }
                 }
-                resultList.AppendLine("ok, no script code addons.");
                 //
                 return true;
             } catch (Exception ex) {
