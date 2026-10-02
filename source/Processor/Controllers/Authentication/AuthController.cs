@@ -43,6 +43,12 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- argument validation
                 if (userId.Equals(0)) { return false; }
+                if (session.isFingerprintedSession) {
+                    //
+                    // -- block recognition on fingerprint-constructed visits (IP+UserAgent only, no cookies)
+                    logger.Trace($"{core.logCommonMessage},recognizeById blocked, fingerprint-based session cannot recognize user");
+                    return false;
+                }
                 //
                 // -- find user and validate
                 PersonModel contextUser = DbBaseModel.create<PersonModel>(core.cpParent, userId);
@@ -190,6 +196,13 @@ namespace Contensive.Processor.Controllers {
                 logger.Trace($"{core.logCommonMessage},AuthenticationController.authenticateById, enter, userid [" + userId + "]");
                 //
                 if (userId == 0) { return false; }
+                if (session.isFingerprintedSession) {
+                    //
+                    // -- block authentication on fingerprint-constructed visits (IP+UserAgent only, no cookies)
+                    logger.Info($"{core.logCommonMessage},authenticateById blocked, fingerprint-based session cannot authenticate");
+                    ErrorController.addUserError(core, "Login requires cookie support. Please enable cookies and try again.");
+                    return false;
+                }
                 if (!recognizeById(core, session, userId, requestUserAutoLogin)) {
                     //
                     // -- pause to make brute force attempt for expensive
