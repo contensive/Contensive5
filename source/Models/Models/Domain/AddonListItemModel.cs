@@ -74,7 +74,11 @@ namespace Contensive.Processor.Models {
                     int colPtr = 1;
                     foreach (var column in addon.columns) {
                         string replaceTarget = $"<!-- column-{colPtr} -->";
-                        addonHtml = addonHtml.Replace(replaceTarget, render(cp, column.addonList, executeContext));
+                        string renderedColumn = render(cp, column.addonList, executeContext);
+                        if (isEditing) {
+                            renderedColumn = $"<div class=\"pb-column\" data-pb-column-index=\"{colPtr - 1}\" data-pb-parent-instance-guid=\"{addon.instanceGuid}\">{renderedColumn}</div>";
+                        }
+                        addonHtml = addonHtml.Replace(replaceTarget, renderedColumn);
                         colPtr++;
                     }
                 }

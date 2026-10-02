@@ -367,8 +367,8 @@ namespace Contensive.Processor.Addons.AdminSite {
             string sortLine = "";
             foreach (var kvp in gridConfig.sorts) {
                 GridConfigSortClass sort = kvp.Value;
-                if (sort.direction > 0) {
-                    sortLine = sortLine + ", then " + content.fields[sort.fieldName].caption;
+                if (sort.direction > 0 && content.fields.ContainsKey(sort.fieldName)) {
+                    sortLine = $"{sortLine}, then {content.fields[sort.fieldName].caption}";
                     if (sort.direction > 1) {
                         sortLine += " reverse";
                     }

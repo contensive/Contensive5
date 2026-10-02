@@ -147,7 +147,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     string[] LineSplit = ConfigListLines[Ptr].Split('\t');
                                     if (LineSplit.GetUpperBound(0) == 1) {
                                         string fieldName = LineSplit[0].Trim().ToLowerInvariant();
-                                        if (!string.IsNullOrWhiteSpace(fieldName)) {
+                                        if (!string.IsNullOrWhiteSpace(fieldName) && adminData.adminContent.fields.ContainsKey(fieldName)) {
                                             sorts.Add(fieldName, new GridConfigSortClass {
                                                 fieldName = fieldName,
                                                 direction = ((LineSplit[1] == "1") ? 1 : 2),
@@ -186,11 +186,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         string Line = ConfigListLines[Ptr];
                                         string[] LineSplit = Line.Split('\t');
                                         if (LineSplit.GetUpperBound(0) > 1) {
-                                            findWords.Add(LineSplit[0], new GridConfigFindWordClass {
-                                                Name = LineSplit[0],
-                                                Value = LineSplit[1],
-                                                MatchOption = (FindWordMatchEnum)GenericController.getInteger(LineSplit[2])
-                                            });
+                                            string findFieldName = LineSplit[0];
+                                            if (adminData.adminContent.fields.ContainsKey(findFieldName.ToLowerInvariant())) {
+                                                findWords.Add(findFieldName, new GridConfigFindWordClass {
+                                                    Name = findFieldName,
+                                                    Value = LineSplit[1],
+                                                    MatchOption = (FindWordMatchEnum)GenericController.getInteger(LineSplit[2])
+                                                });
+                                            }
                                         }
                                         Ptr += 1;
                                     }
