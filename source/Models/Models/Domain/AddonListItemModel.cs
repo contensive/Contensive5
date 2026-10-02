@@ -65,18 +65,25 @@ namespace Contensive.Processor.Models {
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
         public static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            bool isEditing = cp.User.IsEditing();
             var result = new StringBuilder();
+            int addonIndex = 0;
             foreach (var addon in addonList) {
                 var addonHtml = render(cp, addon, executeContext);
                 if (addon.columns != null) {
                     int colPtr = 1;
                     foreach (var column in addon.columns) {
-                        string replaceTarget = "<!-- column-" + colPtr + " -->";
+                        string replaceTarget = $"<!-- column-{colPtr} -->";
                         addonHtml = addonHtml.Replace(replaceTarget, render(cp, column.addonList, executeContext));
                         colPtr++;
                     }
                 }
-                result.Append(addonHtml);
+                if (isEditing) {
+                    result.Append($"<div class=\"pb-page-widget\" data-pb-addon-index=\"{addonIndex}\" data-pb-instance-guid=\"{addon.instanceGuid}\">{addonHtml}</div>");
+                } else {
+                    result.Append(addonHtml);
+                }
+                addonIndex++;
             }
             return result.ToString();
         }

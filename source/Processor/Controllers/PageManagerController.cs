@@ -1101,20 +1101,8 @@ namespace Contensive.Processor.Controllers {
                     resultInnerContent.Append($"<div class=\"container\">{htmlPageContent}</div>");
                 } else {
                     //
-                    // -- addonList mode
-                    if (core.cpParent.User.IsPageBuilderEditing) {
-                        //
-                        // -- drag-drop editor for addonList, then include rendered content after it
-                        core.docProperties.setProperty("contentid", ContentMetadataModel.getContentId(core, PageContentModel.tableMetadata.contentName));
-                        core.docProperties.setProperty("recordid", core.doc.pageController.page.id);
-                        resultInnerContent.Append(core.addon.execute("{92B75A6A-E84B-4551-BBF3-849E91D084BC}", new CPUtilsBaseClass.addonExecuteContext {
-                            addonType = CPUtilsBaseClass.addonContext.ContextSimple
-                        }));
-                    } else {
-                        //
-                        // -- render addonList
-                        resultInnerContent.Append(core.cpParent.Addon.RenderAddonList(core.doc.pageController.page.addonList));
-                    }
+                    // -- addonList mode (renders with pb-page-widget markers when editing)
+                    resultInnerContent.Append(core.cpParent.Addon.RenderAddonList(core.doc.pageController.page.addonList));
                 }
                 // -- End Text Search
                 result.Append("<!-- TextSearchStart -->" + resultInnerContent.ToString() + "<!-- TextSearchEnd -->");
