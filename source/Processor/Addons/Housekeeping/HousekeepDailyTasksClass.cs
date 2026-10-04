@@ -78,6 +78,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- bot detection data update
                 BotDetectionUpdateClass.executeDailyTasks(env);
                 //
+                // -- SQL Server index and statistics maintenance
+                SqlMaintenanceClass.executeDailyTasks(env);
+                //
                 env.log("executeDailyTasks, done");
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");
