@@ -396,6 +396,9 @@ namespace Contensive.Processor.Controllers {
                                     ExecFileList = ExecFileList + Environment.NewLine + filename;
                                 }
                                 //
+                                // -- validate resource nodes for recognized UI zip files
+                                CollectionInstallResourceController.validateResourceNodes(core, CollectionName, collectionGuid, CollectionVersionFolder, Doc);
+                                //
                                 // -- save the resource manifest and clean up orphaned files from previous version
                                 CollectionInstallResourceController.saveManifestAndCleanupOrphans(core, CollectionName, collectionGuid, CollectionVersionFolder, resourceManifest);
                                 //

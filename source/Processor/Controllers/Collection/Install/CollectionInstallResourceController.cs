@@ -430,6 +430,90 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Validate that recognized UI zip files (layoutFiles.zip, wwwFiles.zip, etc.) have correctly
+        /// configured Resource nodes in the collection XML. Logs warnings for misconfigured nodes.
+        /// </summary>
+        internal static void validateResourceNodes(CoreController core, string collectionName, string collectionGuid, string collectionVersionFolder, XmlDocument collectionXml) {
+            //
+            // -- recognized UI zip filenames and their expected resource type (matching the filename without ".zip")
+            var recognizedZips = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                { "layoutFiles.zip", "layoutFiles" },
+                { "wwwFiles.zip", "wwwFiles" },
+                { "cdnFiles.zip", "cdnFiles" },
+                { "privateFiles.zip", "privateFiles" },
+                { "helpFiles.zip", "helpFiles" }
+            };
+            //
+            // -- find which recognized zip files exist in the collection folder
+            var existingZips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var file in core.privateFiles.getFileList(collectionVersionFolder)) {
+                if (recognizedZips.ContainsKey(file.Name)) {
+                    existingZips.Add(file.Name);
+                }
+            }
+            //
+            // -- build map of resource nodes: filename -> (type, path)
+            var resourceNodes = new Dictionary<string, (string type, string path)>(StringComparer.OrdinalIgnoreCase);
+            foreach (XmlNode node in collectionXml.DocumentElement.ChildNodes) {
+                if (node.Name.Equals("resource", StringComparison.OrdinalIgnoreCase)) {
+                    string name = XmlController.getXMLAttribute(core, node, "name", "");
+                    string type = XmlController.getXMLAttribute(core, node, "type", "");
+                    string path = XmlController.getXMLAttribute(core, node, "path", "");
+                    if (!string.IsNullOrEmpty(name)) {
+                        resourceNodes[name] = (type, path);
+                    }
+                }
+            }
+            //
+            // -- build map of valid type aliases for each zip file
+            var validTypeAliases = new Dictionary<string, HashSet<string>>();
+            validTypeAliases["layoutFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "layoutfiles", "layoutfile", "layout" };
+            validTypeAliases["wwwFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "wwwfiles", "wwwfile", "wwwroot", "www" };
+            validTypeAliases["cdnFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "cdnfiles", "cdn", "cdnfile", "file", "files", "content" };
+            validTypeAliases["privateFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "privatefiles", "privatefile", "private" };
+            validTypeAliases["helpFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "helpfiles", "helpcenter", "helpcenterfile", "helpcenterfiles", "helpfile", "help" };
+            //
+            // -- validate each existing recognized zip file
+            foreach (string zipFilename in existingZips) {
+                string expectedType = recognizedZips[zipFilename];
+                var validAliases = validTypeAliases[zipFilename];
+
+                if (!resourceNodes.ContainsKey(zipFilename)) {
+                    //
+                    // -- missing resource node entirely
+                    logger.Warn($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], " +
+                        $"Misconfigured collection: file [{zipFilename}] exists but has no matching <Resource> node. " +
+                        $"Expected: <Resource Name=\"{zipFilename}\" Type=\"{expectedType}\" /> (without Path attribute). " +
+                        $"This file will not be processed correctly during installation.");
+                } else {
+                    var (actualType, actualPath) = resourceNodes[zipFilename];
+                    bool typeMatches = validAliases.Contains(actualType);
+                    bool hasPath = !string.IsNullOrEmpty(actualPath);
+
+                    if (!typeMatches || hasPath) {
+                        //
+                        // -- resource node exists but is misconfigured
+                        string issues = "";
+                        if (!typeMatches) {
+                            issues += $"Type=\"{actualType}\" should be Type=\"{expectedType}\" (or a valid alias)";
+                        }
+                        if (hasPath) {
+                            if (issues.Length > 0) { issues += "; "; }
+                            issues += $"Path=\"{actualPath}\" should be omitted (no Path attribute)";
+                        }
+
+                        logger.Warn($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], " +
+                            $"Misconfigured collection: <Resource Name=\"{zipFilename}\" /> exists but is misconfigured. " +
+                            $"Issues: {issues}. " +
+                            $"Expected: <Resource Name=\"{zipFilename}\" Type=\"{expectedType}\" /> (without Path attribute). " +
+                            $"This file may not be processed correctly during installation.");
+                    }
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Save the resource manifest and clean up orphaned files from a previous version.
         /// Loads the old manifest, saves the new one, then deletes any files and empty folders
         /// that were in the old manifest but not in the new one.
