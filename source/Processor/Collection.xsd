@@ -212,6 +212,9 @@
 											<xs:attribute name="uniqueName" type="xs:boolean">
 												<xs:annotation><xs:documentation>When true, value must be unique across all records in this content.</xs:documentation></xs:annotation>
 											</xs:attribute>
+											<xs:attribute name="textLength" type="xs:integer">
+												<xs:annotation><xs:documentation>Maximum character length for text fields. Controls the database column size.</xs:documentation></xs:annotation>
+											</xs:attribute>
 											<xs:attribute name="deprecated" type="xs:boolean">
 												<xs:annotation><xs:documentation>When true, the field is marked as deprecated. If the field does not exist, it will not be installed. If the field exists, its ccFields metadata record will be deleted while preserving the SQL database column and data.</xs:documentation></xs:annotation>
 											</xs:attribute>
@@ -379,6 +382,9 @@
 							</xs:attribute>
 							<xs:attribute name="portalFeatureGuid" type="xs:string">
 								<xs:annotation><xs:documentation>GUID of portal feature for edit modal Advanced Edit link. When set, the link navigates to this portal feature instead of the default admin edit form.</xs:documentation></xs:annotation>
+							</xs:attribute>
+							<xs:attribute name="abbreviation" type="xs:string">
+								<xs:annotation><xs:documentation>Short abbreviation for the content definition name.</xs:documentation></xs:annotation>
 							</xs:attribute>
 						</xs:complexType>
 					</xs:element>
@@ -772,65 +778,71 @@
 								<xs:annotation><xs:documentation>Target filesystem location for deployment.</xs:documentation></xs:annotation>
 								<xs:simpleType>
 									<xs:restriction base="xs:NMTOKEN">
-										<xs:enumeration value="www">
+										<xs:enumeration value="wwwfiles">
 											<xs:annotation><xs:documentation>Web root (wwwroot) filesystem.</xs:documentation></xs:annotation>
 										</xs:enumeration>
-										<xs:enumeration value="wwwfiles">
-											<xs:annotation><xs:documentation>Web root filesystem (alias for www).</xs:documentation></xs:annotation>
-										</xs:enumeration>
 										<xs:enumeration value="wwwfile">
-											<xs:annotation><xs:documentation>Web root filesystem (alias for www).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Web root filesystem (alias for wwwfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="wwwroot">
-											<xs:annotation><xs:documentation>Web root filesystem (alias for www).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Web root filesystem (alias for wwwfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
-										<xs:enumeration value="private">
-											<xs:annotation><xs:documentation>Private files filesystem, not web-accessible.</xs:documentation></xs:annotation>
+										<xs:enumeration value="www">
+											<xs:annotation><xs:documentation>Web root filesystem (alias for wwwfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="privatefiles">
-											<xs:annotation><xs:documentation>Private files filesystem (alias for private).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Private files filesystem, not web-accessible.</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="privatefile">
-											<xs:annotation><xs:documentation>Private files filesystem (alias for private).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Private files filesystem (alias for privatefiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
-										<xs:enumeration value="content">
-											<xs:annotation><xs:documentation>CDN files filesystem for public content assets.</xs:documentation></xs:annotation>
+										<xs:enumeration value="private">
+											<xs:annotation><xs:documentation>Private files filesystem (alias for privatefiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="cdnfiles">
-											<xs:annotation><xs:documentation>CDN files filesystem (alias for content).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>CDN files filesystem for public content assets.</xs:documentation></xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="cdn">
+											<xs:annotation><xs:documentation>CDN files filesystem (alias for cdnfiles).</xs:documentation></xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="cdnfile">
+											<xs:annotation><xs:documentation>CDN files filesystem (alias for cdnfiles).</xs:documentation></xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="content">
+											<xs:annotation><xs:documentation>CDN files filesystem (legacy alias for cdnfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="file">
-											<xs:annotation><xs:documentation>CDN files filesystem (alias for content).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>CDN files filesystem (legacy alias for cdnfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="files">
-											<xs:annotation><xs:documentation>CDN files filesystem (alias for content).</xs:documentation></xs:annotation>
-										</xs:enumeration>
-										<xs:enumeration value="help">
-											<xs:annotation><xs:documentation>Help documentation filesystem.</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>CDN files filesystem (legacy alias for cdnfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="helpfiles">
-											<xs:annotation><xs:documentation>Help documentation filesystem (alias for help).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Help documentation filesystem.</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="helpcenter">
-											<xs:annotation><xs:documentation>Help center documentation filesystem.</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Help documentation filesystem (alias for helpfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="helpcenterfile">
-											<xs:annotation><xs:documentation>Help center documentation filesystem (alias for helpcenter).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Help documentation filesystem (alias for helpfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="helpcenterfiles">
-											<xs:annotation><xs:documentation>Help center documentation filesystem (alias for helpcenter).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Help documentation filesystem (alias for helpfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="helpfile">
-											<xs:annotation><xs:documentation>Help documentation filesystem (alias for help).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Help documentation filesystem (alias for helpfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
-										<xs:enumeration value="layout">
-											<xs:annotation><xs:documentation>Layout files. HTML files go to privateFiles/layoutFiles; non-HTML files go to wwwFiles at the specified path.</xs:documentation></xs:annotation>
+										<xs:enumeration value="help">
+											<xs:annotation><xs:documentation>Help documentation filesystem (alias for helpfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="layoutfiles">
-											<xs:annotation><xs:documentation>Layout files (alias for layout).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Layout files. HTML files go to privateFiles/layoutFiles; non-HTML files go to wwwFiles at the specified path.</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="layoutfile">
-											<xs:annotation><xs:documentation>Layout files (alias for layout).</xs:documentation></xs:annotation>
+											<xs:annotation><xs:documentation>Layout files (alias for layoutfiles).</xs:documentation></xs:annotation>
+										</xs:enumeration>
+										<xs:enumeration value="layout">
+											<xs:annotation><xs:documentation>Layout files (alias for layoutfiles).</xs:documentation></xs:annotation>
 										</xs:enumeration>
 										<xs:enumeration value="executable">
 											<xs:annotation><xs:documentation>.NET DLL assembly deployed to the executable directory.</xs:documentation></xs:annotation>
@@ -840,6 +852,55 @@
 							</xs:attribute>
 							<xs:attribute name="path" type="xs:string" use="required">
 								<xs:annotation><xs:documentation>Subfolder path within the target location where the file is deployed.</xs:documentation></xs:annotation>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Layout" minOccurs="1" maxOccurs="unbounded">
+						<xs:annotation><xs:documentation>Installs or updates a layout record. The element's inner text contains the layout HTML content.</xs:documentation></xs:annotation>
+						<xs:complexType mixed="true">
+							<xs:attribute name="name" type="xs:string" use="required">
+								<xs:annotation><xs:documentation>Display name of the layout.</xs:documentation></xs:annotation>
+							</xs:attribute>
+							<xs:attribute name="guid" use="required">
+								<xs:annotation><xs:documentation>Unique identifier for this layout. Brace-wrapped GUID format.</xs:documentation></xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base ="GUID"/>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="Template" minOccurs="1" maxOccurs="unbounded">
+						<xs:annotation><xs:documentation>Installs or updates a page template record.</xs:documentation></xs:annotation>
+						<xs:complexType>
+							<xs:sequence>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+									<xs:element minOccurs="0" maxOccurs="unbounded" name="IncludeAddon">
+										<xs:annotation><xs:documentation>Addon dependency included in this template.</xs:documentation></xs:annotation>
+										<xs:complexType>
+											<xs:attribute name="name" type="xs:string" use="required">
+												<xs:annotation><xs:documentation>Display name of the dependency addon.</xs:documentation></xs:annotation>
+											</xs:attribute>
+											<xs:attribute name="guid" use="required">
+												<xs:annotation><xs:documentation>GUID of the dependency addon.</xs:documentation></xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base ="GUID"/>
+												</xs:simpleType>
+											</xs:attribute>
+										</xs:complexType>
+									</xs:element>
+									<xs:element minOccurs="0" maxOccurs="1" name="BodyHTML" type="xs:string">
+										<xs:annotation><xs:documentation>HTML content of the template body.</xs:documentation></xs:annotation>
+									</xs:element>
+								</xs:choice>
+							</xs:sequence>
+							<xs:attribute name="name" type="xs:string" use="required">
+								<xs:annotation><xs:documentation>Display name of the template.</xs:documentation></xs:annotation>
+							</xs:attribute>
+							<xs:attribute name="guid" use="required">
+								<xs:annotation><xs:documentation>Unique identifier for this template. Brace-wrapped GUID format.</xs:documentation></xs:annotation>
+								<xs:simpleType>
+									<xs:restriction base ="GUID"/>
+								</xs:simpleType>
 							</xs:attribute>
 						</xs:complexType>
 					</xs:element>

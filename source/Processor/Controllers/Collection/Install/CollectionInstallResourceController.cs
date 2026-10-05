@@ -114,9 +114,9 @@ namespace Contensive.Processor.Controllers {
                         }
                         break;
                     }
+                case "cdnfiles":
                 case "cdn":
                 case "cdnfile":
-                case "cdnfiles":
                 case "file":
                 case "files":
                 case "content": {
