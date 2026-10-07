@@ -466,7 +466,7 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- build map of valid type aliases for each zip file
-            var validTypeAliases = new Dictionary<string, HashSet<string>>();
+            var validTypeAliases = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
             validTypeAliases["layoutFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "layoutfiles", "layoutfile", "layout" };
             validTypeAliases["wwwFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "wwwfiles", "wwwfile", "wwwroot", "www" };
             validTypeAliases["cdnFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "cdnfiles", "cdn", "cdnfile", "file", "files", "content" };
