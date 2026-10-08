@@ -97,7 +97,9 @@
       "Bash(done)",
       "Bash(git check-ignore:*)",
       "Bash(git -C /c/Git/Contensive5 log --oneline -- source/ContensiveMcpServer/)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(powershell -File:*)",
+      "Bash(cmd //c \"rd /s /q c:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\")"
     ]
   }
 }

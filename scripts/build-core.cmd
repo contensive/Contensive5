@@ -382,6 +382,14 @@ copy "C:\Git\Contensive5\etc\install-scripts\*" "%deploymentFolderRoot%%versionN
 
 rem ==============================================================
 rem
+rem copy Docker setup documentation into the deployment folder
+rem
+
+md "%deploymentFolderRoot%%versionNumber%\Docker" 2>nul
+copy "C:\Git\Contensive5\etc\Docker\*" "%deploymentFolderRoot%%versionNumber%\Docker\"
+
+rem ==============================================================
+rem
 rem create a single zip distribution package
 rem
 
@@ -421,6 +429,7 @@ del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\FrameworkSite" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
+rd /s /q "%deploymentFolderRoot%%versionNumber%\Docker" 2>nul
 
 rem ==============================================================
 rem
