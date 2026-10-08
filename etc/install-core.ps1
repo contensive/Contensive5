@@ -300,6 +300,16 @@ if (Test-Path $scriptsSource) {
     Write-Host "  Scripts installed at $scriptsDest" -ForegroundColor Green
 }
 
+# Copy Docker setup documentation if present in the deployment package
+$dockerSource = Join-Path $SourcePath "Docker"
+if (Test-Path $dockerSource) {
+    Write-Step "Installing Docker setup documentation"
+    $dockerDest = Join-Path $InstallPath "Docker"
+    if (-not (Test-Path $dockerDest)) { New-Item -Path $dockerDest -ItemType Directory -Force | Out-Null }
+    robocopy $dockerSource $dockerDest /MIR /NJH /NJS /NDL /NP | Out-Null
+    Write-Host "  Docker documentation installed at $dockerDest" -ForegroundColor Green
+}
+
 # Scheduled task is non-critical — run last so a failure here does not block the rest of the install
 if (-not $SkipCli)         { Install-ScheduledTask }
 
