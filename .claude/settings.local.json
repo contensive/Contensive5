@@ -99,7 +99,8 @@
       "Bash(git -C /c/Git/Contensive5 log --oneline -- source/ContensiveMcpServer/)",
       "Bash(test:*)",
       "Bash(powershell -File:*)",
-      "Bash(cmd //c \"rd /s /q c:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\")"
+      "Bash(cmd //c \"rd /s /q c:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\")",
+      "Bash(dotnet package search:*)"
     ]
   }
 }

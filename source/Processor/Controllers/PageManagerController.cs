@@ -512,7 +512,7 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
                                 if (dataSet != null) {
-                                    templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                                    templateHtml = core.cpParent.Mustache.Render(templateHtml, dataSet);
                                 }
                             } catch (Newtonsoft.Json.JsonException) {
                                 //

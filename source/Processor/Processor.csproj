@@ -182,6 +182,7 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
     <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
+    <PackageReference Include="Stubble.Core" Version="1.10.8" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
     <PackageReference Include="System.IO.Pipelines" Version="9.0.9" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />

@@ -50,7 +50,50 @@ Remove these from `source/Processor/Processor.csproj`:
 
 **Features lost if removed:** ALL Mustache template rendering — authentication pages, email, page layouts, edit UI would all break. **Cannot remove — must replace.**
 
-**Change:** Replace `Nustache.Core` with `Stubble.Core` (NuGet, netstandard2.0 compatible, Mustache-spec compliant). Stubble is already mentioned in comments in MustacheController.cs — it was previously evaluated but rejected because it's unsigned. However, `StrongNamer` (already in the project) handles signing at build time. Change the single call from `Nustache.Core.Render.StringToString(template, dataSet)` to Stubble's equivalent. Remove the local `Libs\Nustache.Core.dll` file and its references from the csproj.
+**Mustache features used in the codebase:**
+- Variable interpolation: `{{name}}`, `{{groupCaption}}`
+- Triple-brace (unescaped HTML): `{{{checkboxInput}}}`, `{{{adminNav}}}`, `{{{content}}}` — used heavily in layout templates
+- Sections (lists/truthiness): `{{#hasMenu}}...{{/hasMenu}}`, `{{#rowList}}...{{/rowList}}`
+- Inverted sections: `{{^hasMenu}}...{{/hasMenu}}` (in `ellipseMenu.html`)
+- Implicit iterator: `{{.}}` (in `{{#Phones}}x{{.}}y{{/Phones}}`)
+- No partials (`{{>partial}}`), no helpers — only standard Mustache spec features
+
+**Compatibility analysis (Nustache vs Stubble):**
+
+Stubble was designed as a Nustache replacement by the same maintainer. Both implement the Mustache spec, but there are behavioral differences:
+
+1. **Case sensitivity (most likely issue):** Nustache does case-insensitive property lookups by default. Stubble is case-sensitive by default. A template with `{{name}}` will fail silently if the C# property is `Name`. **Fix:** enable `SetIgnoreCaseOnKeyLookup(true)` in the Stubble builder config.
+
+2. **Missing properties:** Nustache is stricter and may throw on missing properties. Stubble silently outputs empty string by default. This is actually safer for a CMS — no change needed.
+
+3. **Partials:** Nustache has built-in template loading for partials. Stubble does not. Not a concern — no partials are used in the codebase.
+
+4. **Helpers:** Nustache supports non-spec helper functions. Stubble does not. Not a concern — no helpers are used in the codebase.
+
+**Change:**
+
+1. Add `<PackageReference Include="Stubble.Core" ... />` to `Processor.csproj`. StrongNamer (already in the project) handles signing at build time.
+
+2. Replace `MustacheController.renderStringToString` implementation:
+   ```csharp
+   private static readonly Stubble.Core.StubbleVisitorRenderer stubble =
+       new Stubble.Core.Builders.StubbleBuilder()
+           .Configure(settings => {
+               settings.SetIgnoreCaseOnKeyLookup(true);
+           })
+           .Build();
+
+   public static string renderStringToString(string template, object dataSet) {
+       if (string.IsNullOrEmpty(template)) { return string.Empty; }
+       if (dataSet is null) { return template; }
+       return stubble.Render(template, dataSet);
+   }
+   ```
+   The renderer is a static singleton (thread-safe). `SetIgnoreCaseOnKeyLookup(true)` maintains Nustache's case-insensitive behavior.
+
+3. Remove the local `Libs\Nustache.Core.dll` file and all its references from `Processor.csproj` (the `<Reference>` block and the `<None Include="Libs\Nustache.Core.dll" ...>` pack item).
+
+4. Run the existing mustache unit tests (`MustacheControllerTest.renderStringToString_Test` and `MustacheControllerTests_copilot.renderStringToString_ShouldRenderTemplateWithDataSet`) to verify compatibility. These tests cover variable interpolation, sections with arrays, and implicit iterator.
 
 ## Phase 6 — Critical Blocker: Microsoft.Web.Administration (IIS Management) [COMPLETED]
 

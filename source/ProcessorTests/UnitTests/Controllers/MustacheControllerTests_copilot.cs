@@ -1,4 +1,4 @@
-using Contensive.Processor.Controllers;
+using Contensive.Processor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Contensive.Processor.Tests.UnitTests.Controllers;
@@ -12,9 +12,11 @@ public class MustacheControllerTests {
         var dataSet = new { name = "John" };
 
         // Act
-        string result = MustacheController.renderStringToString(template, dataSet);
+        using (CPClass cp = new()) {
+            string result = cp.Mustache.Render(template, dataSet);
 
-        // Assert
-        Assert.AreEqual("Hello, John!", result);
+            // Assert
+            Assert.AreEqual("Hello, John!", result);
+        }
     }
 }

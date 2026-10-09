@@ -232,7 +232,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- add user errors and template variables
                 string loginLogoSrc = getLoginLogoUrl(core);
-                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, allowLoginByEmailOtp, loginLogoSrc });
+                layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage, allowLoginByEmailOtp, loginLogoSrc });
                 layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
                 // -- wrap in form that sumbits to the same request URL, to return to the same page after login
@@ -267,7 +267,7 @@ namespace Contensive.Processor.Controllers {
         private static string getLoginOtpEmailForm(CoreController core, string userErrorMessage) {
             string loginLogoSrc = getLoginLogoUrl(core);
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, "");
-            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, loginLogoSrc });
+            layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpRequest);
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);
@@ -288,7 +288,7 @@ namespace Contensive.Processor.Controllers {
         private static string getLoginOtpCodeForm(CoreController core, string otpEmail, string userErrorMessage) {
             string loginLogoSrc = getLoginLogoUrl(core);
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpCodeGuid, layoutLoginOtpCodeName, layoutLoginOtpCodeCdnPathFilename, "");
-            layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, otpEmail, loginLogoSrc });
+            layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage, otpEmail, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpVerify);
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);
@@ -338,7 +338,7 @@ namespace Contensive.Processor.Controllers {
                     try {
                         object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
                         if (dataSet != null) {
-                            templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                            templateHtml = core.cpParent.Mustache.Render(templateHtml, dataSet);
                         }
                     } catch (Newtonsoft.Json.JsonException) {
                         //

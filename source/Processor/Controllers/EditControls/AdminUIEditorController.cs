@@ -1051,7 +1051,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                     relatedButtonList = "",
                     roleInput = AdminUIController.getButtonPrimaryAnchor("Add Role", $"?af=4&cid={ContentMetadataModel.getContentId(core, "Group Roles")}")
                 });
-                return MustacheController.renderStringToString(Resources.GroupRuleEditorRow2, groupRuleEditor);
+                return core.cpParent.Mustache.Render(Resources.GroupRuleEditorRow2, groupRuleEditor);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;

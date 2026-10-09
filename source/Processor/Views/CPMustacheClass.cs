@@ -1,4 +1,4 @@
-﻿
+
 using Contensive.Processor.Controllers;
 
 namespace Contensive.Processor {
@@ -11,6 +11,8 @@ namespace Contensive.Processor {
         //
         private readonly CPClass cp;
         //
+        private readonly MustacheController mustacheController;
+        //
         //====================================================================================================
         /// <summary>
         /// construct
@@ -18,6 +20,7 @@ namespace Contensive.Processor {
         /// <param name="cp"></param>
         public CPMustacheClass(CPClass cp) {
             this.cp = cp;
+            this.mustacheController = new MustacheController(cp);
         }
         //
         //====================================================================================================
@@ -28,7 +31,7 @@ namespace Contensive.Processor {
         /// <param name="dataSet"></param>
         /// <returns></returns>
         public override string Render(string template, object dataSet) {
-            return MustacheController.renderStringToString(template, dataSet);
+            return mustacheController.renderStringToString(template, dataSet);
         }
     }
 }
