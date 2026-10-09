@@ -1,5 +1,5 @@
 
-using Stubble.Core.Builders;
+using System;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -11,15 +11,17 @@ namespace Contensive.Processor.Controllers {
         private readonly CPClass cp;
         //
         /// <summary>
-        /// Static Stubble renderer — thread-safe singleton with case-insensitive key lookup
-        /// to match Nustache's default behavior.
+        /// Lazy-initialized Stubble renderer. Using Lazy avoids loading the Stubble assembly
+        /// at class-initialization time, which would fail in strong-named environments (net48/IIS)
+        /// if Stubble.Core.dll is not re-signed. The assembly is only loaded when the toggle is on.
         /// </summary>
-        private static readonly Stubble.Core.StubbleVisitorRenderer stubbleRenderer =
-            new StubbleBuilder()
+        private static readonly Lazy<object> stubbleRenderer = new Lazy<object>(() => {
+            return new Stubble.Core.Builders.StubbleBuilder()
                 .Configure(settings => {
                     settings.SetIgnoreCaseOnKeyLookup(true);
                 })
                 .Build();
+        });
         //
         //====================================================================================================
         /// <summary>
@@ -42,7 +44,7 @@ namespace Contensive.Processor.Controllers {
                 return template;
             }
             if (cp.Site.GetBoolean("mustache with stubble")) {
-                return stubbleRenderer.Render(template, dataSet);
+                return ((Stubble.Core.StubbleVisitorRenderer)stubbleRenderer.Value).Render(template, dataSet);
             }
             return Nustache.Core.Render.StringToString(template, dataSet);
         }

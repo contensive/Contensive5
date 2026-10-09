@@ -344,7 +344,6 @@ copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.exe" "%deploymentFolderR
 copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.dll" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.dll" 2>nul
 copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.runtimeconfig.json" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.runtimeconfig.json" 2>nul
 copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.deps.json" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.deps.json" 2>nul
-copy "%deploymentFolderRoot%%versionNumber%\Cli\Microsoft.Web.Administration.dll" "%deploymentFolderRoot%%versionNumber%\TaskService\Microsoft.Web.Administration.dll" 2>nul
 
 cd ..\scripts
 

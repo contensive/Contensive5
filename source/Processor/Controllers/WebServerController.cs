@@ -1009,7 +1009,8 @@ namespace Contensive.Processor.Controllers {
         public void verifySite(string appName, string DomainName, string wwwRootPath, bool isFramework = false) {
             try {
                 string frameworkFlag = isFramework ? " --framework" : "";
-                runIisUtil($"verify-site --name \"{appName}\" --domain \"{DomainName}\" --path \"{wwwRootPath}\"{frameworkFlag}");
+                string safePath = wwwRootPath.TrimEnd('\\');
+                runIisUtil($"verify-site --name \"{appName}\" --domain \"{DomainName}\" --path \"{safePath}\"{frameworkFlag}");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifySite");
                 throw;
@@ -1084,7 +1085,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appPool"></param>
         public void verifyWebsite(string appName, string domainName, string wwwRootPath, string appPool) {
             try {
-                runIisUtil($"verify-site --name \"{appName}\" --domain \"{domainName}\" --path \"{wwwRootPath}\"");
+                string safePath = wwwRootPath.TrimEnd('\\');
+                runIisUtil($"verify-site --name \"{appName}\" --domain \"{domainName}\" --path \"{safePath}\"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite");
                 throw;
@@ -1154,7 +1156,8 @@ namespace Contensive.Processor.Controllers {
                 string cdnFilesPrefix = core.appConfig.cdnFileUrl;
                 if (string.IsNullOrEmpty(cdnFilesPrefix)) { return; }
                 if (cdnFilesPrefix.IndexOf("://", StringComparison.InvariantCulture) >= 0) { return; }
-                runIisUtil($"verify-cdn-vdir --name \"{core.appConfig.name}\" --cdn-prefix \"{cdnFilesPrefix}\" --physical-path \"{core.appConfig.localFilesPath}\"");
+                string safePath = core.appConfig.localFilesPath.TrimEnd('\\');
+                runIisUtil($"verify-cdn-vdir --name \"{core.appConfig.name}\" --cdn-prefix \"{cdnFilesPrefix}\" --physical-path \"{safePath}\"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifyCdnVirtualDirectory");
                 throw;

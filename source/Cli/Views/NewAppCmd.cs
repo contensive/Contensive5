@@ -340,12 +340,10 @@ namespace Contensive.CLI {
                     logger.Info($"{cp.core.logCommonMessage},Create database.");
                     cp.core.dbServer.createCatalog(appConfig.name);
                     //
-                    logger.Info($"{cp.core.logCommonMessage},Creating database and deploying WebApi to IIS site.");
-                }
-                //
-                // initialize the new app, use the save authentication that was used to authorize this object
-                //
-                using (CPClass cp = new(appName)) {
+                    // -- continue using the same cp instance (re-constructing CPClass from the app name
+                    // -- fails on servers using AWS Secrets Manager because the second constructor
+                    // -- cannot always read the newly-saved config back from the secret store)
+                    //
                     logger.Info($"{cp.core.logCommonMessage},Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.effectiveAppPath);
                     //
