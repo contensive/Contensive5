@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Processor", "Processor\Proc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashboardWidgets", "DashboardWidgets\DashboardWidgets.csproj", "{0A32CA2D-2F89-4298-BA2F-14AF4548C721}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IisUtil", "IisUtil\IisUtil.csproj", "{C3B39EE6-C32B-464D-A181-24FB5A3E345C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,18 @@ Global
 		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x64.Build.0 = Release|Any CPU
 		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x86.ActiveCfg = Release|Any CPU
 		{0A32CA2D-2F89-4298-BA2F-14AF4548C721}.Release|x86.Build.0 = Release|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Debug|x64.Build.0 = Debug|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Debug|x86.Build.0 = Debug|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Release|x64.ActiveCfg = Release|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Release|x64.Build.0 = Release|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Release|x86.ActiveCfg = Release|Any CPU
+		{C3B39EE6-C32B-464D-A181-24FB5A3E345C}.Release|x86.Build.0 = Release|Any CPU
 		{1744F896-D8B9-4A15-A3CF-A1D6DC58739F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1744F896-D8B9-4A15-A3CF-A1D6DC58739F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1744F896-D8B9-4A15-A3CF-A1D6DC58739F}.Debug|x64.ActiveCfg = Debug|Any CPU

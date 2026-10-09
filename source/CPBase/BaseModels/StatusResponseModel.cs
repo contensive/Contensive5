@@ -54,6 +54,13 @@ namespace Contensive.BaseModels {
         /// run yet or the collection isn't installed.
         /// </summary>
         public StatusSeoModel seo { get; set; }
+        /// <summary>
+        /// Structured list of non-fatal warning messages extracted from the diagnostic results.
+        /// These are issues that don't fail the status check (status remains "ok") but should be
+        /// surfaced to monitoring dashboards -- e.g. deprecated Script Code addons, pending Windows
+        /// updates. Null or empty when there are no warnings.
+        /// </summary>
+        public List<string> warnings { get; set; }
         //
         /// <summary>
         /// Performance metrics included in the status response

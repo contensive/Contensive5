@@ -5,7 +5,6 @@ using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
 //
 // todo implement #nullable enable
 //
@@ -127,12 +126,9 @@ namespace Contensive.Processor.Controllers {
                 if (_mockNow != null) {
                     return (DateTime)_mockNow;
                 }
-                GetSystemTimePreciseAsFileTime(out long fileTime);
-                return DateTimeOffset.FromFileTime(fileTime).DateTime;
+                return DateTime.UtcNow;
             }
         }
-        [DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]
-        static extern void GetSystemTimePreciseAsFileTime(out long filetime);
         //
         //===================================================================================================
         /// <summary>

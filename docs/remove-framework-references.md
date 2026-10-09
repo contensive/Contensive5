@@ -1,6 +1,6 @@
 # Plan: Remove netstandard2.0 Blockers from Processor
 
-## Phase 1 — Dead Imports (safe, no behavior change)
+## Phase 1 — Dead Imports (safe, no behavior change) [COMPLETED]
 
 Remove unused `using` statements from these files:
 
@@ -10,7 +10,7 @@ Remove unused `using` statements from these files:
 4. `source/Processor/Models/Domain/DashboardUserConfigModel.cs` — remove `using Microsoft.Web.Administration;`
 5. `source/Processor/Addons/WidgetDashboard/WidgetDashboardCmdRemote.cs` — remove `using Microsoft.ClearScript.JavaScript;`
 
-## Phase 2 — Unused References in Processor.csproj (safe, no behavior change)
+## Phase 2 — Unused References in Processor.csproj (safe, no behavior change) [COMPLETED]
 
 Remove these from `source/Processor/Processor.csproj`:
 
@@ -19,7 +19,7 @@ Remove these from `source/Processor/Processor.csproj`:
 3. `<Reference Include="System.Data.Entity.Design">` block — .NET Framework-only assembly, zero usages
 4. `<Reference Include="netstandard">` block — .NET Framework facade shim, not needed
 
-## Phase 3 — Critical Blocker: Kernel32.dll P/Invoke
+## Phase 3 — Critical Blocker: Kernel32.dll P/Invoke [COMPLETED]
 
 **File:** `source/Processor/Controllers/CoreController.cs` lines 130-135
 
@@ -52,7 +52,7 @@ Remove these from `source/Processor/Processor.csproj`:
 
 **Change:** Replace `Nustache.Core` with `Stubble.Core` (NuGet, netstandard2.0 compatible, Mustache-spec compliant). Stubble is already mentioned in comments in MustacheController.cs — it was previously evaluated but rejected because it's unsigned. However, `StrongNamer` (already in the project) handles signing at build time. Change the single call from `Nustache.Core.Render.StringToString(template, dataSet)` to Stubble's equivalent. Remove the local `Libs\Nustache.Core.dll` file and its references from the csproj.
 
-## Phase 6 — Critical Blocker: Microsoft.Web.Administration (IIS Management)
+## Phase 6 — Critical Blocker: Microsoft.Web.Administration (IIS Management) [COMPLETED]
 
 **File:** `source/Processor/Controllers/WebServerController.cs` lines 549-1413
 

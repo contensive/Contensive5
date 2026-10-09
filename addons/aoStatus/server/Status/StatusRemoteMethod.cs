@@ -29,6 +29,7 @@ namespace Contensive.Addons.Status {
             int hint = 0;
             try {
                 var resultList = new StringBuilder();
+                var warningsList = new List<string>();
                 bool showDetail = cp.Site.GetBoolean("Status Endpoint Detail", true);
                 hint = 10;
                 if (cp.Site.GetDate("Diagnostics pause until date") > DateTime.Now) {
@@ -42,7 +43,7 @@ namespace Contensive.Addons.Status {
                 // -- run built-in site diagnostics (database, task service, email, metadata, etc.)
                 //
                 string siteDiagError = "";
-                if (!RunSiteDiagnostics(cp, resultList, ref siteDiagError)) {
+                if (!RunSiteDiagnostics(cp, resultList, warningsList, ref siteDiagError)) {
                     string errorMsg = showDetail ? siteDiagError : "ERROR, a diagnostic check failed.";
                     return BuildResponse(cp, "error", errorMsg, showDetail);
                 }
@@ -107,7 +108,7 @@ namespace Contensive.Addons.Status {
                 string successMessage = showDetail
                     ? $"ok, all tests passed.{Environment.NewLine}{resultList}{diagnosticDetail}"
                     : "ok, all tests passed.";
-                return BuildResponse(cp, "ok", successMessage, showDetail, reliability);
+                return BuildResponse(cp, "ok", successMessage, showDetail, reliability, warningsList);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"Diagnostics hint: {hint}");
                 return "ERROR, unexpected exception during diagnostics.";
@@ -121,7 +122,7 @@ namespace Contensive.Addons.Status {
         /// and site warnings. Appends ok lines to resultList. Returns false and sets errorMessage
         /// on the first failure.
         /// </summary>
-        private static bool RunSiteDiagnostics(CPBaseClass cp, StringBuilder resultList, ref string errorMessage) {
+        private static bool RunSiteDiagnostics(CPBaseClass cp, StringBuilder resultList, List<string> warningsList, ref string errorMessage) {
             try {
                 //
                 // -- test default database connection
@@ -260,7 +261,9 @@ namespace Contensive.Addons.Status {
                 {
                     int scriptAddonCount = DbBaseModel.getCount<AddonModel>(cp, "((scriptingCode is not null)and(scriptingCode<>'')and(active>0))");
                     if (scriptAddonCount > 0) {
-                        resultList.AppendLine($"warning, [{scriptAddonCount}] active addon(s) use Script Code, which is a deprecated and unsafe execution method.");
+                        string scriptWarning = $"[{scriptAddonCount}] active addon(s) use Script Code, which is a deprecated and unsafe execution method.";
+                        resultList.AppendLine($"warning, {scriptWarning}");
+                        warningsList.Add(scriptWarning);
                     } else {
                         resultList.AppendLine("ok, no script code addons.");
                     }
@@ -347,7 +350,7 @@ namespace Contensive.Addons.Status {
         /// <summary>
         /// Return plain text or JSON depending on the format query parameter
         /// </summary>
-        private static string BuildResponse(CPBaseClass cp, string status, string message, bool showDetail, StatusResponseModel.StatusReliabilityModel reliabilityOverride = null) {
+        private static string BuildResponse(CPBaseClass cp, string status, string message, bool showDetail, StatusResponseModel.StatusReliabilityModel reliabilityOverride = null, List<string> warnings = null) {
             string version = cp.Version;
             string format = cp.Doc.GetText("format");
             if (!format.Equals("json", StringComparison.OrdinalIgnoreCase)) {
@@ -427,7 +430,8 @@ namespace Contensive.Addons.Status {
                 security = security,
                 performance = performance,
                 reliability = reliability,
-                seo = seo
+                seo = seo,
+                warnings = (warnings != null && warnings.Count > 0) ? warnings : null
             };
             return JsonConvert.SerializeObject(response);
         }

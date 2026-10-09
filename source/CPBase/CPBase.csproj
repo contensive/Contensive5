@@ -4,6 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Contensive.BaseClasses</RootNamespace>
     <AssemblyName>CPBase</AssemblyName>
+    <Version>26.9.25.22751</Version>
+    <AssemblyVersion>4.1.2.0</AssemblyVersion>
+    <FileVersion>26.9.25.22751</FileVersion>
 	<LangVersion>latest</LangVersion>
 	<SignAssembly>True</SignAssembly>
 	<AssemblyOriginatorKeyFile>CPBase2.snk</AssemblyOriginatorKeyFile>

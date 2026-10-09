@@ -56,6 +56,12 @@ rd /s /q "..\source\TaskService\bin" 2>nul
 del /s /q "..\source\TaskService\obj" 2>nul
 rd /s /q "..\source\TaskService\obj" 2>nul
 
+del /s /q "..\source\IisUtil\bin" 2>nul
+rd /s /q "..\source\IisUtil\bin" 2>nul
+
+del /s /q "..\source\IisUtil\obj" 2>nul
+rd /s /q "..\source\IisUtil\obj" 2>nul
+
 del /s /q "..\source\CPBase\obj" 2>nul
 rd /s /q "..\source\CPBase\obj" 2>nul
 
@@ -295,6 +301,27 @@ cd ..\scripts
 
 rem ==============================================================
 rem
+rem publish IisUtil for .NET 9.0 (into Cli folder alongside cc.exe)
+rem
+
+@echo.
+@echo Publishing IisUtil (net9.0-windows)...
+@echo.
+
+cd ..\source
+
+dotnet publish IisUtil/IisUtil.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\Cli" --runtime win-x64 --self-contained false /property:Version=%versionNumber%
+if errorlevel 1 (
+   echo.
+   echo FAILURE publishing IisUtil
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+cd ..\scripts
+
+rem ==============================================================
+rem
 rem publish TaskService for .NET 9.0
 rem
 
@@ -311,6 +338,13 @@ if errorlevel 1 (
    if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
+
+rem -- copy iisutil into TaskService folder (needed for syncIpBlocksToIIS)
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.exe" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.exe"
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.dll" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.dll" 2>nul
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.runtimeconfig.json" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.runtimeconfig.json" 2>nul
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.deps.json" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.deps.json" 2>nul
+copy "%deploymentFolderRoot%%versionNumber%\Cli\Microsoft.Web.Administration.dll" "%deploymentFolderRoot%%versionNumber%\TaskService\Microsoft.Web.Administration.dll" 2>nul
 
 cd ..\scripts
 

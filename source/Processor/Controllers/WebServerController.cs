@@ -3,7 +3,6 @@ using Contensive.BaseClasses;
 using Contensive.Exceptions;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
-using Microsoft.Web.Administration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -548,16 +547,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public void recycle() {
             try {
-                ServerManager serverManager = new ServerManager();
-                ApplicationPoolCollection appPoolColl = serverManager.ApplicationPools;
-                foreach (ApplicationPool appPool in appPoolColl) {
-                    if (appPool.Name.ToLowerInvariant() == core.appConfig.name.ToLowerInvariant()) {
-                        if (appPool.Start() == ObjectState.Started) {
-                            appPool.Recycle();
-                            logger.Info($"{core.logCommonMessage},iis recycle, app [" + core.appConfig.name + "]");
-                        }
-                    }
-                }
+                runIisUtil($"recycle --name \"{core.appConfig.name}\"");
+                logger.Info($"{core.logCommonMessage},iis recycle, app [{core.appConfig.name}]");
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -1017,8 +1008,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isFramework">When true, configure the app pool for .NET Framework 4.x (ManagedRuntimeVersion v4.0). When false, configure for .NET Core (no managed code).</param>
         public void verifySite(string appName, string DomainName, string wwwRootPath, bool isFramework = false) {
             try {
-                verifyAppPool(appName, isFramework);
-                verifyWebsite(appName, DomainName, wwwRootPath, appName);
+                string frameworkFlag = isFramework ? " --framework" : "";
+                runIisUtil($"verify-site --name \"{appName}\" --domain \"{DomainName}\" --path \"{wwwRootPath}\"{frameworkFlag}");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifySite");
                 throw;
@@ -1033,29 +1024,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isFramework">When true, configure for .NET Framework 4.x. When false, configure for .NET Core (no managed code).</param>
         public void verifyAppPool(string poolName, bool isFramework = false) {
             try {
-                using ServerManager serverManager = new();
-                bool poolFound = false;
-                ApplicationPool appPool = null;
-                foreach (ApplicationPool appPoolWithinLoop in serverManager.ApplicationPools) {
-                    if (appPoolWithinLoop.Name == poolName) {
-                        poolFound = true;
-                        break;
-                    }
-                }
-                if (!poolFound) {
-                    appPool = serverManager.ApplicationPools.Add(poolName);
-                } else {
-                    appPool = serverManager.ApplicationPools[poolName];
-                }
-                if (isFramework) {
-                    appPool.ManagedRuntimeVersion = "v4.0";
-                    appPool.Enable32BitAppOnWin64 = true;
-                } else {
-                    appPool.ManagedRuntimeVersion = "";
-                    appPool.Enable32BitAppOnWin64 = false;
-                }
-                appPool.ManagedPipelineMode = ManagedPipelineMode.Integrated;
-                serverManager.CommitChanges();
+                string frameworkFlag = isFramework ? " --framework" : "";
+                runIisUtil($"verify-apppool --name \"{poolName}\"{frameworkFlag}");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifyAppPool");
                 throw;
@@ -1069,22 +1039,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="poolName"></param>
         public void stopAppPool(string poolName) {
             try {
-                using ServerManager serverManager = new();
-                foreach (ApplicationPool appPool in serverManager.ApplicationPools) {
-                    if (appPool.Name.Equals(poolName, StringComparison.OrdinalIgnoreCase)) {
-                        if (appPool.State != ObjectState.Stopped && appPool.State != ObjectState.Stopping) {
-                            appPool.Stop();
-                        }
-                        //
-                        // -- wait for the pool to stop so file locks are released
-                        int maxWait = 30;
-                        while (appPool.State != ObjectState.Stopped && maxWait > 0) {
-                            System.Threading.Thread.Sleep(1000);
-                            maxWait--;
-                        }
-                        return;
-                    }
-                }
+                runIisUtil($"stop-apppool --name \"{poolName}\"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "stopAppPool");
                 throw;
@@ -1098,14 +1053,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="poolName"></param>
         public void deleteAppPool(string poolName) {
             try {
-                using ServerManager serverManager = new();
-                foreach (ApplicationPool appPool in serverManager.ApplicationPools) {
-                    if (appPool.Name.Equals(poolName, StringComparison.OrdinalIgnoreCase)) {
-                        serverManager.ApplicationPools.Remove(appPool);
-                        serverManager.CommitChanges();
-                        return;
-                    }
-                }
+                runIisUtil($"delete-apppool --name \"{poolName}\"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "deleteAppPool");
                 throw;
@@ -1119,16 +1067,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appName"></param>
         public void deleteWebsite(string appName) {
             try {
-                using ServerManager iisManager = new();
-                foreach (Site site in iisManager.Sites) {
-                    if (site.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
-                        iisManager.Sites.Remove(site);
-                        iisManager.CommitChanges();
-                        return;
-                    }
-                }
+                runIisUtil($"delete-site --name \"{appName}\"");
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite");
+                logger.Error($"{core.logCommonMessage}", ex, "deleteWebsite");
                 throw;
             }
         }
@@ -1143,38 +1084,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appPool"></param>
         public void verifyWebsite(string appName, string domainName, string wwwRootPath, string appPool) {
             try {
-                using ServerManager iisManager = new ServerManager();
-                //
-                // -- verify the site exists
-                bool found = false;
-                foreach (Site siteWithinLoop in iisManager.Sites) {
-                    if (siteWithinLoop.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    iisManager.Sites.Add(appName, "http", "*:80:" + appName, wwwRootPath);
-                }
-                Site site = iisManager.Sites[appName];
-                //
-                // -- verify the domain binding
-                verifyWebsiteBinding(site, domainName);
-                //
-                // -- verify the application pool
-                site.ApplicationDefaults.ApplicationPoolName = appPool;
-                foreach (Application iisApp in site.Applications) {
-                    iisApp.ApplicationPoolName = appPool;
-                }
-                //
-                // -- verify the cdn virtual directory (if configured)
-                string cdnFilesPrefix = core.appConfig.cdnFileUrl;
-                if (cdnFilesPrefix.IndexOf("://", StringComparison.InvariantCulture) < 0) {
-                    verifyWebsiteVirtualDirectory(site, appName, cdnFilesPrefix, core.appConfig.localFilesPath);
-                }
-                //
-                // -- commit any changes
-                iisManager.CommitChanges();
+                runIisUtil($"verify-site --name \"{appName}\" --domain \"{domainName}\" --path \"{wwwRootPath}\"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite");
                 throw;
@@ -1183,76 +1093,39 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Verify the binding
-        /// </summary>
-        /// <param name="site"></param>
-        /// <param name="domainName"></param>
-        private void verifyWebsiteBinding(Site site, string domainName) {
-            try {
-                string bindingInformation = "*:80:" + domainName;
-                string bindingProtocol = "http";
-                using ServerManager iisManager = new ServerManager();
-                bool found = false;
-                foreach (Binding bindingWithinLoop in site.Bindings) {
-                    if ((bindingWithinLoop.BindingInformation == bindingInformation) && (bindingWithinLoop.Protocol == bindingProtocol)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    Binding binding = site.Bindings.CreateElement();
-                    binding.BindingInformation = bindingInformation;
-                    binding.Protocol = bindingProtocol;
-                    site.Bindings.Add(binding);
-                    iisManager.CommitChanges();
-                }
-            } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite_Binding");
-                throw;
-            }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
         /// return true if the binding exists
         /// </summary>
-        /// <param name="site"></param>
+        /// <param name="cp"></param>
+        /// <param name="appName"></param>
         /// <param name="domainName"></param>
         /// <param name="returnUserMessage">If the binding does not exist, this will contain a user-friendly message.</param>
         public static bool isValidBinding(CPBaseClass cp, string appName, string domainName, ref string returnUserMessage) {
             try {
-                using ServerManager iisManager = new ServerManager();
-                //
-                // -- verify the site exists
-                bool found = false;
-                foreach (Site siteWithinLoop in iisManager.Sites) {
-                    if (siteWithinLoop.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
-                        found = true;
-                        break;
-                    }
+                string iisUtilPath = getIisUtilPath();
+                using var process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = iisUtilPath;
+                process.StartInfo.Arguments = $"is-valid-binding --name \"{appName}\" --domain \"{domainName}\"";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.WaitForExit(60000);
+                if (process.ExitCode == 0) {
+                    return true;
                 }
-                if (!found) {
-                    returnUserMessage = $"The IIS site [{appName}] was not found. Please create an IIS site with this name, and a binding for the domain [{domainName}].";
+                if (process.ExitCode == 3) {
+                    // not valid — output contains the user message
+                    returnUserMessage = output;
                     return false;
                 }
-                Site site = iisManager.Sites[appName];
-                string bindingInformation = $"*:80:{domainName}";
-                string bindingProtocol = "http";
-                foreach (Binding bindingWithinLoop in site.Bindings) {
-                    if (string.Equals(bindingWithinLoop.BindingInformation, bindingInformation, StringComparison.OrdinalIgnoreCase) && string.Equals(bindingWithinLoop.Protocol, bindingProtocol, StringComparison.OrdinalIgnoreCase)) {
-                        return true;
-                    }
-                }
-                returnUserMessage = $"No binding was found for the domain [{domainName}].";
+                // unexpected error
+                returnUserMessage = output;
                 return false;
-            } catch (UnauthorizedAccessException) {
-                //
-                // -- process is not elevated, cannot verify IIS bindings, skip the check
-                logger.Warn($"isValidBinding skipped, process does not have permission to read IIS configuration");
-                return true;
             } catch (Exception ex) {
-                logger.Error($"isValidBinding encountered an unexpected error", ex, "isBinding");
-                throw;
+                logger.Warn($"isValidBinding skipped, iisutil not available: {ex.Message}");
+                return true;
             }
         }
         //
@@ -1264,25 +1137,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="domainName"></param>
         public void verifyWebsiteBinding(string appName, string domainName) {
             try {
-                //
-                // -- verify the site exists
-                bool found = false;
-                using ServerManager iisManager = new();
-                foreach (Site siteWithinLoop in iisManager.Sites) {
-                    if (siteWithinLoop.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) {
-                    Site site = iisManager.Sites[appName];
-                    //
-                    // -- verify the domain binding
-                    verifyWebsiteBinding(site, domainName);
-                    //
-                    // -- commit any changes
-                    iisManager.CommitChanges();
-                }
+                runIisUtil($"verify-binding --name \"{appName}\" --domain \"{domainName}\"");
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -1299,72 +1154,9 @@ namespace Contensive.Processor.Controllers {
                 string cdnFilesPrefix = core.appConfig.cdnFileUrl;
                 if (string.IsNullOrEmpty(cdnFilesPrefix)) { return; }
                 if (cdnFilesPrefix.IndexOf("://", StringComparison.InvariantCulture) >= 0) { return; }
-                //
-                using ServerManager iisManager = new ServerManager();
-                Site site = null;
-                foreach (Site siteWithinLoop in iisManager.Sites) {
-                    if (string.Equals(siteWithinLoop.Name, core.appConfig.name, StringComparison.OrdinalIgnoreCase)) {
-                        site = siteWithinLoop;
-                        break;
-                    }
-                }
-                if (site == null) { return; }
-                //
-                verifyWebsiteVirtualDirectory(site, core.appConfig.name, cdnFilesPrefix, core.appConfig.localFilesPath);
-                iisManager.CommitChanges();
+                runIisUtil($"verify-cdn-vdir --name \"{core.appConfig.name}\" --cdn-prefix \"{cdnFilesPrefix}\" --physical-path \"{core.appConfig.localFilesPath}\"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "verifyCdnVirtualDirectory");
-                throw;
-            }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// verify a virtual directory exists within the site for the given virtual folder path
-        /// </summary>
-        /// <param name="site"></param>
-        /// <param name="appName"></param>
-        /// <param name="virtualFolder"></param>
-        /// <param name="physicalPath"></param>
-        public void verifyWebsiteVirtualDirectory(Site site, string appName, string virtualFolder, string physicalPath) {
-            try {
-                bool found = false;
-                foreach (Application iisApp in site.Applications) {
-                    if (iisApp.ApplicationPoolName.ToLowerInvariant() == appName.ToLowerInvariant()) {
-                        foreach (VirtualDirectory virtualDirectory in iisApp.VirtualDirectories) {
-                            if (virtualDirectory.Path == virtualFolder) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            //
-                            // -- create each of the folder segments in the virtualFolder
-                            List<string> appVirtualFolderSegments = virtualFolder.Split('/').ToList();
-                            string newDirectoryPath = "";
-                            foreach (string appVirtualFolderSegment in appVirtualFolderSegments) {
-                                if (!string.IsNullOrEmpty(appVirtualFolderSegment)) {
-                                    newDirectoryPath += "/" + appVirtualFolderSegment;
-                                    bool directoryFound = false;
-                                    foreach (VirtualDirectory currentDirectory in iisApp.VirtualDirectories) {
-                                        if (currentDirectory.Path.ToLowerInvariant() == newDirectoryPath.ToLowerInvariant()) {
-                                            directoryFound = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!directoryFound) {
-                                        iisApp.VirtualDirectories.Add(newDirectoryPath, physicalPath);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (found) {
-                        break;
-                    }
-                }
-            } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite_VirtualDirectory");
                 throw;
             }
         }
@@ -1388,27 +1180,62 @@ namespace Contensive.Processor.Controllers {
         /// <param name="blockedIpAddresses">List of IP addresses to deny. All existing deny entries are replaced.</param>
         public static void syncIpBlocksToIIS(CoreController core, string siteName, List<string> blockedIpAddresses) {
             try {
-                using var serverManager = new ServerManager();
-                var config = serverManager.GetApplicationHostConfiguration();
-                //
-                // -- always use site-level config, never server-level
-                var ipSecuritySection = config.GetSection("system.webServer/security/ipSecurity", siteName);
-                var ipSecurityCollection = ipSecuritySection.GetCollection();
-                ipSecurityCollection.Clear();
-                //
-                // -- default: allow all unmatched IPs, deny only the blocked ones
-                ipSecuritySection["allowUnlisted"] = true;
-                //
-                foreach (var ipAddress in blockedIpAddresses) {
-                    if (string.IsNullOrWhiteSpace(ipAddress)) { continue; }
-                    var addElement = ipSecurityCollection.CreateElement("add");
-                    addElement["ipAddress"] = ipAddress.Trim();
-                    addElement["allowed"] = false;
-                    ipSecurityCollection.Add(addElement);
+                string ipArgs = string.Join(" ", blockedIpAddresses.Where(ip => !string.IsNullOrWhiteSpace(ip)).Select(ip => $"--ip \"{ip.Trim()}\""));
+                string arguments = $"sync-ip-blocks --name \"{siteName}\" {ipArgs}";
+                string iisUtilPath = getIisUtilPath();
+                using var process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = iisUtilPath;
+                process.StartInfo.Arguments = arguments;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.Start();
+                string stderr = process.StandardError.ReadToEnd();
+                process.WaitForExit(60000);
+                if (process.ExitCode != 0) {
+                    logger.Warn($"{core.logCommonMessage},syncIpBlocksToIIS failed, exit code [{process.ExitCode}], stderr [{stderr}]");
                 }
-                serverManager.CommitChanges();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Resolve the path to iisutil.exe, which lives alongside the executing assembly.
+        /// </summary>
+        private static string getIisUtilPath() {
+            string assemblyDir = System.IO.Path.GetDirectoryName(typeof(WebServerController).Assembly.Location);
+            string iisUtilPath = System.IO.Path.Combine(assemblyDir, "iisutil.exe");
+            if (!System.IO.File.Exists(iisUtilPath)) {
+                throw new System.IO.FileNotFoundException($"iisutil.exe not found at [{iisUtilPath}]. IIS management requires iisutil.exe in the same directory as Processor.dll.");
+            }
+            return iisUtilPath;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Run iisutil.exe with the given arguments. Throws on non-zero exit code.
+        /// </summary>
+        private void runIisUtil(string arguments) {
+            string iisUtilPath = getIisUtilPath();
+            logger.Info($"{core.logCommonMessage},runIisUtil, args=[{arguments}]");
+            using var process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = iisUtilPath;
+            process.StartInfo.Arguments = arguments;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.Start();
+            string stdout = process.StandardOutput.ReadToEnd();
+            string stderr = process.StandardError.ReadToEnd();
+            process.WaitForExit(300000);
+            if (process.ExitCode != 0) {
+                throw new GenericException($"iisutil exited with code {process.ExitCode}: {stderr}");
+            }
+            if (!string.IsNullOrEmpty(stdout)) {
+                logger.Info($"{core.logCommonMessage},iisutil output: {stdout.Trim()}");
             }
         }
         //
