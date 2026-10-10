@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="layout" content="AdminUI LayoutBuilder List Body">
+    <meta name="layout-guid" content="{13DB2AF2-A835-4E00-A932-7F5C036312AF}">
+    <title>AdminUI LayoutBuilder List Body</title>
+</head>
+<body>
+<style>
+.form-control::placeholder {
+    color: #bbb;
+}
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    height: 50px;
+    border-radius: 30px;
+    padding-left: 35px;
+    padding-right: 35px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.search-clear {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #888;
+    cursor: pointer;
+    display: none;
+    font-size: 14px;
+}
+
+.search-clear:hover {
+    color: #333;
+}
+</style>
+<div class="container-fluid">
+	<div class="row {{^allowPagination}}d-flex justify-content-end{{/allowPagination}}">
+		{{#allowSearch}}
+			<div class="js-afwListReportSearchCon col-md-6 my-auto">
+				<div class="search-container">
+					<input type="text" name="searchTerm" value="{{searchTerm}}" id="searchControl" class="form-control search-input" placeholder="Search...">
+					<i class="fas fa-search search-icon"></i>
+					<i class="fas fa-times search-clear" id="searchClear"></i>
+				</div>       
+			</div>
+		{{/allowSearch}}
+		{{^allowPagination}}
+			<div class="js-afwListReportPaginationCon col-md-6 my-auto">
+				<div class="text-end">{{rowsFoundMessage}}</div>
+			</div>   
+		{{/allowPagination}}
+		{{#allowPagination}}
+		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
+			<div class="text-end ccJumpCon"> 
+				<ul>
+					{{#links}}
+						<li class="{{css}}">{{{content}}}</li>
+					{{/links}}
+				</ul>
+			</div>
+			<input type="hidden" name="paginationPageNumber" id="paginationPageNumber" value="{{paginationPageNumber}}">
+			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">
+		</div>   
+		{{/allowPagination}}
+	</div>
+</div>
+<div class="js-afwListReportGridCon">{{{grid}}}</div>
+<script>
+	document.addEventListener('DOMContentLoaded', function(event) {
+		console.log("AdminUILayoutBuilderList, binding");
+		$('.afw').on('click','.columnSort',function(e){
+			e.preventDefault();
+			let field = $(this).data('columnsort');
+			let currentField = $('#sortField').val();
+			let currentDir = $('#sortDirection').val();
+			if (field === currentField) {
+				if (currentDir === 'asc') {
+					$('#sortDirection').val('desc');
+				} else {
+					$('#sortField').val('');
+					$('#sortDirection').val('');
+				}
+			} else {
+				$('#sortField').val(field);
+				$('#sortDirection').val('asc');
+			}
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if(pageNumber.length>0) {pageNumber[0].value='1';}
+			submitAfwAjaxListForm();
+		});
+		// -- click pagination link
+		$('.afw').on('click','.paginationLink',function(p){
+			// -- pageination click, convert to ajax submit
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if(pageNumber.length>0) {pageNumber[0].value=Number($(this).html());}
+			console.log("AdminUILayoutBuilderList, paginationLink click");
+			submitAfwAjaxListForm();  
+		});
+		// -- search
+		var myTimer = 0;
+		// -- show/hide clear button based on search input value
+		function toggleSearchClear() {
+			let val = $('#searchControl').val();
+			$('#searchClear').toggle(val.length > 0);
+		}
+		toggleSearchClear();
+		$('.afw').on('keyup','#searchControl', function() {
+			toggleSearchClear();
+			// -- search term key, delay search until the user stops typing
+			if (myTimer) {
+				clearTimeout(myTimer);
+			}
+			myTimer = setTimeout(function() {
+				// -- reset the pagination on search
+				let pageNumber = document.getElementsByName('setPaginationPageNumber');
+				if(pageNumber.length>0) {pageNumber[0].value='1';}
+				submitAfwAjaxListForm();
+			}, 1000);
+		});
+		// -- clear search
+		$('.afw').on('click','#searchClear', function() {
+			$('#searchControl').val('');
+			toggleSearchClear();
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if(pageNumber.length>0) {pageNumber[0].value='1';}
+			submitAfwAjaxListForm();
+		});
+	});
+	// -- submit the list form
+	function submitAfwAjaxListForm() {
+		// -- populate hidden div, then copy grid and pagination to visible areas
+		let workingDiv = 'js-afwListWorkArea'
+		addHiddenDiv(workingDiv);
+		submitAfwAjaxForm( workingDiv, function() {
+			$('.js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
+			let src = $('#js-afwListWorkArea .js-afwListReportPaginationCon');
+			let dst = $('.js-afwListReportPaginationCon');
+			if(src.length>0){
+				dst.html(src.html());
+			} else {
+				dst.html('');
+			}
+			deleteDiv(workingDiv);
+		});
+	}
+	function addHiddenDiv(divId) {
+  		// Create the div element
+  		const div = document.createElement('div');
+  		div.id = divId;
+  		div.style.display = 'none';
+  		// Append the div to the end of the body
+  		document.body.appendChild(div);
+	}
+	function deleteDiv(divId) {
+  		// Remove the div element
+  		const div = document.getElementById(divId);
+  		if (div) {
+			document.body.removeChild(div);
+  		}
+	}
+
+</script>
+</body>
+</html>

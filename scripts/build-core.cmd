@@ -87,21 +87,25 @@ del /q "..\WebDeploymentPackage\*.*" 2>nul
 
 rem ==============================================================
 rem
-rem package helpfiles and baseassets (same as main build)
+rem package ui resource zips (wwwFiles, cdnFiles, privateFiles, layoutFiles, helpFiles)
+rem Each subfolder under ui\ is zipped into source\Processor\ so the
+rem collection installer can process them via Resource nodes in aoBase51.xml.
 rem
 
-del "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 2>nul
-"c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" "C:\Git\Contensive5\helpfiles\*"
+set uiRoot=C:\Git\Contensive5\ui
+set processorDir=C:\Git\Contensive5\source\Processor
 
-c:
-cd "C:\Git\Contensive5\ui\baseassets\"
-del baseassets.zip /Q 2>nul
-"c:\program files\7-zip\7z.exe" a "baseassets.zip"
-"c:\program files\7-zip\7z.exe" d baseassets.zip baseassets\
-"c:\program files\7-zip\7z.exe" d baseassets.zip ".DS_Store"
-cd baseassets
-"c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
-move /y "..\baseassets.zip" "C:\Git\Contensive5\source\Processor\"
+for %%F in (wwwFiles cdnFiles privateFiles layoutFiles) do (
+   del "%processorDir%\%%F.zip" 2>nul
+   pushd "%uiRoot%\%%F"
+   "c:\program files\7-zip\7z.exe" a -tzip -r "%processorDir%\%%F.zip" *
+   popd
+)
+
+del "%processorDir%\helpFiles.zip" 2>nul
+pushd "C:\Git\Contensive5\helpfiles"
+"c:\program files\7-zip\7z.exe" a -tzip -r "%processorDir%\helpFiles.zip" *
+popd
 
 cd "C:\Git\Contensive5\scripts"
 
@@ -110,7 +114,7 @@ rem
 rem copy baseassets into WebApi webroot for static file serving
 rem
 
-robocopy "C:\Git\Contensive5\ui\baseassets\BaseAssets" "C:\Git\Contensive5\source\WebApi\webroot\baseassets" /MIR /NJH /NJS /NDL /NP
+robocopy "C:\Git\Contensive5\ui\wwwFiles\BaseAssets" "C:\Git\Contensive5\source\WebApi\webroot\baseassets" /MIR /NJH /NJS /NDL /NP
 if errorlevel 8 (
    echo.
    echo FAILURE copying baseassets to WebApi webroot

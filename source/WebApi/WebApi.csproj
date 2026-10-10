@@ -30,7 +30,7 @@
 
 	<Target Name="CopyBaseAssets" BeforeTargets="Build;Publish">
 		<ItemGroup>
-			<BaseAssetFiles Include="$(ProjectDir)..\..\ui\baseassets\BaseAssets\**\*" />
+			<BaseAssetFiles Include="$(ProjectDir)..\..\ui\wwwFiles\BaseAssets\**\*" />
 		</ItemGroup>
 		<MakeDir Directories="$(ProjectDir)webroot\baseassets\" />
 		<Copy SourceFiles="@(BaseAssetFiles)" DestinationFiles="@(BaseAssetFiles->'$(ProjectDir)webroot\baseassets\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="layout" content="AdminUI LayoutBuilder Tabbed Body">
+    <meta name="layout-guid" content="{282A5DA4-7CCE-4579-AD26-C7C1D209B963}">
+    <title>AdminUI LayoutBuilder Tabbed Body</title>
+</head>
+<body>
+<style>
+</style>
+
+<div class="afwTabbedBody">
+	<ul class="afwBodyTabs">
+		{{#tabList}}
+		<li class="{{tabClass}} {{#tabActive}}afwTabActive{{/tabActive}}"><a href="{{tabLink}}">{{{tabCaption}}}</a></li>
+		{{/tabList}}
+	</ul>
+	<div class="afwBodyTabBody">
+		{{{body}}}
+	</div>
+</div>
+
+<script>
+</script>
+</body>
+</html>
