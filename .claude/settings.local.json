@@ -100,7 +100,8 @@
       "Bash(test:*)",
       "Bash(powershell -File:*)",
       "Bash(cmd //c \"rd /s /q c:\\\\Git\\\\Contensive5\\\\source\\\\Cli.Installer\")",
-      "Bash(dotnet package search:*)"
+      "Bash(dotnet package search:*)",
+      "WebFetch(domain:www.nuget.org)"
     ]
   }
 }
