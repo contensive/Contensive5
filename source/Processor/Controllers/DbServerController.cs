@@ -60,6 +60,7 @@ namespace Contensive.Processor.Controllers {
                     + "server=" + serverUrl + ";"
                     + "User Id=" + core.secrets.defaultDataSourceUsername + ";"
                     + "Password=" + core.secrets.defaultDataSourcePassword + ";"
+                    + "Encrypt=false;"
                     + "";
                 //
                 // -- add certificate requirement, if true, set yes, if false, no not add it

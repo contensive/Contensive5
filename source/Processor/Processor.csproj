@@ -159,6 +159,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\IisUtil\IisUtil.csproj" Condition="'$(TargetFramework)' == 'net9.0-windows'" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -178,7 +179,6 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.9" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />
-    <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
     <PackageReference Include="MimeMapping" Version="3.1.0" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
@@ -215,6 +215,11 @@
 	<ItemGroup>
     <None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net48\" />
   </ItemGroup>	
+
+  <!-- Include iisutil.dll (managed assembly) in output. The project reference with ReferenceOutputAssembly=false copies the exe, deps.json, and runtimeconfig.json but not the managed dll needed at runtime. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
+    <Content Include="$(MSBuildProjectDirectory)\..\IisUtil\bin\$(Configuration)\net9.0-windows\iisutil.dll" Link="iisutil.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <!-- Download fresh bot detection data before build. On failure (offline/timeout), the committed fallback copies are used. -->
   <Target Name="UpdateBotDetectionData" BeforeTargets="BeforeBuild" Condition="'$(SkipBotDetectionUpdate)' != 'true'">

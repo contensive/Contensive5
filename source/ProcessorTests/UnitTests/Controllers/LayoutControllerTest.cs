@@ -14,30 +14,28 @@ public class LayoutControllerTest {
 
     [TestMethod()]
     public void UpdateLayout_modeBS5_setDefault_Test() {
-        using (CPClass cp = new(testAppName)) {
-            string testGuid = "{test-guid}";
-            string testName = "test-name";
-            string testPathFilename = $"testfile{cp.Utils.GetRandomString(10)}.html";
-            string testContent = cp.Utils.GetRandomString(10);
-            int layoutContentId = cp.Content.GetID("Layouts");
-            cp.CdnFiles.Save(testPathFilename, testContent);
-            cp.core.siteProperties.setProperty("html platform version", 5);
-            //
-            DbBaseModel.delete<LayoutModel>(cp, testGuid);
-            LayoutModel before = DbBaseModel.create<LayoutModel>(cp, testGuid);
-            Assert.IsNull(before);
-            //
-            cp.Layout.updateLayout(testGuid, testName, testPathFilename);
-            //
-            LayoutModel after = DbBaseModel.create<LayoutModel>(cp, testGuid);
-            Assert.AreEqual(testContent, after.layout.content);
-            Assert.AreEqual("", after.layoutPlatform5.content);
-            Assert.AreEqual(testGuid, after.ccguid);
-            Assert.AreEqual(testName, after.name);
-            Assert.AreEqual(layoutContentId, after.contentControlId);
-            //
-            DbBaseModel.delete<LayoutModel>(cp, testGuid);
-        }
+        using CPClass cp = new(testAppName);
+        string testGuid = "{test-guid}";
+        string testName = "test-name";
+        string testPathFilename = $"testfile{cp.Utils.GetRandomString(10)}.html";
+        string testContent = cp.Utils.GetRandomString(10);
+        cp.CdnFiles.Save(testPathFilename, testContent);
+        cp.core.siteProperties.setProperty("html platform version", 5);
+        //
+        DbBaseModel.delete<LayoutModel>(cp, testGuid);
+        LayoutModel before = DbBaseModel.create<LayoutModel>(cp, testGuid);
+        Assert.IsNull(before);
+        //
+        cp.Layout.updateLayout(testGuid, testName, testPathFilename);
+        //
+        LayoutModel after = DbBaseModel.create<LayoutModel>(cp, testGuid);
+        Assert.AreEqual(testContent, after.layout.content);
+        Assert.AreEqual("", after.layoutPlatform5.content);
+        Assert.AreEqual(testGuid, after.ccguid);
+        Assert.AreEqual(testName, after.name);
+        Assert.AreEqual(0, after.contentControlId, "Root content inserts by table name should have contentControlId=0");
+        //
+        DbBaseModel.delete<LayoutModel>(cp, testGuid);
     }
 
     [TestMethod()]
@@ -81,7 +79,6 @@ public class LayoutControllerTest {
             string testName = "test-name";
             string testPathFilename = $"testfile{cp.Utils.GetRandomString(10)}.html";
             string testContent = cp.Utils.GetRandomString(10);
-            int layoutContentId = cp.Content.GetID("Layouts");
             cp.CdnFiles.Save(testPathFilename, testContent);
             cp.core.siteProperties.setProperty("html platform version", 4);
             //
@@ -96,8 +93,7 @@ public class LayoutControllerTest {
             Assert.AreEqual("", after.layoutPlatform5.content);
             Assert.AreEqual(testGuid, after.ccguid);
             Assert.AreEqual(testName, after.name);
-            Assert.AreEqual(layoutContentId, after.contentControlId);
-            //
+            Assert.AreEqual(0, after.contentControlId, "Root content inserts by table name should have contentControlId=0");
             //
             DbBaseModel.delete<LayoutModel>(cp, testGuid);
         }
@@ -110,7 +106,6 @@ public class LayoutControllerTest {
             string testName = "test-name";
             string testPathFilename4 = $"testfile{cp.Utils.GetRandomString(10)}.html";
             string testContent4 = cp.Utils.GetRandomString(10);
-            int layoutContentId = cp.Content.GetID("Layouts");
             cp.CdnFiles.Save(testPathFilename4, testContent4);
             string testPathFilename5 = $"testfile{cp.Utils.GetRandomString(10)}.html";
             string testContent5 = cp.Utils.GetRandomString(10);
@@ -128,8 +123,7 @@ public class LayoutControllerTest {
             Assert.AreEqual(testContent5, after.layoutPlatform5.content);
             Assert.AreEqual(testGuid, after.ccguid);
             Assert.AreEqual(testName, after.name);
-            Assert.AreEqual(layoutContentId, after.contentControlId);
-            //
+            Assert.AreEqual(0, after.contentControlId, "Root content inserts by table name should have contentControlId=0");
             //
             DbBaseModel.delete<LayoutModel>(cp, testGuid);
         }

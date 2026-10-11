@@ -1,14 +1,32 @@
-# Migration to Cross-Platform .NET 9 (Remove Windows Dependency)
+# Migration to Cross-Platform .NET (Remove Windows Dependency)
 
-This document describes the changes required to migrate Contensive 5 from `net9.0-windows` to cross-platform `net9.0`, enabling deployment on Linux (and macOS).
+This document describes the changes required to migrate Contensive 5 to cross-platform targets, enabling deployment on Linux (and macOS).
+
+## Architecture
+
+The solution follows a library/application split:
+
+- **Libraries** target `netstandard2.0` (with optional `net48` dual-target for legacy). This makes them consumable by any .NET Standard 2.0-compatible host — .NET Framework 4.6.1+, .NET Core 2.0+, .NET 5+, etc.
+- **Applications** (executable entry points) target `net9.0`. These are the runnable hosts that reference the libraries.
+
+### Reverse proxy
+
+**Current**: IIS serves as both the web server and application host. On .NET Framework, the application runs in-process inside the IIS worker (`w3wp.exe`). On .NET 9, the `AspNetCoreHostingModel InProcess` setting keeps this same pattern.
+
+**Target**: Kestrel as the application server with Nginx as the reverse proxy, on both Windows and Linux. Kestrel runs the .NET application as its own process. Nginx handles external traffic on ports 80/443 and proxies to Kestrel on a local port. Using the same reverse proxy on both platforms provides a consistent configuration for:
+- TLS termination and certificate management (Let's Encrypt via certbot)
+- URL rewriting (`rewrite` and `location` directives)
+- Static and dynamic response compression (`gzip` / `gzip_proxied`)
+- IP address blocking (`allow` / `deny` directives, `geo` module)
+- Multi-site domain routing with SNI for per-domain TLS
 
 ## Current State
 
-The codebase currently dual-targets `net48` (legacy .NET Framework) and `net9.0-windows` (.NET 9, Windows-only). Several projects also reference Windows-only APIs: IIS management, Windows services, Kernel32 P/Invoke, and WPF.
+The codebase currently dual-targets `net48` (legacy .NET Framework) and `net9.0-windows` (.NET 9, Windows-only). Several projects also reference Windows-only APIs: IIS management, Windows services, and WPF.
 
-Projects already cross-platform (no changes needed):
-- `Models.csproj` — `netstandard2.0`
+Libraries already cross-platform (no changes needed):
 - `CPBase.csproj` — `netstandard2.0`
+- `Models.csproj` — `netstandard2.0`
 - `DashboardWidgets.csproj` — `netstandard2.0`
 - `aoMcp.csproj` — `netstandard2.0`
 
@@ -16,150 +34,288 @@ Projects already cross-platform (no changes needed):
 
 ## Step 1: Change Target Frameworks in Project Files
 
-Update `TargetFramework` / `TargetFrameworks` from `net9.0-windows` to `net9.0` in the following `.csproj` files:
+### Libraries — convert to `netstandard2.0`
+
+Libraries should target `netstandard2.0` (dual-targeted with `net48` for legacy support). This makes them portable across all .NET runtimes without being tied to a specific version.
+
+| Project File | Type | Current | Change To |
+|---|---|---|---|
+| `source/Processor/Processor.csproj` | Library | `net48;net9.0-windows` | `net48;netstandard2.0` |
+
+### Applications — convert to `net9.0`
+
+Applications are executable entry points and must target a concrete runtime. Remove the `-windows` suffix to enable cross-platform deployment.
+
+| Project File | Type | Current | Change To |
+|---|---|---|---|
+| `source/Cli/Cli.csproj` | Application | `net48;net9.0-windows` | `net48;net9.0` |
+| `source/TaskService/TaskService.csproj` | Application | `net9.0-windows` | `net9.0` |
+| `source/WebApi/WebApi.csproj` | Application | `net9.0-windows` | `net9.0` |
+
+### Test projects
 
 | Project File | Current | Change To |
 |---|---|---|
-| `source/Processor/Processor.csproj` | `net48;net9.0-windows` | `net48;net9.0` |
-| `source/Cli/Cli.csproj` | `net48;net9.0-windows` | `net48;net9.0` |
-| `source/TaskService/TaskService.csproj` | `net9.0-windows` | `net9.0` |
-| `source/WebApi/WebApi.csproj` | `net9.0-windows7.0` | `net9.0` |
 | `source/ProcessorTests/ProcessorTests.csproj` | `net48;net9.0-windows` | `net48;net9.0` |
 | `source/ModelsTests/ModelsTests.csproj` | `net48;net9.0-windows` | `net48;net9.0` |
 
-`ContensiveMcpServer.csproj` is already `net9.0` — no change needed.
+Test projects target `net9.0` (not `netstandard2.0`) because test runners need a concrete runtime to execute.
 
 ---
 
-## Step 2: Remove `<UseWPF>true</UseWPF>`
+## ~~Step 2: Remove `<UseWPF>true</UseWPF>`~~ **DONE**
 
-Remove all `<UseWPF>true</UseWPF>` lines from:
-- `source/Processor/Processor.csproj` (line 6)
-- `source/WebApi/WebApi.csproj` (lines 4 and 9 — appears twice)
-
-WPF is a Windows-only desktop UI framework and cannot be used on Linux. If any code actually depends on WPF types (unlikely in a web/server project), those references will surface as build errors and must be replaced.
+- ~~`source/Processor/Processor.csproj`~~ **DONE**
+- ~~`source/WebApi/WebApi.csproj`~~ **DONE**
 
 ---
 
 ## Step 3: Remove or Replace Windows-Only NuGet Packages
 
-### 3a. Remove `Microsoft.Win32.Primitives`
+### 3a. ~~Remove `Microsoft.Win32.Primitives`~~ **DONE**
 
-In `source/Processor/Processor.csproj`, remove:
+~~In `source/Processor/Processor.csproj`, remove:~~
 ```xml
 <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
 ```
-These APIs are included in the .NET 9 runtime already.
+This package reference has been removed. These APIs are included in the .NET 9 runtime already.
 
-### 3b. Remove `System.ServiceProcess.ServiceController`
+### 3b. ~~Remove `System.ServiceProcess.ServiceController`~~ **DONE**
 
-In `source/Processor/Processor.csproj`, remove:
+~~In `source/Processor/Processor.csproj`, remove:~~
 ```xml
 <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.9" />
 ```
-This is Windows-only. Any code using `ServiceController` must be conditionalized behind `#if NET48` or replaced with cross-platform process management.
+~~This is Windows-only.~~ This package reference has been removed.
 
-### 3c. Replace `Microsoft.Extensions.Hosting.WindowsServices`
+### 3c. Add `Microsoft.Extensions.Hosting.Systemd` alongside WindowsServices
 
-This package is used in two projects for Windows service hosting:
-- `source/TaskService/TaskService.csproj`
-- `source/ContensiveMcpServer/ContensiveMcpServer.csproj`
-
-**Option A — Linux-only (systemd):** Replace with `Microsoft.Extensions.Hosting.Systemd`:
-```xml
-<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.0" />
-```
-And in `Program.cs`, replace `UseWindowsService()` with `UseSystemd()`.
-
-**Option B — Support both platforms:** Include both packages and call both methods (each is a no-op when not running on its platform):
+In `source/TaskService/TaskService.csproj`, add the systemd package alongside the existing WindowsServices package. Both packages are no-ops when not running on their respective platform, so they can coexist safely:
 ```xml
 <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.0" />
 <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="9.0.0" />
 ```
+In `Program.cs`, call both:
 ```csharp
 builder.Host.UseWindowsService();
 builder.Host.UseSystemd();
 ```
 
-### 3d. Handle `Microsoft.Web.Administration`
+### 3d. ~~Handle `Microsoft.Web.Administration`~~ **DONE**
 
-In `source/Processor/Processor.csproj`, remove:
+~~In `source/Processor/Processor.csproj`, remove:~~
 ```xml
 <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
 ```
-This is the IIS management API and is Windows/IIS-only. See Step 5 for the code changes required.
+This package reference has been removed. IIS management is now done by shelling out to `iisutil.exe`. See Step 5 for remaining code changes.
+
+### 3e. Remove `Nustache.Core` DLL Reference
+
+In `source/Processor/Processor.csproj`, remove the direct DLL reference and the pack item:
+```xml
+<Reference Include="Nustache.Core">
+    <HintPath>Libs\Nustache.Core.dll</HintPath>
+    <Private>True</Private>
+</Reference>
+```
+```xml
+<None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net48\" />
+```
+
+Nustache is a pre-built .NET Framework DLL (not a NuGet package) used in `source/Processor/Controllers/MustacheController.cs`. The cross-platform replacement `Stubble.Core` is already referenced and integrated — the controller has a Stubble code path toggled by a site property. Make Stubble the default and remove the Nustache code path.
+
+### 3f. Remove `Microsoft.ClearScript`
+
+In `source/Processor/Processor.csproj`, remove:
+```xml
+<PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />
+```
+
+This package provides VBScript and JScript execution via Windows Script Host COM objects (`Microsoft.ClearScript.Windows.VBScriptEngine` and `JScriptEngine`). Used in `source/Processor/Controllers/Addon/AddonScriptController.cs`.
+
+These engines are inherently Windows-only — they wrap `vbscript.dll` and `jscript.dll` COM objects. Options:
+- **JScript**: Can be replaced with ClearScript's cross-platform `V8ScriptEngine` for JavaScript execution
+- **VBScript**: Has no cross-platform alternative. Legacy VBScript addons can only run on Windows deployments. Guard with `OperatingSystem.IsWindows()` or drop VBScript support entirely
 
 ---
 
-## Step 4: Replace the Kernel32 P/Invoke
+## ~~Step 4: Replace the Kernel32 P/Invoke~~ **DONE**
 
-In `source/Processor/Controllers/CoreController.cs` (lines 130–135), there is a Windows-only P/Invoke:
-```csharp
-GetSystemTimePreciseAsFileTime(out long fileTime);
-return DateTimeOffset.FromFileTime(fileTime).DateTime;
-...
-[DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]
-static extern void GetSystemTimePreciseAsFileTime(out long filetime);
-```
-
-Replace with cross-platform .NET:
-```csharp
-return DateTime.UtcNow;
-```
-`DateTime.UtcNow` in .NET 9 provides sufficient precision for server-side timestamp generation. Remove the `DllImport` declaration and the `using System.Runtime.InteropServices` if no longer needed.
+~~In `source/Processor/Controllers/CoreController.cs` (lines 130–135), there is a Windows-only P/Invoke.~~ The `GetSystemTimePreciseAsFileTime` P/Invoke and `DllImport("Kernel32.dll")` have been removed.
 
 ---
 
-## Step 5: Abstract or Remove IIS Management Code
+## ~~Step 5: Abstract or Remove IIS Management Code~~ **DONE**
 
-This is the largest area of work. The following files use `Microsoft.Web.Administration` to manage IIS application pools and sites:
+The `Microsoft.Web.Administration` package reference has been removed. IIS management now shells out to `iisutil.exe` via `Process.Start()`.
 
-- `source/Processor/Controllers/WebServerController.cs` — `verifyAppPool()` method for creating/managing IIS application pools
-- `source/Processor/Models/Domain/DashboardUserConfigModel.cs` — reads IIS configuration for dashboard display
-- `source/Processor/Models/View/DashboardViewModel.cs` — reads IIS configuration for dashboard display
-- `source/Processor/Addons/Tools/IISResetToolClass.cs` — admin tool to restart IIS
+### Completed
 
-### Recommended Approach
+- **iisutil.exe calls gated** — `runIisUtil()`, `isValidBinding()`, and `syncIpBlocksToIIS()` in `WebServerController.cs` now check `RuntimeInformation.IsOSPlatform(OSPlatform.Windows)` and no-op on Linux.
+- **IISReset removed** — The `reset()` method in `WebServerController.cs` is now a no-op. `CPUtilsBaseClass.IISReset()` and `CPUtilsClass.IISReset()` are marked `[Obsolete]` (cannot delete from CPBase due to binary compatibility). The `--iisreset` CLI command prints a message directing users to `--iisrecycle`. The commented-out `IISResetToolClass` reference in `AdminContentController.cs` has been removed.
 
-Create an `IWebServerManager` interface to abstract web server operations, with an IIS implementation (for legacy Windows deployments) and a no-op or Kestrel/Nginx implementation for Linux:
+### Dashboard models — no IIS config reads found
 
-```csharp
-public interface IWebServerManager {
-    void VerifyAppPool(string appName);
-    void RecycleAppPool(string appName);
-    List<WebServerSiteInfo> GetSites();
-}
-```
-
-- **IIS implementation**: wraps current `Microsoft.Web.Administration` calls, only compiled/loaded on Windows
-- **Linux implementation**: no-op for AppPool operations (Kestrel doesn't use them), or shell calls to manage Nginx/reverse proxy configuration
-
-### Files That Reference IIS Indirectly
-
-These files reference IIS reset functionality and need review:
-- `source/Cli/Views/iisresetCmd.cs`
-- `source/Cli/Views/HelpCmd.cs`
-- `source/Cli/mainClass.cs`
-- `source/Processor/Views/CPUtilsClass.cs`
-- `source/CPBase/BaseClasses/CPUtilsBaseClass.cs`
-- `source/Processor/Addons/AdminSite/Controllers/AdminContentController.cs`
+The following Dashboard files were reviewed and **none read IIS configuration**. They manage user widget layout stored in JSON config files under `cp.PrivateFiles`:
+- `source/Processor/Models/Domain/DashboardUserConfigModel.cs`
+- `source/Processor/Models/View/DashboardViewModel.cs`
+- `source/Processor/Models/Domain/DashboardWidgetUserConfigModel.cs`
+- `source/Processor/Models/View/DashboardWidgetViewModel.cs`
+- `source/Processor/Controllers/DashboardWidgetRenderController.cs`
 
 ---
 
-## Step 6: Conditionalize or Remove `AspNetCoreHostingModel`
+## ~~Step 5b: Replace `%comspec%` Shell Execution~~ **DONE**
+
+In `source/Processor/Controllers/GenericController.cs`, the `executeCommandSync()` method now uses `RuntimeInformation.IsOSPlatform()` to select `cmd.exe /c` on Windows or `/bin/sh -c` on Linux.
+
+---
+
+## Step 6: Remove `AspNetCoreHostingModel` and Migrate to Nginx
+
+### 6a. Remove `AspNetCoreHostingModel` from WebApi.csproj
 
 In `source/WebApi/WebApi.csproj`, remove:
 ```xml
 <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
 ```
-`InProcess` hosting is IIS-specific. On Linux with Kestrel, this setting is ignored but should be removed for clarity. If you still need IIS support on Windows, conditionalize it:
-```xml
-<AspNetCoreHostingModel Condition="'$(OS)' == 'Windows_NT'">InProcess</AspNetCoreHostingModel>
+`InProcess` is IIS-specific — it runs the .NET process inside the IIS worker (`w3wp.exe`). With Nginx as the reverse proxy, Kestrel runs as its own process and this setting is no longer relevant.
+
+### 6b. Windows — Convert from IIS to Nginx
+
+**Install Nginx on Windows:**
+1. Download the Windows build from https://nginx.org/en/download.html (mainline or stable)
+2. Extract to `C:\nginx\`
+3. Configure as a Windows service using [WinSW](https://github.com/winsw/winsw) or [NSSM](https://nssm.cc/) so it starts automatically
+
+**Configure Nginx** (`C:\nginx\conf\nginx.conf`):
+```nginx
+worker_processes auto;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    keepalive_timeout 65;
+
+    # -- compression
+    gzip on;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 256;
+
+    # -- per-site config files
+    include C:/nginx/conf/sites-enabled/*.conf;
+}
+```
+
+**Per-site config** (`C:\nginx\conf\sites-enabled\example.com.conf`):
+```nginx
+server {
+    listen 80;
+    server_name example.com www.example.com;
+
+    # -- redirect HTTP to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name example.com www.example.com;
+
+    ssl_certificate     C:/nginx/certs/example.com/fullchain.pem;
+    ssl_certificate_key C:/nginx/certs/example.com/privkey.pem;
+
+    # -- IP blocking
+    # deny 192.168.1.100;
+    # allow all;
+
+    # -- URL rewrites
+    # rewrite ^/old-path$ /new-path permanent;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+**Decommission IIS:**
+1. Stop the IIS site and application pool
+2. Verify Nginx is serving traffic correctly
+3. Remove the IIS site/app pool (keep IIS installed if other apps need it)
+
+### 6c. Linux — Deploy with Nginx
+
+**Install Nginx:**
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install nginx
+
+# Amazon Linux / RHEL
+sudo yum install nginx
+```
+
+**Configure Nginx** (`/etc/nginx/sites-available/example.com.conf`):
+```nginx
+server {
+    listen 80;
+    server_name example.com www.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name example.com www.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    # -- compression
+    gzip on;
+    gzip_proxied any;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 256;
+
+    # -- IP blocking
+    # deny 192.168.1.100;
+    # allow all;
+
+    location / {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+**Enable the site and TLS:**
+```bash
+sudo ln -s /etc/nginx/sites-available/example.com.conf /etc/nginx/sites-enabled/
+sudo certbot --nginx -d example.com -d www.example.com
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
 ---
 
-## Step 7: Update Service Hosting (TaskService and MCP Server)
+## Step 7: Update Service Hosting (TaskService)
 
 ### TaskService (`source/TaskService/Program.cs`)
 
@@ -179,15 +335,6 @@ Host.CreateDefaultBuilder(args)
     })
     .UseSystemd()
 ```
-
-### MCP Server (`source/ContensiveMcpServer/Program.cs`)
-
-Current code:
-```csharp
-builder.Host.UseWindowsService();
-```
-
-Same approach — add `.UseSystemd()` alongside or replace.
 
 ### Systemd Unit File
 
@@ -237,30 +384,9 @@ This project **cannot** be ported to cross-platform .NET 9. Options:
 
 ---
 
-## Step 10: Reverse Proxy Configuration for Linux
+## ~~Step 10: Reverse Proxy Configuration~~ Merged into Step 6
 
-On Windows, IIS acts as the web server. On Linux, the standard approach is:
-- **Kestrel** as the application server (built into ASP.NET Core)
-- **Nginx** or **Caddy** as the reverse proxy in front of Kestrel
-
-Create a sample Nginx configuration (e.g., `deploy/nginx-contensive.conf`):
-```nginx
-server {
-    listen 80;
-    server_name example.com;
-
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection keep-alive;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
+Nginx reverse proxy configuration for both Windows and Linux is documented in Step 6.
 
 ---
 
@@ -325,10 +451,21 @@ After making all changes:
 
 ## Migration Order (Recommended)
 
-1. Steps 1–3: Project file changes (mechanical, low risk)
-2. Step 4: P/Invoke replacement (small, isolated change)
-3. Step 6: Remove `AspNetCoreHostingModel` setting
-4. Step 5: IIS abstraction (largest effort, most design work)
-5. Steps 7–8: Service hosting and path updates
-6. Step 9: Decision on legacy ASPX site
-7. Steps 10–12: Linux deployment infrastructure and testing
+**Already completed:**
+- Step 2: `UseWPF` removed from Processor.csproj and WebApi.csproj
+- Step 3a: `Microsoft.Win32.Primitives` removed
+- Step 3b: `System.ServiceProcess.ServiceController` removed
+- Step 3d: `Microsoft.Web.Administration` package removed (code migrated to iisutil.exe)
+- Step 4: Kernel32 P/Invoke replaced
+- Step 5: IIS management code gated with OS checks, IISReset removed
+- Step 5b: `%comspec%` replaced with cross-platform shell invocation
+
+**Remaining work, in recommended order:**
+1. Steps 3e, 3f: Remove Nustache and ClearScript (prerequisite for Processor `netstandard2.0`)
+2. Step 1: TFM changes — Processor to `net48;netstandard2.0`, applications to `net9.0`
+3. Step 3c: Add systemd hosting package alongside WindowsServices in TaskService
+4. Step 6: Remove `AspNetCoreHostingModel`, deploy Nginx on Windows and Linux
+5. Step 7: TaskService systemd support
+6. Step 8: File paths and deployment scripts
+7. Step 9: Decision on legacy ASPX site
+8. Steps 11–12: Scheduled tasks and build/test

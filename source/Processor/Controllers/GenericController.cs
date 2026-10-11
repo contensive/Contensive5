@@ -2182,8 +2182,17 @@ namespace Contensive.Processor.Controllers {
         public static string executeCommandSync(string command) {
             string result = "";
             try {
+                string shell;
+                string shellArgs;
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+                    shell = "cmd.exe";
+                    shellArgs = $"/c {command}";
+                } else {
+                    shell = "/bin/sh";
+                    shellArgs = $"-c \"{command.Replace("\"", "\\\"")}\"";
+                }
                 Process proc = new System.Diagnostics.Process {
-                    StartInfo = new ProcessStartInfo("%comspec%", "/c " + command) {
+                    StartInfo = new ProcessStartInfo(shell, shellArgs) {
                         RedirectStandardOutput = true,
                         UseShellExecute = false,
                         CreateNoWindow = true

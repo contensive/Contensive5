@@ -527,18 +527,11 @@ namespace Contensive.Processor.Controllers {
         //
         //=======================================================================================
         /// <summary>
-        /// IIS Reset, must be called from an elevated process
+        /// Deprecated. IIS Reset is no longer supported. Use recycle() instead.
         /// </summary>
+        [Obsolete("IISReset is no longer supported. Use recycle() to restart the application pool.", false)]
         public void reset() {
-            try {
-                string logFilename = core.tempFiles.localAbsRootPath + "iisreset-" + getRandomInteger().ToString() + ".Log";
-                string cmd = "IISReset.exe";
-                string arg = "";
-                string stdOut = runProcess(core, cmd, arg, true);
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
-            }
+            // -- no-op, IISReset functionality has been removed
         }
         //
         //=======================================================================================
@@ -1103,6 +1096,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="returnUserMessage">If the binding does not exist, this will contain a user-friendly message.</param>
         public static bool isValidBinding(CPBaseClass cp, string appName, string domainName, ref string returnUserMessage) {
             try {
+                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) { return true; }
                 string iisUtilPath = getIisUtilPath();
                 using var process = new System.Diagnostics.Process();
                 process.StartInfo.FileName = iisUtilPath;
@@ -1183,6 +1177,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="blockedIpAddresses">List of IP addresses to deny. All existing deny entries are replaced.</param>
         public static void syncIpBlocksToIIS(CoreController core, string siteName, List<string> blockedIpAddresses) {
             try {
+                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+                    logger.Info($"{core.logCommonMessage},syncIpBlocksToIIS skipped, not running on Windows");
+                    return;
+                }
                 string ipArgs = string.Join(" ", blockedIpAddresses.Where(ip => !string.IsNullOrWhiteSpace(ip)).Select(ip => $"--ip \"{ip.Trim()}\""));
                 string arguments = $"sync-ip-blocks --name \"{siteName}\" {ipArgs}";
                 string iisUtilPath = getIisUtilPath();
@@ -1221,6 +1219,10 @@ namespace Contensive.Processor.Controllers {
         /// Run iisutil.exe with the given arguments. Throws on non-zero exit code.
         /// </summary>
         private void runIisUtil(string arguments) {
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+                logger.Info($"{core.logCommonMessage},runIisUtil skipped, not running on Windows");
+                return;
+            }
             string iisUtilPath = getIisUtilPath();
             logger.Info($"{core.logCommonMessage},runIisUtil, args=[{arguments}]");
             using var process = new System.Diagnostics.Process();

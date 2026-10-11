@@ -202,45 +202,45 @@ public class ImageControllerTests {
         string dstImageCdnPathFilename_expected;
         if (portraitOrLandscape) {
             // -- portrait
-            srcImageCdnPathFilename_unix = "designblocks/img/SampleTextAndImage.png";
+            srcImageCdnPathFilename_unix = "testFiles/SampleTextAndImage.png";
             if (cropOrPad) {
                 // -- crop
                 if (toWebP) {
                     // -- crop webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-{squareHoleSize}x{squareHoleSize}.webp";
+                    dstImageCdnPathFilename_expected = $"testFiles/SampleTextAndImage-{squareHoleSize}x{squareHoleSize}.webp";
                 } else {
                     // -- crop non-webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-{squareHoleSize}x{squareHoleSize}.png";
+                    dstImageCdnPathFilename_expected = $"testFiles/SampleTextAndImage-{squareHoleSize}x{squareHoleSize}.png";
                 }
             } else {
                 if (toWebP) {
                     // -- pad webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-pad-{squareHoleSize}x{squareHoleSize}.webp";
+                    dstImageCdnPathFilename_expected = $"testFiles/SampleTextAndImage-pad-{squareHoleSize}x{squareHoleSize}.webp";
                 } else {
                     // -- pad non-webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-pad-{squareHoleSize}x{squareHoleSize}.png";
+                    dstImageCdnPathFilename_expected = $"testFiles/SampleTextAndImage-pad-{squareHoleSize}x{squareHoleSize}.png";
                 }
             }
         } else {
             // -- landscpae
-            srcImageCdnPathFilename_unix = "designblocks/img/CarouselSample.png";
-            //srcImageCdnPathFilename_unix = "designblocks/img/CarouselSample.png";
+            srcImageCdnPathFilename_unix = "testFiles/CarouselSample.png";
+            //srcImageCdnPathFilename_unix = "testFiles/CarouselSample.png";
             if (cropOrPad) {
                 // -- crop
                 if (toWebP) {
                     // -- crop webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-{squareHoleSize}x{squareHoleSize}.webp";
+                    dstImageCdnPathFilename_expected = $"testFiles/CarouselSample-{squareHoleSize}x{squareHoleSize}.webp";
                 } else {
                     // -- crop non-webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-{squareHoleSize}x{squareHoleSize}.png";
+                    dstImageCdnPathFilename_expected = $"testFiles/CarouselSample-{squareHoleSize}x{squareHoleSize}.png";
                 }
             } else {
                 if (toWebP) {
                     // -- pad webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-pad-{squareHoleSize}x{squareHoleSize}.webp";
+                    dstImageCdnPathFilename_expected = $"testFiles/CarouselSample-pad-{squareHoleSize}x{squareHoleSize}.webp";
                 } else {
                     // -- pad non-webp
-                    dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-pad-{squareHoleSize}x{squareHoleSize}.png";
+                    dstImageCdnPathFilename_expected = $"testFiles/CarouselSample-pad-{squareHoleSize}x{squareHoleSize}.png";
                 }
             }
         }
@@ -291,9 +291,9 @@ public class ImageControllerTests {
     public void png_resize_src_dos_unix_slash() {
         using (CPClass cp = new(testAppName)) {
             // arrange
-            string srcImageCdnPathFilename_dos = "designblocks\\img\\CarouselSample.png";
-            string srcImageCdnPathFilename_unix = "designblocks/img/CarouselSample.png";
-            string dstImageCdnPathFilename_expected = "designblocks/img/CarouselSample-50x50.png";
+            string srcImageCdnPathFilename_dos = "testFiles\\CarouselSample.png";
+            string srcImageCdnPathFilename_unix = "testFiles/CarouselSample.png";
+            string dstImageCdnPathFilename_expected = "testFiles/CarouselSample-50x50.png";
             //
             // -- delete image if it exists
             cp.CdnFiles.DeleteFile(dstImageCdnPathFilename_expected);
@@ -326,8 +326,8 @@ public class ImageControllerTests {
     public void bad_fileExtension() {
         using (CPClass cp = new(testAppName)) {
             // arrange
-            string srcImageCdnPathFilename_dos = "designblocks\\img\\CarouselSample.bad";
-            string dstImageCdnPathFilename_expected = "designblocks/img/CarouselSample.bad";
+            string srcImageCdnPathFilename_dos = "testFiles\\CarouselSample.bad";
+            string dstImageCdnPathFilename_expected = "testFiles/CarouselSample.bad";
             //
             // -- cannot delete expected
             //
