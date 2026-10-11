@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Xml;
@@ -53,7 +53,6 @@ namespace Contensive.Processor.Controllers {
                 XmlDocument Doc = new XmlDocument();
                 string URL = "https://support.contensive.com/GetCollection?iv=" + CoreController.codeVersion() + "&guid=" + collectionGuid;
                 string errorPrefix = "DownloadCollectionFiles, Error reading the collection library status file from the server for Collection [" + collectionGuid + "], download URL [" + URL + "]. ";
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 int downloadRetry = 0;
                 int downloadDelay = 2000;
                 const int downloadRetryMax = 3;
@@ -66,12 +65,12 @@ namespace Contensive.Processor.Controllers {
                         Thread.Sleep(downloadDelay);
                         //
                         // -- download file
-                        System.Net.WebRequest rq = System.Net.WebRequest.Create(URL);
-                        rq.Timeout = 60000;
-                        System.Net.WebResponse response = rq.GetResponse();
-                        Stream responseStream = response.GetResponseStream();
-                        XmlTextReader reader = new XmlTextReader(responseStream);
-                        Doc.Load(reader);
+                        using (var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(60) }) {
+                            using (Stream responseStream = httpClient.GetStreamAsync(URL).Result) {
+                                XmlTextReader reader = new XmlTextReader(responseStream);
+                                Doc.Load(reader);
+                            }
+                        }
                         break;
                     } catch (Exception ex) {
                         //

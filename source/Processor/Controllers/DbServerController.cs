@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Contensive.Exceptions;
 //
@@ -170,7 +170,7 @@ namespace Contensive.Processor.Controllers {
                         cmdSQL.Parameters.AddWithValue(kvp.Key, kvp.Value ?? DBNull.Value);
                     }
                 }
-                using dynamic adptSQL = new System.Data.SqlClient.SqlDataAdapter(cmdSQL);
+                using var adptSQL = new SqlDataAdapter(cmdSQL);
                 adptSQL.Fill(returnData);
             } catch (Exception ex) {
                 var newEx = new GenericException($"Exception [{ex.Message}] executing master sql [{sql}]", ex);
