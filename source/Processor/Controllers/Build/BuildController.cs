@@ -57,15 +57,6 @@ namespace Contensive.Processor.Controllers.Build {
                         primaryDomain = core.appConfig.domainList[0];
                     }
                     //
-                    // 20180217 - move this before base collection because during install it runs addons (like _oninstall)
-                    // if anything is needed that is not there yet, I need to build a list of adds to run after the app goes to app status ok
-                    // -- Update server config file
-                    logger.Info($"{core.logCommonMessage},{logPrefix}, update configuration file");
-                    if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) {
-                        core.appConfig.appStatus = BaseModels.AppConfigBaseModel.AppStatusEnum.ok;
-                        core.serverConfig.save(core);
-                    }
-                    //
                     // verify current database meets minimum field requirements (before installing base collection)
                     logger.Info($"{core.logCommonMessage},{logPrefix}, verify existing database fields meet requirements");
                     verifySqlfieldCompatibility(core, logPrefix);
@@ -1140,7 +1131,7 @@ namespace Contensive.Processor.Controllers.Build {
                     if (entry == null) {
                         entry = DbBaseModel.addEmpty<NavigatorEntryModel>(core.cpParent);
                         lookupMethod = "addEmpty";
-                        logger.Warn($"{core.logCommonMessage}, verifyNavigatorEntry, created new record, menu [{menu.name}], guid [{menu.guid}], new id [{entry.id}]");
+                        logger.Info($"{core.logCommonMessage}, verifyNavigatorEntry, created new record, menu [{menu.name}], guid [{menu.guid}], new id [{entry.id}]");
                     }
                     logger.Info($"{core.logCommonMessage}, verifyNavigatorEntry, resolved via [{lookupMethod}], menu [{menu.name}], guid [{menu.guid}], entry.id [{entry.id}]");
                     //

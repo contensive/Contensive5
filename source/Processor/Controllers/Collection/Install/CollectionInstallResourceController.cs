@@ -478,14 +478,7 @@ namespace Contensive.Processor.Controllers {
                 string expectedType = recognizedZips[zipFilename];
                 var validAliases = validTypeAliases[zipFilename];
 
-                if (!resourceNodes.ContainsKey(zipFilename)) {
-                    //
-                    // -- missing resource node entirely
-                    logger.Warn($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], " +
-                        $"Misconfigured collection: file [{zipFilename}] exists but has no matching <Resource> node. " +
-                        $"Expected: <Resource Name=\"{zipFilename}\" Type=\"{expectedType}\" /> (without Path attribute). " +
-                        $"This file will not be processed correctly during installation.");
-                } else {
+                if (resourceNodes.ContainsKey(zipFilename)) {
                     var (actualType, actualPath) = resourceNodes[zipFilename];
                     bool typeMatches = validAliases.Contains(actualType);
                     bool hasPath = !string.IsNullOrEmpty(actualPath);
@@ -626,6 +619,53 @@ namespace Contensive.Processor.Controllers {
             }
             foreach (var subFolder in core.tempFiles.getFolderList(folderPath)) {
                 prefixTempHelpFiles(core, $"{folderPath}{subFolder.Name}\\", helpPrefix);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Auto-install recognized UI zip files (layoutFiles.zip, wwwFiles.zip, cdnFiles.zip,
+        /// privateFiles.zip, helpFiles.zip) that exist in the collection folder but have no
+        /// matching Resource node in the collection XML. Creates a synthetic XmlNode and
+        /// delegates to installResourceNode so all existing install logic is reused.
+        /// </summary>
+        internal static void installRecognizedZipsWithoutResourceNodes(CoreController core, string collectionName, string collectionGuid, string collectionVersionFolder, XmlDocument collectionXml, ResourceManifestModel resourceManifest, HashSet<string> trackedFolders, List<string> assembliesInZip, ref string wwwFileList, ref string contentFileList, ref string execFileList, ref string layoutFileList) {
+            //
+            // -- recognized UI zip filenames and their expected resource type
+            var recognizedZips = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                { "layoutFiles.zip", "layoutFiles" },
+                { "wwwFiles.zip", "wwwFiles" },
+                { "cdnFiles.zip", "cdnFiles" },
+                { "privateFiles.zip", "privateFiles" },
+                { "helpFiles.zip", "helpFiles" }
+            };
+            //
+            // -- build set of zip filenames that already have a Resource node in the XML
+            var resourcedZips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (XmlNode node in collectionXml.DocumentElement.ChildNodes) {
+                if (node.Name.Equals("resource", StringComparison.OrdinalIgnoreCase)) {
+                    string name = XmlController.getXMLAttribute(core, node, "name", "");
+                    if (recognizedZips.ContainsKey(name)) {
+                        resourcedZips.Add(name);
+                    }
+                }
+            }
+            //
+            // -- find recognized zips that exist in the folder but have no Resource node
+            foreach (var file in core.privateFiles.getFileList(collectionVersionFolder)) {
+                if (!recognizedZips.ContainsKey(file.Name)) { continue; }
+                if (resourcedZips.Contains(file.Name)) { continue; }
+                //
+                // -- this recognized zip has no Resource node; create a synthetic node and install it
+                string resourceType = recognizedZips[file.Name];
+                logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], auto-installing [{file.Name}] as resource type [{resourceType}] (no <Resource> node found in collection XML).");
+                //
+                var syntheticNode = collectionXml.CreateElement("Resource");
+                syntheticNode.SetAttribute("name", file.Name);
+                syntheticNode.SetAttribute("type", resourceType);
+                syntheticNode.SetAttribute("path", "");
+                //
+                installResourceNode(core, syntheticNode, collectionName, collectionGuid, collectionVersionFolder, resourceManifest, trackedFolders, assembliesInZip, ref wwwFileList, ref contentFileList, ref execFileList, ref layoutFileList);
             }
         }
         //

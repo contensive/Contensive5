@@ -73,6 +73,16 @@ namespace Contensive.Processor.Controllers {
 
                     CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, baseCollectionXml, isNewBuild, installDependencies, true, logPrefix);
                 }
+                //
+                // -- Set appStatus to ok after base collection tables exist but before dependencies install.
+                //    The task service gates on appStatus==ok, so this must happen after tables like cctasks
+                //    and ccAddonEvents are created (by the metadata install above).
+                //    _onInstall addons also need appStatus==ok, and they run later during the full install.
+                if (!core.appConfig.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
+                    logger.Info($"{core.logCommonMessage}, installBaseCollection, set appStatus ok, base tables verified");
+                    core.appConfig.appStatus = AppConfigModel.AppStatusEnum.ok;
+                    core.serverConfig.save(core);
+                }
                 {
                     //
                     // now copy all program files to a temp folder and create a zip (xml plus any resources installed) and install
@@ -396,6 +406,9 @@ namespace Contensive.Processor.Controllers {
                                     ExecFileList = ExecFileList + Environment.NewLine + filename;
                                 }
                                 //
+                                // -- auto-install recognized UI zip files that have no Resource node in the XML
+                                CollectionInstallResourceController.installRecognizedZipsWithoutResourceNodes(core, CollectionName, collectionGuid, CollectionVersionFolder, Doc, resourceManifest, trackedFolders, assembliesInZip, ref wwwFileList, ref ContentFileList, ref ExecFileList, ref layoutFileList);
+                                //
                                 // -- validate resource nodes for recognized UI zip files
                                 CollectionInstallResourceController.validateResourceNodes(core, CollectionName, collectionGuid, CollectionVersionFolder, Doc);
                                 //
@@ -621,8 +634,8 @@ namespace Contensive.Processor.Controllers {
                                                                     // create or update the record
                                                                     ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
                                                                     if (metaData == null) {
-                                                                        logger.Warn($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], content definition not found: [{ContentName}]");
-                                                                        return_ErrorMessage.errors.Add($"Data record for content [{ContentName}] could not be installed because the content definition was not found.");
+                                                                        logger.Warn($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], content definition [{ContentName}] not found while installing data record (recordName [{ContentRecordName}], recordGuid [{ContentRecordGuid}]). Ensure this content definition is included in the collection XML or in a dependency.");
+                                                                        return_ErrorMessage.errors.Add($"Data record for content [{ContentName}] could not be installed because the content definition was not found. Record name [{ContentRecordName}], guid [{ContentRecordGuid}].");
                                                                         continue;
                                                                     }
                                                                     using var csData = new CsModel(core);
@@ -926,8 +939,8 @@ namespace Contensive.Processor.Controllers {
                         if ((!string.IsNullOrEmpty(contentRecordGuid)) || (!string.IsNullOrEmpty(contentRecordName))) {
                             ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, contentName);
                             if (metaData == null) {
-                                logger.Warn($"{core.logCommonMessage}, installDataNode, content definition not found: [{contentName}]");
-                                return_ErrorMessage.errors.Add($"Data record for content [{contentName}] could not be installed because the content definition was not found.");
+                                logger.Warn($"{core.logCommonMessage}, CollectionName [{collection.name}], GUID [{collection.ccguid}], installDataNode, content definition [{contentName}] not found while installing data record (recordName [{contentRecordName}], recordGuid [{contentRecordGuid}]). Ensure this content definition is included in the collection XML or in a dependency.");
+                                return_ErrorMessage.errors.Add($"Data record for content [{contentName}] could not be installed because the content definition was not found. Record name [{contentRecordName}], guid [{contentRecordGuid}].");
                                 continue;
                             }
                             bool isPageContent = metaData.name.ToLower().Equals("page content");
