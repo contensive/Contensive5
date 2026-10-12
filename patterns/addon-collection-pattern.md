@@ -452,7 +452,7 @@ Declare files to be deployed during installation. No path is needed for type="la
 | Attribute | Description |
 |-----------|-------------|
 | `Name` | Filename of the resource (must be included in the collection package) |
-| `Type` | Target location: `www` (web root wwwroot), `content`/`cdn`/`cdnfiles`/`files` (cdn files), `privatefiles` (private files), `helpfiles` (help files), `layout` (split by extension, see below) |
+| `Type` | Target location: `www` (web root wwwroot), `content`/`cdn`/`cdnfiles`/`files` (cdn files), `privatefiles` (private files), `helpfiles` (help files), `layout` (split by extension, see below). See [Filesystem Architecture Pattern](filesystem-architecture-pattern.md) for how these target filesystems operate at runtime. |
 | `Path` | Subfolder path within the target location |
 
 ### Layout Resources (`Type="layout"`)

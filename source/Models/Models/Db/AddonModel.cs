@@ -248,12 +248,12 @@ namespace Contensive.Models.Db {
         //
         /// <summary>
         /// return true if the cssUrl is local so it can be read from either www or cdn. 
-        /// not local if length<6
+        /// not local if length lt 6
         /// includes double-dot
-        /// starts with <, //, http:, https:
+        /// starts with &lt;, //, http:, https:
         /// </summary>
         /// <param name="cp"></param>
-        /// <param name="addon"></param>
+        /// <param name="assetUrl"></param>
         /// <returns></returns>
         public static bool isAssetUrlLocal(CPBaseClass cp, string assetUrl) {
             if (string.IsNullOrEmpty(assetUrl)) { return false; }
@@ -268,7 +268,8 @@ namespace Contensive.Models.Db {
         /// return either framework5 or framework4 cssUrl.
         /// </summary>
         /// <param name="cp"></param>
-        /// <param name="addon"></param>
+        /// <param name="platform5Asset"></param>
+        /// <param name="defaultAsset"></param>
         /// <returns></returns>
         public static string  getPlatformAsset(CPBaseClass cp,  string platform5Asset, string defaultAsset) {
             string cssUrl = (cp.Site.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(platform5Asset)) ? platform5Asset : defaultAsset;

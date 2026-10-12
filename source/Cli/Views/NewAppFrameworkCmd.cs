@@ -195,9 +195,9 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\files\\";
                             appConfig.localPrivatePath = $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\private\\";
                             appConfig.localTempPath = $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\temp\\";
-                            appConfig.remoteWwwPath = "";
-                            appConfig.remoteFilePath = "";
-                            appConfig.remotePrivatePath = "";
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
                             appConfig.cdnFileUrl = $"/{appConfig.name}/files/";
                         } else {
                             //
@@ -221,9 +221,9 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = GenericController.promptForReply("cdn files", $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\files\\");
                             appConfig.localPrivatePath = GenericController.promptForReply("private files", $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\private\\");
                             appConfig.localTempPath = GenericController.promptForReply("temp files (ephemeral storage)", $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\temp\\");
-                            appConfig.remoteWwwPath = "";
-                            appConfig.remoteFilePath = "";
-                            appConfig.remotePrivatePath = "";
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
                             appConfig.cdnFileUrl = GenericController.promptForReply("files Url (typically a virtual path on the application website)", $"/{appConfig.name}/files/");
                         } else {
                             //

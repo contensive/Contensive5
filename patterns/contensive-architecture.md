@@ -105,6 +105,8 @@ In a Contensive installation, you can create one or more Contensive Applcations.
 4) A file system named wwwRoot that is shared with all other instances of this Contensive node and shares file in the webserver
 5) a file system named privateFiles that is shared with all other instances of this Contensive node, but is not shared publically.
 
+For detailed information on how these filesystems operate in local vs remote (S3) mode, multi-server deployments, and migration between modes, see [Filesystem Architecture Pattern](filesystem-architecture-pattern.md).
+
 There are three primary Contensive execution environments.
 1) The command line tool cc.exe with access to all applications in the node
 2) The Windows Service ContensiveTaskService.exe  with access to all applications in the node

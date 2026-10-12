@@ -53,6 +53,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonListItem"></param>
+        /// <param name="executeContext"></param>
         public static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
             cp.Doc.SetProperty("instanceId", addonListItem.instanceGuid);
             return cp.Addon.Execute(addonListItem.designBlockTypeGuid, executeContext).ToString();
@@ -64,6 +65,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
+        /// <param name="executeContext"></param>
         public static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
             bool isEditing = cp.User.IsEditing();
             var result = new StringBuilder();
@@ -98,6 +100,8 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonListItem"></param>
+        /// <param name="Addon"></param>
+        /// <param name="executeContext"></param>
         public static void renderEdit(CPBaseClass cp, AddonListItemModel addonListItem, AddonModel Addon, CPUtilsBaseClass.addonExecuteContext executeContext) {
             int assetSkipCnt = cp.Doc.HtmlAssetList.Count;
             if (Addon != null) {
@@ -170,6 +174,7 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
+        /// <param name="executeContext"></param>
         public static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
             foreach (var addonListItem in addonList) {
                 if (addonListItem.columns != null) {
@@ -192,7 +197,6 @@ namespace Contensive.Processor.Models {
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
         /// <param name="instanceGuid"></param>
-        /// <param name="errorMessage"></param>
         /// <returns></returns>
         public static bool deleteInstance(CPBaseClass cp, List<AddonListItemModel> addonList, string instanceGuid) {
             foreach (var addon in addonList) {

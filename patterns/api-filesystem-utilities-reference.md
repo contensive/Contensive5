@@ -17,6 +17,8 @@ Four filesystem instances are available, each for a different purpose:
 | `cp.PrivateFiles` | Private storage — not web-accessible |
 | `cp.TempFiles` | Temporary files — auto-deleted periodically |
 
+For architecture details including local vs remote (S3) storage modes, multi-server deployments, and the staleness/sync behavior, see [Filesystem Architecture Pattern](filesystem-architecture-pattern.md).
+
 All share the same API:
 
 ### Read/Write

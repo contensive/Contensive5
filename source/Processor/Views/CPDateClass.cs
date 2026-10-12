@@ -19,7 +19,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
 #pragma warning disable CS0618 // Suppress obsolete warning for required override
-        public override TimeZone TimeZone => throw new NotImplementedException();
+         public override TimeZone TimeZone => throw new NotImplementedException();
 #pragma warning restore CS0618
         //
         //====================================================================================================

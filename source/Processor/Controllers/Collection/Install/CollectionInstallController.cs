@@ -1203,7 +1203,6 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
-                    string parentAddonName = "?";
                     string addonName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
                     if (string.IsNullOrEmpty(addonName)) { addonName = "No Name"; }
                     string addonGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", addonName);

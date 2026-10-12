@@ -161,6 +161,14 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+dotnet build IisUtil/IisUtil.csproj --no-incremental --no-dependencies /property:Version=%versionNumber%
+if errorlevel 1 (
+   echo.
+   echo FAILURE building IisUtil
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
 dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
 if errorlevel 1 (
    echo.
