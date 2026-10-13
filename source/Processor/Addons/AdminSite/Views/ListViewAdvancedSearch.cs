@@ -72,14 +72,10 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 Controllers.EditRefererStackController.initializeRefererStack(core);
                 //
-                string SearchValue = null;
-                FindWordMatchEnum MatchOption = 0;
                 ContentMetadataModel CDef = null;
                 string FieldName = null;
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
                 int FieldPtr = 0;
-                bool RowEven = false;
-                string RQS = null;
                 string[] FieldNames = { };
                 string[] FieldCaption = { };
                 int[] fieldId = null;
@@ -92,7 +88,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                 int ContentId = 0;
                 int FieldCnt = 0;
                 int FieldSize = 0;
-                int RowPointer = 0;
                 string LeftButtons = "";
                 string ButtonBar = null;
                 string Title = null;
@@ -100,7 +95,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string Content = null;
                 //
                 GridConfigClass gridConfig = new(core, adminData);
-                RQS = core.doc.refreshQueryString;
                 //
                 // ----- ButtonBar
                 //
@@ -172,88 +166,62 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 FieldCnt = FieldPtr;
                 //
-                // Add headers to stream
+                // -- sort fields alphabetically by caption
+                var sortedIndices = new int[FieldCnt];
+                for (int i = 0; i < FieldCnt; i++) { sortedIndices[i] = i; }
+                Array.Sort(sortedIndices, (a, b) => string.Compare(FieldCaption[a] ?? "", FieldCaption[b] ?? "", StringComparison.OrdinalIgnoreCase));
                 //
-                returnForm = returnForm + "<table border=0 width=100% cellspacing=0 cellpadding=4>";
-                //
-                RowPointer = 0;
-                for (FieldPtr = 0; FieldPtr < FieldCnt; FieldPtr++) {
-                    returnForm = returnForm + HtmlController.inputHidden("fieldname" + FieldPtr, FieldNames[FieldPtr]);
-                    RowEven = ((RowPointer % 2) == 0);
+                // -- build rows using getEditRow pattern (caption on top, indented content below)
+                for (int sortIdx = 0; sortIdx < FieldCnt; sortIdx++) {
+                    FieldPtr = sortedIndices[sortIdx];
+                    returnForm += HtmlController.inputHidden("fieldname" + FieldPtr, FieldNames[FieldPtr]);
                     FieldMatchOption = FieldMatchOptions[FieldPtr];
+                    string radioOptions = "";
+                    string valueInput = "";
                     switch (fieldTypeId[FieldPtr]) {
                         case CPContentBaseClass.FieldTypeIdEnum.Date:
                             //
-                            // Date
-
-                            returnForm = returnForm + "<tr>"
-                                + "<td class=\"ccAdminEditCaption align-middle p-2\">" + FieldCaption[FieldPtr] + "</td>"
-                                + "<td class=\"ccAdminEditField p-2\">"
-                                + "<div style=\"display:block;float:left;width:800px;\">"
-                                + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "m-2") + "ignore</div>"
-                                + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "empty</div>"
-                                + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "not&nbsp;empty</div>"
-                                + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEquals).ToString(), FieldMatchOption.ToString(), "", "m-2") + "=</div>"
-                                + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchGreaterThan).ToString(), FieldMatchOption.ToString(), "", "m-2") + "&gt;</div>"
-                                + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchLessThan).ToString(), FieldMatchOption.ToString(), "", "m-2") + "&lt;</div>"
-                                + "<div style=\"display:block;float:left;width:300px;\">" + HtmlController.inputDate(core, "fieldvalue" + FieldPtr, getDate(FieldValue[FieldPtr])).Replace(">", " onFocus=\"ccAdvSearchText\">") + "</div>"
-                                + "</div>"
-                                + "</td>"
-                                + "</tr>";
+                            // -- Date
+                            radioOptions = ""
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "me-1")} ignore</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} not empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEquals).ToString(), FieldMatchOption.ToString(), "", "me-1")} =</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchGreaterThan).ToString(), FieldMatchOption.ToString(), "", "me-1")} &gt;</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchLessThan).ToString(), FieldMatchOption.ToString(), "", "me-1")} &lt;</label>";
+                            valueInput = HtmlController.inputDate(core, "fieldvalue" + FieldPtr, getDate(FieldValue[FieldPtr]));
                             break;
                         case CPContentBaseClass.FieldTypeIdEnum.Currency:
                         case CPContentBaseClass.FieldTypeIdEnum.Float:
                         case CPContentBaseClass.FieldTypeIdEnum.Integer:
                         case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
                             //
-                            // -- Numeric - changed FindWordMatchEnum.MatchEquals to MatchInclude to be compatible with Find Search
-                            returnForm = returnForm + "<tr>"
-                            + "<td class=\"ccAdminEditCaption align-middle p-2\">" + FieldCaption[FieldPtr] + "</td>"
-                            + "<td class=\"ccAdminEditField p-2\">"
-                            + "<div style=\"display:block;float:left;width:800px;\">"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "m-2") + "ignore</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "empty</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "not&nbsp;empty</div>"
-                            + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.matchincludes).ToString(), FieldMatchOption.ToString(), "n" + FieldPtr) + "=</div>"
-                            + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchGreaterThan).ToString(), FieldMatchOption.ToString(), "", "m-2") + "&gt;</div>"
-                            + "<div style=\"display:block;float:left;width:50px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchLessThan).ToString(), FieldMatchOption.ToString(), "", "m-2") + "&lt;</div>"
-                            + "<div style=\"display:block;float:left;width:300px;\">" + HtmlController.inputText_Legacy(core, "fieldvalue" + FieldPtr, FieldValue[FieldPtr], 1, 5, "", false, false, "ccAdvSearchText").Replace(">", " onFocus=\"var e=getElementById('n" + FieldPtr + "');e.checked=1;\">") + "</div>"
-                            + "</div>"
-                            + "</td>"
-                            + "</tr>";
-                            RowPointer += 1;
+                            // -- Numeric
+                            radioOptions = ""
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "me-1")} ignore</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} not empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.matchincludes).ToString(), FieldMatchOption.ToString(), $"n{FieldPtr}", "me-1")} =</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchGreaterThan).ToString(), FieldMatchOption.ToString(), "", "me-1")} &gt;</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchLessThan).ToString(), FieldMatchOption.ToString(), "", "me-1")} &lt;</label>";
+                            valueInput = HtmlController.inputText_Legacy(core, "fieldvalue" + FieldPtr, FieldValue[FieldPtr], 1, 5, "", false, false, "ccAdvSearchText").Replace(">", $" onFocus=\"var e=getElementById('n{FieldPtr}');e.checked=1;\">");
                             break;
                         case CPContentBaseClass.FieldTypeIdEnum.File:
                         case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                             //
-                            // File
-                            //
-                            returnForm = returnForm + "<tr>"
-                            + "<td class=\"ccAdminEditCaption align-middle p-2\">" + FieldCaption[FieldPtr] + "</td>"
-                            + "<td class=\"ccAdminEditField p-2\">"
-                            + "<div style=\"display:block;float:left;width:800px;\">"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "m-2") + "ignore</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "empty</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "not&nbsp;empty</div>"
-                            + "</div>"
-                            + "</td>"
-                            + "</tr>";
-                            RowPointer = RowPointer + 1;
+                            // -- File
+                            radioOptions = ""
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "me-1")} ignore</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} not empty</label>";
                             break;
                         case CPContentBaseClass.FieldTypeIdEnum.Boolean:
                             //
-                            // Boolean
-                            //
-                            returnForm = returnForm + "<tr>"
-                            + "<td class=\"ccAdminEditCaption align-middle p-2\">" + FieldCaption[FieldPtr] + "</td>"
-                            + "<td class=\"ccAdminEditField p-2\">"
-                            + "<div style=\"display:block;float:left;width:800px;\">"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "m-2") + "ignore</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchTrue).ToString(), FieldMatchOption.ToString(), "", "m-2") + "true</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchFalse).ToString(), FieldMatchOption.ToString(), "", "m-2") + "false</div>"
-                            + "</div>"
-                            + "</td>"
-                            + "</tr>";
+                            // -- Boolean
+                            radioOptions = ""
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "me-1")} ignore</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchTrue).ToString(), FieldMatchOption.ToString(), "", "me-1")} true</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchFalse).ToString(), FieldMatchOption.ToString(), "", "me-1")} false</label>";
                             break;
                         case CPContentBaseClass.FieldTypeIdEnum.Text:
                         case CPContentBaseClass.FieldTypeIdEnum.LongText:
@@ -265,47 +233,34 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                         case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                             //
-                            // Text
-                            //
-                            returnForm = returnForm + "<tr>"
-                            + "<td class=\"ccAdminEditCaption align-middle p-2\">" + FieldCaption[FieldPtr] + "</td>"
-                            + "<td class=\"ccAdminEditField p-2\">"
-                            + "<div style=\"display:block;float:left;width:800px;\">"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "m-2") + "ignore</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "empty</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "not&nbsp;empty</div>"
-                            + "<div style=\"display:block;float:left;width:150px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.matchincludes).ToString(), FieldMatchOption.ToString(), "t" + FieldPtr, "m-2") + "includes</div>"
-                            + "<div style=\"display:block;float:left;width:300px;\">" + HtmlController.inputText_Legacy(core, "fieldvalue" + FieldPtr, FieldValue[FieldPtr], 1, 5, "", false, false, "ccAdvSearchText").Replace(">", " onFocus=\"var e=getElementById('t" + FieldPtr + "');e.checked=1;\">") + "</div>"
-                            + "</div>"
-                            + "</td>"
-                            + "</tr>";
-                            RowPointer = RowPointer + 1;
+                            // -- Text
+                            radioOptions = ""
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "me-1")} ignore</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} not empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.matchincludes).ToString(), FieldMatchOption.ToString(), $"t{FieldPtr}", "me-1")} includes</label>";
+                            valueInput = HtmlController.inputText_Legacy(core, "fieldvalue" + FieldPtr, FieldValue[FieldPtr], 1, 5, "", false, false, "ccAdvSearchText").Replace(">", $" onFocus=\"var e=getElementById('t{FieldPtr}');e.checked=1;\">");
                             break;
                         case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                         case CPContentBaseClass.FieldTypeIdEnum.MemberSelect:
                             //
-                            // Lookup
-                            returnForm = returnForm + "<tr>"
-                            + "<td class=\"ccAdminEditCaption align-middle p-2\">" + FieldCaption[FieldPtr] + "</td>"
-                            + "<td class=\"ccAdminEditField p-2\">"
-                            + "<div style=\"display:block;float:left;width:800px;\">"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "m-2") + "ignore</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "empty</div>"
-                            + "<div style=\"display:block;float:left;width:100px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "m-2") + "not&nbsp;empty</div>"
-                            + "<div style=\"display:block;float:left;width:150px;\">" + HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.matchincludes).ToString(), FieldMatchOption.ToString(), "t" + FieldPtr, "m-2") + "includes</div>"
-                            + "<div style=\"display:block;float:left;width:300px;\">" + HtmlController.inputText_Legacy(core, "fieldvalue" + FieldPtr, FieldValue[FieldPtr], 1, 5, "", false, false, "ccAdvSearchText").Replace(">", " onFocus=\"var e=getElementById('t" + FieldPtr + "'); e.checked= 1;\">") + "</div>"
-                            + "</div>"
-                            + "</td>"
-                            + "</tr>";
-                            RowPointer = RowPointer + 1;
+                            // -- Lookup
+                            radioOptions = ""
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchIgnore).ToString(), FieldMatchOption.ToString(), "", "me-1")} ignore</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.MatchNotEmpty).ToString(), FieldMatchOption.ToString(), "", "me-1")} not empty</label>"
+                                + $"<label class=\"d-inline-flex align-items-center me-3\">{HtmlController.inputRadio("FieldMatch" + FieldPtr, ((int)FindWordMatchEnum.matchincludes).ToString(), FieldMatchOption.ToString(), $"t{FieldPtr}", "me-1")} includes</label>";
+                            valueInput = HtmlController.inputText_Legacy(core, "fieldvalue" + FieldPtr, FieldValue[FieldPtr], 1, 5, "", false, false, "ccAdvSearchText").Replace(">", $" onFocus=\"var e=getElementById('t{FieldPtr}');e.checked=1;\">");
                             break;
+                        default:
+                            continue;
                     }
+                    string editorHtml = $"<div class=\"d-flex flex-wrap align-items-center mb-1\">{radioOptions}</div>";
+                    if (!string.IsNullOrEmpty(valueInput)) {
+                        editorHtml += $"<div class=\"mt-1\" style=\"max-width:300px;\">{valueInput}</div>";
+                    }
+                    returnForm += AdminUIController.getEditRow(core, editorHtml, FieldCaption[FieldPtr], "", false);
                 }
-                returnForm = returnForm + HtmlController.tableRowStart();
-                returnForm = returnForm + HtmlController.tableCellStart("120", 1, RowEven, "right") + "<img src=" + cdnPrefix + "images/spacer.gif width=120 height=1></td>";
-                returnForm = returnForm + HtmlController.tableCellStart("99%", 1, RowEven, "left") + "<img src=" + cdnPrefix + "images/spacer.gif width=1 height=1></td>";
-                returnForm = returnForm + kmaEndTableRow;
-                returnForm = returnForm + "</table>";
                 Content = returnForm;
                 //
                 // Assemble LiveWindowTable
