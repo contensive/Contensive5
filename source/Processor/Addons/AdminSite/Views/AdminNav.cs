@@ -132,6 +132,25 @@ namespace Contensive.Processor.Addons.AdminSite {
         public List<string> secondaries { get; set; }
         public bool hasForwards { get { return (forwards != null) && (forwards.Count > 0); } }
         public List<string> forwards { get; set; }
-
+        /// <summary>
+        /// true if there is exactly one domain total, so the nav renders a direct link instead of a flyout
+        /// </summary>
+        public bool isSingleDomain {
+            get {
+                int count = (primaries?.Count ?? 0) + (secondaries?.Count ?? 0) + (forwards?.Count ?? 0);
+                return count == 1;
+            }
+        }
+        /// <summary>
+        /// the single domain name, used when isSingleDomain is true
+        /// </summary>
+        public string singleDomainName {
+            get {
+                if (primaries?.Count > 0) { return primaries[0]; }
+                if (secondaries?.Count > 0) { return secondaries[0]; }
+                if (forwards?.Count > 0) { return forwards[0]; }
+                return "";
+            }
+        }
     }
 }

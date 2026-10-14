@@ -541,6 +541,16 @@
                 <button class="rounded-circle border-0 mt-3 mb-2" id="sidebarToggle"><i class="fa-solid fa-angle-right"></i></button>
             </div>
             {{#publicDomains}}
+              {{#isSingleDomain}}
+              <li class="nav-item">
+                  <a class="nav-link" href="https://{{singleDomainName}}" target="_blank" title="Public Site">
+                      <i class="fa-solid fa-fw fa-globe"></i>
+                      <span>Public Site</span>
+                  </a>
+              </li>
+              <hr class="sidebar-divider my-0">
+              {{/isSingleDomain}}
+              {{^isSingleDomain}}
               <li class="nav-item">
                   <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#publicSiteCollapse" aria-expanded="true" aria-controls="publicSiteCollapse" title="Public Site">
                       <i class="fa-solid fa-fw fa-globe"></i>
@@ -576,6 +586,7 @@
                   </div>
               </li>
               <hr class="sidebar-divider my-0">
+              {{/isSingleDomain}}
             {{/publicDomains}}
 
             <li class="nav-item {{#isAdminUrl}}active{{/isAdminUrl}}">
