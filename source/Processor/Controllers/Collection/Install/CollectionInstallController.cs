@@ -183,10 +183,6 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage}, [" + collectionGuid + "] was not installed because it was previously installed during this installation.");
                     return true;
                 }
-                // -- collection needs to be installed
-                if (!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
-                    collectionsInstalledList.Add(collectionGuid.ToLower(CultureInfo.InvariantCulture));
-                }
                 //
                 contextHint = "before-getCollectionFolderConfig";
                 var collectionFolderConfig = CollectionFolderModel.getCollectionFolderConfig(core, collectionGuid);
@@ -194,9 +190,14 @@ namespace Contensive.Processor.Controllers {
                 if ((collectionFolderConfig == null) || string.IsNullOrEmpty(collectionFolderConfig.path)) {
                     //
                     // -- ERROR, collection folder not found
-                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder not found.");
-                    return_ErrorMessage.errors.Add($"The collection [{collectionGuid}] was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally [{contextHint}].");
+                    string collectionDisplayName = (collectionFolderConfig != null && !string.IsNullOrEmpty(collectionFolderConfig.name)) ? collectionFolderConfig.name : collectionGuid;
+                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{collectionGuid}], collection folder not found.");
+                    return_ErrorMessage.errors.Add($"The collection [{collectionDisplayName}] was not installed because its resource folder could not be found. Try re-downloading the collection from the Add-on Manager or manually uploading the collection zip file.");
                     return false;
+                }
+                // -- collection folder found, mark it installed to prevent circular installs
+                if (!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
+                    collectionsInstalledList.Add(collectionGuid.ToLower(CultureInfo.InvariantCulture));
                 }
                 //
                 // Search Local Collection Folder for collection config file (xml file)
@@ -388,7 +389,8 @@ namespace Contensive.Processor.Controllers {
                                                     // -- all included collections should already be installed, because buildfolder is called before call
                                                     contextHint = $"before-recursive-call-dependency-{ChildCollectionGUId}";
                                                     if (!installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall, $"dependency-of-{CollectionName}")) {
-                                                        return_ErrorMessage.warnings.Add($"The collection [{CollectionName}] installed, but dependency [{ChildCollectionName}, {ChildCollectionGUId}] could not be installed.");
+                                                        string dependencyDisplay = string.IsNullOrEmpty(ChildCollectionName) ? ChildCollectionGUId : ChildCollectionName;
+                                                        return_ErrorMessage.warnings.Add($"The collection [{CollectionName}] installed, but dependency [{dependencyDisplay}] could not be installed. Try installing [{dependencyDisplay}] separately from the Add-on Manager.");
                                                     }
                                                     contextHint = $"after-recursive-call-dependency-{ChildCollectionGUId}";
                                                 }

@@ -291,12 +291,18 @@ namespace Contensive.Processor.Controllers {
                     executeContext.forceJavascriptToHead = executeContext.forceJavascriptToHead || addon.javascriptForceHead;
                     //
                     // -- run included add-ons before their parent
-                    foreach (var dependentAddon in core.cacheRuntime.addonCache.getDependsOnList(addon.id)) {
+                    foreach (int dependentAddonId in core.cacheRuntime.addonCache.getDependsOnIdList(addon.id)) {
+                        var dependentAddon = core.cacheRuntime.addonCache.create(dependentAddonId);
                         if (dependentAddon == null) {
-                            logger.Warn($"{core.logCommonMessage}, Dependent addon not found. An included addon of [{addon.name}] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [{addon.name}] or manually correct the included addon selection.");
+                            string collectionName = "";
+                            if (addon.collectionId > 0) {
+                                var collection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, addon.collectionId);
+                                if (collection != null) { collectionName = collection.name; }
+                            }
+                            logger.Warn($"{core.logCommonMessage}, Dependent addon not found. An included addon (id={dependentAddonId}) of [{addon.name}] was not found. The included addon may have been deleted. Reinstall [{addon.name}] by reinstalling its collection [{collectionName}] to rebuild the dependency.");
                             continue;
                         }
-                        executeContext.errorContextMessage = "adding dependent addon [" + dependentAddon.name + "] for addon [" + addon.name + "] called within context [" + executeContext.errorContextMessage + "]";
+                        executeContext.errorContextMessage = $"adding dependent addon [{dependentAddon.name}] for addon [{addon.name}] called within context [{executeContext.errorContextMessage}]";
                         result.Append(executeDependency(dependentAddon, executeContext));
                     }
                     executeContext.forceJavascriptToHead = save_forceJavascriptToHead;
