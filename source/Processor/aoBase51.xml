@@ -3684,6 +3684,10 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterGetContentClass]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
+  <Addon Name="SetAdminListFindRowPosition" Guid="{E2B0B9EF-EBD9-437E-AE69-484E5639644B}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.SetAdminListFindRowPositionRemote]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
   <Addon Name="setAdminSiteFieldHelp" Guid="{a89a0a11-cbdd-4bb5-995e-0dfaaf3e3111}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>

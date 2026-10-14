@@ -61,6 +61,11 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         public bool allowColumnSort { get; set; }
         public bool allowHeaderAtBottom { get; set; }
+        /// <summary>
+        /// When true, the find row is positioned at the top of the grid (under the header row) instead of at the bottom.
+        /// Loaded from userProperty so the preference persists across visits and applies to all admin list screens.
+        /// </summary>
+        public bool findRowAtTop { get; set; }
         //
         /// <summary>
         /// Constructor
@@ -100,6 +105,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 allowAddRow = false;
                 allowColumnSort = true;
                 allowHeaderAtBottom = true;
+                findRowAtTop = core.userProperty.getBoolean("AdminListFindRowTop", false);
                 //
                 // Setup Member Properties
                 string ConfigList = core.userProperty.getText(AdminDataModel.IndexConfigPrefix + getText(adminData.adminContent.id), "");
@@ -311,6 +317,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 allowAddRow = false;
                 allowColumnSort = true;
                 allowHeaderAtBottom = true;
+                findRowAtTop = core.userProperty.getBoolean("AdminListFindRowTop", false);
                 //
                 // Setup Member Properties
                 string ConfigList = core.userProperty.getText(request.gridPropertiesSaveName, "");
