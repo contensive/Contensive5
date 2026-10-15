@@ -6,10 +6,12 @@
 .DESCRIPTION
     This script performs a complete server upgrade in one step:
       1. Upgrade server components (CLI, TaskService, WebApi package) via upgrade.ps1
+         The task service is installed but NOT started yet (new code, old database).
       2. Upgrade all application databases and collections via cc -u
       3. Deploy binaries to every IIS site:
          - Core WebApi apps: copy WebApi files from the install package
          - Framework ASPX apps: import defaultaspxsite.zip via Web Deploy (msdeploy)
+      4. Start the task service (database is now upgraded to match the new code)
 
     After this script completes, all applications should be running
     the new version with no additional manual steps required.
@@ -54,7 +56,7 @@ Write-Host ""
 # ============================================================
 
 Write-Host ""
-Write-Host "[1/3] Upgrading server components..." -ForegroundColor Cyan
+Write-Host "[1/4] Upgrading server components..." -ForegroundColor Cyan
 Write-Host ""
 
 $upgradeScript = Join-Path $SourcePath "upgrade.ps1"
@@ -62,14 +64,14 @@ if (-not (Test-Path $upgradeScript)) {
     Write-Host "ERROR: upgrade.ps1 not found at $upgradeScript" -ForegroundColor Red
     exit 1
 }
-& $upgradeScript -SourcePath $SourcePath -InstallPath $InstallPath -ServiceName $ServiceName
+& $upgradeScript -SourcePath $SourcePath -InstallPath $InstallPath -ServiceName $ServiceName -SkipServiceStart
 
 # ============================================================
 # Step 2: Upgrade all databases (cc -u)
 # ============================================================
 
 Write-Host ""
-Write-Host "[2/3] Upgrading all application databases (cc -u)..." -ForegroundColor Cyan
+Write-Host "[2/4] Upgrading all application databases (cc -u)..." -ForegroundColor Cyan
 Write-Host ""
 
 # Refresh PATH in this session so cc.exe is available after install
@@ -101,7 +103,7 @@ Write-Host "Database upgrade complete." -ForegroundColor Green
 # ============================================================
 
 Write-Host ""
-Write-Host "[3/3] Deploying binaries to IIS sites..." -ForegroundColor Cyan
+Write-Host "[3/4] Deploying binaries to IIS sites..." -ForegroundColor Cyan
 Write-Host ""
 
 # Locate source packages
@@ -400,6 +402,31 @@ else {
         Write-Host ""
         Write-Host "IIS deployment summary: $successCount deployed, $skipCount skipped, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
     }
+}
+
+# ============================================================
+# Step 4: Start the task service (database is now upgraded)
+# ============================================================
+
+Write-Host ""
+Write-Host "[4/4] Starting task service..." -ForegroundColor Cyan
+
+$svc = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+if ($svc) {
+    if ($svc.Status -eq "Stopped") {
+        try {
+            Start-Service -Name $ServiceName
+            Write-Host "  Task service started." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  WARNING: Task service could not be started: $_" -ForegroundColor Yellow
+            Write-Host "  Start it manually with: sc start `"$ServiceName`"" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  Task service is already running." -ForegroundColor Green
+    }
+} else {
+    Write-Host "  WARNING: Task service '$ServiceName' not found." -ForegroundColor Yellow
 }
 
 # ============================================================

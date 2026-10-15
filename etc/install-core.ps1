@@ -46,7 +46,8 @@ param(
     [string]$ServiceName = "Contensive Task Service",
     [switch]$SkipWebApi,
     [switch]$SkipTaskService,
-    [switch]$SkipCli
+    [switch]$SkipCli,
+    [switch]$SkipServiceStart
 )
 
 $ErrorActionPreference = "Stop"
@@ -180,15 +181,19 @@ function Install-TaskService {
     $exePath = Join-Path $taskDest "ContensiveTaskService.exe"
     New-Service -Name $ServiceName -BinaryPathName $exePath -DisplayName $ServiceName -Description "Manages Contensive Task Scheduler, Task Runner, and MQTT services" -StartupType Automatic | Out-Null
 
-    Write-Host "  Starting service: $ServiceName"
-    try {
-        Start-Service -Name $ServiceName
-        Write-Host "  TaskService installed and started at $taskDest" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  TaskService installed at $taskDest but the service did not start." -ForegroundColor Yellow
-        Write-Host "  Run 'cc --configure' first, then start the service with:" -ForegroundColor Yellow
-        Write-Host "    sc start `"$ServiceName`"" -ForegroundColor Yellow
+    if ($SkipServiceStart) {
+        Write-Host "  TaskService installed at $taskDest (start deferred)" -ForegroundColor Green
+    } else {
+        Write-Host "  Starting service: $ServiceName"
+        try {
+            Start-Service -Name $ServiceName
+            Write-Host "  TaskService installed and started at $taskDest" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  TaskService installed at $taskDest but the service did not start." -ForegroundColor Yellow
+            Write-Host "  Run 'cc --configure' first, then start the service with:" -ForegroundColor Yellow
+            Write-Host "    sc start `"$ServiceName`"" -ForegroundColor Yellow
+        }
     }
 }
 

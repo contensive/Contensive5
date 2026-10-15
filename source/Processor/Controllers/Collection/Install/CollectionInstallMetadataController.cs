@@ -663,9 +663,23 @@ namespace Contensive.Processor.Controllers {
                 logger.Info($"{core.logCommonMessage},metadata Load, stage 5: verify 'Content' content definition");
                 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 //
+                // -- pre-load lookup models used by verifyContent_returnId to avoid per-CDef ORM queries
+                var tableCache = DbBaseModel.createList<TableModel>(core.cpParent, "(1=1)")
+                    .GroupBy(t => (t.name ?? "").ToLowerInvariant())
+                    .Where(g => !string.IsNullOrEmpty(g.Key))
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                var sortMethodCacheByName = DbBaseModel.createList<SortMethodModelx>(core.cpParent, "(1=1)")
+                    .GroupBy(s => (s.name ?? "").ToLowerInvariant())
+                    .Where(g => !string.IsNullOrEmpty(g.Key))
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                var sortMethodCacheByClause = DbBaseModel.createList<SortMethodModelx>(core.cpParent, "(1=1)")
+                    .Where(s => !string.IsNullOrEmpty(s.orderByClause))
+                    .GroupBy(s => s.orderByClause.ToLowerInvariant())
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                //
                 foreach (var keypairvalue in Collection.metaData) {
                     if (keypairvalue.Value.name.ToLowerInvariant() == "content") {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, false);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                         break;
                     }
                 }
@@ -686,7 +700,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if ((fieldChanged || workingMetaData.dataChanged) && (workingMetaData.name.ToLowerInvariant() != "content")) {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, false);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                     }
                 }
                 core.cacheRuntime.clear();
@@ -841,7 +855,14 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Update a table from a collection metadata node
         /// </summary>
-        internal static void installMetaDataMiniCollection_buildDb_saveMetaDataToDb(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext, bool invalidateCache = true) {
+        internal static void installMetaDataMiniCollection_buildDb_saveMetaDataToDb(
+                CoreController core,
+                ContentMetadataModel contentMetadata,
+                string logMsgContext,
+                bool invalidateCache = true,
+                Dictionary<string, TableModel> tableCache = null,
+                Dictionary<string, SortMethodModelx> sortMethodCacheByName = null,
+                Dictionary<string, SortMethodModelx> sortMethodCacheByClause = null) {
             try {
                 //
                 logMsgContext += ", updating db metadata for content [" + contentMetadata.name + "]";
@@ -851,9 +872,8 @@ namespace Contensive.Processor.Controllers {
                 {
                     if (contentMetadata.dataChanged) {
                         //
-                        // -- update definition (use SingleRecord as an update flag)
-                        var datasource = DataSourceModel.createByUniqueName(core.cpParent, contentMetadata.dataSourceName);
-                        ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext, invalidateCache);
+                        // -- update definition
+                        ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext, invalidateCache, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                     }
                     //
                     // -- update Content Field Records and Content Field Help records
