@@ -1,6 +1,5 @@
 ﻿
 using Contensive.BaseClasses;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 
@@ -51,13 +50,13 @@ namespace Contensive.Processor.Controllers {
                 string nodeList = "";
                 foreach (var PathFilename in execFileList) {
                     if (!PathFilename.Length.Equals(0)) {
-                        string fixedPathFilename = VisualBasicConvert.Strings_Replace(PathFilename, @"\", "/");
+                        string fixedPathFilename = PathFilename.Replace(@"\", "/");
                         string path = "";
                         string filename = fixedPathFilename;
-                        int pos = VisualBasicConvert.Strings_InStrRev(fixedPathFilename, "/");
-                        if (pos > 0) {
-                            filename = VisualBasicConvert.Strings_Mid(fixedPathFilename, pos + 1);
-                            path = VisualBasicConvert.Strings_Mid(fixedPathFilename, 1, pos - 1);
+                        int pos = fixedPathFilename.LastIndexOf('/');
+                        if (pos >= 0) {
+                            filename = fixedPathFilename.Substring(pos + 1);
+                            path = fixedPathFilename.Substring(0, pos);
                         }
                         string CollectionPath = "";
                         DateTime LastChangeDate = default;
@@ -99,20 +98,20 @@ namespace Contensive.Processor.Controllers {
                     if (!CollectionPath.Length.Equals(0)) {
                         CollectionPath += @"\";
                     }
-                    string[] Files = VisualBasicConvert.Strings_Split(execFileList, System.Environment.NewLine);
-                    for (int Ptr = 0; Ptr <= VisualBasicConvert.Information_Ubound(Files); Ptr++) {
+                    string[] Files = execFileList.Split(new[] { System.Environment.NewLine }, StringSplitOptions.None);
+                    for (int Ptr = 0; Ptr < Files.Length; Ptr++) {
                         string PathFilename = Files[Ptr];
                         if (!PathFilename.Length.Equals(0)) {
-                            PathFilename = VisualBasicConvert.Strings_Replace(PathFilename, @"\", "/");
+                            PathFilename = PathFilename.Replace(@"\", "/");
                             string Path = "";
                             string Filename = PathFilename;
-                            int Pos = VisualBasicConvert.Strings_InStrRev(PathFilename, "/");
-                            if (Pos > 0) {
-                                Filename = VisualBasicConvert.Strings_Mid(PathFilename, Pos + 1);
-                                Path = VisualBasicConvert.Strings_Mid(PathFilename, 1, Pos - 1);
+                            int Pos = PathFilename.LastIndexOf('/');
+                            if (Pos >= 0) {
+                                Filename = PathFilename.Substring(Pos + 1);
+                                Path = PathFilename.Substring(0, Pos);
                             }
                             string ManualFilename = "";
-                            if (VisualBasicConvert.Strings_LCase(Filename) != VisualBasicConvert.Strings_LCase(ManualFilename)) {
+                            if (!string.Equals(Filename, ManualFilename, StringComparison.OrdinalIgnoreCase)) {
                                 string AddonPath = @"addons\";
                                 // AddFilename = AddonPath & CollectionPath & Filename
                                 cp.PrivateFiles.Copy(AddonPath + CollectionPath + Filename, tempExportPath + Filename, cp.TempFiles);

@@ -1383,7 +1383,7 @@ namespace Contensive.Processor.Controllers {
                                                                                                 Copy += (ColumnStart + "[null]" + ColumnEnd);
                                                                                             } else if ((CellData == null)) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);
-                                                                                            } else if (VisualBasicConvert.Microsoft_VisualBasic_Information_IsArray(CellData)) {
+                                                                                            } else if (CellData is Array) {
                                                                                                 Copy += ColumnStart + "[array]";
                                                                                             } else if (string.IsNullOrEmpty(getText(CellData))) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);

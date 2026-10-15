@@ -2102,7 +2102,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             for (CPtr = Source.Length - 1; CPtr >= 1; CPtr--) {
                                 C = Source.Substring(CPtr - 1, 1);
-                                CValue = VisualBasicConvert.Microsoft_VisualBasic_Strings_Asc(C);
+                                CValue = (int)C[0];
                                 crc = crc + CValue;
                                 if ((CValue < CMin) || (CValue > CMax)) {
                                     //
@@ -2114,7 +2114,7 @@ namespace Contensive.Processor.Controllers {
                                         CValue = CValue + CMax - CMin + 1;
                                     }
                                 }
-                                result += VisualBasicConvert.Microsoft_VisualBasic_Strings_Chr(CValue);
+                                result += (char)CValue;
                             }
                             //
                             // Test mod
