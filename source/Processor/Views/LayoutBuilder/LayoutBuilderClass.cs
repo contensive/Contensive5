@@ -663,6 +663,17 @@ namespace Contensive.Processor.LayoutBuilder {
             buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
         }
         //
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue) => addClientButton(buttonValue, "", "", "");
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue, string buttonName) => addClientButton(buttonValue, buttonName, "", "");
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue, string buttonName, string buttonId) => addClientButton(buttonValue, buttonName, buttonId, "");
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
+            buttonList += LayoutBuilderController.getClientButton(buttonName, buttonValue, buttonId, buttonClass);
+        }
+        //
         //
         //
         //====================================================================================================
