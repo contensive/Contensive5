@@ -4003,6 +4003,11 @@
     <jsheadscriptsrc>/baseassets/block_bootstrap_javascript_focusin_trap.js</jsheadscriptsrc>
 	</Addon>
 
+	<Addon Name="Collection Install Task" Guid="{C49D7C41-2B84-4F34-A9F6-A0791E4C1CD3}" Type="Add-on">
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.CollectionInstall.CollectionInstallTask]]></DotNetClass>
+		<Admin>Yes</Admin>
+	</Addon>
+
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />
   <SQLIndex IndexName="ccGroupRulesGroupID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="GroupID" />
   <SQLIndex IndexName="ccGroupRulesContentID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="ContentID" />
