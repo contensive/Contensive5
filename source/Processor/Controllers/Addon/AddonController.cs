@@ -1970,8 +1970,6 @@ namespace Contensive.Processor.Controllers {
         public void executeAsProcess(AddonModel addon, Dictionary<string, string> arguments) {
             try {
                 if (addon == null) {
-                    //
-                    // -- addon not found
                     string errMsg = "executeAsProcess called with null addon model.";
                     logger.Error($"{core.logCommonMessage},{errMsg}");
                     return;
@@ -1982,11 +1980,15 @@ namespace Contensive.Processor.Controllers {
                 foreach (var key in core.docProperties.getKeyList()) {
                     if (!compositeArgs.ContainsKey(key)) { compositeArgs.Add(key, core.docProperties.getText(key)); }
                 }
+                //
+                // -- timeout cascade: addon.processTimeout > 0 ? addon.processTimeout : 1800 (30 min default)
+                int effectiveTimeout = (addon.processTimeout ?? 0) > 0 ? addon.processTimeout.Value : 1800;
+                int requestedBy = core.session?.user?.id ?? 0;
                 TaskSchedulerController.addTaskToQueue(core, new TaskModel.CmdDetailClass {
                     addonId = addon.id,
                     addonName = addon.name,
                     args = compositeArgs
-                }, false);
+                }, false, "", "", effectiveTimeout, requestedBy);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}, executeAsProcess");
             }
@@ -1998,6 +2000,38 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="addon"></param>
         public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, []);
+        //
+        //====================================================================================================================
+        /// <summary>
+        /// Execute the addon in a background process and return the task id for status tracking.
+        /// Timeout cascade: taskTimeout > 0 uses taskTimeout, else addon.processTimeout, else 1800 seconds (30 min).
+        /// </summary>
+        public int executeAsProcessTask(AddonModel addon, Dictionary<string, string> arguments, int taskTimeout, int requestedBy) {
+            try {
+                if (addon == null) {
+                    string errMsg = "executeAsProcessTask called with null addon model.";
+                    logger.Error($"{core.logCommonMessage},{errMsg}");
+                    return 0;
+                }
+                //
+                // -- build arguments from the execute context on top of docProperties
+                var compositeArgs = new Dictionary<string, string>(arguments);
+                foreach (var key in core.docProperties.getKeyList()) {
+                    if (!compositeArgs.ContainsKey(key)) { compositeArgs.Add(key, core.docProperties.getText(key)); }
+                }
+                //
+                // -- timeout cascade: taskTimeout > 0 ? taskTimeout : addon.processTimeout > 0 ? addon.processTimeout : 1800
+                int effectiveTimeout = taskTimeout > 0 ? taskTimeout : ((addon.processTimeout ?? 0) > 0 ? addon.processTimeout.Value : 1800);
+                return TaskSchedulerController.addTaskToQueue(core, new TaskModel.CmdDetailClass {
+                    addonId = addon.id,
+                    addonName = addon.name,
+                    args = compositeArgs
+                }, false, "", "", effectiveTimeout, requestedBy);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}, executeAsProcessTask");
+                return 0;
+            }
+        }
         //
         //====================================================================================================================
         /// <summary>

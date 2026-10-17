@@ -244,9 +244,9 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// run as single task from the cctasks table of an app, makred with a runnerGuid
+        /// run as single task from the cctasks table of an app, marked with a runnerGuid
         /// called from runTasks or from the cli in a different process.
-        /// If task has a resultDownloadId set (id to row in ccDownload table), then the result of the addon is saved in that file.
+        /// If task has a downloadPathFilename set, the addon result is saved to that CDN file.
         /// </summary>
         public static void executeRunnerTasks(string appName, string runnerGuid) {
             try {
@@ -254,52 +254,50 @@ namespace Contensive.Processor.Controllers {
                     try {
                         foreach (var task in DbBaseModel.createList<TaskModel>(cp, "(cmdRunner=" + DbController.encodeSQLText(runnerGuid) + ")and(datestarted is null)", "id")) {
                             //
-                            // -- delete task before task runs - change 220312, if task does not complete (process kill, power off), it must be removed from task list
-                            // -- task.save() should be blocked
-                            DbBaseModel.delete<TaskModel>(cp, task.id);
+                            // -- mark task as started
+                            task.dateStarted = cp.core.dateTimeNowMockable;
+                            task.save(cp);
                             //
                             // -- trace log without core
-                            LogController.log(cp.core, "taskRunner.runTask, runTask, task [" + task.name + "], cmdDetail [" + task.cmdDetail + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
+                            LogController.log(cp.core, $"taskRunner.runTask, runTask, task [{task.name}], cmdDetail [{task.cmdDetail}]", BaseClasses.CPLogBaseClass.LogLevel.Info);
                             //
-                            DateTime dateStarted = cp.core.dateTimeNowMockable;
-                            var cmdDetail = DeserializeObject<TaskModel.CmdDetailClass>(task.cmdDetail);
-                            if (cmdDetail != null) {
-                                var addon = cp.core.cacheRuntime.addonCache.create(cmdDetail.addonId);
-                                if (addon != null) {
-                                    var context = new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                                        backgroundProcess = true,
-                                        addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple,
-                                        argumentKeyValuePairs = cmdDetail.args,
-                                        errorContextMessage = "running task, addon [" + cmdDetail.addonId + "]"
-                                    };
-                                    string result = cp.core.addon.execute(addon, context);
-                                    if (!string.IsNullOrEmpty(result)) {
-                                        //
-                                        logger.Trace($"{cp.core.logCommonMessage},executeRunnerTasks, result not empty, downloadId [" + task.resultDownloadId + "], result first 100 [" + (result.Length > 100 ? result.Substring(0, 100) : result) + "]");
-                                        //
-                                        // -- save output
-                                        if (task.resultDownloadId > 0) {
-                                            var download = DbBaseModel.create<DownloadModel>(cp, task.resultDownloadId);
-                                            if (download != null) {
-                                                //
-                                                logger.Trace($"{cp.core.logCommonMessage},executeRunnerTasks, download found, [id" + download.id + ", name:" + download.name + ", filename:" + download.filename + "]");
-                                                //
-                                                if (string.IsNullOrEmpty(download.name)) {
-                                                    download.name = "Download";
-                                                }
-                                                download.resultMessage = "Completed";
-                                                download.filename.content = result;
-                                                download.dateRequested = dateStarted;
-                                                download.dateCompleted = cp.core.dateTimeNowMockable;
-                                                download.save(cp);
+                            try {
+                                var cmdDetail = DeserializeObject<TaskModel.CmdDetailClass>(task.cmdDetail);
+                                if (cmdDetail != null) {
+                                    var addon = cp.core.cacheRuntime.addonCache.create(cmdDetail.addonId);
+                                    if (addon != null) {
+                                        var context = new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                                            backgroundProcess = true,
+                                            addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple,
+                                            argumentKeyValuePairs = cmdDetail.args,
+                                            errorContextMessage = $"running task, addon [{cmdDetail.addonId}]"
+                                        };
+                                        string result = cp.core.addon.execute(addon, context);
+                                        if (!string.IsNullOrEmpty(result)) {
+                                            logger.Trace($"{cp.core.logCommonMessage},executeRunnerTasks, result not empty, result first 100 [{(result.Length > 100 ? result.Substring(0, 100) : result)}]");
+                                            //
+                                            // -- save output to task downloadPathFilename if set
+                                            if (!string.IsNullOrEmpty(task.downloadPathFilename)) {
+                                                cp.core.cdnFiles.saveFile(task.downloadPathFilename, result);
                                             }
                                         }
                                     }
                                 }
+                                //
+                                // -- mark task as completed successfully
+                                task.dateCompleted = cp.core.dateTimeNowMockable;
+                                task.save(cp);
+                            } catch (Exception exTask) {
+                                //
+                                // -- mark task as completed with failure
+                                task.dateCompleted = cp.core.dateTimeNowMockable;
+                                task.failMessage = exTask.Message;
+                                task.save(cp);
+                                LogController.log(cp.core, $"TaskRunner exception running task [{task.name}], ex [{exTask}]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                             }
                             //
                             // -- info log the task running - so info state will log for memory leaks
-                            LogController.log(cp.core, "TaskRunner exit, task [" + task.name + "], cmdDetail [" + task.cmdDetail + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
+                            LogController.log(cp.core, $"TaskRunner exit, task [{task.name}], cmdDetail [{task.cmdDetail}]", BaseClasses.CPLogBaseClass.LogLevel.Info);
                         }
                     } catch (Exception exInner) {
                         LogController.log(cp.core, "TaskRunner exception, ex [" + exInner + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);

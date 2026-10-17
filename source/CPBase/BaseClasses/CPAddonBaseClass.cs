@@ -146,6 +146,34 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Execute an addon as a background task. Returns the task id for status tracking via cp.Task.GetStatus().
+        /// Timeout cascade: taskTimeout > 0 uses taskTimeout, else addon.processTimeout, else 1800 seconds (30 min).
+        /// </summary>
+        /// <param name="addonGuid">The guid of the addon to be executed.</param>
+        /// <param name="argumentKeyValuePairs">The executing addon can read these arguments with methods like cp.doc.getText("key").</param>
+        /// <param name="taskTimeout">Timeout in seconds. 0 means use the addon's processTimeout or the default 30 minutes.</param>
+        /// <returns>The task id for status tracking, or 0 if the task could not be queued.</returns>
+        public abstract int ExecuteAsProcessTask(string addonGuid, Dictionary<string, string> argumentKeyValuePairs, int taskTimeout);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task with default timeout. Returns the task id for status tracking via cp.Task.GetStatus().
+        /// </summary>
+        /// <param name="addonGuid">The guid of the addon to be executed.</param>
+        /// <param name="argumentKeyValuePairs">The executing addon can read these arguments with methods like cp.doc.getText("key").</param>
+        /// <returns>The task id for status tracking, or 0 if the task could not be queued.</returns>
+        public abstract int ExecuteAsProcessTask(string addonGuid, Dictionary<string, string> argumentKeyValuePairs);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task with no arguments and default timeout. Returns the task id for status tracking via cp.Task.GetStatus().
+        /// </summary>
+        /// <param name="addonGuid">The guid of the addon to be executed.</param>
+        /// <returns>The task id for status tracking, or 0 if the task could not be queued.</returns>
+        public abstract int ExecuteAsProcessTask(string addonGuid);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Install addon collection from a file in private files
         /// </summary>
         /// <param name="tempPathFilename">The path and filename in the tempFiles store. A path starts with the folder name and ends with a slash (like myfolder\subfolder\)</param>

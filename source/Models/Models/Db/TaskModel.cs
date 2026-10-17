@@ -33,13 +33,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         public string cmdDetail { get; set; }
         /// <summary>
-        /// if non-0, the addon's result over-writes the content of the file referenced by the the download file-field. If this field is 0 the addon result goes to the filename field.
-        /// These files are not deleted by housekeeping
-        /// </summary>
-        public int resultDownloadId { get; set; }
-        /// <summary>
-        /// if resultDownloadId is null or 0, and the addon return is not empty, the return is saved in a file referenced here.
-        /// These files should be deleted in housekeep as the tasks are deleted.
+        /// Legacy field, no longer used. The addon result file is stored via downloadPathFilename instead.
         /// </summary>
         public DbBaseModel.FieldTypeTextFile filename { get; set; }
         /// <summary>
@@ -58,5 +52,17 @@ namespace Contensive.Models.Db {
         /// the guid of the runner that is assigned to handle this task. Empty if not assigned
         /// </summary>
         public string cmdRunner { get; set; }
+        /// <summary>
+        /// error/failure message. Null means success when dateCompleted is set.
+        /// </summary>
+        public string failMessage { get; set; }
+        /// <summary>
+        /// cdn path/filename for a downloadable result file, if applicable
+        /// </summary>
+        public string downloadPathFilename { get; set; }
+        /// <summary>
+        /// id of the user who requested the task
+        /// </summary>
+        public int requestedBy { get; set; }
     }
 }

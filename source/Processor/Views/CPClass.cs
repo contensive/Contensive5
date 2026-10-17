@@ -657,6 +657,20 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// Background task management: queue tasks, check status
+        /// </summary>
+        public override CPTaskBaseClass Task {
+            get {
+                if (_taskObj == null) {
+                    _taskObj = new CPTaskClass(this);
+                }
+                return _taskObj;
+            }
+        }
+        private CPTaskClass _taskObj;
+        //
+        //====================================================================================================
+        /// <summary>
         /// Temporary file storarge
         /// </summary>
         public override CPFileSystemBaseClass TempFiles {

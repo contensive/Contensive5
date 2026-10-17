@@ -188,6 +188,32 @@ namespace Contensive.Processor {
         /// <param name="name"></param>
         public override void ExecuteAsProcessByUniqueName(string name) => ExecuteAsProcessByUniqueName(name, new Dictionary<string, string>());
         //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task and return the task id for status tracking.
+        /// Timeout cascade: taskTimeout > 0 uses taskTimeout, else addon.processTimeout, else 1800 seconds (30 min).
+        /// </summary>
+        public override int ExecuteAsProcessTask(string guid, Dictionary<string, string> keyValuePairs, int taskTimeout) {
+            if (string.IsNullOrEmpty(guid)) { throw new ArgumentException($"ExecuteAsProcessTask called with invalid guid [{guid}]"); }
+            var addon = cp.core.cacheRuntime.addonCache.create(guid);
+            if (addon == null) { throw new ArgumentException($"ExecuteAsProcessTask cannot find Addon for guid [{guid}]"); }
+            return cp.core.addon.executeAsProcessTask(addon, keyValuePairs, taskTimeout, cp.core.session?.user?.id ?? 0);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task with default timeout. Returns the task id.
+        /// </summary>
+        public override int ExecuteAsProcessTask(string guid, Dictionary<string, string> keyValuePairs)
+            => ExecuteAsProcessTask(guid, keyValuePairs, 0);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task with no arguments and default timeout. Returns the task id.
+        /// </summary>
+        public override int ExecuteAsProcessTask(string guid)
+            => ExecuteAsProcessTask(guid, new Dictionary<string, string>(), 0);
+        //
         //==========================================================================================
         /// <summary>
         /// Install an uploaded collection file from a private folder. Return true if successful, else the issue is in the returnUserError
