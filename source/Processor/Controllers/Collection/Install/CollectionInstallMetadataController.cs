@@ -221,6 +221,11 @@ namespace Contensive.Processor.Controllers {
                                             //
                                             string defaultFieldTypeName = ContentFieldMetadataModel.getFieldTypeNameFromFieldTypeId(core, DefaultMetaDataField.fieldTypeId);
                                             string fieldTypeName = XmlController.getXMLAttribute(core, MetaDataChildNode, "FieldType", defaultFieldTypeName);
+                                            //
+                                            // -- if fieldType is not provided, default to "text"
+                                            if (string.IsNullOrEmpty(fieldTypeName)) {
+                                                fieldTypeName = "text";
+                                            }
                                             metaDataField.fieldTypeId = core.db.getFieldTypeIdFromFieldTypeName(fieldTypeName);
                                             //
                                             // -- editSortPriority: read as string to detect blank/missing attribute
@@ -237,7 +242,13 @@ namespace Contensive.Processor.Controllers {
                                             }
                                             string cdefFieldAuthorableText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Authorable", "");
                                             metaDataField.authorable = string.IsNullOrEmpty(cdefFieldAuthorableText) ? true : getBoolean(cdefFieldAuthorableText);
-                                            metaDataField.caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
+                                            string caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
+                                            //
+                                            // -- if caption is not provided, default to the field name
+                                            if (string.IsNullOrEmpty(caption)) {
+                                                caption = FieldName;
+                                            }
+                                            metaDataField.caption = caption;
                                             metaDataField.defaultValue = XmlController.getXMLAttribute(core, MetaDataChildNode, "DefaultValue", DefaultMetaDataField.defaultValue);
                                             metaDataField.notEditable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "NotEditable", DefaultMetaDataField.notEditable);
                                             metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);

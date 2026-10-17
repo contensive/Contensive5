@@ -25,7 +25,7 @@
 											<xs:attribute name="authorable" type="xs:boolean">
 												<xs:annotation><xs:documentation>When false, field is hidden from the edit form.</xs:documentation></xs:annotation>
 											</xs:attribute>
-											<xs:attribute name="caption" type="xs:string" use="required">
+											<xs:attribute name="caption" type="xs:string">
 												<xs:annotation><xs:documentation>Display label shown in the admin edit form.</xs:documentation></xs:annotation>
 											</xs:attribute>
 											<xs:attribute name="defaultValue" type="xs:string">
@@ -46,7 +46,7 @@
 											<xs:attribute name="editGroup" type="xs:string">
 												<xs:annotation><xs:documentation>Group name for organizing fields within an edit tab.</xs:documentation></xs:annotation>
 											</xs:attribute>
-											<xs:attribute name="fieldType" use="required">
+											<xs:attribute name="fieldType">
 												<xs:annotation><xs:documentation>Data type of the field. Determines storage format and editor control.</xs:documentation></xs:annotation>
 												<xs:simpleType>
 													<xs:restriction base="xs:NMTOKEN">
