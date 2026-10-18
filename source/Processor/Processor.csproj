@@ -11,7 +11,7 @@
     <PackageIcon>LogoBalls.png</PackageIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <NoWarn>1701;1702;1570;1572;1573;1587;1591</NoWarn>
+    <NoWarn>1701;1702;1570;1572;1573;1587;1591;MSB3277</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Signing">
