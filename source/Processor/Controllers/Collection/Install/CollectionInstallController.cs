@@ -128,7 +128,15 @@ namespace Contensive.Processor.Controllers {
                         string installedCollectionGuid = "";
                         bool isDependency = false;
                         if (!installCollectionFromTempFile(core, isDependency, contextLog, baseCollectionZipPathFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall)) {
-                            throw new GenericException("installBaseCollection, call to installCollectionFromPrivateFile failed, message returned [" + installErrorMessage + "]");
+                            //
+                            // -- Base collection had errors, but continue with site creation. Individual collection errors are already logged.
+                            logger.Warn($"{core.logCommonMessage}, installBaseCollection, installCollectionFromTempFile returned false. Errors: [{installErrorMessage}]. Site creation will continue.");
+                            foreach (string error in installErrorMessage.errors) {
+                                nonCriticalErrorList.Add(error);
+                            }
+                            foreach (string warning in installErrorMessage.warnings) {
+                                nonCriticalErrorList.Add(warning);
+                            }
                         }
                     } catch (Exception ex) {
                         logger.Error(ex, $"{core.logCommonMessage}");

@@ -279,3 +279,8 @@ tests/e2e/playwright/.cache/
 
 # Collection zip files
 collections/**/*.zip
+source/Processor/cdnFiles.zip
+source/Processor/cdnFiles.zip
+source/Processor/helpFiles.zip
+source/Processor/layoutFiles.zip
+source/Processor/wwwFiles.zip
