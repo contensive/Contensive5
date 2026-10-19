@@ -103,7 +103,9 @@
       "Bash(dotnet package search:*)",
       "WebFetch(domain:www.nuget.org)",
       "Bash(awk:*)",
-      "Bash(powershell -NoProfile -File:*)"
+      "Bash(powershell -NoProfile -File:*)",
+      "Bash(./build.ps1)",
+      "Bash(./cc.exe:*)"
     ]
   }
 }

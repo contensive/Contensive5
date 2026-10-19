@@ -147,11 +147,24 @@ Each `<Field>` within a CDef defines a database column and its admin editor beha
     ManyToManyRulePrimaryField=""
     ManyToManyRuleSecondaryField=""
     LookupContentSqlFilter=""
-    Guid="{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}"
 >
     <HelpDefault><![CDATA[Help text for this field]]></HelpDefault>
 </Field>
 ```
+
+### CRITICAL: Field Elements Do Not Have GUIDs
+
+**`<Field>` elements DO NOT have a `Guid` attribute.** This is a common mistake. Only these collection XML elements require GUID attributes:
+
+- `<CDef>` — Content Definition GUID (required)
+- `<Addon>` — Addon GUID (required)
+- `<NavigatorEntry>` — Navigator Entry GUID (required)
+- `<Data><Record>` — Data Record GUID (required)
+- `<Collection>` — Collection GUID (required)
+
+Fields are uniquely identified by their `Name` attribute within their parent CDef. Adding a `Guid` attribute to a `<Field>` element will cause validation errors.
+
+**When in doubt, always consult the authoritative XSD schema:** https://contensive.s3.amazonaws.com/xsd/Collection.xsd
 
 ### Field Types
 

@@ -3,6 +3,7 @@ using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
+using Contensive.Processor.Properties;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -1517,15 +1518,21 @@ namespace Contensive.Processor.Controllers.Build {
             domain.save(core.cpParent);
             //
             landingPage.templateId = defaultTemplate.id;
-            landingPage.copyfilename.content = defaultLandingPageHtml;
+            //
+            // -- For new v5 sites, set addonList directly with placeholder GUIDs.
+            // -- The Design Blocks collection will create the actual dbText records when installed.
+            // -- For v4 upgrades, convertPageContentToAddonList() is called from migrateData().
+            string textBlockInstanceGuid = GenericController.getGUID();
+            string childListInstanceGuid = GenericController.getGUID();
+            string addonList = Resources.defaultAddonListJson
+                .replace("{textBlockInstanceGuid}", textBlockInstanceGuid, StringComparison.InvariantCulture)
+                .replace("{childListInstanceGuid}", childListInstanceGuid, StringComparison.InvariantCulture);
+            landingPage.addonList = addonList;
             landingPage.save(core.cpParent);
             //
             if (core.siteProperties.getInteger("LandingPageID", landingPage.id) == 0) {
                 core.siteProperties.setProperty("LandingPageID", landingPage.id);
             }
-            //
-            // -- convert the data to textblock and addonlist
-            BuildDataMigrationController.convertPageContentToAddonList(core, landingPage);
         }
         //
         //====================================================================================================
