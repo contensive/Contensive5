@@ -66,7 +66,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- resolve install root (parent of CLI folder, e.g. C:\Program Files\Contensive)
-                    string installRoot = Path.GetDirectoryName(currentPath);
+                    string installRoot = Path.GetDirectoryName(currentPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
                     //
                     // -- verify WebApi package exists in install folder
                     string webApiPackagePath = Path.Combine(installRoot, "WebApi");
@@ -352,7 +352,7 @@ namespace Contensive.CLI {
                     bool webApiInstalled = false;
                     string appDeployPath = cp.core.appConfig.effectiveAppPath;
                     logger.Info($"{cp.core.logCommonMessage},Deploy WebApi to app folder [{appDeployPath}].");
-                    string webApiSourcePath = Path.Combine(Path.GetDirectoryName(cp.core.serverConfig.programFilesPath), "WebApi");
+                    string webApiSourcePath = Path.Combine(Path.GetDirectoryName(cp.core.serverConfig.programFilesPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), "WebApi");
                     if (!Directory.Exists(webApiSourcePath)) {
                         Console.WriteLine($"WebApi package not found at [{webApiSourcePath}]. Copy WebApi files manually to [{appDeployPath}].");
                     } else {
