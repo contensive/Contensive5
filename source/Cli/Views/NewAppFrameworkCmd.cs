@@ -310,13 +310,12 @@ namespace Contensive.CLI {
                         }
                     }
                     //
-                    // -- save the app configuration and reload the server using this app
+                    // -- save the app configuration and set it as the active app
                     logger.Info($"{cp.core.logCommonMessage},Save app configuration.");
                     appConfig.appStatus = AppConfigModel.AppStatusEnum.maintenance;
                     cp.core.serverConfig.apps.Add(appConfig.name, appConfig);
                     cp.core.serverConfig.save(cp.core);
-                    cp.core.serverConfig = ServerConfigModel.create(cp.core);
-                    cp.core.appConfig = AppConfigModel.getObject(cp.core, cp.core.serverConfig, appConfig.name);
+                    cp.core.appConfig = appConfig;
                     //
                     // update local host file
                     //
