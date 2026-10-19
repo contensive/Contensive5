@@ -850,7 +850,7 @@
 									</xs:restriction>
 								</xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="path" type="xs:string" use="required">
+							<xs:attribute name="path" type="xs:string">
 								<xs:annotation><xs:documentation>Subfolder path within the target location where the file is deployed.</xs:documentation></xs:annotation>
 							</xs:attribute>
 						</xs:complexType>
@@ -924,10 +924,10 @@
 			<xs:attribute name="System" type="xs:boolean">
 				<xs:annotation><xs:documentation>True for core system collections, false (default) for user addon collections.</xs:documentation></xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="Updateable" type="xs:boolean">
+			<xs:attribute name="Updatable" type="booleanYesNo">
 				<xs:annotation><xs:documentation>True permits the collection to be updated on reinstall.</xs:documentation></xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="BlockNavigatorNode" type="xs:boolean">
+			<xs:attribute name="BlockNavigatorNode" type="booleanYesNo">
 				<xs:annotation><xs:documentation>True hides this collection from the admin navigator tree.</xs:documentation></xs:annotation>
 			</xs:attribute>
 			<xs:attribute name="OnInstallAddonGuid">
