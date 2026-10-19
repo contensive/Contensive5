@@ -82,9 +82,9 @@ namespace Contensive.Processor.Controllers {
                     }
                     downloadRetry += 1;
                 } while (downloadRetry < downloadRetryMax);
-                if (return_ErrorMessage.errors.Count == 0) {
+                if (result) {
                     //
-                    // continue if no errors
+                    // continue if this download succeeded
                     if (Doc.DocumentElement == null) {
                         //
                         // -- document never loaded successfully after all retries
