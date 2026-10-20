@@ -197,6 +197,16 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     string colHash = getShortHash(indexColumns);
                     string indexName = $"IX_auto_{tableName}_{colHash}";
                     //
+                    // -- check if index already exists (prevent duplicate creation)
+                    bool indexExists = false;
+                    using (DataTable dtIndex = env.core.db.executeQuery($"select 1 from sys.indexes where object_id = object_id('[{tableName}]') and name = '{indexName}'")) {
+                        indexExists = (dtIndex.Rows.Count > 0);
+                    }
+                    if (indexExists) {
+                        env.log($"SqlMaintenance.createMissingIndexes, skipping [{indexName}] on [{tableName}], already exists");
+                        continue;
+                    }
+                    //
                     // -- build the CREATE INDEX statement
                     string includeClause = string.IsNullOrEmpty(includeCols) ? "" : $" include ({includeCols})";
                     string createSql = $"create nonclustered index [{indexName}] on [{tableName}] ({indexColumns}){includeClause}";
