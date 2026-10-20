@@ -105,7 +105,8 @@
       "Bash(awk:*)",
       "Bash(powershell -NoProfile -File:*)",
       "Bash(./build.ps1)",
-      "Bash(./cc.exe:*)"
+      "Bash(./cc.exe:*)",
+      "Bash(git rm:*)"
     ]
   }
 }
