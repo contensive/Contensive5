@@ -2,14 +2,36 @@ rem ==============================================================
 rem
 rem Build and publish all .NET 9.0 projects (WebApi, CLI, TaskService)
 rem Must be run from the project's git\project\scripts folder
-rem run >build-core [/nopause]
+rem run >build-core [/nopause] [/version YY.M.D.S]
+rem
+rem Options:
+rem   /nopause         - Skip pause on error (for CI/CD)
+rem   /version X.Y.Z.N - Override automatic version (for hotfixes)
+rem                      Example: build-core /version 24.10.15.12345
 rem
 @echo off
 cls
 
-rem Check for /nopause flag
+rem Check for /nopause flag and custom version override
 set PAUSE_ON_ERROR=1
-if "%1"=="/nopause" set PAUSE_ON_ERROR=0
+set CUSTOM_VERSION=
+
+:parse_args
+if "%1"=="" goto args_done
+if "%1"=="/nopause" (
+   set PAUSE_ON_ERROR=0
+   shift
+   goto parse_args
+)
+if "%1"=="/version" (
+   set CUSTOM_VERSION=%2
+   shift
+   shift
+   goto parse_args
+)
+shift
+goto parse_args
+:args_done
 
 @echo +++++++++++++++++++++++++++++
 @echo .NET 9.0 Core Build and Publish
@@ -22,8 +44,18 @@ pause
 
 rem Setup deployment folder with date-based version (YY.M.D.S where S = seconds/2)
 rem Use PowerShell for reliable date/time parsing (matches contensive-build.psm1)
+rem Override with /version flag for hotfixes: build-core /version 24.10.15.12345
 set deploymentFolderRoot=C:\Deployments\Contensive5-Core\
-for /f "delims=" %%v in ('powershell -NoProfile -Command "$n=Get-Date;$s=[int][math]::Floor(($n.Hour*3600+$n.Minute*60+$n.Second)/2);'{0}.{1}.{2}.{3}' -f ($n.Year-2000),$n.Month,$n.Day,$s"') do set versionNumber=%%v
+
+if not "%CUSTOM_VERSION%"=="" (
+   set versionNumber=%CUSTOM_VERSION%
+   @echo.
+   @echo Using custom version: %CUSTOM_VERSION%
+   @echo.
+) else (
+   for /f "delims=" %%v in ('powershell -NoProfile -Command "$n=Get-Date;$s=[int][math]::Floor(($n.Hour*3600+$n.Minute*60+$n.Second)/2);'{0}.{1}.{2}.{3}' -f ($n.Year-2000),$n.Month,$n.Day,$s"') do set versionNumber=%%v
+)
+
 md "%deploymentFolderRoot%%versionNumber%"
 
 @echo.

@@ -12,6 +12,7 @@ using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using Contensive.Processor.Addons.PageManager;
 using Contensive.Processor.Views;
+using Contensive.Processor.Models;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -1101,8 +1102,23 @@ namespace Contensive.Processor.Controllers {
                     resultInnerContent.Append($"<div class=\"container\">{htmlPageContent}</div>");
                 } else {
                     //
-                    // -- addonList mode (renders with pb-page-widget markers when editing)
-                    resultInnerContent.Append(core.cpParent.Addon.RenderAddonList(core.doc.pageController.page.addonList));
+                    // -- addonList mode
+                    if (core.cpParent.User.IsPageBuilderEditing) {
+                        //
+                        // -- drag-drop editor for addonList, then include rendered content after it
+                        core.docProperties.setProperty("contentid", ContentMetadataModel.getContentId(core, PageContentModel.tableMetadata.contentName));
+                        core.docProperties.setProperty("recordid", core.doc.pageController.page.id);
+                        resultInnerContent.Append(core.addon.execute("{92B75A6A-E84B-4551-BBF3-849E91D084BC}", new CPUtilsBaseClass.addonExecuteContext {
+                            addonType = CPUtilsBaseClass.addonContext.ContextSimple
+                        }));
+                    } else {
+                        //
+                        // -- render addonList
+                        var addonList = core.cpParent.JSON.Deserialize<List<AddonListItemModel>>(core.doc.pageController.page.addonList);
+                        resultInnerContent.Append(AddonListItemModel.render(core.cpParent,  addonList, new CPUtilsBaseClass.addonExecuteContext {
+                            addonType = CPUtilsBaseClass.addonContext.ContextPage
+                        }));
+                    }
                 }
                 // -- End Text Search
                 result.Append("<!-- TextSearchStart -->" + resultInnerContent.ToString() + "<!-- TextSearchEnd -->");
