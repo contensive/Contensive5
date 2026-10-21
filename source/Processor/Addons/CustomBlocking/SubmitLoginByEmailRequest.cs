@@ -7,6 +7,14 @@ namespace Contensive.Processor.Addons.CustomBlocking {
     public class SubmitLoginByEmailRequest : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
+                //
+                // -- honeypot: if the hidden "website" field has a value, silently discard (bot submission)
+                if (!string.IsNullOrEmpty(cp.Doc.GetText("website"))) {
+                    return new SubmitLoginByEmailRequestResult {
+                        success = true,
+                        successMessage = "A one-time access code has been sent to your email address."
+                    };
+                }
                 if (!cp.Site.GetBoolean("AllowLoginByEmailOtp", true)) {
                     return new SubmitLoginByEmailRequestResult {
                         success = false,

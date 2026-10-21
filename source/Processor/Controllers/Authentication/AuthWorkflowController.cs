@@ -120,6 +120,11 @@ namespace Contensive.Processor.Controllers {
                 }
                 if (processFormType == FormTypeLoginByEmailOtpRequest) {
                     //
+                    // -- honeypot: if the hidden "website" field has a value, silently discard (bot submission)
+                    if (!string.IsNullOrEmpty(core.cpParent.Doc.GetText("website"))) {
+                        return getLoginOtpEmailForm(core, "");
+                    }
+                    //
                     // -- process OTP email request: generate OTP, send email, show code form
                     string otpEmail = core.cpParent.Doc.GetText("email").Trim();
                     if (string.IsNullOrWhiteSpace(otpEmail)) {
@@ -185,6 +190,11 @@ namespace Contensive.Processor.Controllers {
                     // -- log in the user
                     AuthController.loginByIdWithMethod(core, core.session, userId, false, "otp");
                     return "";
+                }
+                //
+                // -- block bots from accessing method-based authentication forms
+                if (core.session.visit.bot) {
+                    return string.Empty;
                 }
                 //
                 // -- check if the user clicked the "Login with Email Code" link
@@ -283,6 +293,7 @@ namespace Contensive.Processor.Controllers {
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, "");
             layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpRequest);
+            layout += "<div style=\"position:absolute;left:-9999px\" aria-hidden=\"true\"><input type=\"text\" name=\"website\" tabindex=\"-1\" autocomplete=\"off\" value=\"\"></div>";
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);
             result = HtmlController.div(result, "ccLoginFormCon pt-4");

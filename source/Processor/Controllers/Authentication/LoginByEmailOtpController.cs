@@ -41,6 +41,16 @@ namespace Contensive.Processor.Controllers {
                 }
             }
             //
+            // -- rate limit: count OTP records for this IP in the last hour
+            string requestIp = cp.Request.RemoteIP;
+            if (isIpRateLimited(cp, requestIp)) {
+                return new CreateOtpResult {
+                    success = false,
+                    isNewUser = false,
+                    rateLimited = true
+                };
+            }
+            //
             // -- generate 6-digit OTP
             var random = new Random();
             string otpCode = random.Next(100000, 999999).ToString();
@@ -52,6 +62,7 @@ namespace Contensive.Processor.Controllers {
             otpRecord.otp = otpCode;
             otpRecord.expires = DateTime.Now.AddMinutes(10);
             otpRecord.used = false;
+            otpRecord.requestIp = requestIp;
             otpRecord.save(cp);
             //
             // -- check if user exists
@@ -171,6 +182,23 @@ namespace Contensive.Processor.Controllers {
                 }
             }
             return 0;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Check if the requesting IP has exceeded the OTP send rate limit.
+        /// </summary>
+        public static bool isIpRateLimited(CPBaseClass cp, string requestIp) {
+            if (string.IsNullOrEmpty(requestIp)) { return false; }
+            int maxSendsPerIpPerHour = cp.Site.GetInteger("OtpMaxSendsPerIpPerHour", 10);
+            if (maxSendsPerIpPerHour <= 0) { return false; }
+            string rateSql = $"select count(*) as cnt from ccLoginByEmailOtp where requestIp={cp.Db.EncodeSQLText(requestIp)} and dateadded>dateadd(hour,-1,getdate())";
+            using (var cs = cp.CSNew()) {
+                if (cs.OpenSQL(rateSql)) {
+                    return cs.GetInteger("cnt") >= maxSendsPerIpPerHour;
+                }
+            }
+            return false;
         }
         //
         //====================================================================================================

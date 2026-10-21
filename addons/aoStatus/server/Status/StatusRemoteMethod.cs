@@ -266,6 +266,26 @@ namespace Contensive.Addons.Status {
                     }
                 }
                 //
+                // -- check robots.txt blocks method= URLs (warning only, does not fail status)
+                {
+                    string robotsTxt = cp.Site.GetText("robotsTxt");
+                    bool blocksMethod = false;
+                    if (!string.IsNullOrEmpty(robotsTxt)) {
+                        foreach (string line in robotsTxt.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                            string trimmed = line.Trim();
+                            if (trimmed.StartsWith("Disallow:", StringComparison.OrdinalIgnoreCase) && trimmed.IndexOf("method=", StringComparison.OrdinalIgnoreCase) >= 0) {
+                                blocksMethod = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!blocksMethod) {
+                        resultList.AppendLine("warning, robots.txt does not contain a Disallow rule for method= URLs. Add 'Disallow: /*?*method=' to prevent bots from indexing authentication pages.");
+                    } else {
+                        resultList.AppendLine("ok, robots.txt blocks method= URLs.");
+                    }
+                }
+                //
                 return true;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "Exception in RunSiteDiagnostics");
