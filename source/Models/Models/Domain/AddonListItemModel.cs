@@ -67,6 +67,9 @@ namespace Contensive.Processor.Models {
         /// <param name="addonList"></param>
         /// <param name="executeContext"></param>
         public static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (addonList == null) {
+                return string.Empty;
+            }
             bool isEditing = cp.User.IsEditing();
             var result = new StringBuilder();
             int addonIndex = 0;
@@ -176,6 +179,9 @@ namespace Contensive.Processor.Models {
         /// <param name="addonList"></param>
         /// <param name="executeContext"></param>
         public static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (addonList == null) {
+                return;
+            }
             foreach (var addonListItem in addonList) {
                 if (addonListItem.columns != null) {
                     foreach (var column in addonListItem.columns) {
@@ -199,6 +205,9 @@ namespace Contensive.Processor.Models {
         /// <param name="instanceGuid"></param>
         /// <returns></returns>
         public static bool deleteInstance(CPBaseClass cp, List<AddonListItemModel> addonList, string instanceGuid) {
+            if (addonList == null) {
+                return false;
+            }
             foreach (var addon in addonList) {
                 if (addon.columns != null) {
                     foreach (var column in addon.columns) {
@@ -222,6 +231,9 @@ namespace Contensive.Processor.Models {
         /// <returns></returns>
         public static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
             try {
+                if (addonList == null) {
+                    return;
+                }
                 foreach (var addon in addonList) {
                     addon.renderedHtml = string.Empty;
                     addon.renderedAssets = new AddonAssetsModel();
