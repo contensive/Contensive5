@@ -398,11 +398,27 @@ namespace Contensive.IisUtil {
                 .Where(ip => !string.IsNullOrWhiteSpace(ip))
                 .Select(ip => ip.Trim())
                 .ToList();
-            // Clear existing ipSecurity entries and set allowUnlisted=true
+            // Clear existing ipSecurity collection by removing allowUnlisted attribute and clearing the collection
+            // This removes all existing deny/allow entries
+            try {
+                RunAppCmdOrThrow($"set config \"{siteName}\" /section:system.webServer/security/ipSecurity /-\"[ipAddress='*']\" /commit:apphost");
+            } catch {
+                // Ignore if no entries exist
+            }
             RunAppCmdOrThrow($"clear config \"{siteName}\" /section:system.webServer/security/ipSecurity /commit:apphost");
             RunAppCmdOrThrow($"set config \"{siteName}\" /section:system.webServer/security/ipSecurity /allowUnlisted:true /commit:apphost");
             // Add each deny entry
             foreach (string ipAddress in ipAddresses) {
+                // Check if entry already exists before adding to prevent duplicates
+                var (exitCode, stdout, _) = RunAppCmd($"list config \"{siteName}\" /section:system.webServer/security/ipSecurity");
+                if (exitCode == 0 && stdout.Contains($"ipAddress=\"{ipAddress}\"")) {
+                    // Entry already exists, remove it first
+                    try {
+                        RunAppCmdOrThrow($"set config \"{siteName}\" /section:system.webServer/security/ipSecurity /-\"[ipAddress='{ipAddress}']\" /commit:apphost");
+                    } catch {
+                        // Ignore if removal fails
+                    }
+                }
                 RunAppCmdOrThrow($"set config \"{siteName}\" /section:system.webServer/security/ipSecurity /+\"[ipAddress='{ipAddress}',allowed='false']\" /commit:apphost");
             }
             Console.WriteLine($"Synced {ipAddresses.Count} IP blocks to site [{siteName}]");
