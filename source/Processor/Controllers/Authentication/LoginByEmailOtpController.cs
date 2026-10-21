@@ -19,6 +19,28 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public static CreateOtpResult createAndSendOtp(CPBaseClass cp, string email) {
             //
+            // -- rate limit: count OTP records for this email in the last hour
+            int maxSendsPerHour = cp.Site.GetInteger("OtpMaxSendsPerHour", 5);
+            if (maxSendsPerHour > 0) {
+                string rateSql = $"select count(*) as cnt from ccLoginByEmailOtp where email={cp.Db.EncodeSQLText(email)} and dateadded>dateadd(hour,-1,getdate())";
+                using (var cs = cp.CSNew()) {
+                    if (cs.OpenSQL(rateSql)) {
+                        int recentCount = cs.GetInteger("cnt");
+                        if (recentCount >= maxSendsPerHour) {
+                            int userIdForLog = findUserIdByEmail(cp, email);
+                            if (userIdForLog > 0) {
+                                AuthenticationLogModel.log(cp, userIdForLog, false, "login fail", "otp", "otp send rate limited");
+                            }
+                            return new CreateOtpResult {
+                                success = false,
+                                isNewUser = false,
+                                rateLimited = true
+                            };
+                        }
+                    }
+                }
+            }
+            //
             // -- generate 6-digit OTP
             var random = new Random();
             string otpCode = random.Next(100000, 999999).ToString();
@@ -64,30 +86,67 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public static VerifyOtpResult verifyOtp(CPBaseClass cp, string email, string otpCode) {
             //
+            // -- look up user id for logging (0 if no user exists for this email)
+            int userIdForLog = findUserIdByEmail(cp, email);
+            //
             // -- find matching OTP record (unused, any expiration)
-            string otpQuery = $"select top 1 id, expires from ccLoginByEmailOtp where email={cp.Db.EncodeSQLText(email)} and otp={cp.Db.EncodeSQLText(otpCode)} and (used=0 or used is null) order by id desc";
+            string otpQuery = $"select top 1 id, expires, verifyAttempts from ccLoginByEmailOtp where email={cp.Db.EncodeSQLText(email)} and otp={cp.Db.EncodeSQLText(otpCode)} and (used=0 or used is null) order by id desc";
             int otpRecordId = 0;
             DateTime otpExpires = DateTime.MinValue;
+            int verifyAttempts = 0;
             using (var cs = cp.CSNew()) {
                 if (cs.OpenSQL(otpQuery)) {
                     otpRecordId = cs.GetInteger("id");
                     otpExpires = cs.GetDate("expires");
+                    verifyAttempts = cs.GetInteger("verifyAttempts");
                 }
             }
             if (otpRecordId == 0) {
+                //
+                // -- no match, log failure and delay to slow brute-force
+                if (userIdForLog > 0) {
+                    AuthenticationLogModel.log(cp, userIdForLog, false, "login fail", "otp", "invalid otp code");
+                }
+                System.Threading.Thread.Sleep(3000);
                 return new VerifyOtpResult {
                     valid = false,
                     expired = false
                 };
             }
+            //
+            // -- increment verify attempts
+            verifyAttempts++;
+            cp.Db.ExecuteNonQuery($"update ccLoginByEmailOtp set verifyAttempts={verifyAttempts} where id={otpRecordId}");
+            //
+            // -- check attempt limit
+            int maxAttempts = cp.Site.GetInteger("OtpMaxVerifyAttempts", 5);
+            if (maxAttempts > 0 && verifyAttempts > maxAttempts) {
+                //
+                // -- too many attempts, burn the code
+                cp.Db.ExecuteNonQuery($"update ccLoginByEmailOtp set used=1 where id={otpRecordId}");
+                if (userIdForLog > 0) {
+                    AuthenticationLogModel.log(cp, userIdForLog, false, "login fail", "otp", "otp verify too many attempts");
+                }
+                System.Threading.Thread.Sleep(3000);
+                return new VerifyOtpResult {
+                    valid = false,
+                    expired = false,
+                    tooManyAttempts = true
+                };
+            }
+            //
+            // -- check expiration
             if (otpExpires < DateTime.Now) {
+                if (userIdForLog > 0) {
+                    AuthenticationLogModel.log(cp, userIdForLog, false, "login fail", "otp", "otp code expired");
+                }
                 return new VerifyOtpResult {
                     valid = false,
                     expired = true
                 };
             }
             //
-            // -- mark OTP as used
+            // -- mark OTP as used (success)
             var otpRecord = DbBaseModel.create<LoginByEmailOtpModel>(cp, otpRecordId);
             if (otpRecord != null) {
                 otpRecord.used = true;
@@ -121,6 +180,7 @@ namespace Contensive.Processor.Controllers {
         public class CreateOtpResult {
             public bool success { get; set; }
             public bool isNewUser { get; set; }
+            public bool rateLimited { get; set; }
         }
         //
         //====================================================================================================
@@ -130,6 +190,7 @@ namespace Contensive.Processor.Controllers {
         public class VerifyOtpResult {
             public bool valid { get; set; }
             public bool expired { get; set; }
+            public bool tooManyAttempts { get; set; }
         }
     }
 }

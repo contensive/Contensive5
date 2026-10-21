@@ -129,7 +129,10 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- generate OTP, save record, send email
-                        LoginByEmailOtpController.createAndSendOtp(core.cpParent, otpEmail);
+                        var otpResult = LoginByEmailOtpController.createAndSendOtp(core.cpParent, otpEmail);
+                        if (otpResult.rateLimited) {
+                            return getLoginOtpEmailForm(core, "Too many code requests. Please wait before requesting another code.");
+                        }
                         //
                         // -- show OTP code entry form
                         return getLoginOtpCodeForm(core, otpEmail, "");
@@ -150,6 +153,9 @@ namespace Contensive.Processor.Controllers {
                     // -- verify OTP code
                     var verifyResult = LoginByEmailOtpController.verifyOtp(core.cpParent, otpEmail, otpCode);
                     if (!verifyResult.valid) {
+                        if (verifyResult.tooManyAttempts) {
+                            return getLoginOtpEmailForm(core, "Too many incorrect attempts. Please request a new code.");
+                        }
                         if (verifyResult.expired) {
                             return getLoginOtpEmailForm(core, "Your access code has expired. Please request a new code.");
                         }
@@ -167,10 +173,17 @@ namespace Contensive.Processor.Controllers {
                         newUser.personTypeId = (int)PersonTypeEnum.Contact;
                         newUser.save(core.cpParent);
                         userId = newUser.id;
+                    } else {
+                        //
+                        // -- block admin/developer OTP login
+                        var otpUser = DbBaseModel.create<PersonModel>(core.cpParent, userId);
+                        if (otpUser != null && (otpUser.admin || otpUser.developer)) {
+                            return getLoginOtpCodeForm(core, otpEmail, "Admin and developer accounts require password login.");
+                        }
                     }
                     //
                     // -- log in the user
-                    core.cpParent.User.LoginByID(userId);
+                    AuthController.loginByIdWithMethod(core, core.session, userId, false, "otp");
                     return "";
                 }
                 //

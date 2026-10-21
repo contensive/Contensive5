@@ -89,7 +89,7 @@ namespace Contensive.Processor.Addons {
                     data = new AuthenticateResponseData()
                 };
             } else {
-                if (!AuthController.authenticateById(core, core.session, userId)) {
+                if (!AuthController.authenticateById(core, core.session, userId, "impersonation")) {
                     //
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);

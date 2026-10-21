@@ -456,7 +456,7 @@ namespace Contensive.Processor.Controllers {
                     // -- if bearer token was resolved early, authenticate now that visit/visitor exist
                     //
                     if (earlyBearerAuth && earlyResolvedUser != null) {
-                        AuthController.authenticateById(core, this, earlyResolvedUser.id);
+                        AuthController.authenticateById(core, this, earlyResolvedUser.id, "bearer");
                         user = this.user;
                     }
                     //

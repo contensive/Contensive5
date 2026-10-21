@@ -8,5 +8,6 @@ namespace Contensive.Models.Db {
         public string otp { get; set; }
         public DateTime expires { get; set; }
         public bool used { get; set; }
+        public int verifyAttempts { get; set; }
     }
 }

@@ -152,6 +152,14 @@ namespace Contensive.Processor {
         /// </summary>
         internal const string sitePropertyName_AllowLoginByEmailOtp = "AllowLoginByEmailOtp";
         /// <summary>
+        /// Maximum number of OTP emails that can be sent to a single address per hour
+        /// </summary>
+        internal const string sitePropertyName_OtpMaxSendsPerHour = "OtpMaxSendsPerHour";
+        /// <summary>
+        /// Maximum number of verification attempts allowed per OTP code
+        /// </summary>
+        internal const string sitePropertyName_OtpMaxVerifyAttempts = "OtpMaxVerifyAttempts";
+        /// <summary>
         /// if true, user plain text password field to login. If false, has the entered password and compare to passwordHash
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";

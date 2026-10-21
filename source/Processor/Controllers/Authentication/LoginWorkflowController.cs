@@ -52,7 +52,7 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage},{UserErrorMessage}");
                     return false;
                 }
-                if (!AuthController.authenticateById(core, core.session, userId)) {
+                if (!AuthController.authenticateById(core, core.session, userId, "password")) {
                     ErrorController.addUserError(core, loginFailedError);
                     return false;
                 }
