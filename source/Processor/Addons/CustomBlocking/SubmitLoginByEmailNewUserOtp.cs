@@ -1,6 +1,7 @@
 
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using Contensive.Processor.Controllers;
 using System;
 
 namespace Contensive.Processor.Addons.CustomBlocking {
@@ -24,35 +25,27 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                     };
                 }
                 //
-                // -- find matching OTP record (unused, any expiration)
-                string otpQuery = $"select top 1 id, expires from ccLoginByEmailOtp where email={cp.Db.EncodeSQLText(emailInput)} and otp={cp.Db.EncodeSQLText(otpInput)} and (used=0 or used is null) order by id desc";
-                int otpRecordId = 0;
-                DateTime otpExpires = DateTime.MinValue;
-                using (var cs = cp.CSNew()) {
-                    if (cs.OpenSQL(otpQuery)) {
-                        otpRecordId = cs.GetInteger("id");
-                        otpExpires = cs.GetDate("expires");
+                // -- verify OTP code
+                var verifyResult = LoginByEmailOtpController.verifyOtp(cp, emailInput, otpInput);
+                if (!verifyResult.valid) {
+                    if (verifyResult.tooManyAttempts) {
+                        return new SubmitLoginByEmailNewUserOtpResult {
+                            success = false,
+                            expired = true,
+                            errorMessage = "Too many incorrect attempts. Please request a new code."
+                        };
                     }
-                }
-                if (otpRecordId == 0) {
+                    if (verifyResult.expired) {
+                        return new SubmitLoginByEmailNewUserOtpResult {
+                            success = false,
+                            expired = true,
+                            errorMessage = "Your access code has expired. Please request a new code."
+                        };
+                    }
                     return new SubmitLoginByEmailNewUserOtpResult {
                         success = false,
                         errorMessage = "Invalid access code. Please check your code and try again."
                     };
-                }
-                if (otpExpires < DateTime.Now) {
-                    return new SubmitLoginByEmailNewUserOtpResult {
-                        success = false,
-                        expired = true,
-                        errorMessage = "Your access code has expired. Please request a new code."
-                    };
-                }
-                //
-                // -- mark OTP as used
-                var otpRecord = DbBaseModel.create<LoginByEmailOtpModel>(cp, otpRecordId);
-                if (otpRecord != null) {
-                    otpRecord.used = true;
-                    otpRecord.save(cp);
                 }
                 //
                 // -- check if the current session user already has an email
@@ -101,7 +94,16 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                     newUser.save(cp);
                     loginUserId = newUser.id;
                 }
-                cp.User.LoginByID(loginUserId);
+                //
+                // -- block admin/developer OTP login
+                var loginUser = DbBaseModel.create<PersonModel>(cp, loginUserId);
+                if (loginUser != null && (loginUser.admin || loginUser.developer)) {
+                    return new SubmitLoginByEmailNewUserOtpResult {
+                        success = false,
+                        errorMessage = "Admin and developer accounts require password login."
+                    };
+                }
+                AuthController.loginByIdWithMethod(((CPClass)cp).core, ((CPClass)cp).core.session, loginUserId, false, "otp");
                 return new SubmitLoginByEmailNewUserOtpResult {
                     success = true,
                     successMessage = "Your account has been created and you have been logged in."

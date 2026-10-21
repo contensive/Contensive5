@@ -1830,7 +1830,7 @@ namespace Contensive.Processor.Controllers {
                         // Authenticate
                         //
                         if (pageForm.authenticateOnFormProcess) {
-                            AuthController.authenticateById(core, core.session, core.session.user.id);
+                            AuthController.authenticateById(core, core.session, core.session.user.id, "form");
                         }
                         //
                         // Join Group requested by page that created form

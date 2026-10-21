@@ -187,6 +187,11 @@ namespace Contensive.BaseModels {
             /// Same as vulnerablePlugins, for installed themes. WordPress only.
             /// </summary>
             public List<StatusVulnerableItemModel> vulnerableThemes { get; set; }
+            /// <summary>
+            /// True if the site's robots.txt contains a Disallow rule for method= query parameters.
+            /// False means bots may index authentication/workflow URLs. Contensive only.
+            /// </summary>
+            public bool? robotsBlocksMethodUrls { get; set; }
         }
         //
         /// <summary>

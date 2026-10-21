@@ -1025,7 +1025,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // reset the filename and save default robots.txt
                     robotsTxtFilename = defaultFilename;
-                    result = "User-agent: *\r\nDisallow: /admin/";
+                    result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /*?*method=";
                     core.privateFiles.saveFile(robotsTxtFilename, result);
                 }
                 return result;

@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
                 if (resolvedUser == null) { return false; }
                 //
                 // -- authenticate into the provided session
-                if (!AuthController.authenticateById(core, session, resolvedUser.id)) { return false; }
+                if (!AuthController.authenticateById(core, session, resolvedUser.id, "bearer")) { return false; }
                 authenticatedUserId = resolvedUser.id;
                 return true;
             } catch (Exception ex) {

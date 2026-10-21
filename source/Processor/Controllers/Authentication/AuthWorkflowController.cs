@@ -119,6 +119,11 @@ namespace Contensive.Processor.Controllers {
                 }
                 if (processFormType == FormTypeLoginByEmailOtpRequest) {
                     //
+                    // -- honeypot: if the hidden "website" field has a value, silently discard (bot submission)
+                    if (!string.IsNullOrEmpty(core.cpParent.Doc.GetText("website"))) {
+                        return getLoginOtpEmailForm(core, "");
+                    }
+                    //
                     // -- process OTP email request: generate OTP, send email, show code form
                     string otpEmail = core.cpParent.Doc.GetText("email").Trim();
                     if (string.IsNullOrWhiteSpace(otpEmail)) {
@@ -128,7 +133,10 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- generate OTP, save record, send email
-                        LoginByEmailOtpController.createAndSendOtp(core.cpParent, otpEmail);
+                        var otpResult = LoginByEmailOtpController.createAndSendOtp(core.cpParent, otpEmail);
+                        if (otpResult.rateLimited) {
+                            return getLoginOtpEmailForm(core, "Too many code requests. Please wait before requesting another code.");
+                        }
                         //
                         // -- show OTP code entry form
                         return getLoginOtpCodeForm(core, otpEmail, "");
@@ -149,6 +157,9 @@ namespace Contensive.Processor.Controllers {
                     // -- verify OTP code
                     var verifyResult = LoginByEmailOtpController.verifyOtp(core.cpParent, otpEmail, otpCode);
                     if (!verifyResult.valid) {
+                        if (verifyResult.tooManyAttempts) {
+                            return getLoginOtpEmailForm(core, "Too many incorrect attempts. Please request a new code.");
+                        }
                         if (verifyResult.expired) {
                             return getLoginOtpEmailForm(core, "Your access code has expired. Please request a new code.");
                         }
@@ -166,11 +177,23 @@ namespace Contensive.Processor.Controllers {
                         newUser.personTypeId = (int)PersonTypeEnum.Contact;
                         newUser.save(core.cpParent);
                         userId = newUser.id;
+                    } else {
+                        //
+                        // -- block admin/developer OTP login
+                        var otpUser = DbBaseModel.create<PersonModel>(core.cpParent, userId);
+                        if (otpUser != null && (otpUser.admin || otpUser.developer)) {
+                            return getLoginOtpCodeForm(core, otpEmail, "Admin and developer accounts require password login.");
+                        }
                     }
                     //
                     // -- log in the user
-                    core.cpParent.User.LoginByID(userId);
+                    AuthController.loginByIdWithMethod(core, core.session, userId, false, "otp");
                     return "";
+                }
+                //
+                // -- block bots from accessing method-based authentication forms
+                if (core.session.visit.bot) {
+                    return string.Empty;
                 }
                 //
                 // -- check if the user clicked the "Login with Email Code" link
@@ -269,6 +292,7 @@ namespace Contensive.Processor.Controllers {
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpEmailGuid, layoutLoginOtpEmailName, layoutLoginOtpEmailCdnPathFilename, "");
             layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpRequest);
+            layout += "<div style=\"position:absolute;left:-9999px\" aria-hidden=\"true\"><input type=\"text\" name=\"website\" tabindex=\"-1\" autocomplete=\"off\" value=\"\"></div>";
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);
             result = HtmlController.div(result, "ccLoginFormCon pt-4");
