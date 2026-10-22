@@ -309,6 +309,28 @@ else {
                         continue
                     }
 
+                    # Stop the app pool to release file locks on bin DLLs.
+                    # Without this, msdeploy may silently skip locked assemblies
+                    # (e.g. Processor.dll), leaving stale binaries that cause
+                    # assembly version mismatch errors at runtime.
+                    if ($iisModuleAvailable) {
+                        try {
+                            $pool = Get-Item "IIS:\AppPools\$appName" -ErrorAction SilentlyContinue
+                            if ($pool -and $pool.State -eq "Started") {
+                                Write-Host "  [$appName] Stopping app pool..."
+                                Stop-WebAppPool -Name $appName
+                                $retries = 0
+                                while ((Get-WebAppPoolState -Name $appName).Value -ne "Stopped" -and $retries -lt 15) {
+                                    Start-Sleep -Seconds 1
+                                    $retries++
+                                }
+                            }
+                        }
+                        catch {
+                            Write-Host "  [$appName] Could not stop app pool: $_" -ForegroundColor Yellow
+                        }
+                    }
+
                     # Replicate IIS Manager "Deploy > Import Application" behavior.
                     # Uses -dest:auto so the package manifest selects the correct provider.
                     # -setParam retargets the package to this IIS site.
@@ -323,6 +345,20 @@ else {
                         Write-Host "  [$appName] Web Deploy output:" -ForegroundColor Red
                         $msdeployOutput | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
                         throw "msdeploy exited with code $LASTEXITCODE"
+                    }
+
+                    # Start the app pool back up
+                    if ($iisModuleAvailable) {
+                        try {
+                            $pool = Get-Item "IIS:\AppPools\$appName" -ErrorAction SilentlyContinue
+                            if ($pool -and $pool.State -eq "Stopped") {
+                                Start-WebAppPool -Name $appName
+                                Write-Host "  [$appName] App pool started" -ForegroundColor Green
+                            }
+                        }
+                        catch {
+                            Write-Host "  [$appName] Could not start app pool: $_" -ForegroundColor Yellow
+                        }
                     }
                 }
                 else {
@@ -386,8 +422,8 @@ else {
                 Write-Host "  [$appName] FAILED: $_" -ForegroundColor Red
                 $failCount++
 
-                # Try to restart the app pool if we stopped it for a Core site
-                if (-not $isFramework -and $iisModuleAvailable) {
+                # Try to restart the app pool if we stopped it
+                if ($iisModuleAvailable) {
                     try {
                         $pool = Get-Item "IIS:\AppPools\$appName" -ErrorAction SilentlyContinue
                         if ($pool -and $pool.State -eq "Stopped") {
