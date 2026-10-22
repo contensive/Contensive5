@@ -2253,7 +2253,8 @@ namespace Contensive.Processor.Controllers {
             string callStack = "";
             StackTrace stackTrace = new StackTrace();
             foreach (var stackFrame in stackTrace.GetFrames()) {
-                callStack += " > " + stackFrame.GetMethod().GetType().Name + "." + stackFrame.GetMethod().Name + "()";
+                string typeName = stackFrame.GetMethod().DeclaringType?.Name ?? "UnknownType";
+                callStack += $" > {typeName}.{stackFrame.GetMethod().Name}()";
             }
             return callStack;
         }

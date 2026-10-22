@@ -57,7 +57,7 @@ namespace Contensive.Processor.Controllers {
                 string qs = core.doc.refreshQueryString;
                 qs = GenericController.modifyQueryString(qs, "method", "");
                 qs = GenericController.modifyQueryString(qs, "RequestBinary", "");
-                return core.webServer.redirect("?" + qs, "Login form success");
+                return core.webServer.redirect("?" + qs, $"Custom login addon [{core.siteProperties.loginPageAddonId}] returned empty (success), redirect to refresh page");
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
