@@ -37,10 +37,12 @@ function Get-ContensiveVersion {
 .SYNOPSIS
     Returns a date-based version string (YY.M.D.S) where S is the number
     of seconds elapsed since midnight divided by 2 (max 43200, fits UInt16).
+    On non-main branches, appends the branch name as a pre-release suffix
+    (e.g. "26.4.23.30150-staging").
 .PARAMETER DeploymentRoot
     Root folder under which versioned deployment sub-folders are created.
 .OUTPUTS
-    Version string, e.g. "26.4.23.30150"
+    Version string, e.g. "26.4.23.30150" or "26.4.23.30150-staging"
 #>
     param(
         [Parameter(Mandatory)][string]$DeploymentRoot
@@ -50,7 +52,17 @@ function Get-ContensiveVersion {
     $month = $now.Month.ToString()
     $day   = $now.Day.ToString()
     $rev   = [int][math]::Floor(($now.Hour * 3600 + $now.Minute * 60 + $now.Second) / 2)
-    return "$yy.$month.$day.$rev"
+    $base  = "$yy.$month.$day.$rev"
+    #
+    # -- append branch name as pre-release suffix for non-main branches
+    $branch = ''
+    try { $branch = (git rev-parse --abbrev-ref HEAD 2>$null) } catch {}
+    if ($branch -and $branch -ne 'main' -and $branch -ne 'master') {
+        # sanitize: NuGet pre-release allows only alphanumerics and hyphens
+        $suffix = $branch -replace '[^a-zA-Z0-9-]', '-'
+        return "$base-$suffix"
+    }
+    return $base
 }
 
 function Find-MSBuild {
@@ -148,9 +160,10 @@ function Invoke-DotnetBuildSolution {
     $buildArgs = @($buildTarget, "--configuration", $Configuration)
     if ($ProjectPath) { $buildArgs += '--no-dependencies' }
     if ($Version) {
+        $numericVersion = ($Version -split '-')[0]
         $buildArgs += "/property:Version=$Version"
-        $buildArgs += "/property:AssemblyVersion=$Version"
-        $buildArgs += "/property:FileVersion=$Version"
+        $buildArgs += "/property:AssemblyVersion=$numericVersion"
+        $buildArgs += "/property:FileVersion=$numericVersion"
     }
 
     Write-Host "Building solution ($Configuration) via dotnet CLI..."
@@ -191,7 +204,12 @@ function Invoke-MSBuildSolution {
 
     Write-Host "Building solution ($Configuration)..."
     $msbuildArgs = @($SolutionPath, "/p:Configuration=$Configuration", '/p:Platform=Any CPU', '/t:Rebuild', '/verbosity:minimal')
-    if ($Version) { $msbuildArgs += "/p:Version=$Version" }
+    if ($Version) {
+        $numericVersion = ($Version -split '-')[0]
+        $msbuildArgs += "/p:Version=$Version"
+        $msbuildArgs += "/p:AssemblyVersion=$numericVersion"
+        $msbuildArgs += "/p:FileVersion=$numericVersion"
+    }
     & $MSBuild @msbuildArgs
     if ($LASTEXITCODE -ne 0) { throw "MSBuild failed for: $SolutionPath" }
 }
