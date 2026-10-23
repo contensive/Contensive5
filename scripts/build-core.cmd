@@ -23,7 +23,19 @@ pause
 rem Setup deployment folder with date-based version (YY.M.D.S where S = seconds/2)
 rem Use PowerShell for reliable date/time parsing (matches contensive-build.psm1)
 set deploymentFolderRoot=C:\Deployments\Contensive5-Core\
-for /f "delims=" %%v in ('powershell -NoProfile -Command "$n=Get-Date;$s=[int][math]::Floor(($n.Hour*3600+$n.Minute*60+$n.Second)/2);'{0}.{1}.{2}.{3}' -f ($n.Year-2000),$n.Month,$n.Day,$s"') do set versionNumber=%%v
+
+if not "%CUSTOM_VERSION%"=="" (
+   set versionNumber=%CUSTOM_VERSION%
+   @echo.
+   @echo Using custom version: %CUSTOM_VERSION%
+   @echo.
+) else (
+   for /f "delims=" %%v in ('powershell -NoProfile -Command "$n=Get-Date;$s=[int][math]::Floor(($n.Hour*3600+$n.Minute*60+$n.Second)/2);$base='{0}.{1}.{2}.{3}' -f ($n.Year-2000),$n.Month,$n.Day,$s;$branch='';try{$branch=(git rev-parse --abbrev-ref HEAD 2>$null)}catch{};if($branch -and $branch -ne 'main' -and $branch -ne 'master'){$suffix=$branch -replace '[^a-zA-Z0-9-]','-';\"$base-$suffix\"}else{$base}"') do set versionNumber=%%v
+)
+
+rem Extract numeric-only version (strip pre-release suffix) for AssemblyVersion/FileVersion
+for /f "tokens=1 delims=-" %%n in ("%versionNumber%") do set numericVersion=%%n
+
 md "%deploymentFolderRoot%%versionNumber%"
 
 @echo.
@@ -127,7 +139,7 @@ set NuGetLocalPackagesFolder=C:\NuGetLocalPackages\
 
 cd ..\source
 
-dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
+dotnet build CPBase/CPBase.csproj --no-incremental --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%numericVersion% /property:Version=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo.
    echo FAILURE building CPBase
@@ -135,7 +147,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=netstandard2.0
+dotnet build Models/Models.csproj --no-incremental --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%numericVersion% /property:Version=%versionNumber% -p:TargetFramework=netstandard2.0
 if errorlevel 1 (
    echo.
    echo FAILURE building Models
@@ -143,7 +155,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net48
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net48
 if errorlevel 1 (
    echo.
    echo FAILURE building Processor net48
@@ -151,7 +163,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net9.0-windows
 if errorlevel 1 (
    echo.
    echo FAILURE building Processor net9.0-windows
@@ -262,7 +274,7 @@ rem
 
 cd ..\source
 
-dotnet publish WebApi/WebApi.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\WebApi" --runtime win-x64 --self-contained false /property:Version=%versionNumber%
+dotnet publish WebApi/WebApi.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\WebApi" --runtime win-x64 --self-contained false /property:Version=%versionNumber% /property:FileVersion=%numericVersion%
 if errorlevel 1 (
    echo.
    echo FAILURE publishing WebApi
@@ -283,7 +295,7 @@ rem
 
 cd ..\source
 
-dotnet publish Cli/Cli.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\Cli" --runtime win-x64 --self-contained false /property:Version=%versionNumber% -p:TargetFramework=net9.0-windows
+dotnet publish Cli/Cli.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\Cli" --runtime win-x64 --self-contained false /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net9.0-windows
 if errorlevel 1 (
    echo.
    echo FAILURE publishing CLI
@@ -304,7 +316,7 @@ rem
 
 cd ..\source
 
-dotnet publish TaskService/TaskService.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\TaskService" --runtime win-x64 --self-contained false /property:Version=%versionNumber%
+dotnet publish TaskService/TaskService.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\TaskService" --runtime win-x64 --self-contained false /property:Version=%versionNumber% /property:FileVersion=%numericVersion%
 if errorlevel 1 (
    echo.
    echo FAILURE publishing TaskService
