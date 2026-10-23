@@ -193,7 +193,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- block bots from accessing method-based authentication forms
                 if (core.session.visit.bot) {
-                    return string.Empty;
+                    return "<!-- login blocked -->";
                 }
                 //
                 // -- check if the user clicked the "Login with Email Code" link
