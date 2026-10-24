@@ -41,12 +41,22 @@ function Get-ContensiveVersion {
     (e.g. "26.4.23.30150-staging").
 .PARAMETER DeploymentRoot
     Root folder under which versioned deployment sub-folders are created.
+.PARAMETER RepoPath
+    Path inside the git repository. Used with 'git -C' to reliably detect
+    the current branch regardless of the process working directory.
+    Required — without it, branch detection fails when the build runs from
+    a directory outside the repo (e.g. C:\Windows\System32 in an elevated
+    Administrator shell).
 .OUTPUTS
     Version string, e.g. "26.4.23.30150" or "26.4.23.30150-staging"
 #>
     param(
-        [Parameter(Mandatory)][string]$DeploymentRoot
+        [Parameter(Mandatory)][string]$DeploymentRoot,
+        [Parameter(Mandatory)][string]$RepoPath
     )
+    if (-not (Test-Path $RepoPath)) {
+        throw "Get-ContensiveVersion: -RepoPath '$RepoPath' does not exist. Pass `$projectRoot or a path inside the git repo (e.g. -RepoPath `$projectRoot)."
+    }
     $now   = Get-Date
     $yy    = $now.ToString('yy')
     $month = $now.Month.ToString()
@@ -56,7 +66,7 @@ function Get-ContensiveVersion {
     #
     # -- append branch name as pre-release suffix for non-main branches
     $branch = ''
-    try { $branch = (git rev-parse --abbrev-ref HEAD 2>$null) } catch {}
+    try { $branch = (git -C $RepoPath rev-parse --abbrev-ref HEAD 2>$null) } catch {}
     if ($branch -and $branch -ne 'main' -and $branch -ne 'master') {
         # sanitize: NuGet pre-release allows only alphanumerics and hyphens
         $suffix = $branch -replace '[^a-zA-Z0-9-]', '-'
@@ -312,7 +322,7 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     # Step 1 — Resolve version, deployment folder, and tools
     # -----------------------------------------------------------------------
-    $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot
+    $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot -RepoPath $CollectionPath
     $deploymentFolder = New-DeploymentFolder  -DeploymentRoot $DeploymentRoot -Version $version
     $hasSolution      = [bool]$SolutionPath
     $useDotnet        = [bool]$DotnetProjectPath
