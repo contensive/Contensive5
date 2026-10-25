@@ -275,13 +275,13 @@ set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBu
 
 cd ..\source\iisdefaultsite
 dotnet remove package Contensive.CPBaseClass
-dotnet add package Contensive.CPBaseClass --source "%NuGetStagingFolder%"
+dotnet add package Contensive.CPBaseClass --version "%versionNumber%" --source "%NuGetStagingFolder%"
 
 dotnet remove package Contensive.DbModels
-dotnet add package Contensive.DbModels --source "%NuGetStagingFolder%"
+dotnet add package Contensive.DbModels --version "%versionNumber%" --source "%NuGetStagingFolder%"
 
 dotnet remove package Contensive.Processor
-dotnet add package Contensive.Processor --source "%NuGetStagingFolder%"
+dotnet add package Contensive.Processor --version "%versionNumber%" --source "%NuGetStagingFolder%"
 cd ..\..\scripts
 
 @echo.
