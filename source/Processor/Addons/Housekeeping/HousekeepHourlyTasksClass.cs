@@ -70,6 +70,18 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- logs
                 ActivityLogClass.executeHourlyTasks(env);
                 //
+                // -- tasks
+                TasksClass.executeHourlyTasks(env);
+                //
+                // -- admin recents
+                AdminRecentClass.executeHourlyTasks(env);
+                //
+                // -- content watch list rules
+                ContentWatchListRulesClass.executeHourlyTasks(env);
+                //
+                // -- email bounce list
+                EmailBounceListClass.executeHourlyTasks(env);
+                //
                 // -- site warnings
                 SiteWarningsClass.setWarnings(env);
                 //
