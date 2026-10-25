@@ -178,21 +178,22 @@ namespace Contensive.Processor.Controllers {
                         Stopwatch swTask = new();
                         swTask.Start();
                         //
-                        // -- two execution methods, 1) run task here, 2) start process and wait (so bad addon code does not memory link)
-                        bool runInServiceProcess = cp.Site.GetBoolean("Run tasks in service process");
+                        // -- two execution methods:
+                        // --   out-of-process (default): start cc.exe and wait. Supports timeout and process kill.
+                        // --   in-process (fallback): run directly in the service. No timeout/kill support.
                         string cliPathFilename = cp.core.programFiles.localAbsRootPath + "cc.exe";
-                        if (!runInServiceProcess && !System.IO.File.Exists(cliPathFilename)) {
-                            runInServiceProcess = true;
-                            string errMsg = "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cp.core.programFiles.localAbsRootPath + "]";
-                            Logger.Error(cp.core.logCommonMessage + "," + errMsg);
+                        bool runOutOfProcess = !cp.Site.GetBoolean("Run tasks in service process");
+                        if (runOutOfProcess && !System.IO.File.Exists(cliPathFilename)) {
+                            runOutOfProcess = false;
+                            logger.Warn($"{cp.core.logCommonMessage},TaskRunner falling back to in-process execution because cc.exe not found in [{cp.core.programFiles.localAbsRootPath}]");
                         }
-                        if (runInServiceProcess) {
+                        if (!runOutOfProcess) {
                             //
-                            // -- execute here
+                            // -- execute in-process (no timeout/kill support)
                             executeRunnerTasks(cp.Site.Name, runnerGuid);
                         } else {
                             //
-                            // -- execute in new  process
+                            // -- execute out-of-process with timeout and kill support
                             string filename = "cc.exe";
                             string workingDirectory = cp.core.programFiles.localAbsRootPath;
                             string arguments = "-a \"" + appKVP.Value.name + "\" --runTask \"" + runnerGuid + "\"";
@@ -226,10 +227,14 @@ namespace Contensive.Processor.Controllers {
                                     process.WaitForExit(timeoutMsec);
                                 }
                                 if (!process.HasExited) {
-                                    string errMsg = "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].";
-                                    Logger.Error(cp.core.logCommonMessage + "," + errMsg);
+                                    logger.Error($"{cp.core.logCommonMessage},TaskRunner killing process, task timed out, app [{appKVP.Value.name}], task [{task.name}]");
                                     process.Kill();
                                     process.WaitForExit();
+                                    //
+                                    // -- mark the task as failed immediately so housekeeping doesn't have to catch it
+                                    task.dateCompleted = cp.core.dateTimeNowMockable;
+                                    task.failMessage = $"Task killed after timeout ({task.timeout}s)";
+                                    task.save(cp);
                                 }
                                 process.Close();
                             }

@@ -59,6 +59,11 @@ if not "%CUSTOM_VERSION%"=="" (
 rem Extract numeric-only version (strip pre-release suffix) for AssemblyVersion/FileVersion
 for /f "tokens=1 delims=-" %%n in ("%versionNumber%") do set numericVersion=%%n
 
+rem Temp NuGet staging folder holds only the packages from this build.
+rem The iisDefaultSite restore uses this as its sole Contensive package source,
+rem eliminating version ambiguity regardless of branch name or prerelease suffix.
+set NuGetStagingFolder=%deploymentFolderRoot%%versionNumber%\NugetStaging
+
 md "%deploymentFolderRoot%%versionNumber%"
 
 @echo.
@@ -236,17 +241,22 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem move packages to deployment folder (Nuget subfolder) and local package cache
+rem move packages to deployment folder (Nuget subfolder), local package cache,
+rem and the temp staging folder used by the iisDefaultSite build
 md "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
+md "%NuGetStagingFolder%" 2>nul
 
 move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
 move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
 move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
 cd ..\scripts
 
@@ -265,13 +275,13 @@ set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBu
 
 cd ..\source\iisdefaultsite
 dotnet remove package Contensive.CPBaseClass
-dotnet add package Contensive.CPBaseClass --source c:\NuGetLocalPackages
+dotnet add package Contensive.CPBaseClass --source "%NuGetStagingFolder%"
 
 dotnet remove package Contensive.DbModels
-dotnet add package Contensive.DbModels --source c:\NuGetLocalPackages
+dotnet add package Contensive.DbModels --source "%NuGetStagingFolder%"
 
 dotnet remove package Contensive.Processor
-dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
+dotnet add package Contensive.Processor --source "%NuGetStagingFolder%"
 cd ..\..\scripts
 
 @echo.
@@ -282,7 +292,7 @@ del /q "..\WebDeploymentPackage\*.*" 2>nul
 
 cd ..\source
 
-dotnet restore ContensiveAspx.sln
+dotnet restore ContensiveAspx.sln --source "%NuGetStagingFolder%" --source https://api.nuget.org/v3/index.json
 if errorlevel 1 (
    echo.
    echo FAILURE restoring iisDefaultSite packages
@@ -509,6 +519,7 @@ del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\FrameworkSite" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
+rd /s /q "%NuGetStagingFolder%" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\Docker" 2>nul
 
 rem ==============================================================
