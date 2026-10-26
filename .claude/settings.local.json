@@ -97,7 +97,10 @@
       "Bash(done)",
       "Bash(git check-ignore:*)",
       "Bash(git -C /c/Git/Contensive5 log --oneline -- source/ContensiveMcpServer/)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(git -C /c/Git/Contensive5 log --all --oneline --grep=\"mcp\\\\|MCP\")",
+      "Bash(git -C /c/Git/Contensive5 show 85f9525d2:addons/aoMcp/server/Mcp/McpToolDefinitions.cs)",
+      "Bash(git -C /c/Git/Contensive5 branch -a)"
     ]
   }
 }

@@ -18400,5 +18400,41 @@
     "tags": [
       "search-engine"
     ]
+  },
+  {
+    "pattern": "9bot\\/",
+    "addition_date": "2026/10/19",
+    "url": "https://9bot.com.br/en/9bot-docs/",
+    "instances": [
+      "9bot/1.0 (+https://9bot.com.br/en/9bot-docs)"
+    ],
+    "description": "9bot is the link-preview fetcher of 9bot.com.br, a WhatsApp group management service. It fetches a single public page only when its URL is shared in a 9bot-managed WhatsApp group, to build the link preview.",
+    "tags": [
+      "social-preview"
+    ]
+  },
+  {
+    "pattern": "IsonAI-User",
+    "addition_date": "2026/10/22",
+    "url": "https://docs.isonai.com/en/bots/",
+    "instances": [
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; IsonAI-User/1.0; +https://www.isonai.com/bot"
+    ],
+    "description": "IsonAI-User fetches a web page when a person using the IsonAI assistant asks about it. It does not crawl automatically and is not used to build a search index.",
+    "tags": [
+      "ai-crawler"
+    ]
+  },
+  {
+    "pattern": "InfoSifter",
+    "addition_date": "2026/09/22",
+    "url": "https://logicus.se/about_InfoSifter.html",
+    "instances": [
+      "InfoSifter/1.0 (+https://logicus.se/about_InfoSifter.html)"
+    ],
+    "description": "InfoSifter verifies the public web presence of Swedish companies (official website, published contact details) for a company database operated on behalf of its client. It fetches only the homepage and contact pages as HTML, respects robots.txt per RFC 9309, and always identifies itself with a contact URL.",
+    "tags": [
+      "monitoring"
+    ]
   }
 ]
