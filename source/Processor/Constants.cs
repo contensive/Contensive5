@@ -442,6 +442,8 @@ namespace Contensive.Processor {
         internal const string FormTypePasswordRecovery = "lk0q56am09";
         internal const string FormTypeLoginByEmailOtpRequest = "otpEmailReq01";
         internal const string FormTypeLoginByEmailOtpVerify = "otpEmailVfy01";
+        internal const string FormTypeLoginByEmailOtpResend = "otpEmailRsn01";
+        internal const string FormTypeLoginByEmailOtpCancel = "otpEmailCnl01";
         internal const string FormTypeRegister = "6df38abv00";
         internal const string FormTypeHelpBubbleEditor = "9df019d77sA";
         internal const string FormTypeAddonSettingsEditor = "4ed923aFGw9d";

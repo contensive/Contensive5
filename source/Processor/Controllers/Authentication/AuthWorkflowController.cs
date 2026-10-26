@@ -190,6 +190,29 @@ namespace Contensive.Processor.Controllers {
                     AuthController.loginByIdWithMethod(core, core.session, userId, false, "otp");
                     return "";
                 }
+                if (processFormType == FormTypeLoginByEmailOtpResend) {
+                    //
+                    // -- resend OTP: invalidate existing codes, generate a new one, show the code form
+                    string otpEmail = core.cpParent.Doc.GetText("email").Trim();
+                    if (string.IsNullOrWhiteSpace(otpEmail)) {
+                        return getLoginOtpEmailForm(core, "");
+                    }
+                    LoginByEmailOtpController.invalidateOtp(core.cpParent, otpEmail);
+                    var otpResult = LoginByEmailOtpController.createAndSendOtp(core.cpParent, otpEmail);
+                    if (otpResult.rateLimited) {
+                        return getLoginOtpCodeForm(core, otpEmail, "Too many code requests. Please wait before requesting another code.");
+                    }
+                    return getLoginOtpCodeForm(core, otpEmail, "", "A new access code has been sent to your email.");
+                }
+                if (processFormType == FormTypeLoginByEmailOtpCancel) {
+                    //
+                    // -- cancel OTP: invalidate existing codes and return to the email entry form
+                    string otpEmail = core.cpParent.Doc.GetText("email").Trim();
+                    if (!string.IsNullOrWhiteSpace(otpEmail)) {
+                        LoginByEmailOtpController.invalidateOtp(core.cpParent, otpEmail);
+                    }
+                    return getLoginOtpEmailForm(core, "");
+                }
                 //
                 // -- block bots from accessing method-based authentication forms
                 if (core.session.visit.bot) {
@@ -310,9 +333,18 @@ namespace Contensive.Processor.Controllers {
         /// Returns the OTP code verification form wrapped in the standard login container
         /// </summary>
         private static string getLoginOtpCodeForm(CoreController core, string otpEmail, string userErrorMessage) {
+            return getLoginOtpCodeForm(core, otpEmail, userErrorMessage, "");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Returns the OTP code verification form wrapped in the standard login container.
+        /// userInfoMessage displays as a success alert (e.g. after resending a code).
+        /// </summary>
+        private static string getLoginOtpCodeForm(CoreController core, string otpEmail, string userErrorMessage, string userInfoMessage) {
             string loginLogoSrc = getLoginLogoUrl(core);
             string layout = LayoutController.getLayout(core.cpParent, layoutLoginOtpCodeGuid, layoutLoginOtpCodeName, layoutLoginOtpCodeCdnPathFilename, "");
-            layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage, otpEmail, loginLogoSrc });
+            layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage, userInfo = userInfoMessage, otpEmail, loginLogoSrc });
             layout += HtmlController.inputHidden("Type", FormTypeLoginByEmailOtpVerify);
             string action = core.cpParent.Request.QueryString;
             string result = HtmlController.form(core, layout, action);

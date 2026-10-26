@@ -203,6 +203,15 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Invalidate all unused OTP records for the given email by marking them as used.
+        /// Called before resending a new code so the old code cannot be reused.
+        /// </summary>
+        public static void invalidateOtp(CPBaseClass cp, string email) {
+            cp.Db.ExecuteNonQuery($"update ccLoginByEmailOtp set used=1 where email={cp.Db.EncodeSQLText(email)} and (used=0 or used is null)");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Result from createAndSendOtp
         /// </summary>
         public class CreateOtpResult {

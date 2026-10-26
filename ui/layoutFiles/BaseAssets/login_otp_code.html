@@ -52,17 +52,19 @@
 	{{/loginLogoSrc}}
     <h4 class="mt-0">Enter Your Access Code</h4>
 	{{#userError}}<div class="alert alert-danger" role="alert">{{{userError}}}</div>{{/userError}}
+	{{#userInfo}}<div class="alert alert-success" role="alert">{{{userInfo}}}</div>{{/userInfo}}
 	<p class="text-muted">A one-time access code has been sent to <b>{{otpEmail}}</b>. Enter the code below.</p>
 	<div class="otp-floating-label-group">
 		<input type="text" name="otp" id="otpInputCode" class="form-control" maxlength="6" required autofocus>
 		<label for="otpInputCode">Access Code</label>
 	</div>
 	<input type="hidden" name="email" value="{{otpEmail}}">
-	<div class="pt-2 d-grid">
+	<div class="pt-2 d-grid gap-2">
 		<button class="btn btn-success btn-block" type="submit">Verify Code</button>
-	</div>
-	<div class="pt-2 text-center">
-		<a href="?" class="text-muted">Back to Login</a>
+		<div class="d-flex gap-2">
+			<button class="btn btn-outline-secondary flex-fill" type="submit" onclick="document.querySelector('input[name=Type]').value='otpEmailRsn01'">Resend Code</button>
+			<button class="btn btn-outline-secondary flex-fill" type="submit" onclick="document.querySelector('input[name=Type]').value='otpEmailCnl01'">Cancel</button>
+		</div>
 	</div>
 </div>
 
