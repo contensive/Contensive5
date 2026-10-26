@@ -4069,6 +4069,17 @@
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.SubmitLoginByEmailNewUserOtp]]></DotNetClass>
 	</Addon>
 
+	<Addon Name="ResendLoginByEmailOtp" Guid="{327E1C3C-BC30-470C-A1D0-514E2F92DEF6}" Type="Add-on">
+		<Category></Category>
+		<Admin>No</Admin>
+		<Content>No</Content>
+		<Template>No</Template>
+		<Email>No</Email>
+		<RemoteMethod>Yes</RemoteMethod>
+		<BlockEditTools>Yes</BlockEditTools>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.ResendLoginByEmailOtp]]></DotNetClass>
+	</Addon>
+
 	<Addon Name="Widget Dashboard" Guid="{b146d928-f1f1-4e8c-bdfb-0abfc21bccbe}" Type="Add-on">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboard]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>

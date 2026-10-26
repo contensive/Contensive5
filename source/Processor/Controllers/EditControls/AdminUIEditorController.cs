@@ -879,7 +879,6 @@ namespace Contensive.Processor.Controllers.EditControls {
             try {
                 //
                 var groupRuleEditor = new GroupRuleEditorModel {
-                    listCaption = "Groups",
                     exclusiveSetList = new List<ExclusiveSetSectionModel>(),
                     rowList = new List<GroupRuleEditorRowModel>()
                 };
@@ -1034,6 +1033,10 @@ namespace Contensive.Processor.Controllers.EditControls {
                         setIndex++;
                     }
                     groupRuleEditor.hasExclusiveSets = groupRuleEditor.exclusiveSetList.Count > 0;
+                    groupRuleEditor.exclusiveSetsCaption = "Exclusive Group Sets";
+                    groupRuleEditor.exclusiveSetsDescription = "Each set below is mutually exclusive. A person can belong to only one group within each set.";
+                    groupRuleEditor.individualGroupsCaption = "Individual Groups";
+                    groupRuleEditor.individualGroupsDescription = "A person can belong to any combination of these groups.";
                     //
                     // -- emit exclusive set count hidden field in the first exclusive set section's hiddenFields,
                     //    or append to the normal group section if no exclusive sets
@@ -1092,6 +1095,10 @@ namespace Contensive.Processor.Controllers.EditControls {
             public string listCaption;
             public string helpText;
             public bool hasExclusiveSets;
+            public string exclusiveSetsCaption;
+            public string exclusiveSetsDescription;
+            public string individualGroupsCaption;
+            public string individualGroupsDescription;
             public List<ExclusiveSetSectionModel> exclusiveSetList;
             public List<GroupRuleEditorRowModel> rowList;
         }

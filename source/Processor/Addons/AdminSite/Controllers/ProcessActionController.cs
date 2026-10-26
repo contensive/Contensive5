@@ -616,7 +616,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                 // --- process exclusive set groups (radio buttons)
                 int exclusiveSetCount = cp.core.docProperties.getInteger("ExclusiveSet.Count");
                 for (int setIndex = 0; setIndex < exclusiveSetCount; setIndex++) {
-                    int selectedGroupId = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}");
+                    int selectedGroupId = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}.SelectedGroupId");
                     int groupCountInSet = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}.GroupCount");
                     DateTime dateExpires = cp.core.docProperties.getDate($"ExclusiveSet.{setIndex}.DateExpires");
                     int roleId = cp.core.docProperties.getInteger($"ExclusiveSet.{setIndex}.RoleId");

@@ -42,8 +42,12 @@
           <label for="loginByEmailOtpInput" class="form-label">Access Code</label>
           <input type="text" class="form-control" id="loginByEmailOtpInput" placeholder="123456" maxlength="6" aria-label="Access Code">
         </div>
-        <div class="mt-3">
+        <div id="otpInfo" class="text-success mt-2" style="display:none;"></div>
+        <div id="otpError" class="text-danger mt-2" style="display:none;"></div>
+        <div class="mt-3 d-flex gap-2">
           <button onclick="submitLoginByEmailOtp()" class="btn btn-primary">Verify Code</button>
+          <button onclick="resendLoginByEmailOtp('otpForm')" class="btn btn-outline-secondary">Resend Code</button>
+          <button onclick="cancelLoginByEmailOtp()" class="btn btn-outline-secondary">Cancel</button>
         </div>
       </div>
       <div id="newUserOtpForm" style="display:none;">
@@ -53,11 +57,11 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label for="loginByEmailFirstName" class="form-label">First Name</label>
-            <input type="text" class="form-control" id="loginByEmailFirstName" aria-label="First name">
+            <input type="text" class="form-control" id="loginByEmailFirstName" aria-label="First name" required>
           </div>
           <div class="col-md-6">
             <label for="loginByEmailLastName" class="form-label">Last Name</label>
-            <input type="text" class="form-control" id="loginByEmailLastName" aria-label="Last name">
+            <input type="text" class="form-control" id="loginByEmailLastName" aria-label="Last name" required>
           </div>
           <div class="col-12">
             <label for="newUserOtpEmailReadonly" class="form-label">Email</label>
@@ -67,8 +71,12 @@
             <label for="loginByEmailNewUserOtpInput" class="form-label">Access Code</label>
             <input type="text" class="form-control" id="loginByEmailNewUserOtpInput" placeholder="123456" maxlength="6" aria-label="Access Code">
           </div>
-          <div class="mt-3">
+          <div id="newUserOtpInfo" class="text-success mt-2" style="display:none;"></div>
+          <div id="newUserOtpError" class="text-danger mt-2" style="display:none;"></div>
+          <div class="mt-3 d-flex gap-2">
             <button onclick="submitLoginByEmailNewUserOtp()" class="btn btn-primary">Verify Code</button>
+            <button onclick="resendLoginByEmailOtp('newUserOtpForm')" class="btn btn-outline-secondary">Resend Code</button>
+            <button onclick="cancelLoginByEmailOtp()" class="btn btn-outline-secondary">Cancel</button>
           </div>
         </div>
       </div>
@@ -148,10 +156,64 @@
       });
     }
 
+    function resendLoginByEmailOtp(currentFormId) {
+      var formData = new FormData();
+      formData.append('email', loginByEmailAddress);
+      $.ajax({
+        url: "/ResendLoginByEmailOtp",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false
+      }).done(function (response) {
+        var obj = JSON.parse(response);
+        if (obj.success) {
+          var infoId = (currentFormId === 'newUserOtpForm') ? 'newUserOtpInfo' : 'otpInfo';
+          var errorId = (currentFormId === 'newUserOtpForm') ? 'newUserOtpError' : 'otpError';
+          document.getElementById(errorId).style.display = 'none';
+          var infoDiv = document.getElementById(infoId);
+          infoDiv.textContent = obj.successMessage;
+          infoDiv.style.display = 'block';
+        } else {
+          var errorId = (currentFormId === 'newUserOtpForm') ? 'newUserOtpError' : 'otpError';
+          var infoId = (currentFormId === 'newUserOtpForm') ? 'newUserOtpInfo' : 'otpInfo';
+          document.getElementById(infoId).style.display = 'none';
+          var errorDiv = document.getElementById(errorId);
+          errorDiv.textContent = obj.errorMessage;
+          errorDiv.style.display = 'block';
+        }
+      }).fail(function () {
+        alert("Error. The server couldn't be reached.");
+      });
+    }
+
+    function cancelLoginByEmailOtp() {
+      loginByEmailAddress = '';
+      document.getElementById('otpForm').style.display = 'none';
+      document.getElementById('newUserOtpForm').style.display = 'none';
+      document.getElementById('otpInfo').style.display = 'none';
+      document.getElementById('otpError').style.display = 'none';
+      document.getElementById('newUserOtpInfo').style.display = 'none';
+      document.getElementById('newUserOtpError').style.display = 'none';
+      document.getElementById('loginByEmailOtpInput').value = '';
+      document.getElementById('loginByEmailNewUserOtpInput').value = '';
+      document.getElementById('loginByEmailInput').value = '';
+      document.getElementById('emailForm').style.display = 'block';
+    }
+
     function submitLoginByEmailNewUserOtp() {
       var otp = document.getElementById('loginByEmailNewUserOtpInput').value.trim();
       var firstName = document.getElementById('loginByEmailFirstName').value.trim();
       var lastName = document.getElementById('loginByEmailLastName').value.trim();
+      var errorDiv = document.getElementById('newUserOtpError');
+      var infoDiv = document.getElementById('newUserOtpInfo');
+      if (!firstName || !lastName) {
+        infoDiv.style.display = 'none';
+        errorDiv.textContent = 'First name and last name are required.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      errorDiv.style.display = 'none';
       var formData = new FormData();
       formData.append('email', loginByEmailAddress);
       formData.append('otp', otp);

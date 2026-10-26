@@ -24,6 +24,12 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         errorMessage = "Please enter your access code."
                     };
                 }
+                if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)) {
+                    return new SubmitLoginByEmailNewUserOtpResult {
+                        success = false,
+                        errorMessage = "First name and last name are required."
+                    };
+                }
                 //
                 // -- verify OTP code
                 var verifyResult = LoginByEmailOtpController.verifyOtp(cp, emailInput, otpInput);
@@ -103,6 +109,33 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         errorMessage = "Admin and developer accounts require password login."
                     };
                 }
+                //
+                // -- promote contact to prospect (unqualified)
+                if (loginUser != null) {
+                    loginUser.personTypeId = (int)PersonTypeEnum.Contact;
+                    loginUser.save(cp);
+                }
+                cp.Group.AddUser("{208E01F2-F8F7-4DDE-B423-91EA6ACE0FCB}", loginUserId);
+                //
+                // -- add completed activity: registered via OTP
+                cp.Site.AddActivity(
+                    "Registered via email verification",
+                    $"{firstName} {lastName} ({emailInput}) registered through email OTP verification on a blocked page.",
+                    loginUserId,
+                    (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate
+                );
+                //
+                // -- add scheduled activity: contact new registration
+                cp.Site.AddActivity(
+                    "Contact new registration",
+                    $"New registration: {firstName} {lastName} ({emailInput}). Please follow up with this contact.",
+                    loginUserId,
+                    (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate,
+                    DateTime.Now,
+                    0,
+                    0
+                );
+                //
                 AuthController.loginByIdWithMethod(((CPClass)cp).core, ((CPClass)cp).core.session, loginUserId, false, "otp");
                 return new SubmitLoginByEmailNewUserOtpResult {
                     success = true,
