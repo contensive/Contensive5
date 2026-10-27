@@ -201,6 +201,29 @@ namespace Contensive.Processor {
         public const string sitePropertySmsTwilioAuthToken = "Twillio Auth Token";
         public const string sitePropertySmsTwilioNumber = "Twillio Number";
         //
+        // -- text message events. Records in aoBase51.xml. Thrown by name with arguments (sms... keys). The GUIDs are a contract with add-ons that catch them (aoCrm)
+        //
+        /// <summary>
+        /// Thrown when an outbound text changes to Delivered or Failed. Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsPhone, smsStatus, smsStatusCode, smsStatusDetail, smsSource
+        /// </summary>
+        public const string eventNameTextMessageStatusChanged = "Text Message Status Changed";
+        public const string eventGuidTextMessageStatusChanged = "{E912CCC6-7A50-48BE-8296-CF332CFDEA17}";
+        /// <summary>
+        /// Thrown on the first click of a tracked link. Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsLinkUrl, smsSource
+        /// </summary>
+        public const string eventNameTextMessageLinkClicked = "Text Message Link Clicked";
+        public const string eventGuidTextMessageLinkClicked = "{21643295-9E4E-4B7B-8714-48184545937A}";
+        /// <summary>
+        /// Thrown when a text is received (not an opt-out). Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsMemberIdList, smsPhone, smsBody, smsKeyword
+        /// </summary>
+        public const string eventNameTextMessageReceived = "Text Message Received";
+        public const string eventGuidTextMessageReceived = "{F4ABCC00-3CA6-448F-A0FB-912F76F714FD}";
+        /// <summary>
+        /// Thrown when a number opts out, by keyword (STOP) or when the provider rejects a send as opted out. Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsMemberIdList, smsPhone, smsBody, smsOptOutSource
+        /// </summary>
+        public const string eventNameTextMessageOptOut = "Text Message Opt Out";
+        public const string eventGuidTextMessageOptOut = "{9E507644-11DE-4D71-868E-EA9D26A8A5DA}";
+        //
         //========================================================================
         // end-points (must match remote names)
         //

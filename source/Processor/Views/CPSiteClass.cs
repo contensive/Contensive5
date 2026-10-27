@@ -351,6 +351,20 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// Throw an event with arguments. Each catcher reads the arguments with cp.Doc.GetText(key).
+        /// </summary>
+        /// <param name="eventName"></param>
+        /// <param name="eventArguments"></param>
+        /// <returns></returns>
+        public override string ThrowEventByName(string eventName, System.Collections.Generic.Dictionary<string, string> eventArguments) {
+            //
+            cp.Log.Trace($"CPSiteClass.throwEventByName(string [{eventName}], arguments [{eventArguments?.Count ?? 0}]) enter");
+            //
+            return EventController.throwEventByName(cp.core, eventName, eventArguments);
+        }
+        //
+        //====================================================================================================
         //
         [Obsolete("Deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
         public override string ThrowEvent(string eventNameIdOrGuid) {
