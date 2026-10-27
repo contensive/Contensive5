@@ -43,7 +43,8 @@ public class EventControllerArgumentsTests {
             addonEvent.save(cp);
             var addon = DbBaseModel.addEmpty<AddonModel>(cp);
             addon.name = $"unit test event catcher {rnd}";
-            addon.copyText = $"caught{rnd}";
+            // -- addon copy replaces $key$ with the doc property, so the output shows what the catcher received
+            addon.copyText = $"caught{rnd}[$smsEventName$][$smsTextMessageLogId$][$smsMemberIdList$][$smsPhone$]";
             addon.save(cp);
             var catcher = DbBaseModel.addEmpty<AddonEventCatcherModel>(cp);
             catcher.name = $"unit test catcher {rnd}";
@@ -51,17 +52,21 @@ public class EventControllerArgumentsTests {
             catcher.eventId = addonEvent.id;
             catcher.save(cp);
             try {
+                // -- a stale value set earlier in the request (or by the request itself)
+                cp.Doc.SetProperty("smsPhone", "stale");
                 // act
                 string result = cp.Site.ThrowEventByName(eventName, new Dictionary<string, string> {
                     { "smsEventName", eventName },
                     { "smsTextMessageLogId", "12345" },
-                    { "smsMemberIdList", "1,2,3" }
+                    { "smsMemberIdList", "1,2,3" },
+                    { "smsPhone", "" }
                 });
-                // assert
-                Assert.IsTrue(result.Contains($"caught{rnd}"), $"catcher output missing, result [{result}]");
-                Assert.AreEqual(eventName, cp.Doc.GetText("smsEventName"));
-                Assert.AreEqual(12345, cp.Doc.GetInteger("smsTextMessageLogId"));
-                Assert.AreEqual("1,2,3", cp.Doc.GetText("smsMemberIdList"));
+                // assert the catcher received the arguments, and the stale value was overwritten
+                Assert.IsTrue(result.Contains($"caught{rnd}[{eventName}][12345][1,2,3][]"), $"catcher output wrong, result [{result}]");
+                // assert the arguments do not leak into the rest of the request: new keys cleared, existing keys restored
+                Assert.AreEqual("", cp.Doc.GetText("smsEventName"));
+                Assert.AreEqual("", cp.Doc.GetText("smsTextMessageLogId"));
+                Assert.AreEqual("stale", cp.Doc.GetText("smsPhone"));
             } finally {
                 DbBaseModel.delete<AddonEventCatcherModel>(cp, catcher.id);
                 DbBaseModel.delete<AddonModel>(cp, addon.id);
