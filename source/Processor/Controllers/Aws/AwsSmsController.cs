@@ -6,8 +6,11 @@ using Contensive.Processor.Controllers.Aws;
 using Contensive.Processor.Extensions;
 using Contensive.Processor.Models.Domain;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -95,7 +98,15 @@ namespace Contensive.Processor.Controllers {
         /// <param name="body"></param>
         /// <param name="log">the Text Message Log row for this send. Its ccguid is passed as Context["log"]</param>
         /// <returns></returns>
-        public static SmsProviderResult send(CoreController core, string e164, string body, TextMessageLogModel log) {
+        public static SmsProviderResult send(CoreController core, string e164, string body, TextMessageLogModel log)
+            => send(core, e164, body, log, false);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Send one SMS text message through AWS End User Messaging. Never throws, always returns a result.
+        /// isInteractive (an admin is waiting, cp.SMS.SendText): no SDK retries, so the request is bounded by the 10 second timeout. Otherwise (queue) the SDK retries twice.
+        /// </summary>
+        public static SmsProviderResult send(CoreController core, string e164, string body, TextMessageLogModel log, bool isInteractive) {
             try {
                 AwsSmsSettings settings = getSettings(core);
                 if (string.IsNullOrEmpty(settings.originationIdentity)) {
@@ -119,23 +130,15 @@ namespace Contensive.Processor.Controllers {
                         isRetryable = false
                     };
                 }
-                Amazon.RegionEndpoint region = Amazon.RegionEndpoint.GetBySystemName(regionName.Trim());
-                var config = new AmazonPinpointSMSVoiceV2Config {
-                    RegionEndpoint = region,
-                    Timeout = TimeSpan.FromSeconds(10),
-                    MaxErrorRetry = 2
-                };
-                var cred = AwsCredentialController.getCredentials(core);
+                AmazonPinpointSMSVoiceV2Client client = getClient(core, regionName.Trim(), isInteractive ? 0 : 2);
                 //
                 SendTextMessageRequest request = buildRequest(e164, body, settings, core.appConfig.name, log?.ccguid);
-                using (AmazonPinpointSMSVoiceV2Client client = (cred == null) ? new AmazonPinpointSMSVoiceV2Client(config) : new AmazonPinpointSMSVoiceV2Client(cred, config)) {
-                    SendTextMessageResponse response = client.SendTextMessageAsync(request).waitSynchronously();
-                    return new SmsProviderResult {
-                        success = true,
-                        providerId = (int)TextMessageLogModel.ProviderEnum.Aws,
-                        providerMessageId = response?.MessageId ?? ""
-                    };
-                }
+                SendTextMessageResponse response = client.SendTextMessageAsync(request).waitSynchronously();
+                return new SmsProviderResult {
+                    success = true,
+                    providerId = (int)TextMessageLogModel.ProviderEnum.Aws,
+                    providerMessageId = response?.MessageId ?? ""
+                };
             } catch (Exception ex) {
                 SmsProviderResult result = mapException(ex, out bool isConfigurationError);
                 if (isConfigurationError) {
@@ -145,10 +148,37 @@ namespace Contensive.Processor.Controllers {
                 } else if (!result.isOptedOut && !result.isRetryable && string.IsNullOrEmpty(result.errorCode)) {
                     core.cpParent.Site.ErrorReport(ex, "AWS SMS send failed, unexpected exception");
                 } else {
-                    logger.Warn($"{core.logCommonMessage},AwsSmsController.send, [{result.errorCode}] {result.errorMessage}");
+                    // -- no exception message, it can contain the destination number
+                    logger.Warn($"{core.logCommonMessage},AwsSmsController.send, [{result.errorCode}] {ex.GetType().Name}");
                 }
                 return result;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// clients are thread-safe and reused, one per region, retry count and credentials (the access key and a hash of the secret, so a rotated secret gets a new client)
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, AmazonPinpointSMSVoiceV2Client> clientCache = new ConcurrentDictionary<string, AmazonPinpointSMSVoiceV2Client>(StringComparer.Ordinal);
+        //
+        private static AmazonPinpointSMSVoiceV2Client getClient(CoreController core, string regionName, int maxErrorRetry) {
+            string accessKey = core.secrets.awsAccessKey ?? "";
+            string secretHash = "";
+            if (!string.IsNullOrEmpty(accessKey)) {
+                using (var sha = SHA256.Create()) {
+                    secretHash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(core.secrets.awsSecretAccessKey ?? "")));
+                }
+            }
+            string key = $"{regionName}|{maxErrorRetry}|{accessKey}|{secretHash}";
+            return clientCache.GetOrAdd(key, k => {
+                var config = new AmazonPinpointSMSVoiceV2Config {
+                    RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(regionName),
+                    Timeout = TimeSpan.FromSeconds(10),
+                    MaxErrorRetry = maxErrorRetry
+                };
+                var cred = AwsCredentialController.getCredentials(core);
+                return (cred == null) ? new AmazonPinpointSMSVoiceV2Client(config) : new AmazonPinpointSMSVoiceV2Client(cred, config);
+            });
         }
         //
         //====================================================================================================

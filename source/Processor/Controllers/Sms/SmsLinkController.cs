@@ -208,7 +208,8 @@ namespace Contensive.Processor.Controllers {
                 logger.Warn($"{core.logCommonMessage},tracked link [{link.id}] destination is not on a site domain, redirected to the home page");
                 return result;
             }
-            result.redirectUrl = link.destinationUrl;
+            // -- redirect to the url as parsed and validated, not the raw stored text
+            result.redirectUrl = new Uri(link.destinationUrl, UriKind.Absolute).AbsoluteUri;
             //
             // -- count, and claim the first click atomically so two simultaneous first clicks throw one event
             DateTime now = core.dateTimeNowMockable;

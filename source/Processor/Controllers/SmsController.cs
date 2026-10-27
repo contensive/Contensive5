@@ -69,7 +69,15 @@ namespace Contensive.Processor.Controllers {
         /// <param name="body"></param>
         /// <param name="log">the Text Message Log row for this send</param>
         /// <returns></returns>
-        public static SmsProviderResult send(CoreController core, string e164, string body, TextMessageLogModel log) {
+        public static SmsProviderResult send(CoreController core, string e164, string body, TextMessageLogModel log)
+            => send(core, e164, body, log, false);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Hand one message to the provider. Never throws for provider errors, always returns a result.
+        /// isInteractive: an admin is waiting (cp.SMS.SendText), the AWS SDK does not retry.
+        /// </summary>
+        public static SmsProviderResult send(CoreController core, string e164, string body, TextMessageLogModel log, bool isInteractive) {
             try {
                 if (core.mockTextMessages) {
                     //
@@ -98,7 +106,7 @@ namespace Contensive.Processor.Controllers {
                     case 2: {
                             //
                             // -- aws end user messaging
-                            return AwsSmsController.send(core, e164, body, log);
+                            return AwsSmsController.send(core, e164, body, log, isInteractive);
                         }
                     default: {
                             //

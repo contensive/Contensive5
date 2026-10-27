@@ -192,7 +192,7 @@ The Text Message Log row (`ccTextMessageLog`, id = `smsTextMessageLogId`) is sav
 | `Text Message Received` | `{F4ABCC00-3CA6-448F-A0FB-912F76F714FD}` | `SmsNotificationController.processInbound`, any inbound text that is not an opt-out | smsTextMessageLogId (inbound row), smsMemberId, smsMemberIdList, smsPhone, smsBody, smsSource (`Inbound`), smsIsTest (`0`), smsKeyword (`START`, `HELP` or empty) |
 | `Text Message Opt Out` | `{9E507644-11DE-4D71-868E-EA9D26A8A5DA}` | inbound STOP keyword (`processInbound`), or a send rejected because the recipient opted out (send pipeline). The number is on the Text Message Block List before the event | smsTextMessageLogId (inbound STOP row, or the outbound row that was rejected), smsMemberId, smsMemberIdList, smsPhone, smsBody (the text, or the provider code), smsSource, smsIsTest, smsOptOutSource (`Keyword`/`Provider`) |
 
-Catchers run with no user (`ContextSimple`) on an anonymous request (the SNS endpoint or the link redirect). Write through models and `cp.Site.AddActivity`, never as the current user.
+Catchers run in `ContextSimple`. Most of these events are thrown on an anonymous request (the SNS endpoint or the link redirect), but a provider opt-out (`Text Message Opt Out` with `smsOptOutSource=Provider`) is thrown inside the sender's request, where the current user is the admin who sent the text. Do not depend on the current user: write through models and `cp.Site.AddActivity`, using the ids from the log row.
 
 ## Example: Help Center Reindex on Collection Install
 

@@ -35,7 +35,7 @@ namespace Contensive.Processor.Controllers {
         /// 2. normalize to E.164 (else InvalidPhone, log row Not Sent)
         /// 3. block list, and the person's blockTextMessage flag (else Blocked, log row Blocked)
         /// 4. log row first, status Queued
-        /// 5. tracked links (hook for the tracked-link feature, no-op here)
+        /// 5. tracked links: when trackLinks and not isTest, site-domain urls are replaced with /tl/{token} links (SmsLinkController)
         /// 6. segments. If enforceMaxSegments and over the SMS Max Segments setting, TooLong. Bodies over 1600 characters are truncated.
         /// 7. provider send
         /// 8. update the log row with provider id, message id, segments, status
@@ -139,7 +139,8 @@ namespace Contensive.Processor.Controllers {
                 result.segments = segmentInfo.segments;
                 //
                 // -- 7. provider
-                SmsProviderResult providerResult = SmsController.send(core, e164, body, log);
+                // -- interactive sends (enforceMaxSegments, cp.SMS.SendText) do not use SDK retries, the queue does
+                SmsProviderResult providerResult = SmsController.send(core, e164, body, log, enforceMaxSegments);
                 //
                 // -- 8. update the log row. The message may already be sent, so a failure to update the log must not change the result
                 result.providerMessageId = providerResult.providerMessageId ?? "";
@@ -358,7 +359,7 @@ namespace Contensive.Processor.Controllers {
                                     needToSend = true;
                                     continue;
                                 }
-                                recipientList.Add("Fail, invalid phone, " + recipientName + ", " + core.cpParent.Utils.EncodeText(row[1]));
+                                recipientList.Add($"Fail, invalid phone, {recipientName}, {core.cpParent.Utils.EncodeText(row[1])}");
                             }
                         }
                     }
