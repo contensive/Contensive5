@@ -117,7 +117,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
         /// <param name="activityUserId"></param>
-        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, </param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, 11=contact update, 12=text delivered, 13=text failed, 14=text link clicked, 15=text opt-out</param>
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
@@ -200,7 +200,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="subject">Brief text to expand on the activity type, like "filled out online form". This will be the name field.</param>
         /// <param name="activityDetails">Any details that need to be saved, like if this was an online form filled out, this is what the user submitted.</param>
         /// <param name="activityUserId">The user that this activity was about. Like the user who filled out the online form</param>
-        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person, 10=edit, 11=online-purchase</param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, 11=contact update, 12=text delivered, 13=text failed, 14=text link clicked, 15=text opt-out</param>
         public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
             // return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0,0);
             try {

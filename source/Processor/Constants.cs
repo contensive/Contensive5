@@ -156,6 +156,51 @@ namespace Contensive.Processor {
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
         //
+        // -- text message (SMS) site properties. Declared on the Text Messages tab of Site Settings in aoBase51.xml
+        //
+        /// <summary>
+        /// master provider switch. 0=off, 1=Twilio, 2=AWS End User Messaging
+        /// </summary>
+        public const string sitePropertySmsProviderId = "SMS Provider Id";
+        /// <summary>
+        /// AWS phone number id/arn, E.164 number, pool id/arn or sender id texts are sent from. Blank disables AWS sending
+        /// </summary>
+        public const string sitePropertySmsAwsOriginationIdentity = "AWS SMS Origination Identity";
+        /// <summary>
+        /// AWS End User Messaging configuration set for this site. Blank sends without events
+        /// </summary>
+        public const string sitePropertySmsAwsConfigurationSet = "AWS SMS Configuration Set";
+        /// <summary>
+        /// AWS region for End User Messaging. Blank uses the server's region
+        /// </summary>
+        public const string sitePropertySmsAwsRegion = "AWS SMS Region";
+        /// <summary>
+        /// comma separated allow-list of SNS topic arns that may post to the notification endpoint
+        /// </summary>
+        public const string sitePropertySmsAwsSnsTopicArns = "AWS SMS SNS Topic ARNs";
+        /// <summary>
+        /// optional max price (USD) per message part
+        /// </summary>
+        public const string sitePropertySmsAwsMaxPrice = "AWS SMS Max Price";
+        /// <summary>
+        /// country calling code used to normalize phone numbers that have none. default 1
+        /// </summary>
+        public const string sitePropertySmsDefaultCountryCode = "SMS Default Country Code";
+        /// <summary>
+        /// max segments allowed for an interactive send. default 6
+        /// </summary>
+        public const string sitePropertySmsMaxSegments = "SMS Max Segments";
+        /// <summary>
+        /// diagnostic, the date and type of the last provider notification received
+        /// </summary>
+        public const string sitePropertySmsLastNotificationReceived = "SMS Last Notification Received";
+        /// <summary>
+        /// Twilio credentials
+        /// </summary>
+        public const string sitePropertySmsTwilioAccountSid = "Twillio Account SID";
+        public const string sitePropertySmsTwilioAuthToken = "Twillio Auth Token";
+        public const string sitePropertySmsTwilioNumber = "Twillio Number";
+        //
         //========================================================================
         // end-points (must match remote names)
         //

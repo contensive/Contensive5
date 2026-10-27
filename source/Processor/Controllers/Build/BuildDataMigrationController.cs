@@ -753,6 +753,20 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.siteProperties.dataBuildVersion = "26.9.21.2";
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.10.27.1")) {
+                        //
+                        // -- one-time migration: move the legacy text message block list file (Config\TextMessageBlockList.txt)
+                        //    into the Text Message Block List table. Idempotent, numbers already in the table are skipped.
+                        //    The file is left in place and is no longer read.
+                        try {
+                            string legacyBlockListFile = core.privateFiles.readFileText(legacyTextMessageBlockListPathFilename);
+                            int added = migrateTextMessageBlockList(core, legacyBlockListFile);
+                            logger.Info($"{core.logCommonMessage},{logPrefix}, text message block list migration, [{added}] numbers added");
+                        } catch (Exception ex) {
+                            logger.Error(ex, $"{core.logCommonMessage},{logPrefix}, text message block list migration");
+                        }
+                        core.siteProperties.dataBuildVersion = "26.10.27.1";
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();
@@ -761,6 +775,47 @@ namespace Contensive.Processor.Controllers.Build {
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "Warning during upgrade, data migration");
             }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// the legacy private file that held the text message block list. Lines are [new-line][digits][tab][date]
+        /// </summary>
+        public const string legacyTextMessageBlockListPathFilename = "Config\\TextMessageBlockList.txt";
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Move the content of the legacy text message block list file into the Text Message Block List table. Idempotent.
+        /// Each line is split on tab. Part 0 is the phone (converted to E.164 with the site's default country code, skipped if invalid), part 1 is the date (default now).
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="fileContent">The text of the legacy file. Blank returns 0.</param>
+        /// <returns>The number of rows added to the table</returns>
+        public static int migrateTextMessageBlockList(CoreController core, string fileContent) {
+            int added = 0;
+            if (string.IsNullOrWhiteSpace(fileContent)) { return 0; }
+            string defaultCountryCode = core.cpParent.Site.GetText(Constants.sitePropertySmsDefaultCountryCode, "1");
+            foreach (string rawLine in fileContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                try {
+                    string[] parts = rawLine.Split('\t');
+                    string e164 = SmsPhoneController.toE164(parts[0], defaultCountryCode);
+                    if (string.IsNullOrEmpty(e164)) { continue; }
+                    DateTime dateBlocked = DateTime.Now;
+                    if (parts.Length > 1 && !string.IsNullOrWhiteSpace(parts[1])) {
+                        if (!DateTime.TryParse(parts[1].Trim(), CultureInfo.CurrentCulture, DateTimeStyles.None, out dateBlocked)) {
+                            dateBlocked = DateTime.Now;
+                        }
+                    }
+                    if (TextMessageBlockListModel.add(core.cpParent, e164, (int)TextMessageBlockListModel.BlockSourceEnum.Migrated, 0, "migrated from private file", dateBlocked)) {
+                        added++;
+                    }
+                } catch (Exception ex) {
+                    //
+                    // -- one bad line does not stop the migration
+                    logger.Error(ex, $"{core.logCommonMessage}, text message block list migration, line [{rawLine}]");
+                }
+            }
+            return added;
         }
         //
         // ====================================================================================================
