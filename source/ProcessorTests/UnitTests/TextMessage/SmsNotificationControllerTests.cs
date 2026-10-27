@@ -365,4 +365,35 @@ public class SmsNotificationControllerTests {
             }
         }
     }
+    //
+    /// <summary>
+    /// S3: the 50 cap applies after the exact match. An older correct person is found even when more than 50 newer people share the last 4 digits.
+    /// </summary>
+    [TestMethod]
+    public void getPeopleIdsByPhone_capAfterExactMatch() {
+        using (CPClass cp = new(testAppName)) {
+            string e164 = getTestPhone();
+            string last4 = e164.Substring(e164.Length - 4);
+            var target = DbBaseModel.addDefault<PersonModel>(cp);
+            target.name = "sms unit test target";
+            target.cellPhone = $"({e164.Substring(2, 3)}) {e164.Substring(5, 3)}-{last4}";
+            target.save(cp);
+            var decoyIds = new List<int>();
+            try {
+                for (int i = 0; i < 60; i++) {
+                    var decoy = DbBaseModel.addDefault<PersonModel>(cp);
+                    decoy.name = "sms unit test decoy";
+                    decoy.cellPhone = $"202{(1000 + i) % 1000:000}{last4}";
+                    decoy.save(cp);
+                    decoyIds.Add(decoy.id);
+                }
+                List<int> ids = SmsInboundController.getPeopleIdsByPhone(cp.core, e164);
+                Assert.IsTrue(ids.Contains(target.id));
+                foreach (int decoyId in decoyIds) { Assert.IsFalse(ids.Contains(decoyId)); }
+            } finally {
+                foreach (int decoyId in decoyIds) { DbBaseModel.delete<PersonModel>(cp, decoyId); }
+                DbBaseModel.delete<PersonModel>(cp, target.id);
+            }
+        }
+    }
 }
