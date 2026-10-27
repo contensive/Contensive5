@@ -195,6 +195,10 @@ namespace Contensive.Processor {
         /// </summary>
         public const string sitePropertySmsLastNotificationReceived = "SMS Last Notification Received";
         /// <summary>
+        /// internal flag, true after the legacy block list file (Config\TextMessageBlockList.txt) was migrated into the Text Message Block List table. Not on the settings form
+        /// </summary>
+        public const string sitePropertySmsBlockListMigrated = "SMS Block List Migrated";
+        /// <summary>
         /// Twilio credentials
         /// </summary>
         public const string sitePropertySmsTwilioAccountSid = "Twillio Account SID";

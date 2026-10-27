@@ -753,25 +753,14 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.siteProperties.dataBuildVersion = "26.9.21.2";
                     }
-                    if (GenericController.versionIsOlder(DataBuildVersion, "26.10.27.1")) {
-                        //
-                        // -- one-time migration: move the legacy text message block list file (Config\TextMessageBlockList.txt)
-                        //    into the Text Message Block List table. Idempotent, numbers already in the table are skipped.
-                        //    The file is left in place and is no longer read.
-                        try {
-                            string legacyBlockListFile = core.privateFiles.readFileText(legacyTextMessageBlockListPathFilename);
-                            int added = migrateTextMessageBlockList(core, legacyBlockListFile);
-                            logger.Info($"{core.logCommonMessage},{logPrefix}, text message block list migration, [{added}] numbers added");
-                        } catch (Exception ex) {
-                            logger.Error(ex, $"{core.logCommonMessage},{logPrefix}, text message block list migration");
-                        }
-                        core.siteProperties.dataBuildVersion = "26.10.27.1";
-                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();
                     core.cacheRuntime.clear();
                 }
+                //
+                // -- text message block list file migration. Gated on its own flag, not the build version, so no other build can skip it
+                migrateTextMessageBlockListOnce(core, logPrefix);
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "Warning during upgrade, data migration");
             }
@@ -791,11 +780,25 @@ namespace Contensive.Processor.Controllers.Build {
         /// <param name="core"></param>
         /// <param name="fileContent">The text of the legacy file. Blank returns 0.</param>
         /// <returns>The number of rows added to the table</returns>
-        public static int migrateTextMessageBlockList(CoreController core, string fileContent) {
+        public static int migrateTextMessageBlockList(CoreController core, string fileContent)
+            => migrateTextMessageBlockList(core, fileContent, out _);
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Move the content of the legacy text message block list file into the Text Message Block List table. Idempotent. See the overload without failedLines.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="fileContent">The text of the legacy file. Blank returns 0.</param>
+        /// <param name="failedLines">The number of lines that threw an error (invalid phone numbers are skipped, not failed)</param>
+        /// <returns>The number of rows added to the table</returns>
+        public static int migrateTextMessageBlockList(CoreController core, string fileContent, out int failedLines) {
             int added = 0;
+            failedLines = 0;
             if (string.IsNullOrWhiteSpace(fileContent)) { return 0; }
+            int lineIndex = 0;
             string defaultCountryCode = core.cpParent.Site.GetText(Constants.sitePropertySmsDefaultCountryCode, "1");
             foreach (string rawLine in fileContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                lineIndex++;
                 try {
                     string[] parts = rawLine.Split('\t');
                     string e164 = SmsPhoneController.toE164(parts[0], defaultCountryCode);
@@ -812,10 +815,37 @@ namespace Contensive.Processor.Controllers.Build {
                 } catch (Exception ex) {
                     //
                     // -- one bad line does not stop the migration
-                    logger.Error(ex, $"{core.logCommonMessage}, text message block list migration, line [{rawLine}]");
+                    failedLines++;
+                    logger.Error(ex, $"{core.logCommonMessage}, text message block list migration, line [{lineIndex}]");
                 }
             }
             return added;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Run the block list file migration once per site. Runs on every upgrade until it succeeds (the file was read and no line failed), then sets the site property
+        /// SMS Block List Migrated. Idempotent, so a partial run is safely repeated. The file is left in place and is no longer read.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="logPrefix"></param>
+        /// <returns>true if the migration has completed (now or before)</returns>
+        public static bool migrateTextMessageBlockListOnce(CoreController core, string logPrefix) {
+            try {
+                if (core.siteProperties.getBoolean(Constants.sitePropertySmsBlockListMigrated, false)) { return true; }
+                string legacyBlockListFile = core.privateFiles.readFileText(legacyTextMessageBlockListPathFilename);
+                int added = migrateTextMessageBlockList(core, legacyBlockListFile, out int failedLines);
+                if (failedLines > 0) {
+                    logger.Error($"{core.logCommonMessage},{logPrefix}, text message block list migration, [{added}] numbers added, [{failedLines}] lines failed. It will run again on the next upgrade.");
+                    return false;
+                }
+                core.siteProperties.setProperty(Constants.sitePropertySmsBlockListMigrated, true);
+                logger.Info($"{core.logCommonMessage},{logPrefix}, text message block list migration complete, [{added}] numbers added");
+                return true;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},{logPrefix}, text message block list migration failed. It will run again on the next upgrade.");
+                return false;
+            }
         }
         //
         // ====================================================================================================

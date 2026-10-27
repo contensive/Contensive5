@@ -247,4 +247,44 @@ public class TextMessageSendPipelineTests {
             }
         }
     }
+    //
+    /// <summary>
+    /// the file migration is gated on the SMS Block List Migrated flag, not the build version: it runs while the flag is false, sets it after success, and does not run again
+    /// </summary>
+    [TestMethod]
+    public void migrateBlockListOnce_gatedOnFlag() {
+        using (CPClass cp = new(testAppName)) {
+            string path = BuildDataMigrationController.legacyTextMessageBlockListPathFilename;
+            string savedFile = cp.core.privateFiles.readFileText(path);
+            bool savedFlag = cp.core.siteProperties.getBoolean(Constants.sitePropertySmsBlockListMigrated, false);
+            string savedDataBuildVersion = cp.core.siteProperties.dataBuildVersion;
+            string phone1 = getTestPhone();
+            string phone2 = getTestPhone();
+            string e164_1 = SmsPhoneController.toE164(phone1, "1");
+            string e164_2 = SmsPhoneController.toE164(phone2, "1");
+            try {
+                TextMessageBlockListModel.remove(cp, e164_1);
+                TextMessageBlockListModel.remove(cp, e164_2);
+                // -- a newer build version must not skip it
+                cp.core.siteProperties.dataBuildVersion = "99.1.1.1";
+                cp.core.siteProperties.setProperty(Constants.sitePropertySmsBlockListMigrated, false);
+                cp.core.privateFiles.saveFile(path, $"\r\n{phone1}\t1/2/2026 3:04:05 PM");
+                //
+                Assert.IsTrue(BuildDataMigrationController.migrateTextMessageBlockListOnce(cp.core, "unit test"));
+                Assert.IsTrue(TextMessageBlockListModel.isBlocked(cp, e164_1));
+                Assert.IsTrue(cp.core.siteProperties.getBoolean(Constants.sitePropertySmsBlockListMigrated, false));
+                //
+                // -- flag set, a later file change is not read again
+                cp.core.privateFiles.saveFile(path, $"\r\n{phone2}\t1/2/2026 3:04:05 PM");
+                Assert.IsTrue(BuildDataMigrationController.migrateTextMessageBlockListOnce(cp.core, "unit test"));
+                Assert.IsFalse(TextMessageBlockListModel.isBlocked(cp, e164_2));
+            } finally {
+                TextMessageBlockListModel.remove(cp, e164_1);
+                TextMessageBlockListModel.remove(cp, e164_2);
+                if (string.IsNullOrEmpty(savedFile)) { cp.core.privateFiles.deleteFile(path); } else { cp.core.privateFiles.saveFile(path, savedFile); }
+                cp.core.siteProperties.setProperty(Constants.sitePropertySmsBlockListMigrated, savedFlag);
+                cp.core.siteProperties.dataBuildVersion = savedDataBuildVersion;
+            }
+        }
+    }
 }
