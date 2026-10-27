@@ -287,4 +287,54 @@ public class TextMessageSendPipelineTests {
             }
         }
     }
+    //
+    /// <summary>
+    /// S6: a delivery event saved between the provider call and the pipeline save is not overwritten (the row never leaves Delivered/Failed)
+    /// </summary>
+    [TestMethod]
+    public void keepFinalStatus_deliveredBeforePipelineSave_kept() {
+        using (CPClass cp = new(testAppName)) {
+            var log = DbBaseModel.addDefault<TextMessageLogModel>(cp);
+            log.name = "unit test";
+            log.statusId = (int)TextMessageLogModel.StatusEnum.Queued;
+            log.save(cp);
+            try {
+                // -- the delivery event, in another request
+                cp.core.db.executeNonQuery("update ccTextMessageLog set statusId=@s, providerStatusCode='TEXT_DELIVERED', statusDetail='ok', sendStatus='Delivered', price=0.5 where id=@id", new System.Collections.Generic.Dictionary<string, object> { { "@s", (int)TextMessageLogModel.StatusEnum.Delivered }, { "@id", log.id } });
+                // -- the pipeline's in-memory row, about to be saved as Sent
+                log.statusId = (int)TextMessageLogModel.StatusEnum.Sent;
+                log.sendStatus = "OK";
+                log.providerStatusCode = "";
+                log.providerMessageId = "abc";
+                TextMessageController.keepFinalStatus(cp.core, log);
+                log.save(cp);
+                //
+                TextMessageLogModel saved = DbBaseModel.create<TextMessageLogModel>(cp, log.id);
+                Assert.AreEqual((int)TextMessageLogModel.StatusEnum.Delivered, saved.statusId);
+                Assert.AreEqual("TEXT_DELIVERED", saved.providerStatusCode);
+                Assert.AreEqual("Delivered", saved.sendStatus);
+                Assert.AreEqual(0.5, saved.price, 0.0001);
+                Assert.AreEqual("abc", saved.providerMessageId);
+            } finally {
+                DbBaseModel.delete<TextMessageLogModel>(cp, log.id);
+            }
+        }
+    }
+    //
+    [TestMethod]
+    public void keepFinalStatus_notFinal_unchanged() {
+        using (CPClass cp = new(testAppName)) {
+            var log = DbBaseModel.addDefault<TextMessageLogModel>(cp);
+            log.name = "unit test";
+            log.statusId = (int)TextMessageLogModel.StatusEnum.Queued;
+            log.save(cp);
+            try {
+                log.statusId = (int)TextMessageLogModel.StatusEnum.Sent;
+                TextMessageController.keepFinalStatus(cp.core, log);
+                Assert.AreEqual((int)TextMessageLogModel.StatusEnum.Sent, log.statusId);
+            } finally {
+                DbBaseModel.delete<TextMessageLogModel>(cp, log.id);
+            }
+        }
+    }
 }

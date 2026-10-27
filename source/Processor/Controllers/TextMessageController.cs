@@ -276,9 +276,32 @@ namespace Contensive.Processor.Controllers {
                 log.segments = segments;
                 if (providerId > 0) { log.providerId = providerId; }
                 if (!string.IsNullOrEmpty(providerMessageId)) { log.providerMessageId = truncate(providerMessageId, 255); }
+                keepFinalStatus(core, log);
                 log.save(core.cpParent);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},updateLog");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// A delivery event can be processed between the provider call and this save (it finds the row by the log guid in the provider context).
+        /// If the row in the database is already Delivered or Failed, keep its status fields (statusId, statusDate, sendStatus, providerStatusCode, statusDetail, price)
+        /// so the pipeline never moves a row out of a final status. Read without the model cache.
+        /// </summary>
+        public static void keepFinalStatus(CoreController core, TextMessageLogModel log) {
+            if (log == null || log.id <= 0) { return; }
+            using (DataTable dt = core.db.executeQuery("select statusId, statusDate, sendStatus, providerStatusCode, statusDetail, price from ccTextMessageLog where id=@id", new Dictionary<string, object> { { "@id", log.id } })) {
+                if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
+                DataRow row = dt.Rows[0];
+                int currentStatusId = GenericController.getInteger(row["statusId"]);
+                if (currentStatusId != (int)TextMessageLogModel.StatusEnum.Delivered && currentStatusId != (int)TextMessageLogModel.StatusEnum.Failed) { return; }
+                log.statusId = currentStatusId;
+                log.statusDate = (row["statusDate"] is DateTime statusDate) ? statusDate : log.statusDate;
+                log.sendStatus = GenericController.getText(row["sendStatus"]);
+                log.providerStatusCode = GenericController.getText(row["providerStatusCode"]);
+                log.statusDetail = GenericController.getText(row["statusDetail"]);
+                log.price = GenericController.getNumber(row["price"]);
             }
         }
         //
