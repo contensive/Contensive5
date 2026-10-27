@@ -107,7 +107,8 @@
       "Bash(./build.ps1)",
       "Bash(./cc.exe:*)",
       "Bash(git rm:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(cat:*)"
     ]
   }
 }
