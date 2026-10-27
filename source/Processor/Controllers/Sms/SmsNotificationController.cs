@@ -66,7 +66,9 @@ namespace Contensive.Processor.Controllers {
             if (string.IsNullOrWhiteSpace(messageJson)) { return new SmsNotificationResult { action = "ignored empty message" }; }
             JObject json;
             try {
-                json = JObject.Parse(messageJson);
+                // -- no date parsing, so a text that looks like a date is kept as sent
+                json = JsonConvert.DeserializeObject<JObject>(messageJson, new JsonSerializerSettings { DateParseHandling = DateParseHandling.None });
+                if (json == null) { return new SmsNotificationResult { action = "ignored message that is not a JSON object" }; }
             } catch (JsonException) {
                 return new SmsNotificationResult { action = "ignored message that is not JSON" };
             }
@@ -190,6 +192,7 @@ namespace Contensive.Processor.Controllers {
                 if (existing != null) {
                     result.action = "duplicate inbound message";
                     result.textMessageLogId = existing.id;
+                    reapplyOptOut(core, existing, result);
                     return result;
                 }
             }
@@ -209,8 +212,15 @@ namespace Contensive.Processor.Controllers {
             if (memberId == 0) { memberId = memberIdList.FirstOrDefault(); }
             if (memberId > 0 && !memberIdList.Contains(memberId)) { memberIdList.Insert(0, memberId); }
             //
-            // -- 5 (classify first so the row records it). 4. save the inbound row before any event
+            // -- 5a. keywords change the block list first. If anything later fails, the SNS retry is not a duplicate (no row yet) and repeats this (idempotent)
             SmsKeywordController.KeywordEnum keyword = SmsKeywordController.classify(body, inbound.messageKeyword);
+            if (keyword == SmsKeywordController.KeywordEnum.OptOut) {
+                TextMessageBlockListModel.add(core.cpParent, fromPhone, (int)TextMessageBlockListModel.BlockSourceEnum.KeywordStop, memberId, body);
+            } else if (keyword == SmsKeywordController.KeywordEnum.OptIn) {
+                TextMessageBlockListModel.remove(core.cpParent, fromPhone);
+            }
+            //
+            // -- 4. save the inbound row before any event
             TextMessageLogModel log = DbBaseModel.addDefault<TextMessageLogModel>(core.cpParent);
             log.name = truncate($"Inbound {fromPhone}", 255);
             log.isInbound = true;
@@ -229,25 +239,15 @@ namespace Contensive.Processor.Controllers {
             log.save(core.cpParent);
             result.textMessageLogId = log.id;
             //
-            // -- 5. keywords. Block list changes happen before the event, so a catcher sees the final block state
+            // -- 5b. events, after the block list and the row are final
             string memberIdListText = string.Join(",", memberIdList);
-            switch (keyword) {
-                case SmsKeywordController.KeywordEnum.OptOut: {
-                        TextMessageBlockListModel.add(core.cpParent, fromPhone, (int)TextMessageBlockListModel.BlockSourceEnum.KeywordStop, memberId, body);
-                        var args = getEventArguments(eventNameTextMessageOptOut, log);
-                        args["smsMemberIdList"] = memberIdListText;
-                        args["smsOptOutSource"] = "Keyword";
-                        throwEvent(core, args, result);
-                        result.action = "inbound OptOut";
-                        return result;
-                    }
-                case SmsKeywordController.KeywordEnum.OptIn: {
-                        TextMessageBlockListModel.remove(core.cpParent, fromPhone);
-                        break;
-                    }
-                default: {
-                        break;
-                    }
+            if (keyword == SmsKeywordController.KeywordEnum.OptOut) {
+                var args = getEventArguments(eventNameTextMessageOptOut, log);
+                args["smsMemberIdList"] = memberIdListText;
+                args["smsOptOutSource"] = "Keyword";
+                throwEvent(core, args, result);
+                result.action = "inbound OptOut";
+                return result;
             }
             var receivedArgs = getEventArguments(eventNameTextMessageReceived, log);
             receivedArgs["smsMemberIdList"] = memberIdListText;
@@ -255,6 +255,28 @@ namespace Contensive.Processor.Controllers {
             throwEvent(core, receivedArgs, result);
             result.action = $"inbound {keyword}";
             return result;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// A retry of an inbound STOP whose first attempt saved the row but did not block the number (a partial failure).
+        /// Blocks the number and throws Text Message Opt Out, but only if the number is not blocked and no newer inbound text came from the number
+        /// (a later START must not be undone by a late retry).
+        /// </summary>
+        public static void reapplyOptOut(CoreController core, TextMessageLogModel existing, SmsNotificationResult result) {
+            if (existing == null || string.IsNullOrEmpty(existing.fromPhone)) { return; }
+            if (SmsKeywordController.classify(existing.body, existing.providerStatusCode) != SmsKeywordController.KeywordEnum.OptOut) { return; }
+            if (TextMessageBlockListModel.isBlocked(core.cpParent, existing.fromPhone)) { return; }
+            int newer = DbBaseModel.getCount<TextMessageLogModel>(core.cpParent, $"(isInbound<>0)and(fromPhone={core.cpParent.Db.EncodeSQLText(existing.fromPhone)})and(id>{existing.id})");
+            if (newer > 0) { return; }
+            TextMessageBlockListModel.add(core.cpParent, existing.fromPhone, (int)TextMessageBlockListModel.BlockSourceEnum.KeywordStop, existing.memberId, existing.body);
+            List<int> memberIdList = SmsInboundController.getPeopleIdsByPhone(core, existing.fromPhone);
+            if (existing.memberId > 0 && !memberIdList.Contains(existing.memberId)) { memberIdList.Insert(0, existing.memberId); }
+            var args = getEventArguments(eventNameTextMessageOptOut, existing);
+            args["smsMemberIdList"] = string.Join(",", memberIdList);
+            args["smsOptOutSource"] = "Keyword";
+            throwEvent(core, args, result);
+            if (result != null) { result.action = "duplicate inbound message, opt-out re-applied"; }
         }
         //
         //====================================================================================================

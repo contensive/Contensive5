@@ -284,4 +284,85 @@ public class SmsNotificationControllerTests {
             }
         }
     }
+    //
+    private static TextMessageLogModel addInboundLog(CPClass cp, string e164, string body, string inboundId) {
+        var log = DbBaseModel.addDefault<TextMessageLogModel>(cp);
+        log.name = "unit test inbound";
+        log.isInbound = true;
+        log.fromPhone = e164;
+        log.toPhone = "+12025550100";
+        log.body = body;
+        log.source = "Inbound";
+        log.providerMessageId = inboundId;
+        log.statusId = (int)TextMessageLogModel.StatusEnum.Delivered;
+        log.save(cp);
+        return log;
+    }
+    //
+    /// <summary>
+    /// S1: a STOP whose first attempt saved the row but did not block (partial failure) is blocked on the SNS retry, and the opt-out event is thrown
+    /// </summary>
+    [TestMethod]
+    public void inbound_stopRetryAfterPartialFailure_blocks() {
+        using (CPClass cp = new(testAppName)) {
+            string e164 = getTestPhone();
+            string inboundId = Guid.NewGuid().ToString();
+            TextMessageLogModel existing = addInboundLog(cp, e164, "STOP", inboundId);
+            try {
+                Assert.IsFalse(TextMessageBlockListModel.isBlocked(cp, e164));
+                var retry = SmsNotificationController.process(cp.core, getInboundJson(e164, "STOP", inboundId));
+                Assert.AreEqual(existing.id, retry.textMessageLogId);
+                Assert.IsTrue(TextMessageBlockListModel.isBlocked(cp, e164));
+                Assert.AreEqual(1, retry.eventsThrown.Count);
+                Assert.AreEqual("Text Message Opt Out", retry.eventsThrown[0]["smsEventName"]);
+                Assert.AreEqual(existing.id.ToString(), retry.eventsThrown[0]["smsTextMessageLogId"]);
+                Assert.AreEqual("Keyword", retry.eventsThrown[0]["smsOptOutSource"]);
+                //
+                // -- a second retry, already blocked, does nothing
+                var again = SmsNotificationController.process(cp.core, getInboundJson(e164, "STOP", inboundId));
+                Assert.AreEqual(0, again.eventsThrown.Count);
+            } finally {
+                TextMessageBlockListModel.remove(cp, e164);
+                DbBaseModel.delete<TextMessageLogModel>(cp, existing.id);
+            }
+        }
+    }
+    //
+    /// <summary>
+    /// S1: a late retry of a STOP must not undo a later START
+    /// </summary>
+    [TestMethod]
+    public void inbound_stopRetryAfterStart_notReblocked() {
+        using (CPClass cp = new(testAppName)) {
+            string e164 = getTestPhone();
+            string stopId = Guid.NewGuid().ToString();
+            TextMessageLogModel stop = addInboundLog(cp, e164, "STOP", stopId);
+            TextMessageLogModel start = addInboundLog(cp, e164, "START", Guid.NewGuid().ToString());
+            try {
+                var retry = SmsNotificationController.process(cp.core, getInboundJson(e164, "STOP", stopId));
+                Assert.AreEqual(0, retry.eventsThrown.Count);
+                Assert.IsFalse(TextMessageBlockListModel.isBlocked(cp, e164));
+            } finally {
+                TextMessageBlockListModel.remove(cp, e164);
+                DbBaseModel.delete<TextMessageLogModel>(cp, stop.id);
+                DbBaseModel.delete<TextMessageLogModel>(cp, start.id);
+            }
+        }
+    }
+    //
+    /// <summary>
+    /// C7: a body that looks like a date is stored exactly as sent
+    /// </summary>
+    [TestMethod]
+    public void inbound_dateLikeBody_notReformatted() {
+        using (CPClass cp = new(testAppName)) {
+            string e164 = getTestPhone();
+            var result = SmsNotificationController.process(cp.core, getInboundJson(e164, "2026-10-27T15:00:00Z", Guid.NewGuid().ToString()));
+            try {
+                Assert.AreEqual("2026-10-27T15:00:00Z", DbBaseModel.create<TextMessageLogModel>(cp, result.textMessageLogId).body);
+            } finally {
+                DbBaseModel.delete<TextMessageLogModel>(cp, result.textMessageLogId);
+            }
+        }
+    }
 }
