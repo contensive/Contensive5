@@ -109,6 +109,9 @@
       "Bash(git rm:*)",
       "Bash(git checkout:*)",
       "Bash(cat:*)"
+      "Bash(git -C /c/Git/Contensive5 log --all --oneline --grep=\"mcp\\\\|MCP\")",
+      "Bash(git -C /c/Git/Contensive5 show 85f9525d2:addons/aoMcp/server/Mcp/McpToolDefinitions.cs)",
+      "Bash(git -C /c/Git/Contensive5 branch -a)"
     ]
   }
 }
