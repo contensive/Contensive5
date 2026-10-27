@@ -1,5 +1,6 @@
 using Contensive.Processor.Models.Domain;
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -16,13 +17,28 @@ namespace Contensive.Processor.Controllers {
     public static class SnsMessageVerifier {
         //
         private static readonly Regex regionPattern = new Regex(@"^[a-z]{2}(-[a-z]+)+-\d{1,2}$", RegexOptions.CultureInvariant);
+        /// <summary>the only SigningCertURL path SNS uses, for example /SimpleNotificationService-9c6465fa7f48f5cacd23014631ec1136.pem</summary>
+        private static readonly Regex certPathPattern = new Regex(@"^/SimpleNotificationService-[0-9a-fA-F]+\.pem$", RegexOptions.CultureInvariant);
         //
         //====================================================================================================
         /// <summary>
-        /// Verify with the default certificate provider (SnsCertificateCache, https fetch with timeout and size cap, cached 24 hours).
+        /// result of a signature check
+        /// </summary>
+        public enum VerifyResultEnum {
+            /// <summary>signed by the SNS certificate</summary>
+            Valid = 1,
+            /// <summary>not valid (bad version, url, signature, certificate). Reject, 403</summary>
+            Invalid = 2,
+            /// <summary>the url passed every check but the certificate could not be loaded (fetch failed or the fetch limit was reached). Answer 500 so SNS retries</summary>
+            CertificateUnavailable = 3
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Verify with the default certificate provider (SnsCertificateCache).
         /// </summary>
         public static bool verify(SnsEnvelopeModel message)
-            => verify(message, SnsCertificateCache.get);
+            => verifyDetailed(message, SnsCertificateCache.get) == VerifyResultEnum.Valid;
         //
         //====================================================================================================
         /// <summary>
@@ -31,36 +47,71 @@ namespace Contensive.Processor.Controllers {
         /// <param name="message"></param>
         /// <param name="certProvider">returns the certificate for a validated SigningCertURL, or null</param>
         /// <returns></returns>
-        public static bool verify(SnsEnvelopeModel message, Func<string, X509Certificate2> certProvider) {
+        public static bool verify(SnsEnvelopeModel message, Func<string, X509Certificate2> certProvider)
+            => verifyDetailed(message, certProvider) == VerifyResultEnum.Valid;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Verify with the default certificate provider, and tell an invalid message from a certificate that could not be loaded.
+        /// </summary>
+        public static VerifyResultEnum verifyDetailed(SnsEnvelopeModel message)
+            => verifyDetailed(message, SnsCertificateCache.get);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Check the signature. Never throws.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="certProvider">returns the certificate for a validated SigningCertURL, or null</param>
+        /// <returns></returns>
+        public static VerifyResultEnum verifyDetailed(SnsEnvelopeModel message, Func<string, X509Certificate2> certProvider) {
             try {
-                if (message == null || certProvider == null) { return false; }
-                if (string.IsNullOrEmpty(message.Signature)) { return false; }
+                if (message == null || certProvider == null) { return VerifyResultEnum.Invalid; }
+                if (string.IsNullOrEmpty(message.Signature)) { return VerifyResultEnum.Invalid; }
                 HashAlgorithmName hashAlgorithm;
                 switch (message.SignatureVersion) {
                     case "1": hashAlgorithm = HashAlgorithmName.SHA1; break;
                     case "2": hashAlgorithm = HashAlgorithmName.SHA256; break;
-                    default: return false;
+                    default: return VerifyResultEnum.Invalid;
                 }
-                if (!isValidSnsUrl(message.SigningCertURL, message.TopicArn, true)) { return false; }
+                if (!isValidSnsUrl(message.SigningCertURL, message.TopicArn, true)) { return VerifyResultEnum.Invalid; }
                 string stringToSign = getStringToSign(message);
-                if (stringToSign == null) { return false; }
+                if (stringToSign == null) { return VerifyResultEnum.Invalid; }
                 byte[] signature;
                 try {
                     signature = Convert.FromBase64String(message.Signature);
                 } catch (FormatException) {
-                    return false;
+                    return VerifyResultEnum.Invalid;
                 }
-                X509Certificate2 cert = certProvider(message.SigningCertURL);
-                if (cert == null) { return false; }
+                X509Certificate2 cert;
+                try {
+                    cert = certProvider(message.SigningCertURL);
+                } catch (Exception) {
+                    return VerifyResultEnum.CertificateUnavailable;
+                }
+                if (cert == null) { return VerifyResultEnum.CertificateUnavailable; }
                 DateTime now = DateTime.Now;
-                if (now < cert.NotBefore || now > cert.NotAfter) { return false; }
+                if (now < cert.NotBefore || now > cert.NotAfter) { return VerifyResultEnum.Invalid; }
                 using (RSA rsa = cert.GetRSAPublicKey()) {
-                    if (rsa == null) { return false; }
-                    return rsa.VerifyData(Encoding.UTF8.GetBytes(stringToSign), signature, hashAlgorithm, RSASignaturePadding.Pkcs1);
+                    if (rsa == null) { return VerifyResultEnum.Invalid; }
+                    return rsa.VerifyData(Encoding.UTF8.GetBytes(stringToSign), signature, hashAlgorithm, RSASignaturePadding.Pkcs1) ? VerifyResultEnum.Valid : VerifyResultEnum.Invalid;
                 }
             } catch (Exception) {
-                return false;
+                return VerifyResultEnum.Invalid;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// true if the SNS Timestamp (ISO-8601 UTC) is no older than maxAge and no more than maxFutureSkew ahead of utcNow. A missing or unparseable timestamp is not fresh.
+        /// Rejects replays of captured, validly signed messages (the signature covers the Timestamp).
+        /// </summary>
+        public static bool isTimestampFresh(string timestamp, DateTime utcNow, TimeSpan maxAge, TimeSpan maxFutureSkew) {
+            if (string.IsNullOrWhiteSpace(timestamp)) { return false; }
+            if (!DateTime.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out DateTime sent)) { return false; }
+            if (sent < utcNow - maxAge) { return false; }
+            if (sent > utcNow + maxFutureSkew) { return false; }
+            return true;
         }
         //
         //====================================================================================================
@@ -127,7 +178,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// true if the url is https, on the default port, with no user info, and the host is exactly sns.{region}.amazonaws.com for the region of the topic arn.
-        /// Used for SigningCertURL (requirePem true, path must end .pem) and SubscribeURL (requirePem false).
+        /// Used for SigningCertURL (requirePem true: path must be /SimpleNotificationService-{hex}.pem with no query or fragment) and SubscribeURL (requirePem false).
         /// </summary>
         /// <param name="url"></param>
         /// <param name="topicArn"></param>
@@ -142,7 +193,12 @@ namespace Contensive.Processor.Controllers {
             if (!uri.IsDefaultPort) { return false; }
             if (!string.IsNullOrEmpty(uri.UserInfo)) { return false; }
             if (!uri.Host.Equals($"sns.{region}.amazonaws.com", StringComparison.OrdinalIgnoreCase)) { return false; }
-            if (requirePem && !uri.AbsolutePath.EndsWith(".pem", StringComparison.OrdinalIgnoreCase)) { return false; }
+            if (requirePem) {
+                //
+                // -- signing cert: exact SNS file name, no query or fragment, so random variants cannot each cause a fetch
+                if (!string.IsNullOrEmpty(uri.Query) || !string.IsNullOrEmpty(uri.Fragment)) { return false; }
+                if (!certPathPattern.IsMatch(uri.AbsolutePath)) { return false; }
+            }
             return true;
         }
     }

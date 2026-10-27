@@ -198,6 +198,11 @@ public class SnsMessageVerifierTests {
     [DataRow("https://sns.us-east-1.amazonaws.com:8443/SimpleNotificationService-1.pem")]
     [DataRow("https://user:pass@sns.us-east-1.amazonaws.com/SimpleNotificationService-1.pem")]
     [DataRow("file:///c:/certs/x.pem")]
+    [DataRow("https://sns.us-east-1.amazonaws.com/x123.pem")]
+    [DataRow("https://sns.us-east-1.amazonaws.com/SimpleNotificationService-zz.pem")]
+    [DataRow("https://sns.us-east-1.amazonaws.com/a/SimpleNotificationService-0123456789abcdef.pem")]
+    [DataRow("https://sns.us-east-1.amazonaws.com/SimpleNotificationService-0123456789abcdef.pem?r=1")]
+    [DataRow("https://sns.us-east-1.amazonaws.com/SimpleNotificationService-0123456789abcdef.pem#r")]
     [DataRow("")]
     public void verify_badCertUrl_invalid_andNotFetched(string signingCertUrl) {
         var message = getNotification("2", null);
@@ -244,5 +249,88 @@ public class SnsMessageVerifierTests {
             Assert.AreEqual(cert.Thumbprint, parsed.Thumbprint);
         }
         Assert.IsNull(SnsCertificateCache.parsePem("not a certificate"));
+    }
+    //
+    // -- certificate unavailable is not invalid (the endpoint answers 500 so SNS retries)
+    //
+    [TestMethod]
+    public void verifyDetailed_certificateUnavailable() {
+        Assert.AreEqual(SnsMessageVerifier.VerifyResultEnum.CertificateUnavailable, SnsMessageVerifier.verifyDetailed(getNotification("2", null), url => null));
+        Assert.AreEqual(SnsMessageVerifier.VerifyResultEnum.CertificateUnavailable, SnsMessageVerifier.verifyDetailed(getNotification("2", null), url => throw new InvalidOperationException("network")));
+        Assert.AreEqual(SnsMessageVerifier.VerifyResultEnum.Valid, SnsMessageVerifier.verifyDetailed(getNotification("2", null), certProvider));
+        var bad = getNotification("2", null);
+        bad.Message = "tampered";
+        Assert.AreEqual(SnsMessageVerifier.VerifyResultEnum.Invalid, SnsMessageVerifier.verifyDetailed(bad, certProvider));
+    }
+    //
+    // -- certificate cache (S2)
+    //
+    private static byte[] getPemBytes() => Encoding.ASCII.GetBytes($"-----BEGIN CERTIFICATE-----\n{Convert.ToBase64String(cert.RawData, Base64FormattingOptions.InsertLineBreaks)}\n-----END CERTIFICATE-----\n");
+    //
+    [TestMethod]
+    public void certificateCache_cachesSuccess_byPath() {
+        SnsCertificateCache.clear();
+        int fetches = 0;
+        Func<string, byte[]> fetcher = url => { fetches++; return getPemBytes(); };
+        Assert.IsNotNull(SnsCertificateCache.get(certUrl, fetcher));
+        Assert.IsNotNull(SnsCertificateCache.get(certUrl, fetcher));
+        Assert.IsNotNull(SnsCertificateCache.get(certUrl.Replace("https://sns.us-east-1", "https://SNS.us-east-1"), fetcher));
+        Assert.AreEqual(1, fetches);
+        SnsCertificateCache.clear();
+    }
+    //
+    [TestMethod]
+    public void certificateCache_cachesFailure() {
+        SnsCertificateCache.clear();
+        int fetches = 0;
+        Func<string, byte[]> fetcher = url => { fetches++; return null; };
+        Assert.IsNull(SnsCertificateCache.get(certUrl, fetcher));
+        Assert.IsNull(SnsCertificateCache.get(certUrl, fetcher));
+        Assert.AreEqual(1, fetches);
+        //
+        // -- a throwing fetcher is also cached as a failure
+        string other = "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-aaaa.pem";
+        Func<string, byte[]> throwing = url => { fetches++; throw new InvalidOperationException("network"); };
+        Assert.IsNull(SnsCertificateCache.get(other, throwing));
+        Assert.IsNull(SnsCertificateCache.get(other, throwing));
+        Assert.AreEqual(2, fetches);
+        SnsCertificateCache.clear();
+    }
+    //
+    [TestMethod]
+    public void certificateCache_fetchLimitPerMinute() {
+        SnsCertificateCache.clear();
+        int fetches = 0;
+        Func<string, byte[]> fetcher = url => { fetches++; return null; };
+        for (int i = 0; i < 25; i++) {
+            SnsCertificateCache.get($"https://sns.us-east-1.amazonaws.com/SimpleNotificationService-{i:x4}.pem", fetcher);
+        }
+        Assert.AreEqual(10, fetches);
+        SnsCertificateCache.clear();
+    }
+    //
+    [TestMethod]
+    public void certificateCache_getCacheKey_dropsQueryAndFragment() {
+        Assert.AreEqual("https://sns.us-east-1.amazonaws.com/SimpleNotificationService-ab.pem", SnsCertificateCache.getCacheKey("https://SNS.us-east-1.amazonaws.com/SimpleNotificationService-ab.pem?x=1#y"));
+        Assert.AreEqual("", SnsCertificateCache.getCacheKey("not a url"));
+        Assert.AreEqual("", SnsCertificateCache.getCacheKey(null));
+    }
+    //
+    // -- timestamp (replay guard)
+    //
+    [TestMethod]
+    public void isTimestampFresh() {
+        var now = new DateTime(2026, 10, 27, 15, 0, 0, DateTimeKind.Utc);
+        var maxAge = TimeSpan.FromHours(1);
+        var skew = TimeSpan.FromMinutes(5);
+        Assert.IsTrue(SnsMessageVerifier.isTimestampFresh("2026-10-27T15:00:00.000Z", now, maxAge, skew));
+        Assert.IsTrue(SnsMessageVerifier.isTimestampFresh("2026-10-27T14:01:00.000Z", now, maxAge, skew));
+        Assert.IsTrue(SnsMessageVerifier.isTimestampFresh("2026-10-27T15:04:00.000Z", now, maxAge, skew));
+        Assert.IsFalse(SnsMessageVerifier.isTimestampFresh("2026-10-27T13:59:00.000Z", now, maxAge, skew));
+        Assert.IsFalse(SnsMessageVerifier.isTimestampFresh("2026-10-27T15:06:00.000Z", now, maxAge, skew));
+        Assert.IsFalse(SnsMessageVerifier.isTimestampFresh("2026-10-20T15:00:00.000Z", now, maxAge, skew));
+        Assert.IsFalse(SnsMessageVerifier.isTimestampFresh("", now, maxAge, skew));
+        Assert.IsFalse(SnsMessageVerifier.isTimestampFresh(null, now, maxAge, skew));
+        Assert.IsFalse(SnsMessageVerifier.isTimestampFresh("yesterday", now, maxAge, skew));
     }
 }

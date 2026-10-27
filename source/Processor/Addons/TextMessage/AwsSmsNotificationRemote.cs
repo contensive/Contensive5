@@ -12,13 +12,19 @@ namespace Contensive.Processor.Addons.TextMessage {
     //====================================================================================================
     /// <summary>
     /// Remote method sms/aws/sns. AWS SNS posts AWS End User Messaging SMS delivery events and inbound texts here.
-    /// Runs anonymous and never logs a user in. Order: size, allow-list configured, parse, topic allow-list, signature, idempotency, then process.
-    /// Responses: 400 bad request, 403 not configured / topic not allowed / bad signature, 200 ok or duplicate, 500 unexpected error (SNS retries).
+    /// Runs anonymous and never logs a user in. Order: size, allow-list configured, parse, topic allow-list, timestamp age, signature, idempotency, then process.
+    /// Responses: 400 bad request, 403 not configured / topic not allowed / stale / bad signature, 200 ok or duplicate, 500 certificate unavailable or unexpected error (SNS retries).
     /// </summary>
     public class AwsSmsNotificationRemote : AddonBaseClass {
         //
         /// <summary>SNS messages are at most 256 KB</summary>
         public const int maxBodyLength = 300000;
+        /// <summary>messages older than this are rejected as replays</summary>
+        public static readonly TimeSpan maxMessageAge = TimeSpan.FromHours(1);
+        /// <summary>allowed clock skew for a Timestamp in the future</summary>
+        public static readonly TimeSpan maxFutureSkew = TimeSpan.FromMinutes(5);
+        //
+        private const string lastNotificationCacheKey = "sms-sns-lastnotification";
         //
         private static readonly HttpClient subscribeClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(10) };
         //
@@ -63,11 +69,27 @@ namespace Contensive.Processor.Addons.TextMessage {
                     return "forbidden";
                 }
                 //
-                // -- 5. signature
-                if (!SnsMessageVerifier.verify(envelope)) {
-                    warnOncePerMinute(cp, core, "sms-sns-badsig", "SMS SNS endpoint rejected a message with an invalid signature.");
+                // -- 5a. replay guard, before the signature so a stale replay causes no certificate fetch (the signature covers the Timestamp)
+                if (!SnsMessageVerifier.isTimestampFresh(envelope.Timestamp, DateTime.UtcNow, maxMessageAge, maxFutureSkew)) {
+                    warnOncePerMinute(cp, core, "sms-sns-stale", "SMS SNS endpoint rejected a message with a Timestamp older than 1 hour or in the future.");
                     cp.Response.SetStatus(WebServerController.httpResponseStatus.Forbidden);
                     return "forbidden";
+                }
+                //
+                // -- 5b. signature
+                switch (SnsMessageVerifier.verifyDetailed(envelope)) {
+                    case SnsMessageVerifier.VerifyResultEnum.Valid:
+                        break;
+                    case SnsMessageVerifier.VerifyResultEnum.CertificateUnavailable:
+                        //
+                        // -- not a bad message, the certificate could not be loaded now. 500 so SNS retries
+                        warnOncePerMinute(cp, core, "sms-sns-nocert", "SMS SNS endpoint could not load the SNS signing certificate, message not processed.");
+                        cp.Response.SetStatus(WebServerController.httpResponseStatus.InternalServerError);
+                        return "error";
+                    default:
+                        warnOncePerMinute(cp, core, "sms-sns-badsig", "SMS SNS endpoint rejected a message with an invalid signature.");
+                        cp.Response.SetStatus(WebServerController.httpResponseStatus.Forbidden);
+                        return "forbidden";
                 }
                 //
                 // -- 6. idempotency
@@ -114,8 +136,12 @@ namespace Contensive.Processor.Addons.TextMessage {
                 }
                 cp.Cache.Store(idempotencyKey, "1", DateTime.Now.AddHours(48));
                 //
-                // -- 8. diagnostic
-                cp.Site.SetProperty(sitePropertySmsLastNotificationReceived, truncate($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {summary}", 255));
+                // -- 8. diagnostic. Written at most once a minute (a busy site gets several events per text), always for a subscription confirmation
+                bool isSubscription = envelope.Type.Equals("SubscriptionConfirmation", StringComparison.Ordinal);
+                if (isSubscription || string.IsNullOrEmpty(cp.Cache.GetText(lastNotificationCacheKey))) {
+                    cp.Cache.Store(lastNotificationCacheKey, "1", DateTime.Now.AddSeconds(60));
+                    cp.Site.SetProperty(sitePropertySmsLastNotificationReceived, truncate($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {summary}", 255));
+                }
                 return "ok";
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
