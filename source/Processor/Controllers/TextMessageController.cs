@@ -180,13 +180,15 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Hook for the tracked-link feature, pipeline step 5. Called after the log row exists and before segments are counted.
-        /// Replace the site-domain urls in the body with tracked links when request.trackLinks is true and request.isTest is false, and return the new body.
-        /// This version does nothing and returns the body unchanged.
+        /// Pipeline step 5. Called after the log row exists and before segments are counted.
+        /// When request.trackLinks is true and request.isTest is false, replace the site-domain urls in the body with tracked links and return the new body.
+        /// The log row body is set to the final body (saved by the next log update).
         /// </summary>
         private static string applyTrackedLinks(CoreController core, TextMessageSendRequest request, string body, TextMessageLogModel log) {
-            // -- TODO(tracked links): if (request.trackLinks && !request.isTest) { return SmsLinkController.replaceLinks(core, body, log.id, request.toMemberId); }
-            return body;
+            if (!request.trackLinks || request.isTest || log == null) { return body; }
+            string trackedBody = SmsLinkController.replaceLinks(core, body, log.id, request.toMemberId);
+            if (!string.Equals(trackedBody, body, StringComparison.Ordinal)) { log.body = trackedBody; }
+            return trackedBody;
         }
         //
         //====================================================================================================
