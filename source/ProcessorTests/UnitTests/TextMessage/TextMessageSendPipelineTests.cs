@@ -268,6 +268,12 @@ public class TextMessageSendPipelineTests {
                 // -- a newer build version must not skip it
                 cp.core.siteProperties.dataBuildVersion = "99.1.1.1";
                 cp.core.siteProperties.setProperty(Constants.sitePropertySmsBlockListMigrated, false);
+                //
+                // -- an empty or whitespace-only file must not set the flag (a later readable file must still migrate)
+                cp.core.privateFiles.saveFile(path, "\r\n");
+                Assert.IsFalse(BuildDataMigrationController.migrateTextMessageBlockListOnce(cp.core, "unit test"));
+                Assert.IsFalse(cp.core.siteProperties.getBoolean(Constants.sitePropertySmsBlockListMigrated, false));
+                //
                 cp.core.privateFiles.saveFile(path, $"\r\n{phone1}\t1/2/2026 3:04:05 PM");
                 //
                 Assert.IsTrue(BuildDataMigrationController.migrateTextMessageBlockListOnce(cp.core, "unit test"));

@@ -834,6 +834,13 @@ namespace Contensive.Processor.Controllers.Build {
             try {
                 if (core.siteProperties.getBoolean(Constants.sitePropertySmsBlockListMigrated, false)) { return true; }
                 string legacyBlockListFile = core.privateFiles.readFileText(legacyTextMessageBlockListPathFilename);
+                if (string.IsNullOrWhiteSpace(legacyBlockListFile)) {
+                    //
+                    // -- empty read: no file, an empty list, or a read that silently returned nothing (remote 404 edge cases, another server's local file).
+                    // -- Do not set the flag, so a later upgrade can still migrate a file that becomes readable. Costs one file read per upgrade.
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, text message block list migration, legacy file empty or not found, will check again on the next upgrade");
+                    return false;
+                }
                 int added = migrateTextMessageBlockList(core, legacyBlockListFile, out int failedLines);
                 if (failedLines > 0) {
                     logger.Error($"{core.logCommonMessage},{logPrefix}, text message block list migration, [{added}] numbers added, [{failedLines}] lines failed. It will run again on the next upgrade.");
