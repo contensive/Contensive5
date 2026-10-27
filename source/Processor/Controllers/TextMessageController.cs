@@ -191,12 +191,11 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Hook for the opt-out event, pipeline step 9. Called when the provider rejected a send because the recipient opted out.
-        /// Throw the event "Text Message Opt Out" here (smsOptOutSource=Provider) so add-ons can clear consent.
-        /// This version does nothing.
+        /// Pipeline step 9. Called when the provider rejected a send because the recipient opted out, after the number is on the block list and the row is saved as Blocked.
+        /// Throws "Text Message Opt Out" (smsOptOutSource=Provider, smsBody=provider code) so add-ons can clear consent.
         /// </summary>
         private static void throwOptOutEvent(CoreController core, TextMessageLogModel log, string e164, int memberId, string providerCode) {
-            // -- TODO(events): throw event "Text Message Opt Out" with arguments smsEventName, smsTextMessageLogId, smsMemberId, smsMemberIdList, smsPhone, smsBody (providerCode), smsOptOutSource=Provider
+            SmsNotificationController.throwProviderOptOutEvent(core, log, e164, memberId, providerCode);
         }
         //
         //====================================================================================================
