@@ -258,6 +258,48 @@ move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deplo
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
+rem ==============================================================
+rem
+rem push the packages to the dev NuGet folder feed, GitHub repo contensive/nuget-dev,
+rem so cloud sessions can build add-ons against unreleased core builds.
+rem Runs only after all three packages built and packed (every failure above exits).
+rem Never fails the build: problems are reported as warnings.
+rem Requires a clone at NuGetDevRepoFolder signed in to GitHub. Skip with: set SKIP_NUGET_DEV=1
+rem
+
+set NuGetDevRepoFolder=C:\Git\nuget-dev
+if "%SKIP_NUGET_DEV%"=="1" goto nugetDevDone
+if not exist "%NuGetDevRepoFolder%\.git" goto nugetDevMissing
+
+for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set nugetDevBranch=%%b
+
+git -C "%NuGetDevRepoFolder%" pull --rebase --quiet
+if errorlevel 1 goto nugetDevFailed
+
+if not exist "%NuGetDevRepoFolder%\packages" md "%NuGetDevRepoFolder%\packages"
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\*.nupkg" "%NuGetDevRepoFolder%\packages\" /Y
+if errorlevel 1 goto nugetDevFailed
+
+git -C "%NuGetDevRepoFolder%" add packages
+git -C "%NuGetDevRepoFolder%" commit --quiet -m "Core dev build %versionNumber% from branch %nugetDevBranch%"
+if errorlevel 1 goto nugetDevFailed
+
+git -C "%NuGetDevRepoFolder%" push --quiet
+if errorlevel 1 goto nugetDevFailed
+
+@echo Dev NuGet packages %versionNumber% pushed to contensive/nuget-dev
+goto nugetDevDone
+
+:nugetDevMissing
+@echo WARNING: %NuGetDevRepoFolder% is not a git clone, so the dev NuGet push was skipped. Clone https://github.com/contensive/nuget-dev.git there to enable it.
+goto nugetDevDone
+
+:nugetDevFailed
+@echo WARNING: the dev NuGet push to contensive/nuget-dev failed. The build continues. Packages are still in %deploymentFolderRoot%%versionNumber%\Nuget and %NuGetLocalPackagesFolder%
+if %PAUSE_ON_ERROR%==1 pause
+
+:nugetDevDone
+
 cd ..\scripts
 
 rem ==============================================================
