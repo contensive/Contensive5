@@ -265,13 +265,17 @@ rem so cloud sessions can build add-ons against unreleased core builds.
 rem Runs only after all three packages built and packed (every failure above exits).
 rem Never fails the build: problems are reported as warnings.
 rem Requires a clone at NuGetDevRepoFolder signed in to GitHub. Skip with: set SKIP_NUGET_DEV=1
+rem Skipped on main and master: release builds are not dev builds.
 rem
 
 set NuGetDevRepoFolder=C:\Git\nuget-dev
 if "%SKIP_NUGET_DEV%"=="1" goto nugetDevDone
 if not exist "%NuGetDevRepoFolder%\.git" goto nugetDevMissing
 
+set nugetDevBranch=
 for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set nugetDevBranch=%%b
+if /i "%nugetDevBranch%"=="main" goto nugetDevReleaseBranch
+if /i "%nugetDevBranch%"=="master" goto nugetDevReleaseBranch
 
 git -C "%NuGetDevRepoFolder%" pull --rebase --quiet
 if errorlevel 1 goto nugetDevFailed
@@ -288,6 +292,10 @@ git -C "%NuGetDevRepoFolder%" push --quiet
 if errorlevel 1 goto nugetDevFailed
 
 @echo Dev NuGet packages %versionNumber% pushed to contensive/nuget-dev
+goto nugetDevDone
+
+:nugetDevReleaseBranch
+@echo Dev NuGet push skipped: branch %nugetDevBranch% is a release branch.
 goto nugetDevDone
 
 :nugetDevMissing

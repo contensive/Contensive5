@@ -234,7 +234,9 @@ function Publish-NuGetDevPackages {
 .DESCRIPTION
     Warn-only: a missing clone or a failed pull, commit or push writes a
     warning and returns $false; it never throws, so it never fails a build.
-    Skipped when the environment variable SKIP_NUGET_DEV is '1'.
+    Skipped when the environment variable SKIP_NUGET_DEV is '1', and when the
+    repo being built (SourceRepoPath) is on main or master: release builds are
+    not dev builds.
     Requires a clone at RepoPath that is signed in to GitHub (gh auth setup-git
     or Git Credential Manager).
 
@@ -264,6 +266,14 @@ function Publish-NuGetDevPackages {
         Write-Host "  Dev NuGet push skipped (SKIP_NUGET_DEV=1)"
         return $false
     }
+    $branch = ''
+    if ($SourceRepoPath) {
+        try { $branch = (& git -C $SourceRepoPath rev-parse --abbrev-ref HEAD) } catch { $branch = '' }
+    }
+    if ($branch -eq 'main' -or $branch -eq 'master') {
+        Write-Host "  Dev NuGet push skipped (branch $branch is a release branch)"
+        return $false
+    }
     if (-not $PackagePaths -or $PackagePaths.Count -eq 0) {
         return $false
     }
@@ -288,10 +298,6 @@ function Publish-NuGetDevPackages {
         & git -C $RepoPath add packages
         if ($LASTEXITCODE -ne 0) { throw "git add failed in $RepoPath" }
 
-        $branch = ''
-        if ($SourceRepoPath) {
-            try { $branch = (& git -C $SourceRepoPath rev-parse --abbrev-ref HEAD) } catch { $branch = '' }
-        }
         $message = "Dev build $Version"
         if ($branch) { $message = "$message from branch $branch" }
         $message = "$message`: $names"
