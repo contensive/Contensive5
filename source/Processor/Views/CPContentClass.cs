@@ -153,10 +153,12 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing) {
+            if (!isEditing) { return string.Empty; }
             return EditUIController.getEditTab(cp.core, contentName, GenericController.getInteger(recordID), allowCut, recordName);
         }
         //
         public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing, string customCaption) {
+            if (!isEditing) { return string.Empty; }
             return EditUIController.getEditTab(cp.core, contentName, GenericController.getInteger(recordID), allowCut, recordName, customCaption);
         }
         //

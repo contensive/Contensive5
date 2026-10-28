@@ -152,6 +152,14 @@ namespace Contensive.Processor {
         /// </summary>
         internal const string sitePropertyName_AllowLoginByEmailOtp = "AllowLoginByEmailOtp";
         /// <summary>
+        /// Maximum number of OTP emails that can be sent to a single address per hour
+        /// </summary>
+        internal const string sitePropertyName_OtpMaxSendsPerHour = "OtpMaxSendsPerHour";
+        /// <summary>
+        /// Maximum number of verification attempts allowed per OTP code
+        /// </summary>
+        internal const string sitePropertyName_OtpMaxVerifyAttempts = "OtpMaxVerifyAttempts";
+        /// <summary>
         /// if true, user plain text password field to login. If false, has the entered password and compare to passwordHash
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
@@ -506,6 +514,8 @@ namespace Contensive.Processor {
         internal const string FormTypePasswordRecovery = "lk0q56am09";
         internal const string FormTypeLoginByEmailOtpRequest = "otpEmailReq01";
         internal const string FormTypeLoginByEmailOtpVerify = "otpEmailVfy01";
+        internal const string FormTypeLoginByEmailOtpResend = "otpEmailRsn01";
+        internal const string FormTypeLoginByEmailOtpCancel = "otpEmailCnl01";
         internal const string FormTypeRegister = "6df38abv00";
         internal const string FormTypeHelpBubbleEditor = "9df019d77sA";
         internal const string FormTypeAddonSettingsEditor = "4ed923aFGw9d";

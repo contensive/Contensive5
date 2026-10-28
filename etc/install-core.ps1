@@ -46,7 +46,8 @@ param(
     [string]$ServiceName = "Contensive Task Service",
     [switch]$SkipWebApi,
     [switch]$SkipTaskService,
-    [switch]$SkipCli
+    [switch]$SkipCli,
+    [switch]$SkipServiceStart
 )
 
 $ErrorActionPreference = "Stop"
@@ -180,15 +181,19 @@ function Install-TaskService {
     $exePath = Join-Path $taskDest "ContensiveTaskService.exe"
     New-Service -Name $ServiceName -BinaryPathName $exePath -DisplayName $ServiceName -Description "Manages Contensive Task Scheduler, Task Runner, and MQTT services" -StartupType Automatic | Out-Null
 
-    Write-Host "  Starting service: $ServiceName"
-    try {
-        Start-Service -Name $ServiceName
-        Write-Host "  TaskService installed and started at $taskDest" -ForegroundColor Green
-    }
-    catch {
-        Write-Host "  TaskService installed at $taskDest but the service did not start." -ForegroundColor Yellow
-        Write-Host "  Run 'cc --configure' first, then start the service with:" -ForegroundColor Yellow
-        Write-Host "    sc start `"$ServiceName`"" -ForegroundColor Yellow
+    if ($SkipServiceStart) {
+        Write-Host "  TaskService installed at $taskDest (start deferred)" -ForegroundColor Green
+    } else {
+        Write-Host "  Starting service: $ServiceName"
+        try {
+            Start-Service -Name $ServiceName
+            Write-Host "  TaskService installed and started at $taskDest" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  TaskService installed at $taskDest but the service did not start." -ForegroundColor Yellow
+            Write-Host "  Run 'cc --configure' first, then start the service with:" -ForegroundColor Yellow
+            Write-Host "    sc start `"$ServiceName`"" -ForegroundColor Yellow
+        }
     }
 }
 
@@ -298,6 +303,16 @@ if (Test-Path $scriptsSource) {
     if (-not (Test-Path $scriptsDest)) { New-Item -Path $scriptsDest -ItemType Directory -Force | Out-Null }
     robocopy $scriptsSource $scriptsDest /MIR /NJH /NJS /NDL /NP | Out-Null
     Write-Host "  Scripts installed at $scriptsDest" -ForegroundColor Green
+}
+
+# Copy Docker setup documentation if present in the deployment package
+$dockerSource = Join-Path $SourcePath "Docker"
+if (Test-Path $dockerSource) {
+    Write-Step "Installing Docker setup documentation"
+    $dockerDest = Join-Path $InstallPath "Docker"
+    if (-not (Test-Path $dockerDest)) { New-Item -Path $dockerDest -ItemType Directory -Force | Out-Null }
+    robocopy $dockerSource $dockerDest /MIR /NJH /NJS /NDL /NP | Out-Null
+    Write-Host "  Docker documentation installed at $dockerDest" -ForegroundColor Green
 }
 
 # Scheduled task is non-critical — run last so a failure here does not block the rest of the install

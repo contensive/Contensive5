@@ -42,6 +42,10 @@ namespace Contensive.Processor.Controllers.EditControls {
             public string listCaption;
             public string helpText;
             public bool hasExclusiveSets;
+            public string exclusiveSetsCaption;
+            public string exclusiveSetsDescription;
+            public string individualGroupsCaption;
+            public string individualGroupsDescription;
             public List<ExclusiveSetSectionModel> exclusiveSetList;
             public List<GroupRuleEditorRowModel> rowList;
         }

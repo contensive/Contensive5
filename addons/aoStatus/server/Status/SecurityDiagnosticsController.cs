@@ -42,7 +42,8 @@ namespace Contensive.Addons.Status {
                     newAdminUsers = GetNewAdminUsers(cp),
                     failedLoginCount = GetFailedLoginCount(cp, failedLoginWindowHours),
                     failedLoginWindowHours = failedLoginWindowHours,
-                    outdatedAddonCollections = null
+                    outdatedAddonCollections = null,
+                    robotsBlocksMethodUrls = CheckRobotsTxtBlocksMethod(cp)
                 };
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "SecurityDiagnosticsController.GetSecurityInfo");
@@ -96,6 +97,25 @@ namespace Contensive.Addons.Status {
         private static int GetFailedLoginCount(CPBaseClass cp, int windowHours) {
             DateTime cutoff = DateTime.Now.AddHours(-windowHours);
             return DbBaseModel.getCount<AuthenticationLogModel>(cp, $"(success=0)and(dateadded>{cp.Db.EncodeSQLDate(cutoff)})");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Check if the site's robots.txt contains a Disallow rule that covers method= URLs.
+        /// </summary>
+        private static bool CheckRobotsTxtBlocksMethod(CPBaseClass cp) {
+            string robotsTxt = cp.Site.GetText("robotsTxt");
+            if (string.IsNullOrEmpty(robotsTxt)) { return false; }
+            foreach (string line in robotsTxt.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                string trimmed = line.Trim();
+                if (trimmed.StartsWith("Disallow:", StringComparison.OrdinalIgnoreCase)) {
+                    string path = trimmed.Substring("Disallow:".Length).Trim();
+                    if (path.IndexOf("method=", StringComparison.OrdinalIgnoreCase) >= 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

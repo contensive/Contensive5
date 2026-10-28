@@ -5,7 +5,6 @@ using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
 //
 // todo implement #nullable enable
 //
@@ -127,12 +126,9 @@ namespace Contensive.Processor.Controllers {
                 if (_mockNow != null) {
                     return (DateTime)_mockNow;
                 }
-                GetSystemTimePreciseAsFileTime(out long fileTime);
-                return DateTimeOffset.FromFileTime(fileTime).DateTime;
+                return DateTime.UtcNow;
             }
         }
-        [DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]
-        static extern void GetSystemTimePreciseAsFileTime(out long filetime);
         //
         //===================================================================================================
         /// <summary>
@@ -356,7 +352,12 @@ namespace Contensive.Processor.Controllers {
                     if (appConfig == null) { throw new Exceptions.GenericException("Access to www filesystem is disabled because appConfig is not valid."); }
                     throw new Exceptions.GenericException("Access to www filesystem is disabled because this app is disabled.");
                 }
-                _wwwFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localWwwPath, appConfig.remoteWwwPath);
+                string remoteWwwPath = appConfig.remoteWwwPath;
+                if (!serverConfig.isLocalFileSystem && string.IsNullOrEmpty(remoteWwwPath)) {
+                    remoteWwwPath = $"/{appConfig.name}/www/";
+                    logger.Warn($"{logCommonMessage}, remoteWwwPath is blank for non-local file system, defaulting to [{remoteWwwPath}]");
+                }
+                _wwwFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localWwwPath, remoteWwwPath);
                 return _wwwFiles;
             }
         }
@@ -386,7 +387,12 @@ namespace Contensive.Processor.Controllers {
                     if (appConfig == null) { throw new Exceptions.GenericException("Access to private filesystem is disabled because appConfig is not valid."); }
                     throw new Exceptions.GenericException("Access to private filesystem is disabled because this app is disabled.");
                 }
-                _privateFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localPrivatePath, appConfig.remotePrivatePath);
+                string remotePrivatePath = appConfig.remotePrivatePath;
+                if (!serverConfig.isLocalFileSystem && string.IsNullOrEmpty(remotePrivatePath)) {
+                    remotePrivatePath = $"/{appConfig.name}/private/";
+                    logger.Warn($"{logCommonMessage}, remotePrivatePath is blank for non-local file system, defaulting to [{remotePrivatePath}]");
+                }
+                _privateFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localPrivatePath, remotePrivatePath);
                 return _privateFiles;
             }
         }
@@ -510,7 +516,12 @@ namespace Contensive.Processor.Controllers {
                     if (appConfig == null) { throw new Exceptions.GenericException("Access to cdn filesystem is disabled because appConfig is not valid."); }
                     throw new Exceptions.GenericException("Access to cdn filesystem is disabled because this app is disabled.");
                 }
-                _cdnFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localFilesPath, appConfig.remoteFilePath);
+                string remoteFilePath = appConfig.remoteFilePath;
+                if (!serverConfig.isLocalFileSystem && string.IsNullOrEmpty(remoteFilePath)) {
+                    remoteFilePath = $"/{appConfig.name}/files/";
+                    logger.Warn($"{logCommonMessage}, remoteFilePath is blank for non-local file system, defaulting to [{remoteFilePath}]");
+                }
+                _cdnFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localFilesPath, remoteFilePath);
                 return _cdnFiles;
             }
         }

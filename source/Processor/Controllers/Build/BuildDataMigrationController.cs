@@ -237,7 +237,7 @@ namespace Contensive.Processor.Controllers.Build {
                                     var themeAddon = DbBaseModel.addDefault<AddonModel>(cp);
                                     themeAddon.name = "Theme assets for template " + csTemplate.GetText("name");
                                     themeAddon.otherHeadTags = csTemplate.GetText("otherheadtags");
-                                    themeAddon.javaScriptBodyEnd = csTemplate.GetText("jsendbody");
+                                    //themeAddon.javaScriptBodyEnd = csTemplate.GetText("jsendbody");
                                     themeAddon.stylesFilename.content = templateStylePrepend + Environment.NewLine + templateStyles;
                                     themeAddon.collectionId = migrationCollection.id;
                                     themeAddon.save(cp);

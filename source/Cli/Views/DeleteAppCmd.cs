@@ -40,16 +40,17 @@ namespace Contensive.CLI {
                 //
                 // -- read app config before deleting, need remoteFilePath for S3 policy cleanup
                 string remoteFilePath = "";
+                bool deleteProtection = false;
                 try {
                     using (var cp = new CPClass(appName)) {
-                        if (cp.core.appConfig.deleteProtection) {
-                            Console.WriteLine($"Cannot delete app [{appName}] because delete protection is on. Use --deleteprotection off to disable it.");
-                            return;
-                        }
+                        deleteProtection = cp.core.appConfig.deleteProtection;
                         remoteFilePath = cp.core.appConfig.remoteFilePath;
                     }
                 } catch (Exception) {
-                    Console.WriteLine("ERROR, the application would not startup correctly. You may need to work with it manually.");
+                    Console.WriteLine($"Warning: application [{appName}] would not start correctly. Proceeding with delete.");
+                }
+                if (deleteProtection) {
+                    Console.WriteLine($"Cannot delete app [{appName}] because delete protection is on. Use --deleteprotection off to disable it.");
                     return;
                 }
                 Console.WriteLine($"Deleting application [{appName}] from server group [{cpServer.core.serverConfig.name}].");

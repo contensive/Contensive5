@@ -56,7 +56,7 @@ namespace Contensive.Processor.Addons {
                 //
                 // -- add user errors
                 string userErrorMessage = core.doc.userErrorList.Count.Equals(0) ? "" : ErrorController.getUserError(core); 
-                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage });
+                layout = core.cpParent.Mustache.Render(layout, new { userError = userErrorMessage });
                 //
                 // -- wrap in form
                 result += Controllers.HtmlController.form(core, layout);
@@ -89,7 +89,7 @@ namespace Contensive.Processor.Addons {
                     data = new AuthenticateResponseData()
                 };
             } else {
-                if (!AuthController.authenticateById(core, core.session, userId)) {
+                if (!AuthController.authenticateById(core, core.session, userId, "impersonation")) {
                     //
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);

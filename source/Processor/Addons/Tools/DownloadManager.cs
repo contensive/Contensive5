@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Models.Db;
@@ -57,7 +58,20 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     int RowPtr = 0;
                                     for (RowPtr = 0; RowPtr < RowCnt; RowPtr++) {
                                         if (core.docProperties.getBoolean("Row" + RowPtr)) {
-                                            DownloadModel.delete<DownloadModel>(core.cpParent, core.docProperties.getInteger("RowID" + RowPtr));
+                                            int deleteId = core.docProperties.getInteger("RowID" + RowPtr);
+                                            //
+                                            // -- delete cdn file if present, then delete the task record
+                                            var taskToDelete = DbBaseModel.create<TaskModel>(core.cpParent, deleteId);
+                                            if (taskToDelete != null) {
+                                                if (!string.IsNullOrEmpty(taskToDelete.downloadPathFilename)) {
+                                                    try {
+                                                        core.cdnFiles.deleteFile(taskToDelete.downloadPathFilename);
+                                                    } catch (Exception exFile) {
+                                                        logger.Warn(exFile, $"{core.logCommonMessage},DownloadManager, error deleting cdn file [{taskToDelete.downloadPathFilename}]");
+                                                    }
+                                                }
+                                                DbBaseModel.delete<TaskModel>(core.cpParent, deleteId);
+                                            }
                                         }
                                     }
                                 }
@@ -109,37 +123,55 @@ namespace Contensive.Processor.Addons.AdminSite {
                     ColWidth[ColumnPtr] = "200px";
                     ColumnPtr = ColumnPtr + 1;
                     //
-                    ColCaption[ColumnPtr] = "File";
+                    ColCaption[ColumnPtr] = "Status";
                     ColAlign[ColumnPtr] = "Left";
                     ColWidth[ColumnPtr] = "100px";
                     ColumnPtr = ColumnPtr + 1;
                     //
-                    //   Get Downloads available
+                    //   Get download tasks (tasks with downloadPathFilename set)
                     //
                     int DataRowCount = 0;
-                    var downloadList = DbBaseModel.createList<DownloadModel>(core.cpParent, "", "id desc", PageSize, PageNumber);
+                    var taskList = DbBaseModel.createList<TaskModel>(core.cpParent, "(downloadPathFilename is not null)and(downloadPathFilename<>'')", "id desc", PageSize, PageNumber);
                     int RowPointer = 0;
-                    if (downloadList.Count == 0) {
+                    if (taskList.Count == 0) {
                         Cells[0, 1] = "There are no download requests";
                         RowPointer = 1;
                     } else {
                         RowPointer = 0;
-                        DataRowCount = DbBaseModel.getCount<DownloadModel>(core.cpParent);
+                        //
+                        // -- count total download tasks for pagination
+                        using (var dt = core.db.executeQuery("select count(*) as cnt from cctasks where (downloadPathFilename is not null)and(downloadPathFilename<>'')")) {
+                            if (dt.Rows.Count > 0) {
+                                DataRowCount = GenericController.getInteger(dt.Rows[0]["cnt"]);
+                            }
+                        }
                         string LinkPrefix = "<a href=\"" + core.appConfig.cdnFileUrl;
                         string LinkSuffix = "\" target=_blank>Download</a>";
-                        foreach (var download in downloadList) {
-                            if (RowPointer >= PageSize) break;
-                            var requestedBy = DbBaseModel.create<PersonModel>(core.cpParent, download.requestedBy);
-                            Cells[RowPointer, 0] = HtmlController.checkbox("Row" + RowPointer) + HtmlController.inputHidden("RowID" + RowPointer, download.id);
-                            Cells[RowPointer, 1] = download.name;
+                        foreach (var task in taskList) {
+                            if (RowPointer >= PageSize) { break; }
+                            var requestedBy = DbBaseModel.create<PersonModel>(core.cpParent, task.requestedBy);
+                            Cells[RowPointer, 0] = HtmlController.checkbox("Row" + RowPointer) + HtmlController.inputHidden("RowID" + RowPointer, task.id);
+                            Cells[RowPointer, 1] = task.name;
                             Cells[RowPointer, 2] = (requestedBy == null) ? "unknown" : requestedBy.name;
-                            Cells[RowPointer, 3] = download.dateRequested.ToString();
-                            if (string.IsNullOrEmpty(download.resultMessage)) {
-                                Cells[RowPointer, 4] = "\r\n<div data-id=\"" + download.id + "\" class=\"downloadPending\" id=\"pending" + RowPointer + "\">Pending <img src=\"https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/ajax-loader-small.gif\" width=16 height=16></div>";
-                            } else if (!string.IsNullOrEmpty(download.filename.filename)) {
-                                Cells[RowPointer, 4] = "<div id=\"pending" + RowPointer + "\">" + LinkPrefix + download.filename.filename + LinkSuffix + "</div>";
+                            Cells[RowPointer, 3] = (task.dateAdded ?? DateTime.MinValue).ToString();
+                            //
+                            // -- status display based on datetime fields
+                            if (task.dateCompleted == null && task.dateStarted == null) {
+                                //
+                                // -- queued
+                                Cells[RowPointer, 4] = $"<div id=\"pending{RowPointer}\">Queued</div>";
+                            } else if (task.dateCompleted == null && task.dateStarted != null) {
+                                //
+                                // -- running (pending with spinner)
+                                Cells[RowPointer, 4] = $"\r\n<div data-id=\"{task.id}\" class=\"downloadPending\" id=\"pending{RowPointer}\">Pending <img src=\"https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/ajax-loader-small.gif\" width=16 height=16></div>";
+                            } else if (task.dateCompleted != null && string.IsNullOrEmpty(task.failMessage)) {
+                                //
+                                // -- completed successfully, show download link
+                                Cells[RowPointer, 4] = $"<div id=\"pending{RowPointer}\">{LinkPrefix}{task.downloadPathFilename}{LinkSuffix}</div>";
                             } else {
-                                Cells[RowPointer, 4] = "<div id=\"pending" + RowPointer + "\">error</div>";
+                                //
+                                // -- completed with error
+                                Cells[RowPointer, 4] = $"<div id=\"pending{RowPointer}\">Error: {HtmlController.encodeHtml(task.failMessage)}</div>";
                             }
                             RowPointer++;
                         }

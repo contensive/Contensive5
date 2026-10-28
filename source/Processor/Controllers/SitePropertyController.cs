@@ -654,8 +654,8 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (dbNotReady) {
                     //
-                    // -- cannot set property
-                    throw new GenericException("Cannot set site property before Db is ready.");
+                    // -- db not ready, skip persisting property
+                    return;
                 } else {
                     if (!string.IsNullOrEmpty(propertyName.Trim())) {
                         if (propertyName.ToLowerInvariant().Equals("adminurl")) {
@@ -821,7 +821,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- property not found in db, cache and return default
                 nameValueDict.Add(cacheName, DefaultValue);
-                setProperty(cacheName, DefaultValue);
+                if (!dbNotReady) {
+                    setProperty(cacheName, DefaultValue);
+                }
                 return DefaultValue;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -1023,7 +1025,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // reset the filename and save default robots.txt
                     robotsTxtFilename = defaultFilename;
-                    result = "User-agent: *\r\nDisallow: /admin/";
+                    result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /*?*method=";
                     core.privateFiles.saveFile(robotsTxtFilename, result);
                 }
                 return result;

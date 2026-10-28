@@ -75,8 +75,26 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- logs
                 ActivityLogClass.executeDailyTasks(env);
                 //
+                // -- tasks
+                TasksClass.executeDailyTasks(env);
+                //
+                // -- admin recents
+                AdminRecentClass.executeDailyTasks(env);
+                //
+                // -- content watch list rules
+                ContentWatchListRulesClass.executeDailyTasks(env);
+                //
+                // -- email bounce list
+                EmailBounceListClass.executeDailyTasks(env);
+                //
+                // -- content definitions
+                ContentClass.executeDailyTasks(env);
+                //
                 // -- bot detection data update
                 BotDetectionUpdateClass.executeDailyTasks(env);
+                //
+                // -- SQL Server index and statistics maintenance
+                SqlMaintenanceClass.executeDailyTasks(env);
                 //
                 env.log("executeDailyTasks, done");
             } catch (Exception ex) {

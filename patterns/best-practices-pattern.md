@@ -411,6 +411,73 @@ Contensive addons register their JS libraries as dependencies with an optional `
 
 All addon JS library dependencies (jQuery plugins, Bootstrap extensions, etc.) should have `jsDefer` enabled in their addon definition. This improves page load performance by allowing the HTML to render before scripts execute. The `DOMContentLoaded` pattern on inline scripts ensures compatibility with deferred loading.
 
+## Prefer Vanilla JavaScript and CSS
+
+All Contensive base code and addon code should heavily prefer vanilla JavaScript and CSS over any third-party libraries. Native browser APIs cover the vast majority of DOM manipulation, event handling, animation, and layout needs without adding external dependencies.
+
+Before introducing a third-party library:
+- Confirm the requirement cannot be met with vanilla JS/CSS using modern browser APIs (`fetch`, `querySelector`, CSS Grid/Flexbox, CSS custom properties, `IntersectionObserver`, etc.)
+- A human must review and explicitly approve the need for the library
+- Document the justification in the PR or commit message
+
+Common scenarios that do **not** require a library:
+- DOM queries and manipulation — use `querySelector`/`querySelectorAll`
+- AJAX requests — use `fetch`
+- Animations — use CSS transitions/animations or the Web Animations API
+- Responsive layout — use CSS Grid, Flexbox, and media queries
+- Date formatting — use `Intl.DateTimeFormat`
+- Simple state management — use plain objects/arrays and DOM updates
+
+When a library is genuinely required (e.g., a complex charting engine, rich text editor, or specialized widget with no reasonable vanilla equivalent), prefer lightweight, single-purpose packages over large frameworks.
+
+## Prefer SVG Icons Over Icon Libraries
+
+All Contensive base code and addon code should heavily prefer optimized SVG icons over third-party icon libraries (Font Awesome, Material Icons, Bootstrap Icons, etc.). SVG icons are smaller, render crisply at any size, and eliminate the external dependency and font-loading overhead of icon libraries.
+
+### Delivery Strategy
+
+- **Single-use icons** — Deliver as inline `<svg>` elements directly in the HTML. This avoids an extra HTTP request and allows the icon to inherit `currentColor` for theming.
+- **Repeated icons** — Combine into an SVG sprite sheet and reference individual icons with `<use href="#icon-name">`. This reduces DOM duplication while keeping a single cacheable file.
+
+### Inline SVG Example
+
+```html
+<!-- Single-use icon delivered inline -->
+<button class="myAddonWrapper-closeBtn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+    </svg>
+    Close
+</button>
+```
+
+### SVG Sprite Example
+
+```html
+<!-- Sprite sheet (loaded once, e.g., in a layout file or injected at top of body) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="icon-close" viewBox="0 0 16 16">
+        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+    </symbol>
+    <symbol id="icon-search" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+    </symbol>
+</svg>
+
+<!-- Usage throughout the page -->
+<svg class="myAddonWrapper-icon" width="16" height="16" fill="currentColor" aria-hidden="true">
+    <use href="#icon-close"></use>
+</svg>
+```
+
+### SVG Optimization Guidelines
+
+- Remove unnecessary metadata, comments, and editor artifacts from SVG source
+- Use `currentColor` for `fill` or `stroke` so icons inherit the text color from CSS
+- Set `aria-hidden="true"` on decorative icons; use `<title>` or `aria-label` for meaningful icons
+- Keep `viewBox` attributes and remove fixed `width`/`height` from the `<symbol>` so the icon scales with CSS
+- Minimize path data — use tools like SVGO to optimize
+
 ## Summary
 
 | Method Type | Catch Behavior |

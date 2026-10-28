@@ -48,7 +48,7 @@ Git/
 
 - All folders that install on servers must be lowercase.
 - The `design/` folder stores working design files that are not deployed.
-- UI sub-folder contents map directly to the corresponding server file system. For example, `ui/wwwFiles/img/logo.png` installs to `/img/logo.png` on the server www root.
+- UI sub-folder contents map directly to the corresponding server file system. For example, `ui/wwwFiles/img/logo.png` installs to `/img/logo.png` on the server www root. See [Filesystem Architecture Pattern](filesystem-architecture-pattern.md) for how these filesystems operate at runtime in local and remote configurations.
 - `ui/layoutFiles/` contains HTML layout fragments managed by the Contensive layout system.
 
 ---

@@ -3,7 +3,7 @@
     <ProjectGuid>{36E017D4-C4EB-4C0E-8E2B-1F97150B07D9}</ProjectGuid>
     <RootNamespace>Contensive.Processor.Tests</RootNamespace>
     <AssemblyName>processortests</AssemblyName>
-	  <TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
+	  <TargetFramework>net9.0-windows</TargetFramework>
 	  <LangVersion>latest</LangVersion>
 	  <ImplicitUsings>enable</ImplicitUsings>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -19,7 +19,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <Platforms>AnyCPU;x86</Platforms>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>1591;MSB3277</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -49,7 +49,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.11.0" />
     <PackageReference Include="MSTest.TestFramework" Version="3.11.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>

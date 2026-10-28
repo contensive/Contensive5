@@ -367,8 +367,8 @@ namespace Contensive.Processor.Addons.AdminSite {
             string sortLine = "";
             foreach (var kvp in gridConfig.sorts) {
                 GridConfigSortClass sort = kvp.Value;
-                if (sort.direction > 0) {
-                    sortLine = sortLine + ", then " + content.fields[sort.fieldName].caption;
+                if (sort.direction > 0 && content.fields.ContainsKey(sort.fieldName)) {
+                    sortLine = $"{sortLine}, then {content.fields[sort.fieldName].caption}";
                     if (sort.direction > 1) {
                         sortLine += " reverse";
                     }
@@ -812,7 +812,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     GroupID = GenericController.getInteger(GroupName);
                                 }
                                 string groupTableAlias = "GroupFilter" + Ptr;
-                                sqlWhere.Append("AND(" + groupTableAlias + ".GroupID=" + GroupID + ")and((" + groupTableAlias + ".dateExpires is null)or(" + groupTableAlias + ".dateExpires>" + core.sqlDateTimeMockable + "))");
+                                sqlWhere.Append($"AND({groupTableAlias}.GroupID={GroupID})and({groupTableAlias}.active>0)and(({groupTableAlias}.dateExpires is null)or({groupTableAlias}.dateExpires>{core.sqlDateTimeMockable}))");
                                 return_sqlFrom = "(" + return_sqlFrom + " INNER JOIN ccMemberRules AS GroupFilter" + Ptr + " ON GroupFilter" + Ptr + ".memberId=ccMembers.ID)";
                             }
                         }

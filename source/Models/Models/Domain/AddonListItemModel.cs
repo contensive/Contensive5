@@ -53,7 +53,8 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonListItem"></param>
-        private static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        /// <param name="executeContext"></param>
+        public static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
             cp.Doc.SetProperty("instanceId", addonListItem.instanceGuid);
             return cp.Addon.Execute(addonListItem.designBlockTypeGuid, executeContext).ToString();
         }
@@ -64,19 +65,34 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
-        private static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        /// <param name="executeContext"></param>
+        public static string render(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (addonList == null) {
+                return string.Empty;
+            }
+            bool isEditing = cp.User.IsEditing();
             var result = new StringBuilder();
+            int addonIndex = 0;
             foreach (var addon in addonList) {
                 var addonHtml = render(cp, addon, executeContext);
                 if (addon.columns != null) {
                     int colPtr = 1;
                     foreach (var column in addon.columns) {
-                        string replaceTarget = "<!-- column-" + colPtr + " -->";
-                        addonHtml = addonHtml.Replace(replaceTarget, render(cp, column.addonList, executeContext));
+                        string replaceTarget = $"<!-- column-{colPtr} -->";
+                        string renderedColumn = render(cp, column.addonList, executeContext);
+                        if (isEditing) {
+                            renderedColumn = $"<div class=\"pb-column\" data-pb-column-index=\"{colPtr - 1}\" data-pb-parent-instance-guid=\"{addon.instanceGuid}\">{renderedColumn}</div>";
+                        }
+                        addonHtml = addonHtml.Replace(replaceTarget, renderedColumn);
                         colPtr++;
                     }
                 }
-                result.Append(addonHtml);
+                if (isEditing) {
+                    result.Append($"<div class=\"pb-page-widget\" data-pb-addon-index=\"{addonIndex}\" data-pb-instance-guid=\"{addon.instanceGuid}\">{addonHtml}</div>");
+                } else {
+                    result.Append(addonHtml);
+                }
+                addonIndex++;
             }
             return result.ToString();
         }
@@ -87,6 +103,8 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonListItem"></param>
+        /// <param name="Addon"></param>
+        /// <param name="executeContext"></param>
         public static void renderEdit(CPBaseClass cp, AddonListItemModel addonListItem, AddonModel Addon, CPUtilsBaseClass.addonExecuteContext executeContext) {
             int assetSkipCnt = cp.Doc.HtmlAssetList.Count;
             if (Addon != null) {
@@ -159,7 +177,11 @@ namespace Contensive.Processor.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
-        private static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        /// <param name="executeContext"></param>
+        public static void renderEdit(CPBaseClass cp, List<AddonListItemModel> addonList, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (addonList == null) {
+                return;
+            }
             foreach (var addonListItem in addonList) {
                 if (addonListItem.columns != null) {
                     foreach (var column in addonListItem.columns) {
@@ -181,9 +203,11 @@ namespace Contensive.Processor.Models {
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
         /// <param name="instanceGuid"></param>
-        /// <param name="errorMessage"></param>
         /// <returns></returns>
         public static bool deleteInstance(CPBaseClass cp, List<AddonListItemModel> addonList, string instanceGuid) {
+            if (addonList == null) {
+                return false;
+            }
             foreach (var addon in addonList) {
                 if (addon.columns != null) {
                     foreach (var column in addon.columns) {
@@ -205,8 +229,11 @@ namespace Contensive.Processor.Models {
         /// <param name="cp"></param>
         /// <param name="addonList"></param>
         /// <returns></returns>
-        private static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
+        public static void normalizeAddonList(CPBaseClass cp, List<AddonListItemModel> addonList) {
             try {
+                if (addonList == null) {
+                    return;
+                }
                 foreach (var addon in addonList) {
                     addon.renderedHtml = string.Empty;
                     addon.renderedAssets = new AddonAssetsModel();

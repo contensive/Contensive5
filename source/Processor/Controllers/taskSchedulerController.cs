@@ -119,9 +119,6 @@ namespace Contensive.Processor.Controllers {
             using CPClass cpApp = new(appKvp.Value.name);
             try {
                 //
-                // -- delete stale tasks more than 24 hours old (both claimed and unclaimed)
-                cpApp.Db.ExecuteNonQuery("delete from cctasks where (DateAdded < DATEADD(hour, -24, GETDATE()))");
-                //
                 // -- runonce
                 string sql = $@"
                     update ccAggregateFunctions
@@ -250,38 +247,17 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Add a command task to the taskQueue to be run by the taskRunner. Returns false if the task was already there (dups fround by command name and cmdDetailJson)
+        /// Add a command task to the taskQueue to be run by the taskRunner.
+        /// Returns the task id if added, or 0 if the task was blocked as a duplicate.
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="command"></param>
-        /// <param name="cmdDetail"></param>
-        /// <param name="downloadName"></param>
-        /// <returns></returns>
-        static public bool addTaskToQueue(CoreController core, TaskModel.CmdDetailClass cmdDetail, bool blockDuplicates, string downloadName, string downloadFilename) {
+        static public int addTaskToQueue(CoreController core, TaskModel.CmdDetailClass cmdDetail, bool blockDuplicates, string downloadName, string downloadFilename, int timeout, int requestedBy) {
             try {
-                //
-                int downloadId = 0;
-                if (!string.IsNullOrEmpty(downloadName)) {
-                    Dictionary<string, string> defaultValues = ContentMetadataModel.getDefaultValueDict(core, DownloadModel.tableMetadata.contentName);
-                    var download = DbBaseModel.addDefault<DownloadModel>(core.cpParent, defaultValues);
-                    download.name = downloadName;
-                    download.dateRequested = core.dateTimeNowMockable;
-                    download.requestedBy = core.session.user.id;
-                    if (!string.IsNullOrEmpty(downloadFilename)) {
-                        //
-                        // -- if the donwloadfilename is specified, save it in the download record and force the file to save with a space in content
-                        download.filename.filename = FileController.getVirtualRecordUnixPathFilename(DownloadModel.tableMetadata.tableNameLower, "filename", download.id, downloadFilename);
-                        download.filename.content = " ";
-                    }
-                    downloadId = download.id;
-                    download.save(core.cpParent);
-                }
                 string cmdDetailJson = SerializeObject(cmdDetail);
                 bool allowAdd = true;
                 if (blockDuplicates) {
                     //
                     // -- Search for a duplicate
-                    string sql = "select top 1 id from cctasks where ((cmdDetail=" + DbController.encodeSQLText(cmdDetailJson) + ")and(cmdRunner is null))";
+                    string sql = $"select top 1 id from cctasks where ((cmdDetail={DbController.encodeSQLText(cmdDetailJson)})and(cmdRunner is null)and(dateStarted is null))";
                     using (var csData = new CsModel(core)) {
                         allowAdd = !csData.openSql(sql);
                     }
@@ -290,26 +266,38 @@ namespace Contensive.Processor.Controllers {
                 // -- add it to the queue and shell out to the command
                 if (allowAdd) {
                     var task = TaskModel.addEmpty<TaskModel>(core.cpParent);
-                    task.name = "addon [#" + cmdDetail.addonId + "," + cmdDetail.addonName + "]";
+                    task.name = !string.IsNullOrEmpty(downloadName) ? downloadName : $"addon [#{cmdDetail.addonId},{cmdDetail.addonName}]";
                     task.cmdDetail = cmdDetailJson;
-                    task.resultDownloadId = downloadId;
+                    task.timeout = timeout;
+                    task.requestedBy = (requestedBy > 0) ? requestedBy : core.session?.user?.id ?? 0;
+                    //
+                    // -- generate download path from the task record itself
+                    if (!string.IsNullOrEmpty(downloadFilename)) {
+                        task.downloadPathFilename = FileController.getVirtualRecordUnixPathFilename(TaskModel.tableMetadata.tableNameLower, "downloadPathFilename", task.id, downloadFilename);
+                    }
                     task.save(core.cpParent);
-                    logger.Trace($"{core.logCommonMessage},addTaskToQueue, task added, cmdDetailJson [" + cmdDetailJson + "]");
-                    return true;
+                    logger.Trace($"{core.logCommonMessage},addTaskToQueue, task added, id [{task.id}], cmdDetailJson [{cmdDetailJson}]");
+                    return task.id;
                 }
-                logger.Trace($"{core.logCommonMessage},addTaskToQueue, task blocked because duplicate found, cmdDetailJson [" + cmdDetailJson + "]");
-                return false;
+                logger.Trace($"{core.logCommonMessage},addTaskToQueue, task blocked because duplicate found, cmdDetailJson [{cmdDetailJson}]");
+                return 0;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
-                return false;
+                return 0;
             }
         }
         //
+        /// <summary>
+        /// Backward-compatible overload. Returns bool for existing callers.
+        /// </summary>
+        static public bool addTaskToQueue(CoreController core, TaskModel.CmdDetailClass cmdDetail, bool blockDuplicates, string downloadName, string downloadFilename)
+            => addTaskToQueue(core, cmdDetail, blockDuplicates, downloadName, downloadFilename, 0, 0) > 0;
+        //
         static public bool addTaskToQueue(CoreController core, TaskModel.CmdDetailClass cmdDetail, bool blockDuplicates)
-            => addTaskToQueue(core, cmdDetail, blockDuplicates, "", "");
+            => addTaskToQueue(core, cmdDetail, blockDuplicates, "", "", 0, 0) > 0;
         //
         static public bool addTaskToQueue(CoreController core, TaskModel.CmdDetailClass cmdDetail, bool blockDuplicates, string downloadName)
-            => addTaskToQueue(core, cmdDetail, blockDuplicates, downloadName, "");
+            => addTaskToQueue(core, cmdDetail, blockDuplicates, downloadName, "", 0, 0) > 0;
         //
         //====================================================================================================
         /// <summary>

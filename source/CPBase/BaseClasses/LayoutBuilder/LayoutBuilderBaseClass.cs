@@ -403,6 +403,41 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Add a client-side button to the layout button bar. This renders a button element (type="button") that does not submit the form.
+        /// Attach JavaScript behavior in the layout HTML using the buttonId or buttonClass.
+        /// </summary>
+        /// <param name="buttonValue">The text displayed on the button.</param>
+        public abstract void addClientButton(string buttonValue);
+        //
+        /// <summary>
+        /// Add a client-side button to the layout button bar. This renders a button element (type="button") that does not submit the form.
+        /// Attach JavaScript behavior in the layout HTML using the buttonId or buttonClass.
+        /// </summary>
+        /// <param name="buttonValue">The text displayed on the button.</param>
+        /// <param name="buttonName">The name attribute of the button element.</param>
+        public abstract void addClientButton(string buttonValue, string buttonName);
+        //
+        /// <summary>
+        /// Add a client-side button to the layout button bar. This renders a button element (type="button") that does not submit the form.
+        /// Attach JavaScript behavior in the layout HTML using the buttonId or buttonClass.
+        /// </summary>
+        /// <param name="buttonValue">The text displayed on the button.</param>
+        /// <param name="buttonName">The name attribute of the button element.</param>
+        /// <param name="buttonId">The id attribute of the button element. Use this in layout JavaScript to attach behavior.</param>
+        public abstract void addClientButton(string buttonValue, string buttonName, string buttonId);
+        //
+        /// <summary>
+        /// Add a client-side button to the layout button bar. This renders a button element (type="button") that does not submit the form.
+        /// Attach JavaScript behavior in the layout HTML using the buttonId or buttonClass.
+        /// </summary>
+        /// <param name="buttonValue">The text displayed on the button.</param>
+        /// <param name="buttonName">The name attribute of the button element.</param>
+        /// <param name="buttonId">The id attribute of the button element. Use this in layout JavaScript to attach behavior.</param>
+        /// <param name="buttonClass">Additional CSS class(es) for the button element.</param>
+        public abstract void addClientButton(string buttonValue, string buttonName, string buttonId, string buttonClass);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
         [Obsolete("Deprecated. No longer needed.", false)] public abstract string formActionQueryString { get; set; }

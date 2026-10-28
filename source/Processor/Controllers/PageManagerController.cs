@@ -12,6 +12,7 @@ using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using Contensive.Processor.Addons.PageManager;
 using Contensive.Processor.Views;
+using Contensive.Processor.Models;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -512,7 +513,7 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
                                 if (dataSet != null) {
-                                    templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                                    templateHtml = core.cpParent.Mustache.Render(templateHtml, dataSet);
                                 }
                             } catch (Newtonsoft.Json.JsonException) {
                                 //
@@ -1113,7 +1114,10 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- render addonList
-                        resultInnerContent.Append(AddonListItemModel_Dup.render(core, core.doc.pageController.page.addonList));
+                        var addonList = core.cpParent.JSON.Deserialize<List<AddonListItemModel>>(core.doc.pageController.page.addonList);
+                        resultInnerContent.Append(AddonListItemModel.render(core.cpParent,  addonList, new CPUtilsBaseClass.addonExecuteContext {
+                            addonType = CPUtilsBaseClass.addonContext.ContextPage
+                        }));
                     }
                 }
                 // -- End Text Search
@@ -1826,7 +1830,7 @@ namespace Contensive.Processor.Controllers {
                         // Authenticate
                         //
                         if (pageForm.authenticateOnFormProcess) {
-                            AuthController.authenticateById(core, core.session, core.session.user.id);
+                            AuthController.authenticateById(core, core.session, core.session.user.id, "form");
                         }
                         //
                         // Join Group requested by page that created form

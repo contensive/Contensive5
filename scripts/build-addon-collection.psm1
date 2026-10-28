@@ -41,12 +41,22 @@ function Get-ContensiveVersion {
     (e.g. "26.4.23.30150-staging").
 .PARAMETER DeploymentRoot
     Root folder under which versioned deployment sub-folders are created.
+.PARAMETER RepoPath
+    Path inside the git repository. Used with 'git -C' to reliably detect
+    the current branch regardless of the process working directory.
+    Required — without it, branch detection fails when the build runs from
+    a directory outside the repo (e.g. C:\Windows\System32 in an elevated
+    Administrator shell).
 .OUTPUTS
     Version string, e.g. "26.4.23.30150" or "26.4.23.30150-staging"
 #>
     param(
-        [Parameter(Mandatory)][string]$DeploymentRoot
+        [Parameter(Mandatory)][string]$DeploymentRoot,
+        [Parameter(Mandatory)][string]$RepoPath
     )
+    if (-not (Test-Path $RepoPath)) {
+        throw "Get-ContensiveVersion: -RepoPath '$RepoPath' does not exist. Pass `$projectRoot or a path inside the git repo (e.g. -RepoPath `$projectRoot)."
+    }
     $now   = Get-Date
     $yy    = $now.ToString('yy')
     $month = $now.Month.ToString()
@@ -56,7 +66,7 @@ function Get-ContensiveVersion {
     #
     # -- append branch name as pre-release suffix for non-main branches
     $branch = ''
-    try { $branch = (git rev-parse --abbrev-ref HEAD 2>$null) } catch {}
+    try { $branch = (git -C $RepoPath rev-parse --abbrev-ref HEAD 2>$null) } catch {}
     if ($branch -and $branch -ne 'main' -and $branch -ne 'master') {
         # sanitize: NuGet pre-release allows only alphanumerics and hyphens
         $suffix = $branch -replace '[^a-zA-Z0-9-]', '-'
@@ -237,11 +247,14 @@ function Invoke-ContensiveBuild {
     collection XML and will stage the build artifacts.
 
 .PARAMETER SolutionPath
-    Absolute path to the .sln file to build.
+    Absolute path to the .sln file to build. Optional — omit for
+    collections that have no .NET project (e.g. theme/data-only collections).
+    When omitted, the build and DLL copy steps are skipped.
 
 .PARAMETER BinPath
     Absolute path to the bin folder produced by the build
     (e.g. '...\server\FMA\bin\Release' or '...\server\FMA\bin\Debug').
+    Optional — omit when SolutionPath is omitted.
 
 .PARAMETER Configuration
     Build configuration (Debug or Release). Defaults to Release.
@@ -282,8 +295,8 @@ function Invoke-ContensiveBuild {
     param(
         [Parameter(Mandatory)][string]   $CollectionName,
         [Parameter(Mandatory)][string]   $CollectionPath,
-        [Parameter(Mandatory)][string]   $SolutionPath,
-        [Parameter(Mandatory)][string]   $BinPath,
+        [string]   $SolutionPath      = '',
+        [string]   $BinPath           = '',
         [Parameter(Mandatory)][string]   $DeploymentRoot,
         [string]   $Configuration   = 'Release',
         [string[]] $CleanFolders    = @(),
@@ -309,10 +322,11 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     # Step 1 — Resolve version, deployment folder, and tools
     # -----------------------------------------------------------------------
-    $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot
+    $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot -RepoPath $CollectionPath
     $deploymentFolder = New-DeploymentFolder  -DeploymentRoot $DeploymentRoot -Version $version
+    $hasSolution      = [bool]$SolutionPath
     $useDotnet        = [bool]$DotnetProjectPath
-    if (-not $useDotnet) {
+    if ($hasSolution -and -not $useDotnet) {
         $msbuild = Find-MSBuild
     }
 
@@ -383,19 +397,23 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 4 — Build the solution
+    # Step 4 — Build the solution (skipped for data-only collections)
     # -----------------------------------------------------------------------
-    if ($useDotnet) {
-        Invoke-DotnetBuildSolution -SolutionPath  $SolutionPath `
-                                   -Configuration $Configuration `
-                                   -Version       $version `
-                                   -ProjectPath   $DotnetProjectPath
+    if ($hasSolution) {
+        if ($useDotnet) {
+            Invoke-DotnetBuildSolution -SolutionPath  $SolutionPath `
+                                       -Configuration $Configuration `
+                                       -Version       $version `
+                                       -ProjectPath   $DotnetProjectPath
+        } else {
+            Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
+                                   -MSBuild           $msbuild `
+                                   -Configuration     $Configuration `
+                                   -PackagesDirectory $PackagesDirectory `
+                                   -Version           $version
+        }
     } else {
-        Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
-                               -MSBuild           $msbuild `
-                               -Configuration     $Configuration `
-                               -PackagesDirectory $PackagesDirectory `
-                               -Version           $version
+        Write-Host "No solution — skipping build step."
     }
 
     # -----------------------------------------------------------------------
@@ -436,11 +454,13 @@ function Invoke-ContensiveBuild {
     # Step 5 — Assemble the collection zip and copy to deployment folder
     # -----------------------------------------------------------------------
     Write-Host "Building collection zip..."
-    Copy-Item (Join-Path $BinPath '*.dll') -Destination $collectionFolder -Force
-    Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.dep') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.deps.json') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    if ($BinPath) {
+        Copy-Item (Join-Path $BinPath '*.dll') -Destination $collectionFolder -Force
+        Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+        Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+        Copy-Item (Join-Path $BinPath '*.dep') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+        Copy-Item (Join-Path $BinPath '*.deps.json') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    }
 
     Push-Location $collectionFolder
     try {

@@ -2,7 +2,6 @@
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
-using System.Net;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
@@ -50,7 +49,6 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- send twilio
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 TwilioClient.Init(accountSid, authToken);
                 MessageResource message = MessageResource.Create(new PhoneNumber(e164), accountSid, from: new PhoneNumber(twilioPhoneNumber), null, content);
                 return new SmsProviderResult {

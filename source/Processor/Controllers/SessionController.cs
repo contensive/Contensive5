@@ -49,6 +49,13 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// true if the session was constructed via IP+UserAgent fingerprint (no cookies, no bearer token).
+        /// Fingerprinted sessions must not authenticate because the session identity is not securely established.
+        /// </summary>
+        public bool isFingerprintedSession { get; private set; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// nlog class instance
         /// </summary>
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -241,7 +248,7 @@ namespace Contensive.Processor.Controllers {
                 PersonModel earlyResolvedUser = null;
                 bool earlyBearerAuth = false;
                 string fingerprintHash = "";
-                bool isFingerprintedSession = false;
+                isFingerprintedSession = false;
                 if ((visitor == null || visitor.id == 0) && (visit == null || visit.id == 0)) {
                     if (core.webServer?.requestHeaders != null
                         && core.webServer.requestHeaders.TryGetValue("Authorization", out string earlyAuthHeader)
@@ -449,7 +456,7 @@ namespace Contensive.Processor.Controllers {
                     // -- if bearer token was resolved early, authenticate now that visit/visitor exist
                     //
                     if (earlyBearerAuth && earlyResolvedUser != null) {
-                        AuthController.authenticateById(core, this, earlyResolvedUser.id);
+                        AuthController.authenticateById(core, this, earlyResolvedUser.id, "bearer");
                         user = this.user;
                     }
                     //

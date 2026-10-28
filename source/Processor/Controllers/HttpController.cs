@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Reflection;
 using static Contensive.Processor.Controllers.GenericController;
@@ -6,14 +6,16 @@ using static Contensive.Processor.Controllers.GenericController;
 // todo -- this should use the filesystem objects, not system.io
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using Contensive.Exceptions;
 using System.Text;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 //
 namespace Contensive.Processor.Controllers {
     //
-    public class HttpController {
-        private WebHeaderCollection privateRequestHeaders;
+    public class HttpController : IDisposable {
         private string _password;
         private string _username;
         private string _setCookie;
@@ -23,8 +25,13 @@ namespace Contensive.Processor.Controllers {
         private readonly string privateResponseProtocol = "HTTP/1.1";
         private string _responseStatusDescription;
         private int _responseStatusCode;
-        private WebHeaderCollection privateResponseHeaders = new System.Net.WebHeaderCollection();
+        private HttpResponseHeaders _responseHeaders;
+        private HttpRequestHeaders _requestHeaders;
         private readonly string _socketResponse = "";
+        //
+        private HttpClientHandler _handler;
+        private HttpClient _client;
+        private bool _disposed;
         //
         //======================================================================================
         // constructor
@@ -35,7 +42,7 @@ namespace Contensive.Processor.Controllers {
             Assembly myAssembly = Assembly.GetAssembly(myType);
             AssemblyName myAssemblyname = myAssembly.GetName();
             Version myVersion = myAssemblyname.Version;
-            userAgent = "contensive/" + myVersion.Major.ToString("0") + "." + myVersion.Minor.ToString("0000") + "." + myVersion.Build.ToString("00");
+            userAgent = $"contensive/{myVersion.Major:0}.{myVersion.Minor:0000}.{myVersion.Build:00}";
             _timeout = 30000;
         }
         //
@@ -70,43 +77,67 @@ namespace Contensive.Processor.Controllers {
             string webAddressProtocolDomain = core.siteProperties.getText("webAddressProtocolDomain");
             //
             // -- if site property is empty, use https + first domain in domain list
-            return string.IsNullOrWhiteSpace(webAddressProtocolDomain) ? "https://" + core.appConfig.domainList[0] : webAddressProtocolDomain;
+            return string.IsNullOrWhiteSpace(webAddressProtocolDomain) ? $"https://{core.appConfig.domainList[0]}" : webAddressProtocolDomain;
         }
         //
         //======================================================================================
         /// <summary>
-        /// initialize http object from values in this object. Call right before http method call
+        /// Lazily create the HttpClient and handler when first needed, applying current instance settings.
         /// </summary>
-        /// <param name="http"></param>
-        private void initHttp(WebClientExt http) {
-            //
-            http.password = _password;
-            http.username = _username;
-            http.userAgent = userAgent;
+        private HttpClient ensureClient() {
+            if (_client != null) { return _client; }
+            _handler = new HttpClientHandler {
+                CookieContainer = new CookieContainer(),
+                UseCookies = true
+            };
+            if (!string.IsNullOrEmpty(_username)) {
+                _handler.Credentials = new NetworkCredential(_username, _password);
+            }
             if (!string.IsNullOrEmpty(_setCookie)) {
                 string[] cookies = _setCookie.Split(';');
-                for (int CookiePointer = 0; CookiePointer <= cookies.GetUpperBound(0); CookiePointer++) {
-                    string[] CookiePart = cookies[CookiePointer].Split('=');
-                    http.addCookie(CookiePart[0], CookiePart[1]);
+                for (int i = 0; i <= cookies.GetUpperBound(0); i++) {
+                    string[] cookiePart = cookies[i].Split('=');
+                    if (cookiePart.Length >= 2) {
+                        _handler.CookieContainer.Add(new Cookie(cookiePart[0].Trim(), cookiePart[1].Trim(), "/"));
+                    }
                 }
             }
-            http.timeout = _timeout;
+            _client = new HttpClient(_handler);
+            _client.Timeout = TimeSpan.FromMilliseconds(_timeout);
+            if (!string.IsNullOrEmpty(userAgent)) {
+                _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
+            }
+            return _client;
         }
         //
         //======================================================================================
         //
         public string postUrl(string url) {
-            return postUrl(url, new System.Collections.Specialized.NameValueCollection());
+            return postUrl(url, new NameValueCollection());
         }
         //
         //======================================================================================
         //
-        public string postUrl(string url, System.Collections.Specialized.NameValueCollection requestArguments) {
-            using (WebClientExt http = new WebClientExt()) {
-                initHttp(http);
-                byte[] responsebytes = http.UploadValues(url, "POST", requestArguments);
-                UTF8Encoding utf8 = new UTF8Encoding();
-                return utf8.GetString(responsebytes);
+        public string postUrl(string url, NameValueCollection requestArguments) {
+            try {
+                var client = ensureClient();
+                var formData = new List<KeyValuePair<string, string>>();
+                foreach (string key in requestArguments.AllKeys) {
+                    formData.Add(new KeyValuePair<string, string>(key, requestArguments[key]));
+                }
+                using (var content = new FormUrlEncodedContent(formData)) {
+                    _requestHeaders = client.DefaultRequestHeaders;
+                    var response = client.PostAsync(url, content).Result;
+                    _responseStatusCode = (int)response.StatusCode;
+                    _responseStatusDescription = response.ReasonPhrase;
+                    _responseHeaders = response.Headers;
+                    response.EnsureSuccessStatusCode();
+                    return response.Content.ReadAsStringAsync().Result;
+                }
+            } catch (AggregateException aex) when (aex.InnerException != null) {
+                throw new HttpException($"Exception in postUrl({url})", aex.InnerException);
+            } catch (Exception ex) {
+                throw new HttpException($"Exception in postUrl({url})", ex);
             }
         }
         //
@@ -119,34 +150,39 @@ namespace Contensive.Processor.Controllers {
         //
         public void getUrlToFile(string URL, string physicalFilename) {
             try {
-                using (WebClientExt http = new WebClientExt()) {
-                    initHttp(http);
-                    //
-                    privateResponseFilename = physicalFilename;
-                    string path = physicalFilename.Replace("/", "\\");
-                    int ptr = path.LastIndexOf("\\", StringComparison.InvariantCulture);
-                    if (ptr > 0) {
-                        path = physicalFilename.left(ptr);
-                        Directory.CreateDirectory(path);
-                    }
-                    File.Delete(privateResponseFilename);
-                    privateRequestHeaders = http.Headers;
-                    try {
-                        http.DownloadFile(URL, privateResponseFilename);
-                        _responseStatusCode = 200;
-                        _responseStatusDescription = HttpStatusCode.OK.ToString();
-                        privateResponseHeaders = http.ResponseHeaders;
-                    } catch {
-                        //
-                        // -- exception, no http data is valid
-                        _responseStatusCode = 0;
-                        _responseStatusDescription = "";
-                        privateResponseHeaders = new System.Net.WebHeaderCollection();
-                        throw;
-                    }
+                var client = ensureClient();
+                //
+                privateResponseFilename = physicalFilename;
+                string path = physicalFilename.Replace("/", "\\");
+                int ptr = path.LastIndexOf("\\", StringComparison.InvariantCulture);
+                if (ptr > 0) {
+                    path = physicalFilename.left(ptr);
+                    Directory.CreateDirectory(path);
                 }
+                File.Delete(privateResponseFilename);
+                _requestHeaders = client.DefaultRequestHeaders;
+                try {
+                    var response = client.GetAsync(URL).Result;
+                    _responseStatusCode = (int)response.StatusCode;
+                    _responseStatusDescription = response.ReasonPhrase;
+                    _responseHeaders = response.Headers;
+                    response.EnsureSuccessStatusCode();
+                    using (var stream = response.Content.ReadAsStreamAsync().Result)
+                    using (var fileStream = new FileStream(privateResponseFilename, FileMode.Create, FileAccess.Write)) {
+                        stream.CopyTo(fileStream);
+                    }
+                } catch {
+                    //
+                    // -- exception, no http data is valid
+                    _responseStatusCode = 0;
+                    _responseStatusDescription = "";
+                    _responseHeaders = null;
+                    throw;
+                }
+            } catch (AggregateException aex) when (aex.InnerException != null) {
+                throw new HttpException($"Exception in getUrlToFile({URL},{physicalFilename})", aex.InnerException);
             } catch (Exception ex) {
-                throw new HttpException("Exception in getUrlToFile(" + URL + "," + physicalFilename + ")", ex);
+                throw new HttpException($"Exception in getUrlToFile({URL},{physicalFilename})", ex);
             }
         }
         //
@@ -159,27 +195,27 @@ namespace Contensive.Processor.Controllers {
         //
         public string getURL(string url) {
             try {
-                using (WebClientExt http = new WebClientExt()) {
-                    initHttp(http);
-                    privateRequestHeaders = http.Headers;
-                    try {
-                        string returnString = http.DownloadString(url);
-                        _responseStatusCode = 200;
-                        _responseStatusDescription = HttpStatusCode.OK.ToString();
-                        privateResponseHeaders = http.ResponseHeaders;
-                        return returnString;
-
-                    } catch {
-                        //
-                        // -- exception, no http data is valid
-                        _responseStatusCode = 0;
-                        _responseStatusDescription = "";
-                        privateResponseHeaders = new System.Net.WebHeaderCollection();
-                        throw;
-                    }
+                var client = ensureClient();
+                _requestHeaders = client.DefaultRequestHeaders;
+                try {
+                    var response = client.GetAsync(url).Result;
+                    _responseStatusCode = (int)response.StatusCode;
+                    _responseStatusDescription = response.ReasonPhrase;
+                    _responseHeaders = response.Headers;
+                    response.EnsureSuccessStatusCode();
+                    return response.Content.ReadAsStringAsync().Result;
+                } catch {
+                    //
+                    // -- exception, no http data is valid
+                    _responseStatusCode = 0;
+                    _responseStatusDescription = "";
+                    _responseHeaders = null;
+                    throw;
                 }
+            } catch (AggregateException aex) when (aex.InnerException != null) {
+                throw new HttpException($"Exception in getURL({url})", aex.InnerException);
             } catch (Exception ex) {
-                throw new HttpException("Exception in getURL(" + url + ")", ex);
+                throw new HttpException($"Exception in getURL({url})", ex);
             }
         }
         //
@@ -207,13 +243,12 @@ namespace Contensive.Processor.Controllers {
         public string requestHeader {
             get {
                 try {
-                    string returnString = "";
-                    if (privateRequestHeaders.Count > 0) {
-                        for (int ptr = 0; ptr < privateRequestHeaders.Count; ptr++) {
-                            returnString += privateRequestHeaders[ptr];
-                        }
+                    if (_requestHeaders == null) { return ""; }
+                    var sb = new StringBuilder();
+                    foreach (var header in _requestHeaders) {
+                        sb.Append($"{header.Key}: {string.Join(", ", header.Value)}");
                     }
-                    return returnString;
+                    return sb.ToString();
                 } catch (Exception ex) {
                     throw new GenericException("exception in requestHeader Property, get Method", ex);
                 }
@@ -227,10 +262,10 @@ namespace Contensive.Processor.Controllers {
                 try {
                     string returnString = "";
                     if (_responseStatusCode != 0) {
-                        returnString += privateResponseProtocol + " " + _responseStatusCode + " " + _responseStatusDescription;
-                        if (privateResponseHeaders.Count > 0) {
-                            for (int ptr = 0; ptr < privateResponseHeaders.Count; ptr++) {
-                                returnString += Environment.NewLine + privateResponseHeaders.GetKey(ptr) + ":" + privateResponseHeaders[ptr];
+                        returnString += $"{privateResponseProtocol} {_responseStatusCode} {_responseStatusDescription}";
+                        if (_responseHeaders != null) {
+                            foreach (var header in _responseHeaders) {
+                                returnString += $"{Environment.NewLine}{header.Key}:{string.Join(", ", header.Value)}";
                             }
                         }
                     }
@@ -289,6 +324,22 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
+        //================================================================
+        //
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        //
+        protected virtual void Dispose(bool disposing) {
+            if (_disposed) { return; }
+            if (disposing) {
+                _client?.Dispose();
+                _handler?.Dispose();
+            }
+            _disposed = true;
+        }
+        //
         //====================================================================================================
         /// <summary>
         /// nlog class instance
@@ -301,7 +352,7 @@ namespace Contensive.Processor.Controllers {
     [Serializable]
     public class HttpException : Exception {
         //
-        public HttpException(string context, Exception innerEx) : base("Unknown error in http4Class, " + context + ", innerException [" + innerEx.ToString() + "]") {
+        public HttpException(string context, Exception innerEx) : base($"Unknown error in http4Class, {context}, innerException [{innerEx}]") {
         }
 
         public HttpException() {
@@ -311,4 +362,3 @@ namespace Contensive.Processor.Controllers {
         }
     }
 }
-

@@ -2,14 +2,36 @@ rem ==============================================================
 rem
 rem Build and publish all .NET 9.0 projects (WebApi, CLI, TaskService)
 rem Must be run from the project's git\project\scripts folder
-rem run >build-core [/nopause]
+rem run >build-core [/nopause] [/version YY.M.D.S]
+rem
+rem Options:
+rem   /nopause         - Skip pause on error (for CI/CD)
+rem   /version X.Y.Z.N - Override automatic version (for hotfixes)
+rem                      Example: build-core /version 24.10.15.12345
 rem
 @echo off
 cls
 
-rem Check for /nopause flag
+rem Check for /nopause flag and custom version override
 set PAUSE_ON_ERROR=1
-if "%1"=="/nopause" set PAUSE_ON_ERROR=0
+set CUSTOM_VERSION=
+
+:parse_args
+if "%1"=="" goto args_done
+if "%1"=="/nopause" (
+   set PAUSE_ON_ERROR=0
+   shift
+   goto parse_args
+)
+if "%1"=="/version" (
+   set CUSTOM_VERSION=%2
+   shift
+   shift
+   goto parse_args
+)
+shift
+goto parse_args
+:args_done
 
 @echo +++++++++++++++++++++++++++++
 @echo .NET 9.0 Core Build and Publish
@@ -22,6 +44,7 @@ pause
 
 rem Setup deployment folder with date-based version (YY.M.D.S where S = seconds/2)
 rem Use PowerShell for reliable date/time parsing (matches contensive-build.psm1)
+rem Override with /version flag for hotfixes: build-core /version 24.10.15.12345
 set deploymentFolderRoot=C:\Deployments\Contensive5-Core\
 
 if not "%CUSTOM_VERSION%"=="" (
@@ -35,6 +58,11 @@ if not "%CUSTOM_VERSION%"=="" (
 
 rem Extract numeric-only version (strip pre-release suffix) for AssemblyVersion/FileVersion
 for /f "tokens=1 delims=-" %%n in ("%versionNumber%") do set numericVersion=%%n
+
+rem Temp NuGet staging folder holds only the packages from this build.
+rem The iisDefaultSite restore uses this as its sole Contensive package source,
+rem eliminating version ambiguity regardless of branch name or prerelease suffix.
+set NuGetStagingFolder=%deploymentFolderRoot%%versionNumber%\NugetStaging
 
 md "%deploymentFolderRoot%%versionNumber%"
 
@@ -68,6 +96,12 @@ rd /s /q "..\source\TaskService\bin" 2>nul
 del /s /q "..\source\TaskService\obj" 2>nul
 rd /s /q "..\source\TaskService\obj" 2>nul
 
+del /s /q "..\source\IisUtil\bin" 2>nul
+rd /s /q "..\source\IisUtil\bin" 2>nul
+
+del /s /q "..\source\IisUtil\obj" 2>nul
+rd /s /q "..\source\IisUtil\obj" 2>nul
+
 del /s /q "..\source\CPBase\obj" 2>nul
 rd /s /q "..\source\CPBase\obj" 2>nul
 
@@ -93,21 +127,25 @@ del /q "..\WebDeploymentPackage\*.*" 2>nul
 
 rem ==============================================================
 rem
-rem package helpfiles and baseassets (same as main build)
+rem package ui resource zips (wwwFiles, cdnFiles, privateFiles, layoutFiles, helpFiles)
+rem Each subfolder under ui\ is zipped into source\Processor\ so the
+rem collection installer can process them via Resource nodes in aoBase51.xml.
 rem
 
-del "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 2>nul
-"c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" "C:\Git\Contensive5\helpfiles\*"
+set uiRoot=C:\Git\Contensive5\ui
+set processorDir=C:\Git\Contensive5\source\Processor
 
-c:
-cd "C:\Git\Contensive5\ui\baseassets\"
-del baseassets.zip /Q 2>nul
-"c:\program files\7-zip\7z.exe" a "baseassets.zip"
-"c:\program files\7-zip\7z.exe" d baseassets.zip baseassets\
-"c:\program files\7-zip\7z.exe" d baseassets.zip ".DS_Store"
-cd baseassets
-"c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
-move /y "..\baseassets.zip" "C:\Git\Contensive5\source\Processor\"
+for %%F in (wwwFiles cdnFiles privateFiles layoutFiles) do (
+   del "%processorDir%\%%F.zip" 2>nul
+   pushd "%uiRoot%\%%F"
+   "c:\program files\7-zip\7z.exe" a -tzip -r "%processorDir%\%%F.zip" *
+   popd
+)
+
+del "%processorDir%\helpFiles.zip" 2>nul
+pushd "C:\Git\Contensive5\helpfiles"
+"c:\program files\7-zip\7z.exe" a -tzip -r "%processorDir%\helpFiles.zip" *
+popd
 
 cd "C:\Git\Contensive5\scripts"
 
@@ -116,7 +154,7 @@ rem
 rem copy baseassets into WebApi webroot for static file serving
 rem
 
-robocopy "C:\Git\Contensive5\ui\baseassets\BaseAssets" "C:\Git\Contensive5\source\WebApi\webroot\baseassets" /MIR /NJH /NJS /NDL /NP
+robocopy "C:\Git\Contensive5\ui\wwwFiles\BaseAssets" "C:\Git\Contensive5\source\WebApi\webroot\baseassets" /MIR /NJH /NJS /NDL /NP
 if errorlevel 8 (
    echo.
    echo FAILURE copying baseassets to WebApi webroot
@@ -163,6 +201,14 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+dotnet build IisUtil/IisUtil.csproj --no-incremental --no-dependencies /property:Version=%versionNumber%
+if errorlevel 1 (
+   echo.
+   echo FAILURE building IisUtil
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
 dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net9.0-windows
 if errorlevel 1 (
    echo.
@@ -195,17 +241,22 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem move packages to deployment folder (Nuget subfolder) and local package cache
+rem move packages to deployment folder (Nuget subfolder), local package cache,
+rem and the temp staging folder used by the iisDefaultSite build
 md "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
+md "%NuGetStagingFolder%" 2>nul
 
 move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
 move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
 move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\Nuget\"
 xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+xcopy "%deploymentFolderRoot%%versionNumber%\Nuget\Contensive.Processor.%versionNumber%.nupkg" "%NuGetStagingFolder%\" /Y
 
 rem ==============================================================
 rem
@@ -266,13 +317,13 @@ set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBu
 
 cd ..\source\iisdefaultsite
 dotnet remove package Contensive.CPBaseClass
-dotnet add package Contensive.CPBaseClass --source c:\NuGetLocalPackages
+dotnet add package Contensive.CPBaseClass --version "%versionNumber%" --source "%NuGetStagingFolder%"
 
 dotnet remove package Contensive.DbModels
-dotnet add package Contensive.DbModels --source c:\NuGetLocalPackages
+dotnet add package Contensive.DbModels --version "%versionNumber%" --source "%NuGetStagingFolder%"
 
 dotnet remove package Contensive.Processor
-dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
+dotnet add package Contensive.Processor --version "%versionNumber%" --source "%NuGetStagingFolder%"
 cd ..\..\scripts
 
 @echo.
@@ -283,7 +334,7 @@ del /q "..\WebDeploymentPackage\*.*" 2>nul
 
 cd ..\source
 
-dotnet restore ContensiveAspx.sln
+dotnet restore ContensiveAspx.sln --source "%NuGetStagingFolder%" --source https://api.nuget.org/v3/index.json
 if errorlevel 1 (
    echo.
    echo FAILURE restoring iisDefaultSite packages
@@ -349,6 +400,27 @@ cd ..\scripts
 
 rem ==============================================================
 rem
+rem publish IisUtil for .NET 9.0 (into Cli folder alongside cc.exe)
+rem
+
+@echo.
+@echo Publishing IisUtil (net9.0-windows)...
+@echo.
+
+cd ..\source
+
+dotnet publish IisUtil/IisUtil.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\Cli" --runtime win-x64 --self-contained false /property:Version=%versionNumber%
+if errorlevel 1 (
+   echo.
+   echo FAILURE publishing IisUtil
+   if %PAUSE_ON_ERROR%==1 pause
+   exit /b %errorlevel%
+)
+
+cd ..\scripts
+
+rem ==============================================================
+rem
 rem publish TaskService for .NET 9.0
 rem
 
@@ -365,6 +437,12 @@ if errorlevel 1 (
    if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
+
+rem -- copy iisutil into TaskService folder (needed for syncIpBlocksToIIS)
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.exe" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.exe"
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.dll" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.dll" 2>nul
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.runtimeconfig.json" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.runtimeconfig.json" 2>nul
+copy "%deploymentFolderRoot%%versionNumber%\Cli\iisutil.deps.json" "%deploymentFolderRoot%%versionNumber%\TaskService\iisutil.deps.json" 2>nul
 
 cd ..\scripts
 
@@ -436,6 +514,14 @@ copy "C:\Git\Contensive5\etc\install-scripts\*" "%deploymentFolderRoot%%versionN
 
 rem ==============================================================
 rem
+rem copy Docker setup documentation into the deployment folder
+rem
+
+md "%deploymentFolderRoot%%versionNumber%\Docker" 2>nul
+copy "C:\Git\Contensive5\etc\Docker\*" "%deploymentFolderRoot%%versionNumber%\Docker\"
+
+rem ==============================================================
+rem
 rem create a single zip distribution package
 rem
 
@@ -475,6 +561,8 @@ del /q "%deploymentFolderRoot%%versionNumber%\upgrade-full.cmd" 2>nul
 del /q "%deploymentFolderRoot%%versionNumber%\README.txt" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\FrameworkSite" 2>nul
 rd /s /q "%deploymentFolderRoot%%versionNumber%\Nuget" 2>nul
+rd /s /q "%NuGetStagingFolder%" 2>nul
+rd /s /q "%deploymentFolderRoot%%versionNumber%\Docker" 2>nul
 
 rem ==============================================================
 rem

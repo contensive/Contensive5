@@ -2,7 +2,6 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Addons.PortalFramework.Models.Db;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -285,7 +284,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (string.IsNullOrEmpty(DataSourceName))
                                     DataSourceName = "Default";
-                                if (VisualBasicConvert.Strings_Ucase(TableName) == "CCMENUENTRIES")
+                                if (string.Equals(TableName, "CCMENUENTRIES", StringComparison.OrdinalIgnoreCase))
                                     FoundMenuTable = true;
                                 sb.Append($" ContentDataSourceName=\"{encodeXMLattribute(DataSourceName)}\"");
                                 sb.Append($" ContentTableName=\"{encodeXMLattribute(TableName)}\"");
@@ -337,7 +336,7 @@ namespace Contensive.Processor.Controllers {
                                         if (fieldContentID > contentId) {
                                             break;
                                         } else if ((fieldContentID == contentId) && (fieldId != lastFieldID)) {
-                                            if (includeBaseFields || (VisualBasicConvert.Strings_InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + fieldName + ",", StringComparison.OrdinalIgnoreCase) == 0)) {
+                                            if (includeBaseFields || (",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,".IndexOf($",{fieldName},", StringComparison.OrdinalIgnoreCase) < 0)) {
                                                 int memberSelectGroupId = fieldsCs.GetInteger("MemberSelectGroupID");
                                                 string memberSelectGroup = memberSelectGroupId <= 0 ? "" : cp.Group.GetName(memberSelectGroupId.ToString());
                                                 sb.Append(System.Environment.NewLine + "\t\t<Field");
@@ -480,20 +479,20 @@ namespace Contensive.Processor.Controllers {
                         // IndexList = cpCore.app.csv_GetSQLIndexList(DataSourceName, TableName)
                         // 
                         if (IndexList != "") {
-                            ListRows = VisualBasicConvert.Strings_Split(IndexList, System.Environment.NewLine);
+                            ListRows = IndexList.Split(new[] { System.Environment.NewLine }, StringSplitOptions.None);
                             IndexName = "";
-                            for (Ptr = 0; Ptr <= VisualBasicConvert.Information_Ubound(ListRows) + 1; Ptr++) {
-                                if (Ptr <= VisualBasicConvert.Information_Ubound(ListRows))
-                                    // 
+                            for (Ptr = 0; Ptr <= ListRows.Length; Ptr++) {
+                                if (Ptr < ListRows.Length)
+                                    //
                                     // ListRowSplit has the indexname and field for this index
-                                    // 
-                                    ListRowSplit = VisualBasicConvert.Strings_Split(ListRows[Ptr], ",");
+                                    //
+                                    ListRowSplit = ListRows[Ptr].Split(',');
                                 else
-                                    // 
+                                    //
                                     // one past the last row, ListRowSplit gets a dummy entry to force the output of the last line
-                                    // 
-                                    ListRowSplit = VisualBasicConvert.Strings_Split("-,-", ",");
-                                if (VisualBasicConvert.Information_Ubound(ListRowSplit) > 0) {
+                                    //
+                                    ListRowSplit = "-,-".Split(',');
+                                if (ListRowSplit.Length > 1) {
                                     if (ListRowSplit[0] != "") {
                                         if (IndexName == "") {
                                             // 
@@ -589,9 +588,9 @@ namespace Contensive.Processor.Controllers {
                         NavIconType = cp.Utils.EncodeInteger(GetRSXMLAttribute(dt, "NavIconType"));
                         NavIconTitle = GetRSXMLAttribute(dt, "NavIconTitle");
                         sb.Append(" NavIconTitle=\"" + NavIconTitle + "\"");
-                        SplitArray = VisualBasicConvert.Strings_Split(navIconTypeList + ",help", ",");
+                        SplitArray = (navIconTypeList + ",help").Split(',');
                         SplitIndex = NavIconType - 1;
-                        if ((SplitIndex >= 0) & (SplitIndex <= VisualBasicConvert.Information_Ubound(SplitArray))) { sb.Append(" NavIconType=\"" + SplitArray[SplitIndex] + "\""); }
+                        if ((SplitIndex >= 0) & (SplitIndex < SplitArray.Length)) { sb.Append(" NavIconType=\"" + SplitArray[SplitIndex] + "\""); }
                         sb.Append(" guid=\"" + GetRSXMLAttribute(dt, "ccGuid") + "\"");
                         // 
                         sb.Append("></NavigatorEntry>" + System.Environment.NewLine);
@@ -678,10 +677,11 @@ namespace Contensive.Processor.Controllers {
         // 
         // 
         private string encodeXMLattribute(string Source) {
+            if (string.IsNullOrEmpty(Source)) { return Source ?? ""; }
             string result = System.Net.WebUtility.HtmlEncode(Source);
-            result = VisualBasicConvert.Strings_Replace(result, System.Environment.NewLine, " ");
-            result = VisualBasicConvert.Strings_Replace(result, "\n", "");
-            result = VisualBasicConvert.Strings_Replace(result, "\r", "");
+            result = result.Replace(System.Environment.NewLine, " ");
+            result = result.Replace("\n", "");
+            result = result.Replace("\r", "");
             return result;
         }
         // 
@@ -726,7 +726,7 @@ namespace Contensive.Processor.Controllers {
                 string ParentSpace = "";
                 // 
                 if (RecordID != 0) {
-                    if (VisualBasicConvert.Strings_InStr(1, "," + UsedIDString + ",", "," + RecordID + ",", StringComparison.OrdinalIgnoreCase) != 0) {
+                    if ($",{UsedIDString},".IndexOf($",{RecordID},", StringComparison.OrdinalIgnoreCase) >= 0) {
                         cp.Site.ErrorReport("Circular reference found in UsedIDString [" + UsedIDString + "] getting ccMenuEntries namespace for recordid [" + RecordID + "]");
                         result = "";
                     } else {
@@ -904,7 +904,7 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         private string EncodeCData(string Source) {
             if (string.IsNullOrWhiteSpace(Source)) { return string.Empty; }
-            return "<![CDATA[" + VisualBasicConvert.Strings_Replace(Source, "]]>", "]]]]><![CDATA[>") + "]]>";
+            return "<![CDATA[" + Source.Replace("]]>", "]]]]><![CDATA[>") + "]]>";
         }
         //
         //====================================================================================================

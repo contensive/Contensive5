@@ -52,12 +52,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // Assemble DataTable
                 //
+                StringBuilder findRow = gridConfig.allowFind ? getFindRow(gridConfig) : new StringBuilder();
                 string grid = "" +
                     "<table ID=\"DataTable\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"Background-Color:white;\">" +
                         headerRow +
+                        (gridConfig.findRowAtTop ? findRow : "") +
                         getDataRows(core, adminData, gridConfig, userContentPermissions, sql, dataSource, FieldUsedInColumns, IsLookupFieldValid, allowDelete, adminEditPresetArgQsList) +
                         (gridConfig.allowHeaderAtBottom ? headerRow : "") +
-                        (gridConfig.allowFind ? getFindRow(gridConfig) : "") +
+                        (gridConfig.findRowAtTop ? "" : findRow) +
                     "</table>";
                 return grid;
             } catch (Exception ex) {
@@ -275,11 +277,19 @@ namespace Contensive.Processor.Addons.AdminSite {
             var DataTable_FindRow = new StringBuilder();
             if (gridConfig.allowFind) {
                 //
+                // -- chevron SVG icons (up = move to top, down = move to bottom)
+                string svgChevronUp = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z\"/></svg>";
+                string svgChevronDown = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"currentColor\" aria-hidden=\"true\"><path fill-rule=\"evenodd\" d=\"M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z\"/></svg>";
+                //
+                // -- when at top show chevron-down (move to bottom), when at bottom show chevron-up (move to top)
+                string initialChevron = gridConfig.findRowAtTop ? svgChevronDown : svgChevronUp;
+                //
                 // ----- DataTable_FindRow
                 //
-                DataTable_FindRow.Append("<tr><td colspan=" + (3 + gridConfig.columns.Count) + " style=\"background-color:black;height:1;\"></td></tr>");
-                DataTable_FindRow.Append("<tr>");
+                DataTable_FindRow.Append("<tr class=\"js-findSeparator\"><td colspan=" + (3 + gridConfig.columns.Count) + " style=\"background-color:black;height:1;\"></td></tr>");
+                DataTable_FindRow.Append("<tr class=\"js-findRow\">");
                 DataTable_FindRow.Append("<td valign=\"middle\" colspan=3 width=\"60\" class=\"ccPanel\" align=center style=\"vertical-align:middle;padding:8px;text-align:center ! important;\">");
+                DataTable_FindRow.Append("<button type=\"button\" class=\"js-findRowToggle\" style=\"background:none;border:none;cursor:pointer;padding:2px 4px;vertical-align:middle;color:inherit;\" title=\"Toggle find row position\">" + initialChevron + "</button>");
                 DataTable_FindRow.Append(AdminUIController.getButtonPrimary(ButtonFind, "", false, "FindButton") + "</td>");
                 int ColumnPointer = 0;
                 var listOfMatches = new List<FindWordMatchEnum> { FindWordMatchEnum.matchincludes, FindWordMatchEnum.MatchEquals, FindWordMatchEnum.MatchTrue, FindWordMatchEnum.MatchFalse };
@@ -299,6 +309,41 @@ namespace Contensive.Processor.Addons.AdminSite {
                     ColumnPointer += 1;
                 }
                 DataTable_FindRow.Append("</tr>");
+                //
+                // -- inline script for client-side toggle (vanilla JS, DOMContentLoaded)
+                DataTable_FindRow.Append("<script>");
+                DataTable_FindRow.Append("document.addEventListener('DOMContentLoaded',function(){");
+                DataTable_FindRow.Append("var toggle=document.querySelector('.js-findRowToggle');");
+                DataTable_FindRow.Append("if(!toggle)return;");
+                DataTable_FindRow.Append("var chevronUp='" + svgChevronUp.Replace("'", "\\'") + "';");
+                DataTable_FindRow.Append("var chevronDown='" + svgChevronDown.Replace("'", "\\'") + "';");
+                DataTable_FindRow.Append("var isAtTop=" + (gridConfig.findRowAtTop ? "true" : "false") + ";");
+                DataTable_FindRow.Append("toggle.addEventListener('click',function(){");
+                DataTable_FindRow.Append("var table=document.getElementById('DataTable');");
+                DataTable_FindRow.Append("if(!table)return;");
+                DataTable_FindRow.Append("var sepRow=table.querySelector('.js-findSeparator');");
+                DataTable_FindRow.Append("var findRow=table.querySelector('.js-findRow');");
+                DataTable_FindRow.Append("if(!sepRow||!findRow)return;");
+                DataTable_FindRow.Append("var headerRow=table.querySelector('tr');");
+                DataTable_FindRow.Append("if(!headerRow)return;");
+                DataTable_FindRow.Append("if(isAtTop){");
+                // -- move to bottom: append after all rows
+                DataTable_FindRow.Append("table.querySelector('tbody')?table.querySelector('tbody').appendChild(sepRow):table.appendChild(sepRow);");
+                DataTable_FindRow.Append("table.querySelector('tbody')?table.querySelector('tbody').appendChild(findRow):table.appendChild(findRow);");
+                DataTable_FindRow.Append("toggle.innerHTML=chevronUp;");
+                DataTable_FindRow.Append("isAtTop=false;");
+                DataTable_FindRow.Append("}else{");
+                // -- move to top: insert after header row
+                DataTable_FindRow.Append("headerRow.parentNode.insertBefore(sepRow,headerRow.nextSibling);");
+                DataTable_FindRow.Append("sepRow.parentNode.insertBefore(findRow,sepRow.nextSibling);");
+                DataTable_FindRow.Append("toggle.innerHTML=chevronDown;");
+                DataTable_FindRow.Append("isAtTop=true;");
+                DataTable_FindRow.Append("}");
+                // -- persist via remote method
+                DataTable_FindRow.Append("fetch('/SetAdminListFindRowPosition?top='+(isAtTop?'true':'false'),{method:'GET'}).catch(function(){});");
+                DataTable_FindRow.Append("});");
+                DataTable_FindRow.Append("});");
+                DataTable_FindRow.Append("</script>");
             }
 
             return DataTable_FindRow;

@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                 string recordGuid = contentMetadata.getRecordGuid(core, recordId);
                 EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, []);
                 //
-                string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                string result = core.cpParent.Mustache.Render(editAddModalLayout, editModalViewData);
                 //
                 // -- execute all the custom editors because all js and css from the editors and thier dependencies need to be added to this page, so the modals added by ajax can call them
                 var fieldTypeEditors = core.cacheRuntime.fieldEditorAddonList;
@@ -234,7 +234,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
                 EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, []);
-                string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                string result = core.cpParent.Mustache.Render(editAddModalLayout, editModalViewData);
                 return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -265,7 +265,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string caption = getEditCaption(core, "Add", contentMetadata.name, customCaption);
                 EditModalViewModel editModalViewData = new(core, contentMetadata, "", allowPaste, "", caption, presetQSNameValues);
-                string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                string result = core.cpParent.Mustache.Render(editAddModalLayout, editModalViewData);
                 return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -497,7 +497,7 @@ namespace Contensive.Processor.Controllers {
                 var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
                 EditModalViewModel dataSet = new(core, metadata, "", false, "record name", caption, presetNameValueList.Split(['&']).ToList());
                 string layout = removeModalFromLayout(LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
-                string renderedLayout = MustacheController.renderStringToString(layout, dataSet);
+                string renderedLayout = core.cpParent.Mustache.Render(layout, dataSet);
                 string[] renderedParts = renderedLayout.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(renderedParts[1]);
                 result.Add(renderedParts[0]);

@@ -623,7 +623,7 @@ namespace Contensive.BaseClasses {
         /// <param name="ContentName"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public abstract string GetListLink(string ContentName);
+        [Obsolete("Use GetEditLink() ", false)] public abstract string GetListLink(string ContentName);
         //
         //====================================================================================================
         /// <summary>

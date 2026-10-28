@@ -3,7 +3,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-	<UseWPF>true</UseWPF>
 	<TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
 	<RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
@@ -12,7 +11,7 @@
     <PackageIcon>LogoBalls.png</PackageIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    <NoWarn>1701;1702;1570;1572;1573;1587;1591</NoWarn>
+    <NoWarn>1701;1702;1570;1572;1573;1587;1591;MSB3277</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Signing">
@@ -124,21 +123,27 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <None Update="BaseAssets.zip">
+    <None Update="wwwFiles.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="cdnFiles.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="privateFiles.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="layoutFiles.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="helpFiles.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="helloworld.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="HelpFiles.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Update="ui.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="regexes.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -154,6 +159,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\IisUtil\IisUtil.csproj" Condition="'$(TargetFramework)' == 'net9.0-windows'" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -163,7 +169,7 @@
     <PackageReference Include="AWSSDK.Core" Version="3.7.500.27" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.501.19" />
     <PackageReference Include="AWSSDK.PinpointSMSVoiceV2" Version="3.7.502.16" />
-    <PackageReference Include="AWSSDK.RDS" Version="3.7.501.12" />
+    <PackageReference Include="AWSSDK.RDS" Version="3.7.502" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.501.12" />
     <PackageReference Include="AWSSDK.SecretsManager.Caching" Version="1.0.6" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.501.18" />
@@ -174,37 +180,29 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.9" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />
-    <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
-    <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
     <PackageReference Include="MimeMapping" Version="3.1.0" />
     <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="NLog" Version="5.5.1" />
     <PackageReference Include="NUglify" Version="1.21.17" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.12" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+    <PackageReference Include="Stubble.Core" Version="1.10.8" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageReference Include="System.IO.Pipelines" Version="9.0.9" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Caching" Version="9.0.9" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.9" />
     <PackageReference Include="Twilio" Version="7.13.3" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="netstandard">
-      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\netstandard.dll</HintPath>
-    </Reference>
     <Reference Include="Nustache.Core">
       <HintPath>Libs\Nustache.Core.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Data.Entity.Design">
-      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Data.Entity.Design.dll</HintPath>
     </Reference>
     <Reference Include="Twilio">
       <HintPath>..\twilio_strong_name\twilio.dll</HintPath>
@@ -218,6 +216,11 @@
 	<ItemGroup>
     <None Include="Libs\Nustache.Core.dll" Pack="true" PackagePath="lib\net48\" />
   </ItemGroup>	
+
+  <!-- Include iisutil.dll (managed assembly) in output. The project reference with ReferenceOutputAssembly=false copies the exe, deps.json, and runtimeconfig.json but not the managed dll needed at runtime. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
+    <Content Include="$(MSBuildProjectDirectory)\..\IisUtil\bin\$(Configuration)\net9.0-windows\iisutil.dll" Link="iisutil.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <!-- Download fresh bot detection data before build. On failure (offline/timeout), the committed fallback copies are used. -->
   <Target Name="UpdateBotDetectionData" BeforeTargets="BeforeBuild" Condition="'$(SkipBotDetectionUpdate)' != 'true'">

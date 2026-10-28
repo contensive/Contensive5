@@ -35,6 +35,7 @@ namespace Contensive.BaseClasses {
         /// Not yet implemented. The TimeZone for the business's primary location (the store).
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Use StoreTimeZone instead. This property uses the deprecated System.TimeZone type.", false)]
         public abstract TimeZone TimeZone { get; }
         //
         //==========================================================================================
@@ -57,15 +58,32 @@ namespace Contensive.BaseClasses {
         /// Not yet implemented. The current date and time in UTC (the server time)
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Use ConvertToLocal(DateTime, TimeZoneInfo) instead. This overload uses the deprecated System.TimeZone type.", false)]
         public abstract DateTime ConvertToLocal( DateTime utcDateToConvert, TimeZone localTimeZone  );
         //
         //==========================================================================================
         /// <summary>
-        /// Not yet implemented. The current date and time for this user. 
+        /// Not yet implemented. The current date and time for this user.
         /// This is the server time in UTC plus the user's time-zone
         /// </summary>
         /// <returns></returns>
         public abstract DateTime UserNow(int userId);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// The TimeZoneInfo for the business's primary location (the store).
+        /// </summary>
+        /// <returns></returns>
+        public abstract TimeZoneInfo StoreTimeZone { get; }
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Convert a UTC date to local time using the specified TimeZoneInfo.
+        /// </summary>
+        /// <param name="utcDateToConvert"></param>
+        /// <param name="localTimeZone"></param>
+        /// <returns></returns>
+        public abstract DateTime ConvertToLocal(DateTime utcDateToConvert, TimeZoneInfo localTimeZone);
     }
 }
 

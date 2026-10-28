@@ -58,7 +58,7 @@ namespace Contensive.Processor.Controllers {
                 var ruleList = DbBaseModel.createList<MemberRuleModel>(core.cpParent, "(MemberID=" + user.id.ToString() + ")and(GroupID=" + group.id.ToString() + ")");
                 if (ruleList.Count == 0) {
                     // -- add new rule
-                    var rule = DbBaseModel.addDefault<MemberRuleModel>(core.cpParent, Models.Domain.ContentMetadataModel.getDefaultValueDict(core, "groups"));
+                    var rule = DbBaseModel.addDefault<MemberRuleModel>(core.cpParent, Models.Domain.ContentMetadataModel.getDefaultValueDict(core, "Member Rules"));
                     rule.groupId = group.id;
                     rule.memberId = user.id;
                     rule.dateExpires = dateExpires;

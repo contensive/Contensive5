@@ -357,13 +357,13 @@ public class DbBaseModelTests {
     public void fieldFileTypes_TextFieldTypeTest() {
         using (CPClass cp = new(testAppName)) {
             string contentSaved = new string('*', 65535);
-            var contentCreated = DownloadModel.addEmpty<DownloadModel>(cp);
+            var contentCreated = TaskModel.addEmpty<TaskModel>(cp);
             contentCreated.filename.content = contentSaved;
             contentCreated.save(cp);
             int recordId = contentCreated.id;
             string contentCreatedFilename = contentCreated.filename.filename;
             //
-            var contentRead = DownloadModel.create<DownloadModel>(cp, recordId);
+            var contentRead = TaskModel.create<TaskModel>(cp, recordId);
             string contentReadFilename = contentRead.filename.filename;
             string contentReadFromModel = contentRead.filename.content;
             //
@@ -372,7 +372,7 @@ public class DbBaseModelTests {
             DataTable dbRead = null;
             using (var cs = cp.CSNew()) {
                 //
-                dbRead = cp.Db.ExecuteQuery("select * from " + DownloadModel.tableMetadata.tableNameLower + " where (id=" + recordId + ")");
+                dbRead = cp.Db.ExecuteQuery("select * from " + TaskModel.tableMetadata.tableNameLower + " where (id=" + recordId + ")");
                 Assert.IsNotNull(dbRead);
                 Assert.AreEqual(1, dbRead.Rows.Count);
                 //

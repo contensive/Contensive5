@@ -61,6 +61,11 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         public bool allowColumnSort { get; set; }
         public bool allowHeaderAtBottom { get; set; }
+        /// <summary>
+        /// When true, the find row is positioned at the top of the grid (under the header row) instead of at the bottom.
+        /// Loaded from userProperty so the preference persists across visits and applies to all admin list screens.
+        /// </summary>
+        public bool findRowAtTop { get; set; }
         //
         /// <summary>
         /// Constructor
@@ -100,6 +105,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 allowAddRow = false;
                 allowColumnSort = true;
                 allowHeaderAtBottom = true;
+                findRowAtTop = core.userProperty.getBoolean("AdminListFindRowTop", false);
                 //
                 // Setup Member Properties
                 string ConfigList = core.userProperty.getText(AdminDataModel.IndexConfigPrefix + getText(adminData.adminContent.id), "");
@@ -147,7 +153,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     string[] LineSplit = ConfigListLines[Ptr].Split('\t');
                                     if (LineSplit.GetUpperBound(0) == 1) {
                                         string fieldName = LineSplit[0].Trim().ToLowerInvariant();
-                                        if (!string.IsNullOrWhiteSpace(fieldName)) {
+                                        if (!string.IsNullOrWhiteSpace(fieldName) && adminData.adminContent.fields.ContainsKey(fieldName)) {
                                             sorts.Add(fieldName, new GridConfigSortClass {
                                                 fieldName = fieldName,
                                                 direction = ((LineSplit[1] == "1") ? 1 : 2),
@@ -186,11 +192,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         string Line = ConfigListLines[Ptr];
                                         string[] LineSplit = Line.Split('\t');
                                         if (LineSplit.GetUpperBound(0) > 1) {
-                                            findWords.Add(LineSplit[0], new GridConfigFindWordClass {
-                                                Name = LineSplit[0],
-                                                Value = LineSplit[1],
-                                                MatchOption = (FindWordMatchEnum)GenericController.getInteger(LineSplit[2])
-                                            });
+                                            string findFieldName = LineSplit[0];
+                                            if (adminData.adminContent.fields.ContainsKey(findFieldName.ToLowerInvariant())) {
+                                                findWords.Add(findFieldName, new GridConfigFindWordClass {
+                                                    Name = findFieldName,
+                                                    Value = LineSplit[1],
+                                                    MatchOption = (FindWordMatchEnum)GenericController.getInteger(LineSplit[2])
+                                                });
+                                            }
                                         }
                                         Ptr += 1;
                                     }
@@ -308,6 +317,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 allowAddRow = false;
                 allowColumnSort = true;
                 allowHeaderAtBottom = true;
+                findRowAtTop = core.userProperty.getBoolean("AdminListFindRowTop", false);
                 //
                 // Setup Member Properties
                 string ConfigList = core.userProperty.getText(request.gridPropertiesSaveName, "");

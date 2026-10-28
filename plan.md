@@ -1,171 +1,113 @@
-# Plan: PersonType Promote-Only (Never Downgrade)
+# Plan: Remove netstandard2.0 Blockers from Processor
 
-## Problem
+## Phase 1 — Dead Imports (safe, no behavior change)
 
-The `PersonTypeEnum` hierarchy is `Unknown(0) < Bot(1) < Guest(2) < Contact(3)`. Two code paths can cause a Guest or Contact person record to be deleted as if it were a bot:
+Remove unused `using` statements from these files:
 
-1. **Visitor bot-flag propagation** — [SessionController.cs:539-542](source/Processor/Controllers/SessionController.cs#L539-L542) unconditionally copies `visit.bot` to `visitor.bot`. If a Contact's returning visitor cookie is reused in a bot-detected request (e.g., an AI hitting the MCP endpoint), the visitor gets `bot=true`.
+1. `source/Processor/Controllers/Authentication/AuthWorkflowController.cs` — remove `using System.Windows.Input;`
+2. `source/Processor/Controllers/Authentication/LoginWorkflowController.cs` — remove `using System.Windows.Input;`
+3. `source/Processor/Addons/PageManager/OpenGraphEndOfBodyClass.cs` — remove `using System.Windows.Input;`
+4. `source/Processor/Models/Domain/DashboardUserConfigModel.cs` — remove `using Microsoft.Web.Administration;`
+5. `source/Processor/Addons/WidgetDashboard/WidgetDashboardCmdRemote.cs` — remove `using Microsoft.ClearScript.JavaScript;`
 
-2. **Legacy housekeeping deletes** — [PersonClass.cs:105](source/Processor/Addons/Housekeeping/PersonClass.cs#L105) and [PersonClass.cs:114](source/Processor/Addons/Housekeeping/PersonClass.cs#L114) delete any person with `createdByVisit=1` joined to a bot visitor/visit, **regardless of personTypeId**. A Contact who was originally auto-created during a visit (`createdByVisit=1`) gets deleted because their visitor was flagged as bot.
+## Phase 2 — Unused References in Processor.csproj (safe, no behavior change)
 
-**The deletion chain:** User authenticates normally (Contact, `createdByVisit=1`) → AI/MCP hits endpoint with same visitor cookie → bot-detected visit sets `visitor.bot=true` → housekeeping deletes the Contact because `createdByVisit=1 AND visitor.bot=1`.
+Remove these from `source/Processor/Processor.csproj`:
 
-## Changes
+1. `<UseWPF>true</UseWPF>` — only needed because of the dead imports removed in Phase 1
+2. `<PackageReference Include="System.ServiceProcess.ServiceController" .../>` — zero usages in code
+3. `<Reference Include="System.Data.Entity.Design">` block — .NET Framework-only assembly, zero usages
+4. `<Reference Include="netstandard">` block — .NET Framework facade shim, not needed
 
-### 1. SessionController.cs — Refactor `createGuest` into `createPerson(personTypeId)` and create the correct type at point of creation
+## Phase 3 — Critical Blocker: Kernel32.dll P/Invoke
 
-Replace the current pattern of "create a Guest, then override to Bot" with a `createPerson(PersonTypeEnum personTypeId)` method. The existing `createGuest` becomes a thin wrapper that calls `createPerson(PersonTypeEnum.Guest)`. At the new-user creation site (line 508), branch on `visit.bot` and create the correct type directly — no post-creation fixup needed.
+**File:** `source/Processor/Controllers/CoreController.cs` lines 130-135
 
-**New method — replace `createGuest` (lines 624-645):**
+**What it does:** Calls `GetSystemTimePreciseAsFileTime` for sub-microsecond timestamp precision.
 
-```csharp
-/// <summary>
-/// Create a new person record with the specified type. Use for visit-created records
-/// where the type is known at creation time (Bot or Guest). Sets createdByVisit=true.
-/// </summary>
-public static PersonModel createPerson(CoreController core, PersonTypeEnum personTypeId, string name, bool exitWithoutSave) {
-    logger.Trace($"{core.logCommonMessage},SessionController.createPerson, enter, personTypeId={personTypeId}");
-    //
-    PersonModel user = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
-    user.createdByVisit = true;
-    user.personTypeId = (int)personTypeId;
-    user.name = name.substringSafe(0, 100);
-    user.firstName = name.substringSafe(0, 100);
-    user.createdBy = user.id;
-    user.dateAdded = core.doc.profileStartTime;
-    user.modifiedBy = user.id;
-    user.modifiedDate = core.doc.profileStartTime;
-    user.visits = 0;
-    user.autoLogin = false;
-    user.admin = false;
-    user.developer = false;
-    user.allowBulkEmail = true;
-    if (!exitWithoutSave) { user.save(core.cpParent); }
-    return user;
-}
-/// <summary>
-/// Create a new guest person record. Wrapper for createPerson with Guest type.
-/// </summary>
-public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
-    return createPerson(core, PersonTypeEnum.Guest, "Guest", exitWithoutSave);
-}
+**Feature lost if removed:** Sub-microsecond timer resolution. `DateTime.UtcNow` has ~15ms resolution on most Windows systems. This affects the `dateTimeNowMockable` property used for timestamps throughout the platform.
+
+**Change:** Replace with `DateTime.UtcNow`. The 15ms resolution is more than sufficient for a CMS — no Contensive operation requires sub-millisecond precision. Remove the `[DllImport]` declaration.
+
+## Phase 4 — Critical Blocker: ClearScript VBScript/JScript Engines
+
+**File:** `source/Processor/Controllers/Addon/AddonScriptController.cs` (entire file)
+
+**What it does:** Executes legacy VBScript and JScript addons stored in the database. These are addons with `scriptingCode` and `scriptingEntryPoint` fields on `AddonModel`, invoked from `AddonController.cs` lines 607/609.
+
+**Features lost if removed:**
+- Ability to execute VBScript addons (legacy feature from Classic ASP era)
+- Ability to execute JScript addons (legacy feature)
+- Any site that still has VBScript or JScript addons in its addon table will get errors when those addons are invoked
+
+**Change:** Remove `AddonScriptController.cs`. In `AddonController.cs` lines 607/609, replace the calls with a log warning and return empty string — the addon won't execute, with a clear log message that scripting addons are no longer supported. Remove the `Microsoft.ClearScript` package reference from the csproj.
+
+## Phase 5 — Critical Blocker: Nustache.Core (Mustache Templating)
+
+**File:** `source/Processor/Controllers/MustacheController.cs` line 29
+
+**What it does:** Renders Mustache templates (`{{variable}}`, `{{#section}}...{{/section}}`). Used in ~15 call sites across authentication forms, email templates, page rendering, and the edit UI.
+
+**Features lost if removed:** ALL Mustache template rendering — authentication pages, email, page layouts, edit UI would all break. **Cannot remove — must replace.**
+
+**Change:** Replace `Nustache.Core` with `Stubble.Core` (NuGet, netstandard2.0 compatible, Mustache-spec compliant). Stubble is already mentioned in comments in MustacheController.cs — it was previously evaluated but rejected because it's unsigned. However, `StrongNamer` (already in the project) handles signing at build time. Change the single call from `Nustache.Core.Render.StringToString(template, dataSet)` to Stubble's equivalent. Remove the local `Libs\Nustache.Core.dll` file and its references from the csproj.
+
+## Phase 6 — Critical Blocker: Microsoft.Web.Administration (IIS Management)
+
+**File:** `source/Processor/Controllers/WebServerController.cs` lines 549-1413
+
+**What it does:** Full IIS management from the Processor library — creates/verifies/deletes app pools, creates/verifies/deletes websites, manages bindings, creates virtual directories, recycles app pools, and syncs IP security deny lists.
+
+**Features lost if removed:**
+- `recycle()` — recycling IIS app pools (`cc --iisreset`)
+- `verifyAppPool()` — creating/configuring IIS app pools (`cc -n`)
+- `stopAppPool()` — stopping app pools before upgrades
+- `deleteAppPool()` — removing app pools (`cc --delete`)
+- `verifyWebsite()` — creating IIS sites with bindings (`cc -n`)
+- `deleteWebsite()` — removing IIS sites (`cc --delete`)
+- `verifyWebsiteBinding()` — adding domain bindings
+- `isValidBinding()` — validating IIS bindings exist
+- `verifyCdnVirtualDirectory()` — creating CDN virtual directories
+- `syncIpBlocksToIIS()` — applying IP deny lists
+
+**This is the largest blocker.** However, none of these methods need to be accessible from Processor.dll at runtime. Call-site analysis shows:
+
+| Method | Called from | Project |
+|--------|-----------|---------|
+| `verifySite()` | NewAppCmd, NewAppFrameworkCmd, MigrateWebrootCmd | CLI |
+| `verifySite()` | BuildController (new builds only, runs from CLI) | Processor |
+| `stopAppPool()` | DeleteAppCmd | CLI |
+| `deleteAppPool()` | DeleteAppCmd | CLI |
+| `deleteWebsite()` | DeleteAppCmd | CLI |
+| `verifyWebsiteBinding()` | DomainCmd | CLI |
+| `isValidBinding()` | ServerDiagnosticCmd | CLI |
+| `recycle()` | iisrecycleCmd | CLI |
+| `verifyCdnVirtualDirectory()` | BuildController (runs from CLI) | Processor |
+| `syncIpBlocksToIIS()` | CPSiteClass (runs from TaskService) | Processor |
+
+All callers run in the CLI or TaskService process — never from addon code in a web request.
+
+**Change:** Create a new standalone console exe project (`source/IisUtil/IisUtil.csproj`) targeting `net9.0-windows`. Move all IIS management logic from `WebServerController.cs` into this exe. It accepts command-line arguments for each operation:
+
+```
+iisutil verify-site --name myApp --domain example.com --path C:\inetpub\myApp
+iisutil verify-apppool --name myApp [--framework]
+iisutil stop-apppool --name myApp
+iisutil delete-apppool --name myApp
+iisutil delete-site --name myApp
+iisutil recycle --name myApp
+iisutil verify-binding --name myApp --domain example.com
+iisutil is-valid-binding --name myApp --domain example.com
+iisutil verify-cdn-vdir --name myApp --cdn-prefix /cdn --physical-path D:\files
+iisutil sync-ip-blocks --name myApp --ip 1.2.3.4 --ip 5.6.7.8
 ```
 
-**Update the new-user creation site (lines 508-526):**
+In `WebServerController.cs`, replace the IIS methods with thin wrappers that shell out to `iisutil.exe` via `Process.Start()`. The exe path is resolved from the Contensive install directory (same folder as `cc.exe`). Remove the `Microsoft.Web.Administration` package from Processor.csproj entirely.
 
-Before:
-```csharp
-// -- setup new user if nothing else
-if ((user is null) || user.id.Equals(0)) {
-    user = createGuest(core, true);
-    resultSessionContext_user_changes = true;
-    //
-    // -- if this is a bot, name the user record with the bot identifier and set person type
-    if (visit.bot && !string.IsNullOrEmpty(visit.name) && !visit.name.Equals("user", StringComparison.OrdinalIgnoreCase)) {
-        user.name = visit.name.substringSafe(0, 100);
-        user.firstName = visit.name.substringSafe(0, 100);
-        user.personTypeId = (int)PersonTypeEnum.Bot;
-    }
-    //
-    visit.visitAuthenticated = false;
-    visit.memberNew = true;
-    visit.memberId = user.id;
-    //
-    visitor.memberId = user.id;
-    visitor.name = visit.name.substringSafe(0, 100);
-    resultSessionContect_visitor_changes = true;
-}
-```
+The new project:
+- Added to `ContensiveCommon.sln`
+- References `Microsoft.Web.Administration` directly
+- Published alongside CLI and TaskService in `build-core.cmd`
+- Ships in the deployment zip in a `Cli/` subfolder (same location as `cc.exe`)
 
-After:
-```csharp
-// -- setup new user if nothing else
-if ((user is null) || user.id.Equals(0)) {
-    //
-    // -- create the correct person type based on bot detection (already resolved above).
-    //    Bot visits get personTypeId=Bot so housekeeping deletes them.
-    //    Non-bot visits get personTypeId=Guest.
-    if (visit.bot && !string.IsNullOrEmpty(visit.name) && !visit.name.Equals("user", StringComparison.OrdinalIgnoreCase)) {
-        user = createPerson(core, PersonTypeEnum.Bot, visit.name, true);
-    } else {
-        user = createGuest(core, true);
-    }
-    resultSessionContext_user_changes = true;
-    //
-    visit.visitAuthenticated = false;
-    visit.memberNew = true;
-    visit.memberId = user.id;
-    //
-    visitor.memberId = user.id;
-    visitor.name = visit.name.substringSafe(0, 100);
-    resultSessionContect_visitor_changes = true;
-}
-```
-
-The two other callers of `createGuest` ([SessionController.cs:65](source/Processor/Controllers/SessionController.cs#L65) and [AuthController.cs:121](source/Processor/Controllers/Authentication/AuthController.cs#L121)) are unchanged — they genuinely create guests.
-
-### 2. SessionController.cs line 539-542 — Don't propagate bot flag to visitors associated with real people
-
-Prevent `visitor.bot` from being set to `true` when the visitor's associated person is a Guest or Contact. This stops the deletion chain at its source.
-
-**Before:**
-```csharp
-if (visitor.bot != visit.bot) {
-    visitor.bot = visit.bot;
-    resultSessionContect_visitor_changes = true;
-}
-```
-
-**After:**
-```csharp
-if (!visitor.bot && visit.bot) {
-    //
-    // -- only flag visitor as bot if the associated person is not a Guest or Contact
-    if (user == null || user.id == 0 || user.personTypeId <= (int)PersonTypeEnum.Bot) {
-        visitor.bot = true;
-        resultSessionContect_visitor_changes = true;
-    }
-}
-```
-
-This change also makes `visitor.bot` sticky (once true, stays true) and prevents clearing it on a non-bot visit, which is the correct behavior.
-
-### 3. PersonClass.cs line 105 — Add personTypeId guard to legacy visitor-based bot delete
-
-**Before:**
-```csharp
-string sql = "delete from ccmembers from ccmembers u left join ccvisitors v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)";
-```
-
-**After:**
-```csharp
-string sql = $"delete from ccmembers from ccmembers u left join ccvisitors v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)and(u.personTypeId<={(int)PersonTypeEnum.Bot})";
-```
-
-### 4. PersonClass.cs line 114 — Add personTypeId guard to legacy visit-based bot delete
-
-**Before:**
-```csharp
-string sql = "delete from ccmembers from ccmembers u left join ccvisits v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)";
-```
-
-**After:**
-```csharp
-string sql = $"delete from ccmembers from ccmembers u left join ccvisits v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)and(u.personTypeId<={(int)PersonTypeEnum.Bot})";
-```
-
-These guards ensure the legacy delete paths only remove records typed as Bot(1) or Unknown(0), never Guest(2) or Contact(3).
-
-## Summary
-
-| # | File | Lines | Change |
-|---|------|-------|--------|
-| 1 | SessionController.cs | 508-526, 624-645 | Refactor `createGuest` into `createPerson(personTypeId)`, create Bot or Guest at point of creation based on `visit.bot` |
-| 2 | SessionController.cs | 539-542 | Don't propagate `visitor.bot=true` when the visitor's person is Guest or Contact |
-| 3 | PersonClass.cs | 105 | Add `personTypeId <= Bot` guard to legacy visitor-based bot delete |
-| 4 | PersonClass.cs | 114 | Add `personTypeId <= Bot` guard to legacy visit-based bot delete |
-
-These four changes enforce the promote-only rule at every level:
-- **Creation (change 1):** Records are born with the correct type — no downgrade ever occurs.
-- **Visitor propagation (change 2):** Bot flags don't contaminate visitors associated with real people.
-- **Housekeeping deletion (changes 3-4):** Legacy delete queries cannot remove Guest or Contact records.
+No IIS functionality is lost — the operations are identical, just executed out-of-process.

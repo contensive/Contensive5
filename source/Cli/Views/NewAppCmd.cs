@@ -66,7 +66,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- resolve install root (parent of CLI folder, e.g. C:\Program Files\Contensive)
-                    string installRoot = Path.GetDirectoryName(currentPath);
+                    string installRoot = Path.GetDirectoryName(currentPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
                     //
                     // -- verify WebApi package exists in install folder
                     string webApiPackagePath = Path.Combine(installRoot, "WebApi");
@@ -192,10 +192,10 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\";
                             appConfig.localPrivatePath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\";
                             appConfig.localTempPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\temp\\";
-                            appConfig.remoteWwwPath = "";
-                            appConfig.remoteFilePath = "";
-                            appConfig.remotePrivatePath = "";
-                            appConfig.cdnFileUrl = "/" + appConfig.name + "/files/";
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
+                            appConfig.cdnFileUrl = $"/{appConfig.name}/files/";
                         } else {
                             //
                             // -- no prompts, remote file system
@@ -204,10 +204,10 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\";
                             appConfig.localPrivatePath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\";
                             appConfig.localTempPath = cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\temp\\";
-                            appConfig.remoteWwwPath = "/" + appConfig.name + "/www/";
-                            appConfig.remoteFilePath = "/" + appConfig.name + "/files/";
-                            appConfig.remotePrivatePath = "/" + appConfig.name + "/private/";
-                            appConfig.cdnFileUrl = "https://s3.amazonaws.com/" + cp.core.serverConfig.awsBucketName + "/" + appConfig.name + "/files/";
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
+                            appConfig.cdnFileUrl = $"https://s3.amazonaws.com/{cp.core.serverConfig.awsBucketName}/{appConfig.name}/files/";
                         }
                     } else {
                         if (cp.core.serverConfig.isLocalFileSystem) {
@@ -220,10 +220,10 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = GenericController.promptForReply("cdn files", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\files\\");
                             appConfig.localPrivatePath = GenericController.promptForReply("private files", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\private\\");
                             appConfig.localTempPath = GenericController.promptForReply("temp files (ephemeral storage)", cp.core.serverConfig.localDataDriveLetter + ":\\inetpub\\" + appConfig.name + "\\temp\\");
-                            appConfig.remoteWwwPath = "";
-                            appConfig.remoteFilePath = "";
-                            appConfig.remotePrivatePath = "";
-                            appConfig.cdnFileUrl = GenericController.promptForReply("files Url (typically a virtual path on the application website)", "/" + appConfig.name + "/files/");
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
+                            appConfig.cdnFileUrl = GenericController.promptForReply("files Url (typically a virtual path on the application website)", $"/{appConfig.name}/files/");
                         } else {
                             //
                             // Server is remote file mode
@@ -340,12 +340,10 @@ namespace Contensive.CLI {
                     logger.Info($"{cp.core.logCommonMessage},Create database.");
                     cp.core.dbServer.createCatalog(appConfig.name);
                     //
-                    logger.Info($"{cp.core.logCommonMessage},Creating database and deploying WebApi to IIS site.");
-                }
-                //
-                // initialize the new app, use the save authentication that was used to authorize this object
-                //
-                using (CPClass cp = new(appName)) {
+                    // -- continue using the same cp instance (re-constructing CPClass from the app name
+                    // -- fails on servers using AWS Secrets Manager because the second constructor
+                    // -- cannot always read the newly-saved config back from the secret store)
+                    //
                     logger.Info($"{cp.core.logCommonMessage},Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.effectiveAppPath);
                     //
@@ -354,7 +352,7 @@ namespace Contensive.CLI {
                     bool webApiInstalled = false;
                     string appDeployPath = cp.core.appConfig.effectiveAppPath;
                     logger.Info($"{cp.core.logCommonMessage},Deploy WebApi to app folder [{appDeployPath}].");
-                    string webApiSourcePath = Path.Combine(Path.GetDirectoryName(cp.core.serverConfig.programFilesPath), "WebApi");
+                    string webApiSourcePath = Path.Combine(Path.GetDirectoryName(cp.core.serverConfig.programFilesPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)), "WebApi");
                     if (!Directory.Exists(webApiSourcePath)) {
                         Console.WriteLine($"WebApi package not found at [{webApiSourcePath}]. Copy WebApi files manually to [{appDeployPath}].");
                     } else {

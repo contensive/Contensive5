@@ -227,7 +227,7 @@ public class FileControllerTests {
     public void readFileText_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = "12345";
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 cp.core.cdnFiles.saveFile(pathFilename, fileContent, false);
@@ -247,7 +247,7 @@ public class FileControllerTests {
     public void readFileBinary_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 byte[] fileContent = Encoding.ASCII.GetBytes("12345");
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 cp.core.cdnFiles.saveFile(pathFilename, fileContent, false);
@@ -269,7 +269,7 @@ public class FileControllerTests {
     public void appendFile_Text_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent1 = "12345";
                 string fileContent2 = "67890";
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -291,7 +291,7 @@ public class FileControllerTests {
     public void appendFile_Text_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent1 = "12345";
                 string fileContent2 = "67890";
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -313,7 +313,7 @@ public class FileControllerTests {
     public void createPath_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string parentPath = "tests/";
                 string folder = "test folder " + cp.Utils.GetRandomInteger();
                 string path = parentPath + folder + "/";
@@ -339,7 +339,7 @@ public class FileControllerTests {
     public void createPath_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string parentPath = "tests/";
                 string folder = "test folder " + cp.Utils.GetRandomInteger();
                 string path = parentPath + folder + "/";
@@ -365,7 +365,7 @@ public class FileControllerTests {
     public void deleteFile_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 cp.core.cdnFiles.saveFile(pathFilename, fileContent, true);
@@ -389,7 +389,7 @@ public class FileControllerTests {
     public void deleteFile_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
@@ -427,7 +427,7 @@ public class FileControllerTests {
     public void deleteFolder_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string testPath = "tests/testfolder" + cp.Utils.GetRandomInteger() + "/";
                 string pathFilename1 = testPath + "test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -458,7 +458,7 @@ public class FileControllerTests {
     public void deleteFolder_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string testPath = "tests/testfolder" + cp.Utils.GetRandomInteger() + "/";
                 string pathFilename1 = testPath + "test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -489,7 +489,7 @@ public class FileControllerTests {
     public void renameFile_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string testPath = "tests/testfolder" + cp.Utils.GetRandomInteger() + "/";
                 string filename1 = "test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -542,7 +542,7 @@ public class FileControllerTests {
     public void renameFile_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string testPath = "tests/testfolder" + cp.Utils.GetRandomInteger() + "/";
                 string filename1 = "test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -596,7 +596,7 @@ public class FileControllerTests {
     public void saveFile_Binary_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 byte[] fileContent = Encoding.ASCII.GetBytes("12345");
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
@@ -628,7 +628,7 @@ public class FileControllerTests {
     public void saveFile_Binary_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 byte[] fileContent = Encoding.ASCII.GetBytes("12345");
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
@@ -661,7 +661,7 @@ public class FileControllerTests {
     public void saveFile_Text_Remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = "12345";
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
@@ -693,7 +693,7 @@ public class FileControllerTests {
     public void saveFile_Text_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string fileContent = "12345";
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
@@ -725,7 +725,7 @@ public class FileControllerTests {
     public void saveHttpRequestToFile_Local_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
                 // -- save file remote
@@ -755,7 +755,7 @@ public class FileControllerTests {
     public void saveHttpRequestToFile_remote_Test() {
         using (CPClass cp = new(testAppName)) {
             {
-                if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+                if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
                 string pathFilename = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                 //
                 // -- save file remote
@@ -784,7 +784,7 @@ public class FileControllerTests {
     [TestMethod()]
     public void splitDosPathFilename_Test() {
         using (CPClass cp = new(testAppName)) {
-            if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+            if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
             {
                 string path = @"tests\";
                 string filename = "test" + cp.Utils.GetRandomInteger() + ".txt";
@@ -815,7 +815,7 @@ public class FileControllerTests {
     [TestMethod()]
     public void unzipFile_zipPath_Local_Test() {
         using (CPClass cp = new(testAppName)) {
-            if (cp.core.cdnFiles.isLocal) { Assert.Fail("test application [" + testAppName + "] must be configured as a remote filesystem."); }
+            if (cp.core.cdnFiles.isLocal) { Assert.Inconclusive($"test application [{testAppName}] requires a remote filesystem configuration."); }
             {
                 string fileContent = cp.Utils.GetRandomInteger().ToString();
                 string srcPath = "tests/srcZipfolder" + cp.Utils.GetRandomInteger() + "/";

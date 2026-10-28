@@ -70,7 +70,7 @@ namespace Contensive.Processor.Controllers {
                     csPerson.set("Email", core.docProperties.getText("email"));
                     csPerson.set("username", loginForm_Username);
                     csPerson.set("password", loginForm_Password);
-                    AuthController.authenticateById(core, core.session, core.session.user.id);
+                    AuthController.authenticateById(core, core.session, core.session.user.id, "registration");
                 }
                 DbBaseModel.invalidateCacheOfRecord<PersonModel>(core.cpParent, core.session.user.id);
             } catch (Exception ex) {

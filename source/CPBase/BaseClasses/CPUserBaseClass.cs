@@ -229,17 +229,22 @@ namespace Contensive.BaseClasses {
         /// Returns the login form HTML for the current site configuration.
         /// The form posts back to the current page and is processed by the platform's authentication pipeline.
         /// Returns empty string if the user is already authenticated.
+        /// To detect whether authentication succeeded after the form posts back, check cp.User.IsAuthenticated before and after calling this method.
+        /// Do not rely on the return value being empty to indicate success, as non-empty content may be returned for blocked requests (e.g. bots).
         /// </summary>
         /// <example>
         /// <code>
         /// public override object Execute(CPBaseClass cp) {
-        ///     if (!cp.User.IsAuthenticated) {
-        ///         string loginForm = cp.User.GetLoginForm();
-        ///         if (!string.IsNullOrEmpty(loginForm)) {
-        ///             return loginForm;
-        ///         }
+        ///     bool wasAuthenticated = cp.User.IsAuthenticated;
+        ///     string loginForm = cp.User.GetLoginForm();
+        ///     if (!wasAuthenticated &amp;&amp; cp.User.IsAuthenticated) {
+        ///         // login succeeded, proceed with addon logic
+        ///         return string.Empty;
         ///     }
-        ///     // user is authenticated, proceed with addon logic
+        ///     if (!cp.User.IsAuthenticated) {
+        ///         return loginForm;
+        ///     }
+        ///     // user was already authenticated, proceed with addon logic
         /// }
         /// </code>
         /// </example>

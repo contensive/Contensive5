@@ -371,10 +371,10 @@ html,body{
 }
 
 .ccCon .ccAdminEditField {
-    border-top: 1px solid #FFFDF1;
-    border-bottom: 1px solid #DAD4B2;
+    border-top: 1px solid #e8e8e8;
+    border-bottom: 1px solid #ddd;
     color: black;
-    background-color: #fff8d0;
+    background-color: #f8f8f8;
     TEXT-ALIGN: left;
     vertical-align: baseline;
 }

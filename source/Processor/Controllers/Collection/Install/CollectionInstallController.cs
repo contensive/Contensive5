@@ -73,6 +73,16 @@ namespace Contensive.Processor.Controllers {
 
                     CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, baseCollectionXml, isNewBuild, installDependencies, true, logPrefix);
                 }
+                //
+                // -- Set appStatus to ok after base collection tables exist but before dependencies install.
+                //    The task service gates on appStatus==ok, so this must happen after tables like cctasks
+                //    and ccAddonEvents are created (by the metadata install above).
+                //    _onInstall addons also need appStatus==ok, and they run later during the full install.
+                if (!core.appConfig.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
+                    logger.Info($"{core.logCommonMessage}, installBaseCollection, set appStatus ok, base tables verified");
+                    core.appConfig.appStatus = AppConfigModel.AppStatusEnum.ok;
+                    core.serverConfig.save(core);
+                }
                 {
                     //
                     // now copy all program files to a temp folder and create a zip (xml plus any resources installed) and install
@@ -118,7 +128,15 @@ namespace Contensive.Processor.Controllers {
                         string installedCollectionGuid = "";
                         bool isDependency = false;
                         if (!installCollectionFromTempFile(core, isDependency, contextLog, baseCollectionZipPathFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall)) {
-                            throw new GenericException("installBaseCollection, call to installCollectionFromPrivateFile failed, message returned [" + installErrorMessage + "]");
+                            //
+                            // -- Base collection had errors, but continue with site creation. Individual collection errors are already logged.
+                            logger.Warn($"{core.logCommonMessage}, installBaseCollection, installCollectionFromTempFile returned false. Errors: [{installErrorMessage}]. Site creation will continue.");
+                            foreach (string error in installErrorMessage.errors) {
+                                nonCriticalErrorList.Add(error);
+                            }
+                            foreach (string warning in installErrorMessage.warnings) {
+                                nonCriticalErrorList.Add(warning);
+                            }
                         }
                     } catch (Exception ex) {
                         logger.Error(ex, $"{core.logCommonMessage}");
@@ -173,10 +191,6 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage}, [" + collectionGuid + "] was not installed because it was previously installed during this installation.");
                     return true;
                 }
-                // -- collection needs to be installed
-                if (!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
-                    collectionsInstalledList.Add(collectionGuid.ToLower(CultureInfo.InvariantCulture));
-                }
                 //
                 contextHint = "before-getCollectionFolderConfig";
                 var collectionFolderConfig = CollectionFolderModel.getCollectionFolderConfig(core, collectionGuid);
@@ -184,9 +198,14 @@ namespace Contensive.Processor.Controllers {
                 if ((collectionFolderConfig == null) || string.IsNullOrEmpty(collectionFolderConfig.path)) {
                     //
                     // -- ERROR, collection folder not found
-                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder not found.");
-                    return_ErrorMessage.errors.Add($"The collection [{collectionGuid}] was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally [{contextHint}].");
+                    string collectionDisplayName = (collectionFolderConfig != null && !string.IsNullOrEmpty(collectionFolderConfig.name)) ? collectionFolderConfig.name : collectionGuid;
+                    logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{collectionGuid}], collection folder not found.");
+                    return_ErrorMessage.errors.Add($"The collection [{collectionDisplayName}] was not installed because its resource folder could not be found. Try re-downloading the collection from the Add-on Manager or manually uploading the collection zip file.");
                     return false;
+                }
+                // -- collection folder found, mark it installed to prevent circular installs
+                if (!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
+                    collectionsInstalledList.Add(collectionGuid.ToLower(CultureInfo.InvariantCulture));
                 }
                 //
                 // Search Local Collection Folder for collection config file (xml file)
@@ -378,7 +397,8 @@ namespace Contensive.Processor.Controllers {
                                                     // -- all included collections should already be installed, because buildfolder is called before call
                                                     contextHint = $"before-recursive-call-dependency-{ChildCollectionGUId}";
                                                     if (!installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall, $"dependency-of-{CollectionName}")) {
-                                                        return_ErrorMessage.warnings.Add($"The collection [{CollectionName}] installed, but dependency [{ChildCollectionName}, {ChildCollectionGUId}] could not be installed.");
+                                                        string dependencyDisplay = string.IsNullOrEmpty(ChildCollectionName) ? ChildCollectionGUId : ChildCollectionName;
+                                                        return_ErrorMessage.warnings.Add($"The collection [{CollectionName}] installed, but dependency [{dependencyDisplay}] could not be installed. Try installing [{dependencyDisplay}] separately from the Add-on Manager.");
                                                     }
                                                     contextHint = $"after-recursive-call-dependency-{ChildCollectionGUId}";
                                                 }
@@ -395,6 +415,12 @@ namespace Contensive.Processor.Controllers {
                                 foreach (string filename in assembliesInZip) {
                                     ExecFileList = ExecFileList + Environment.NewLine + filename;
                                 }
+                                //
+                                // -- auto-install recognized UI zip files that have no Resource node in the XML
+                                CollectionInstallResourceController.installRecognizedZipsWithoutResourceNodes(core, CollectionName, collectionGuid, CollectionVersionFolder, Doc, resourceManifest, trackedFolders, assembliesInZip, ref wwwFileList, ref ContentFileList, ref ExecFileList, ref layoutFileList);
+                                //
+                                // -- validate resource nodes for recognized UI zip files
+                                CollectionInstallResourceController.validateResourceNodes(core, CollectionName, collectionGuid, CollectionVersionFolder, Doc);
                                 //
                                 // -- save the resource manifest and clean up orphaned files from previous version
                                 CollectionInstallResourceController.saveManifestAndCleanupOrphans(core, CollectionName, collectionGuid, CollectionVersionFolder, resourceManifest);
@@ -618,8 +644,8 @@ namespace Contensive.Processor.Controllers {
                                                                     // create or update the record
                                                                     ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
                                                                     if (metaData == null) {
-                                                                        logger.Warn($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{CollectionName}], content definition not found: [{ContentName}]");
-                                                                        return_ErrorMessage.errors.Add($"Data record for content [{ContentName}] could not be installed because the content definition was not found.");
+                                                                        logger.Warn($"{core.logCommonMessage}, CollectionName [{CollectionName}], GUID [{collectionGuid}], content definition [{ContentName}] not found while installing data record (recordName [{ContentRecordName}], recordGuid [{ContentRecordGuid}]). Ensure this content definition is included in the collection XML or in a dependency.");
+                                                                        return_ErrorMessage.errors.Add($"Data record for content [{ContentName}] could not be installed because the content definition was not found. Record name [{ContentRecordName}], guid [{ContentRecordGuid}].");
                                                                         continue;
                                                                     }
                                                                     using var csData = new CsModel(core);
@@ -923,8 +949,8 @@ namespace Contensive.Processor.Controllers {
                         if ((!string.IsNullOrEmpty(contentRecordGuid)) || (!string.IsNullOrEmpty(contentRecordName))) {
                             ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, contentName);
                             if (metaData == null) {
-                                logger.Warn($"{core.logCommonMessage}, installDataNode, content definition not found: [{contentName}]");
-                                return_ErrorMessage.errors.Add($"Data record for content [{contentName}] could not be installed because the content definition was not found.");
+                                logger.Warn($"{core.logCommonMessage}, CollectionName [{collection.name}], GUID [{collection.ccguid}], installDataNode, content definition [{contentName}] not found while installing data record (recordName [{contentRecordName}], recordGuid [{contentRecordGuid}]). Ensure this content definition is included in the collection XML or in a dependency.");
+                                return_ErrorMessage.errors.Add($"Data record for content [{contentName}] could not be installed because the content definition was not found. Record name [{contentRecordName}], guid [{contentRecordGuid}].");
                                 continue;
                             }
                             bool isPageContent = metaData.name.ToLower().Equals("page content");
@@ -1200,7 +1226,6 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
-                    string parentAddonName = "?";
                     string addonName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
                     if (string.IsNullOrEmpty(addonName)) { addonName = "No Name"; }
                     string addonGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", addonName);

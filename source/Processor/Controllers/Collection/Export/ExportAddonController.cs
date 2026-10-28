@@ -1,6 +1,5 @@
 ﻿
 using Contensive.BaseClasses;
-using Microsoft.VisualBasic;
 using System;
 
 namespace Contensive.Processor.Controllers {
@@ -25,7 +24,7 @@ namespace Contensive.Processor.Controllers {
                     if (CS.OpenRecord("Add-ons", addonid, "", false)) {
                         string addonName = CS.GetText("name");
                         bool processRunOnce = CS.GetBoolean("ProcessRunOnce");
-                        if (((VisualBasicConvert.Strings_LCase(addonName) == "oninstall") || (VisualBasicConvert.Strings_LCase(addonName) == "_oninstall")))
+                        if (string.Equals(addonName, "oninstall", StringComparison.OrdinalIgnoreCase) || string.Equals(addonName, "_oninstall", StringComparison.OrdinalIgnoreCase))
                             processRunOnce = true;
                         // 
                         // content
