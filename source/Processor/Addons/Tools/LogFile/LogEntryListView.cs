@@ -111,10 +111,10 @@ namespace Contensive.Processor.Addons.Tools {
                 return lb.getHtml();
             }
             //
-            // -- parse
+            // -- parse, or the cached parse of the same unchanged file. The result is shared, read-only: filter, sort and paging below build new lists
             LogFileParseResultModel result;
             try {
-                result = LogFileParserController.parseFile(absPathFilename, LogFileParserController.maxParseBytesDefault);
+                result = LogFileParseCacheController.getOrParse(absPathFilename, LogFileParserController.maxParseBytesDefault);
             } catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) {
                 logger.Error(ex, $"{cp.core.logCommonMessage}");
                 lb.failMessage = $"The log file could not be read: {cp.Utils.EncodeHTML(ex.Message)}";
