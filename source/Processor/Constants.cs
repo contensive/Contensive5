@@ -239,6 +239,8 @@ namespace Contensive.Processor {
         internal const string addonGuidAddonManager = "{1DC06F61-1837-419B-AF36-D5CC41E1C9FD}";
         internal const string addonGuidFormWizard = "{2B1384C4-FD0E-4893-B3EA-11C48429382F}";
         internal const string addonGuidImportWizard = "{37F66F90-C0E0-4EAF-84B1-53E90A5B3B3F}";
+        internal const string addonGuidLogFileTool = "{3CAAFC0C-8AC3-427E-AF73-BA1B7A12514B}";
+        internal const string addonGuidLogFileToolEntries = "{FF92ED64-2996-4DD8-993C-0778D656AEAA}";
         internal const string addonGuidJQuery = "{9C882078-0DAC-48E3-AD4B-CF2AA230DF80}";
         internal const string addonGuidJQueryUI = "{840B9AEF-9470-4599-BD47-7EC0C9298614}";
         internal const string addonGuidJQueryBlockUI = "{F6087787-E01E-4E09-AC02-502D0387E048}";
