@@ -22,22 +22,26 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public const long maxParseBytesDefault = 50L * 1024 * 1024;
         //
+        //
+        // -- every regex has a match timeout. A line that times out is treated as raw text, never dropped
+        private static readonly TimeSpan regexTimeout = TimeSpan.FromSeconds(1);
+        //
         private const string timeFormat = "yyyy-MM-dd HH:mm:ss.ffff";
         //
         // -- a start line. Also requires the time to parse (see isStartLine)
         private static readonly Regex startLineRegex = new Regex(
             @"^(?<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{4})\|(?<level>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\|(?<rest>.*)$",
-            RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            RegexOptions.CultureInvariant | RegexOptions.Compiled, regexTimeout);
         //
         // -- the prefix written by CoreController.logCommonMessage. No Singleline, so . does not cross lines
         private static readonly Regex prefixRegex = new Regex(
             @"^app\[(?<app>[^\]]*)\],user\[(?<user>.*?)\],view\[(?<view>[^\]]*)\],visit\[(?<visit>[^\]]*)\],thread\[(?<thread>[^\]]*)\],url\[(?<url>.*?)\](?:,|(?=\n)|$)",
-            RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            RegexOptions.CultureInvariant | RegexOptions.Compiled, regexTimeout);
         //
         // -- text that starts an exception
         private static readonly Regex exceptionStartRegex = new Regex(
-            @"^[A-Za-z_][A-Za-z0-9_.`+]*(Exception|Error)\b",
-            RegexOptions.CultureInvariant | RegexOptions.Compiled);
+            @"\G[A-Za-z_][A-Za-z0-9_.`+]*(Exception|Error)\b",
+            RegexOptions.CultureInvariant | RegexOptions.Compiled, regexTimeout);
         //
         //====================================================================================================
         /// <summary>
@@ -75,7 +79,13 @@ namespace Contensive.Processor.Controllers {
                             return result;
                         }
                     }
+                } catch (Exception ex) when (ex is FileNotFoundException || ex is DirectoryNotFoundException || ex is PathTooLongException || ex is UnauthorizedAccessException) {
+                    //
+                    // -- not a sharing problem, retrying cannot help
+                    throw;
                 } catch (IOException) {
+                    //
+                    // -- a plain IOException, normally a sharing violation with the log writer. Retry
                     if (attempt >= retryMax) { throw; }
                     Thread.Sleep(50 * attempt);
                 }
@@ -155,7 +165,12 @@ namespace Contensive.Processor.Controllers {
             time = ""; level = ""; rest = "";
             // -- quick reject, most continuation lines
             if (line.Length < 29 || !char.IsDigit(line[0])) { return false; }
-            var match = startLineRegex.Match(line);
+            Match match;
+            try {
+                match = startLineRegex.Match(line);
+            } catch (RegexMatchTimeoutException) {
+                return false;
+            }
             if (!match.Success) { return false; }
             if (!DateTime.TryParseExact(match.Groups["time"].Value, timeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out _)) { return false; }
             time = match.Groups["time"].Value;
@@ -179,7 +194,14 @@ namespace Contensive.Processor.Controllers {
             entry.isMalformed = isMalformed;
             //
             // -- prefix
-            var prefix = prefixRegex.Match(message);
+            Match prefix;
+            try {
+                prefix = prefixRegex.Match(message);
+            } catch (RegexMatchTimeoutException) {
+                //
+                // -- no prefix, the whole text stays in the message
+                prefix = Match.Empty;
+            }
             if (prefix.Success) {
                 entry.app = prefix.Groups["app"].Value;
                 entry.user = prefix.Groups["user"].Value;
@@ -230,11 +252,20 @@ namespace Contensive.Processor.Controllers {
             int lastPipe = -1;
             for (int pos = r.IndexOf('|'); pos >= 0; pos = r.IndexOf('|', pos + 1)) {
                 lastPipe = pos;
-                if (exceptionStartRegex.IsMatch(r.Substring(pos + 1))) { cut = pos; break; }
+                if (isExceptionStart(r, pos + 1)) { cut = pos; break; }
             }
             if (cut < 0) { cut = lastPipe; }
             message = r.Substring(0, cut);
             exception = r.Substring(cut + 1);
+        }
+        //
+        // -- true if the text at startat looks like an exception. \G anchors the match at startat so no substring is made and the scan stays linear. A timeout counts as no match.
+        private static bool isExceptionStart(string text, int startat) {
+            try {
+                return exceptionStartRegex.Match(text, startat).Success;
+            } catch (RegexMatchTimeoutException) {
+                return false;
+            }
         }
         //
         //====================================================================================================

@@ -334,4 +334,49 @@ public class LogFileParserControllerTests {
         Assert.AreEqual("/<img src=x onerror=alert(2)>", entry.url);
         Assert.AreEqual("<b>bold</b>", entry.message);
     }
+    //
+    [TestMethod]
+    public void parse_megabyteMessageWithManyPipes_isFast() {
+        // arrange, 1 MB with a pipe every other character and no exception-looking text, the worst case for a per-pipe scan
+        string message = string.Concat(Enumerable.Repeat("x|", 500_000));
+        string text = $"2026-10-30 23:59:59.0000|ERROR|{message}|tail";
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        // act
+        var result = parseText(text);
+        timer.Stop();
+        // assert, a guard, not a benchmark
+        Assert.AreEqual(1, result.entries.Count);
+        Assert.IsTrue(timer.ElapsedMilliseconds < 2000, $"took {timer.ElapsedMilliseconds} ms");
+    }
+    //
+    [TestMethod]
+    public void parse_exceptionAfterManyPipes_isStillFound() {
+        // arrange
+        string text = $"2026-10-30 23:59:59.0000|ERROR|{string.Concat(Enumerable.Repeat("a|", 1000))}b|System.InvalidOperationException: boom|A => B";
+        // act
+        var entry = parseText(text).entries[0];
+        // assert
+        Assert.AreEqual("System.InvalidOperationException: boom", entry.exception);
+        Assert.AreEqual("A => B", entry.loggerStack);
+    }
+    //
+    [TestMethod]
+    public void parseFile_missingFile_throwsFileNotFoundAtOnce() {
+        // arrange
+        string missing = Path.Combine(Path.GetTempPath(), $"logfile-missing-{Guid.NewGuid():N}.log");
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        // act, assert
+        Assert.ThrowsExactly<FileNotFoundException>(() => LogFileParserController.parseFile(missing, LogFileParserController.maxParseBytesDefault));
+        timer.Stop();
+        // the retry delays would total 300 ms
+        Assert.IsTrue(timer.ElapsedMilliseconds < 250, $"took {timer.ElapsedMilliseconds} ms, it was retried");
+    }
+    //
+    [TestMethod]
+    public void parseFile_missingFolder_throwsDirectoryNotFoundAtOnce() {
+        // arrange
+        string missing = Path.Combine(Path.GetTempPath(), $"logfile-missing-{Guid.NewGuid():N}", "a.log");
+        // act, assert
+        Assert.ThrowsExactly<DirectoryNotFoundException>(() => LogFileParserController.parseFile(missing, LogFileParserController.maxParseBytesDefault));
+    }
 }
