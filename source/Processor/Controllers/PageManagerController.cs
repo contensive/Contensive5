@@ -1339,21 +1339,53 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- get template from pages
                 core.doc.pageController.template = null;
-                foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
-                    if (page.templateId > 0) {
-                        core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, page.templateId);
+                bool isLandingPage = requestedPageId.Equals(0);
+                if (isLandingPage) {
+                    //
+                    // -- landing page: check page record template, then default landing page template
+                    if (requestedPage.templateId > 0) {
+                        core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, requestedPage.templateId);
                         if (core.doc.pageController.template == null) {
                             //
                             // -- templateId is not valid
-                            page.templateId = 0;
-                            page.save(core.cpParent);
+                            requestedPage.templateId = 0;
+                            requestedPage.save(core.cpParent);
                         } else {
-                            if (page == core.doc.pageController.pageToRootList.First()) {
-                                core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
-                            } else {
-                                core.doc.pageController.templateReason = "This template was used because it is selected one of this page's parents [" + page.name + "].";
+                            core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
+                        }
+                    }
+                    if (core.doc.pageController.template == null) {
+                        //
+                        // -- landing page: check default landing page template site property
+                        int landingTemplateId = core.siteProperties.defaultLandingPageTemplateId;
+                        if (landingTemplateId > 0) {
+                            core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, landingTemplateId);
+                            if (core.doc.pageController.template != null) {
+                                core.doc.pageController.templateReason = "This template was used because it is the default landing page template.";
                             }
-                            break;
+                        }
+                    }
+                    //
+                    // -- if still null, fall through to standard fallback chain below
+                } else {
+                    //
+                    // -- non-landing page: walk parent chain
+                    foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
+                        if (page.templateId > 0) {
+                            core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, page.templateId);
+                            if (core.doc.pageController.template == null) {
+                                //
+                                // -- templateId is not valid
+                                page.templateId = 0;
+                                page.save(core.cpParent);
+                            } else {
+                                if (page == core.doc.pageController.pageToRootList.First()) {
+                                    core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
+                                } else {
+                                    core.doc.pageController.templateReason = $"This template was used because it is selected one of this page's parents [{page.name}].";
+                                }
+                                break;
+                            }
                         }
                     }
                 }
