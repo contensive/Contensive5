@@ -1,113 +1,142 @@
-# Plan: Remove netstandard2.0 Blockers from Processor
+# Plan: Add "Default Landing Page Template" Site Property
 
-## Phase 1 — Dead Imports (safe, no behavior change)
+## Summary
 
-Remove unused `using` statements from these files:
+Add a new site property "Default Landing Page Template Id" that provides a separate default template for landing pages. Landing pages will check: (1) the page record's own template, (2) this new site property, (3) then fall back to the existing non-landing-page flow (parent chain -> domain -> site default).
 
-1. `source/Processor/Controllers/Authentication/AuthWorkflowController.cs` — remove `using System.Windows.Input;`
-2. `source/Processor/Controllers/Authentication/LoginWorkflowController.cs` — remove `using System.Windows.Input;`
-3. `source/Processor/Addons/PageManager/OpenGraphEndOfBodyClass.cs` — remove `using System.Windows.Input;`
-4. `source/Processor/Models/Domain/DashboardUserConfigModel.cs` — remove `using Microsoft.Web.Administration;`
-5. `source/Processor/Addons/WidgetDashboard/WidgetDashboardCmdRemote.cs` — remove `using Microsoft.ClearScript.JavaScript;`
+Non-landing pages are unchanged.
 
-## Phase 2 — Unused References in Processor.csproj (safe, no behavior change)
+## How Landing Pages Are Identified
 
-Remove these from `source/Processor/Processor.csproj`:
+A page is the landing page when `requestedPageId == 0` (no page was requested by route), which causes `getLandingPage()` to be called at [PageManagerController.cs:1300](source/Processor/Controllers/PageManagerController.cs#L1300). After that call, the resolved page equals the domain's `rootPageId` (or the `LandingPageID` site property fallback).
 
-1. `<UseWPF>true</UseWPF>` — only needed because of the dead imports removed in Phase 1
-2. `<PackageReference Include="System.ServiceProcess.ServiceController" .../>` — zero usages in code
-3. `<Reference Include="System.Data.Entity.Design">` block — .NET Framework-only assembly, zero usages
-4. `<Reference Include="netstandard">` block — .NET Framework facade shim, not needed
+At the template resolution block (line 1340), we can detect a landing page by checking whether `requestedPageId == 0`. This is the same condition that triggered `getLandingPage()` earlier in the method.
 
-## Phase 3 — Critical Blocker: Kernel32.dll P/Invoke
+## Changes
 
-**File:** `source/Processor/Controllers/CoreController.cs` lines 130-135
+### 1. Add site property to collection XML
 
-**What it does:** Calls `GetSystemTimePreciseAsFileTime` for sub-microsecond timestamp precision.
+**File:** [aoBase51.xml](source/Processor/aoBase51.xml) (near line 3668, next to existing "Default TemplateId")
 
-**Feature lost if removed:** Sub-microsecond timer resolution. `DateTime.UtcNow` has ~15ms resolution on most Windows systems. This affects the `dateTimeNowMockable` property used for timestamps throughout the platform.
+Add a new `<SiteProperty>` element:
 
-**Change:** Replace with `DateTime.UtcNow`. The 15ms resolution is more than sufficient for a CMS — no Contensive operation requires sub-millisecond precision. Remove the `[DllImport]` declaration.
-
-## Phase 4 — Critical Blocker: ClearScript VBScript/JScript Engines
-
-**File:** `source/Processor/Controllers/Addon/AddonScriptController.cs` (entire file)
-
-**What it does:** Executes legacy VBScript and JScript addons stored in the database. These are addons with `scriptingCode` and `scriptingEntryPoint` fields on `AddonModel`, invoked from `AddonController.cs` lines 607/609.
-
-**Features lost if removed:**
-- Ability to execute VBScript addons (legacy feature from Classic ASP era)
-- Ability to execute JScript addons (legacy feature)
-- Any site that still has VBScript or JScript addons in its addon table will get errors when those addons are invoked
-
-**Change:** Remove `AddonScriptController.cs`. In `AddonController.cs` lines 607/609, replace the calls with a log warning and return empty string — the addon won't execute, with a clear log message that scripting addons are no longer supported. Remove the `Microsoft.ClearScript` package reference from the csproj.
-
-## Phase 5 — Critical Blocker: Nustache.Core (Mustache Templating)
-
-**File:** `source/Processor/Controllers/MustacheController.cs` line 29
-
-**What it does:** Renders Mustache templates (`{{variable}}`, `{{#section}}...{{/section}}`). Used in ~15 call sites across authentication forms, email templates, page rendering, and the edit UI.
-
-**Features lost if removed:** ALL Mustache template rendering — authentication pages, email, page layouts, edit UI would all break. **Cannot remove — must replace.**
-
-**Change:** Replace `Nustache.Core` with `Stubble.Core` (NuGet, netstandard2.0 compatible, Mustache-spec compliant). Stubble is already mentioned in comments in MustacheController.cs — it was previously evaluated but rejected because it's unsigned. However, `StrongNamer` (already in the project) handles signing at build time. Change the single call from `Nustache.Core.Render.StringToString(template, dataSet)` to Stubble's equivalent. Remove the local `Libs\Nustache.Core.dll` file and its references from the csproj.
-
-## Phase 6 — Critical Blocker: Microsoft.Web.Administration (IIS Management)
-
-**File:** `source/Processor/Controllers/WebServerController.cs` lines 549-1413
-
-**What it does:** Full IIS management from the Processor library — creates/verifies/deletes app pools, creates/verifies/deletes websites, manages bindings, creates virtual directories, recycles app pools, and syncs IP security deny lists.
-
-**Features lost if removed:**
-- `recycle()` — recycling IIS app pools (`cc --iisreset`)
-- `verifyAppPool()` — creating/configuring IIS app pools (`cc -n`)
-- `stopAppPool()` — stopping app pools before upgrades
-- `deleteAppPool()` — removing app pools (`cc --delete`)
-- `verifyWebsite()` — creating IIS sites with bindings (`cc -n`)
-- `deleteWebsite()` — removing IIS sites (`cc --delete`)
-- `verifyWebsiteBinding()` — adding domain bindings
-- `isValidBinding()` — validating IIS bindings exist
-- `verifyCdnVirtualDirectory()` — creating CDN virtual directories
-- `syncIpBlocksToIIS()` — applying IP deny lists
-
-**This is the largest blocker.** However, none of these methods need to be accessible from Processor.dll at runtime. Call-site analysis shows:
-
-| Method | Called from | Project |
-|--------|-----------|---------|
-| `verifySite()` | NewAppCmd, NewAppFrameworkCmd, MigrateWebrootCmd | CLI |
-| `verifySite()` | BuildController (new builds only, runs from CLI) | Processor |
-| `stopAppPool()` | DeleteAppCmd | CLI |
-| `deleteAppPool()` | DeleteAppCmd | CLI |
-| `deleteWebsite()` | DeleteAppCmd | CLI |
-| `verifyWebsiteBinding()` | DomainCmd | CLI |
-| `isValidBinding()` | ServerDiagnosticCmd | CLI |
-| `recycle()` | iisrecycleCmd | CLI |
-| `verifyCdnVirtualDirectory()` | BuildController (runs from CLI) | Processor |
-| `syncIpBlocksToIIS()` | CPSiteClass (runs from TaskService) | Processor |
-
-All callers run in the CLI or TaskService process — never from addon code in a web request.
-
-**Change:** Create a new standalone console exe project (`source/IisUtil/IisUtil.csproj`) targeting `net9.0-windows`. Move all IIS management logic from `WebServerController.cs` into this exe. It accepts command-line arguments for each operation:
-
-```
-iisutil verify-site --name myApp --domain example.com --path C:\inetpub\myApp
-iisutil verify-apppool --name myApp [--framework]
-iisutil stop-apppool --name myApp
-iisutil delete-apppool --name myApp
-iisutil delete-site --name myApp
-iisutil recycle --name myApp
-iisutil verify-binding --name myApp --domain example.com
-iisutil is-valid-binding --name myApp --domain example.com
-iisutil verify-cdn-vdir --name myApp --cdn-prefix /cdn --physical-path D:\files
-iisutil sync-ip-blocks --name myApp --ip 1.2.3.4 --ip 5.6.7.8
+```xml
+<SiteProperty Caption="Default Landing Page Template" Name="Default Landing Page Template Id" ReadOnly="false" Type="Lookup" Selector="[None:0|ListID(Page Templates)]" Description="The template used for landing pages when no template is set on the page record itself. When empty, landing pages fall back to the standard template selection (parent chain, domain default, site default)."></SiteProperty>
 ```
 
-In `WebServerController.cs`, replace the IIS methods with thin wrappers that shell out to `iisutil.exe` via `Process.Start()`. The exe path is resolved from the Contensive install directory (same folder as `cc.exe`). Remove the `Microsoft.Web.Administration` package from Processor.csproj entirely.
+The `[None:0|...]` selector allows the value to be unset (0), so existing sites are not affected.
 
-The new project:
-- Added to `ContensiveCommon.sln`
-- References `Microsoft.Web.Administration` directly
-- Published alongside CLI and TaskService in `build-core.cmd`
-- Ships in the deployment zip in a `Cli/` subfolder (same location as `cc.exe`)
+### 2. Add typed property to SitePropertyController
 
-No IIS functionality is lost — the operations are identical, just executed out-of-process.
+**File:** [SitePropertyController.cs](source/Processor/Controllers/SitePropertyController.cs) (near line 392, after `systemPageTemplateId`)
+
+Add a cached property following the same pattern as `systemPageTemplateId`:
+
+```csharp
+/// <summary>
+/// Optional template for landing pages. When set, landing pages use this template
+/// instead of inheriting from the parent chain or domain default.
+/// When 0, landing pages follow the standard template resolution flow.
+/// </summary>
+public int defaultLandingPageTemplateId {
+    get {
+        if (_defaultLandingPageTemplateId != null) { return (int)_defaultLandingPageTemplateId; }
+        _defaultLandingPageTemplateId = getInteger(defaultLandingPageTemplateId_spName, 0);
+        return (int)_defaultLandingPageTemplateId;
+    }
+    set {
+        _defaultLandingPageTemplateId = value;
+        setProperty(defaultLandingPageTemplateId_spName, (int)_defaultLandingPageTemplateId);
+    }
+}
+private const string defaultLandingPageTemplateId_spName = "Default Landing Page Template Id";
+private int? _defaultLandingPageTemplateId;
+```
+
+### 3. Modify template resolution in loadPage()
+
+**File:** [PageManagerController.cs](source/Processor/Controllers/PageManagerController.cs) (lines 1340-1404)
+
+Replace the template resolution block with a landing-page-aware version:
+
+**Landing page flow (when `requestedPageId == 0`):**
+1. Check the page record's own `templateId` — use it if set
+2. Check site property "Default Landing Page Template Id" — use it if set
+3. Fall through to the standard fallback chain below
+
+**Non-landing page flow (unchanged):**
+1. Walk `pageToRootList` checking each page's `templateId` — use the first one found
+2. Fall through to the standard fallback chain below
+
+**Standard fallback chain (unchanged, shared by both flows):**
+1. Domain's `defaultTemplateId`
+2. Site property "Default TemplateId"
+3. Template named "Single Column Template" (legacy)
+4. Most recent template by ID
+5. Create new default template
+
+The restructured code:
+
+```csharp
+// -- get template from pages
+core.doc.pageController.template = null;
+bool isLandingPage = requestedPageId.Equals(0);
+if (isLandingPage) {
+    //
+    // -- landing page: check page record template, then landing page default template
+    if (requestedPage.templateId > 0) {
+        core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, requestedPage.templateId);
+        if (core.doc.pageController.template == null) {
+            requestedPage.templateId = 0;
+            requestedPage.save(core.cpParent);
+        } else {
+            core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
+        }
+    }
+    if (core.doc.pageController.template == null) {
+        //
+        // -- landing page: check default landing page template site property
+        int landingTemplateId = core.siteProperties.defaultLandingPageTemplateId;
+        if (landingTemplateId > 0) {
+            core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, landingTemplateId);
+            if (core.doc.pageController.template != null) {
+                core.doc.pageController.templateReason = "This template was used because it is the default landing page template.";
+            }
+        }
+    }
+    // -- if still null, fall through to standard fallback chain below
+} else {
+    //
+    // -- non-landing page: walk parent chain (existing logic, unchanged)
+    foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
+        ... existing parent-walk code unchanged ...
+    }
+}
+//
+// -- standard fallback chain (domain -> site default -> legacy)
+// -- unchanged, serves both landing and non-landing pages
+if (core.doc.pageController.template == null) {
+    ... existing fallback code from lines 1361-1404 unchanged ...
+}
+```
+
+### 4. No other changes needed
+
+- **PageContentModel** — no changes. Landing pages already have a `templateId` field.
+- **CPBase** — no public API changes. The new property is internal site config.
+- **Legacy `getPageDynamicLink_GetTemplateID`** in DocController — no change needed.
+- **BuildController** — no change needed. Initial site setup already sets `landingPage.templateId = defaultTemplate.id`, which hits check #1 in the landing page flow.
+
+## Files Modified
+
+| File | Change |
+|------|--------|
+| `source/Processor/aoBase51.xml` | Add site property definition |
+| `source/Processor/Controllers/SitePropertyController.cs` | Add typed property accessor |
+| `source/Processor/Controllers/PageManagerController.cs` | Modify template resolution logic |
+
+## Backward Compatibility
+
+- **Existing sites:** "Default Landing Page Template Id" defaults to 0 (unset), so landing pages fall through to the existing flow. No behavior change unless the admin explicitly sets this property.
+- **"Default TemplateId"** site property continues to work as the final site-level fallback for all pages.
+- **No CPBase breaking changes.**
