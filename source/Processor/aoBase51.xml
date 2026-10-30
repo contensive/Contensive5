@@ -3484,6 +3484,11 @@
     <BlockEditTools>Yes</BlockEditTools>
   </Addon>
 
+  <Addon Name="Log File Tool Entries" Guid="{FF92ED64-2996-4DD8-993C-0778D656AEAA}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.LogFileToolEntriesClass]]></DotNetClass>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
   <NavigatorEntry Name="Import Wizard" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=35" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{5B7E39AC-7C4D-4D08-9EF2-2656B59C3A20}" />
   <NavigatorEntry Name="Form Wizard" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=37" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{B8D137F9-94C7-40F3-9F32-38ED25D454D8}" />
   <NavigatorEntry Name="Advanced" NameSpace="Tools" NavIconTitle="Advanced Features" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{68AE79FA-4778-4969-B003-91D3B6E23760}" />
