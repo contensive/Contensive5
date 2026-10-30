@@ -128,4 +128,74 @@ public class LogEntryQueryControllerTests {
         Assert.AreEqual("/x", LogEntryQueryController.csvSafe("/x"));
         Assert.AreEqual("", LogEntryQueryController.csvSafe(""));
     }
+    //
+    [TestMethod]
+    public void capForDisplay_shortValue_isEncodedOnly() {
+        // arrange
+        // act
+        string result = LogEntryQueryController.capForDisplay("a<b", 20000, System.Net.WebUtility.HtmlEncode);
+        // assert
+        Assert.AreEqual("a&lt;b", result);
+    }
+    //
+    [TestMethod]
+    public void capForDisplay_longValue_truncatesThenEncodesAndAddsNote() {
+        // arrange
+        string value = new string('<', 20005);
+        // act
+        string result = LogEntryQueryController.capForDisplay(value, 20000, System.Net.WebUtility.HtmlEncode);
+        // assert, the cut is on the raw text so no entity is split
+        Assert.IsTrue(result.StartsWith(string.Concat(Enumerable.Repeat("&lt;", 20000))));
+        Assert.IsTrue(result.EndsWith("(truncated, 5 more characters)"));
+        Assert.IsFalse(result.Contains("<"));
+    }
+    //
+    [TestMethod]
+    public void capForDisplay_doesNotSplitSurrogatePair() {
+        // arrange, the pair straddles the cut
+        string value = $"{new string('a', 9)}\uD83D\uDE00zzz";
+        // act
+        string shown = LogEntryQueryController.truncate(value, 10);
+        // assert
+        Assert.AreEqual(new string('a', 9), shown);
+    }
+    //
+    [TestMethod]
+    public void countLevels_countsEachLevelOnce_ignoresRaw() {
+        // arrange
+        string[] levels = { "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE" };
+        var entries = new List<LogFileEntryModel> {
+            entry(0, "2026-10-30 10:00:00.0000", "ERROR", "/a", "m"),
+            entry(1, "2026-10-30 10:00:01.0000", "ERROR", "/a", "m"),
+            entry(2, "2026-10-30 10:00:02.0000", "WARN", "/a", "m"),
+            entry(3, "", "", "", "raw")
+        };
+        // act
+        var counts = LogEntryQueryController.countLevels(entries, levels);
+        // assert
+        Assert.AreEqual(2, counts["ERROR"]);
+        Assert.AreEqual(1, counts["WARN"]);
+        Assert.AreEqual(0, counts["FATAL"]);
+        Assert.AreEqual(6, counts.Count);
+    }
+    //
+    [TestMethod]
+    [DataRow(1, 50, 120, 0)]
+    [DataRow(2, 50, 120, 50)]
+    [DataRow(3, 50, 120, 100)]
+    [DataRow(4, 50, 120, 100)]
+    [DataRow(int.MaxValue, 500, 1200, 1000)]
+    [DataRow(int.MaxValue, 500, 120, 0)]
+    [DataRow(int.MaxValue, int.MaxValue, 120, 0)]
+    [DataRow(0, 50, 120, 0)]
+    [DataRow(-5, 50, 120, 0)]
+    [DataRow(5, 50, 0, 0)]
+    [DataRow(3, 50, 100, 50)]
+    public void getSkip_clampsToLastPage(int pageNumber, int pageSize, int rowCount, int expected) {
+        // arrange
+        // act
+        int skip = LogEntryQueryController.getSkip(pageNumber, pageSize, rowCount);
+        // assert
+        Assert.AreEqual(expected, skip);
+    }
 }

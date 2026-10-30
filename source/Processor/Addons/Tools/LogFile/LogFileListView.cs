@@ -35,85 +35,80 @@ namespace Contensive.Processor.Addons.Tools {
         /// Return the html of the file list. Order of the builder member calls matters: the builder caches search, sort and paging on first read.
         /// </summary>
         public static string getHtml(CPClass cp) {
-            try {
-                string relFolder = cp.Doc.GetText("logFolder");
-                var lb = cp.AdminUI.CreateLayoutBuilderList(Constants.addonGuidLogFileTool);
-                //
-                // -- fresh open of a different folder (a link, not a form or ajax post) starts with no search term
-                if (!cp.Doc.IsProperty("callbackAddonGuid") && cp.Visit.GetText("LogFileTool_lastFolder") != relFolder) {
-                    cp.Visit.SetProperty($"AdminUIListSearch_{Constants.addonGuidLogFileTool}", "");
-                    cp.Visit.SetProperty("LogFileTool_lastFolder", relFolder);
-                }
-                //
-                // -- validate the folder
-                string logRoot = LogFilePathController.getLogRoot(cp.core);
-                lb.title = "Log Files";
-                lb.includeBodyPadding = true;
-                lb.includeBodyColor = true;
-                lb.paginationPageSizeDefault = 50;
-                lb.paginationRecordAlias = "items";
-                lb.allowDownloadButton = allowFileListDownload;
-                //
-                string failMessage = "";
-                if (!Directory.Exists(logRoot)) {
-                    //
-                    // -- no log folder at all
-                    addColumns(lb);
-                    lb.description = $"Reading {cp.Utils.EncodeHTML(logRoot)}";
-                    lb.infoMessage = $"No Logs folder was found at {cp.Utils.EncodeHTML(logRoot)}.";
-                    lb.recordCount = 0;
-                    return lb.getHtml();
-                }
-                if (!LogFilePathController.tryResolve(logRoot, relFolder, false, out string absFolder, out string relFolderChecked, out string rejectReason)) {
-                    logger.Warn($"{cp.core.logCommonMessage}, log file tool folder rejected, reason [{rejectReason}], requested [{cleanForLog(relFolder)}]");
-                    failMessage = "That folder is not inside the Logs folder. Showing the Logs folder instead.";
-                    LogFilePathController.tryResolve(logRoot, "", false, out absFolder, out relFolderChecked, out _);
-                }
-                relFolder = relFolderChecked;
-                lb.description = $"Folder: {cp.Utils.EncodeHTML(relFolder == "" ? "Logs" : $"Logs\\{relFolder}")}. Reading {cp.Utils.EncodeHTML(logRoot)}. Only .log and .txt files are listed.";
-                if (failMessage != "") { lb.failMessage = failMessage; }
-                if (relFolder != "") { lb.addLinkButton("Up one folder", cp.Utils.EncodeHTML(LogFileToolLinks.folderLink(cp, LogFileToolLinks.parentOf(relFolder)))); }
-                lb.addFormHidden("logFolder", cp.Utils.EncodeHTML(relFolder));
-                //
-                // -- read builder state, in this order
-                string term = (lb.sqlSearchTerm ?? "").Trim();
-                if (term.Length > 200) { term = term.Substring(0, 200); }
-                string sortField = lb.sortField;
-                string sortDirection = lb.sortDirection;
-                int pageSize = lb.paginationPageSize;
-                if (pageSize > 500) { pageSize = lb.paginationPageSizeDefault; }
-                int pageNumber = lb.paginationPageNumber;
-                //
-                // -- items
-                var items = getItems(absFolder, term, sortField, sortDirection, out string readError);
-                addColumns(lb);
-                if (readError != "") { lb.failMessage = $"{lb.failMessage} {cp.Utils.EncodeHTML(readError)}".Trim(); }
-                lb.recordCount = items.Count;
-                //
-                // -- rows
-                int skip = (pageNumber - 1) * pageSize;
-                if (skip >= items.Count && items.Count > 0) { skip = ((items.Count - 1) / pageSize) * pageSize; }
-                foreach (ListItem item in items.Skip(skip).Take(pageSize)) {
-                    lb.addRow();
-                    string modifiedText = cp.Utils.EncodeHTML(item.modified.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
-                    if (item.isFolder) {
-                        string folderRel = relFolder == "" ? item.name : $"{relFolder}\\{item.name}";
-                        lb.setCell($"<a href=\"{cp.Utils.EncodeHTML(LogFileToolLinks.folderLink(cp, folderRel))}\"><i class=\"fas fa-folder\"></i> {cp.Utils.EncodeHTML(item.name)}</a>");
-                        lb.setCell("");
-                        lb.setCell(modifiedText);
-                    } else {
-                        string fileRel = relFolder == "" ? item.name : $"{relFolder}\\{item.name}";
-                        lb.setCell($"<a href=\"{cp.Utils.EncodeHTML(LogFileToolLinks.fileLink(cp, fileRel))}\">{cp.Utils.EncodeHTML(item.name)}</a>");
-                        lb.setCell(cp.Utils.EncodeHTML(formatBytes(item.size)));
-                        lb.setCell(modifiedText);
-                    }
-                }
-                if (items.Count == 0 && string.IsNullOrEmpty(lb.failMessage)) { lb.infoMessage = "No log files were found in this folder."; }
-                return lb.getHtml();
-            } catch (Exception ex) {
-                logger.Error(ex, $"{cp.core.logCommonMessage}");
-                throw;
+            // -- no try/catch here. A failure is logged once, by the Execute method of the addon that called this view
+            string relFolder = cp.Doc.GetText("logFolder");
+            var lb = cp.AdminUI.CreateLayoutBuilderList(Constants.addonGuidLogFileTool);
+            //
+            // -- fresh open of a different folder (a link, not a form or ajax post) starts with no search term
+            if (!cp.Doc.IsProperty("callbackAddonGuid") && cp.Visit.GetText("LogFileTool_lastFolder") != relFolder) {
+                cp.Visit.SetProperty($"AdminUIListSearch_{Constants.addonGuidLogFileTool}", "");
+                cp.Visit.SetProperty("LogFileTool_lastFolder", relFolder);
             }
+            //
+            // -- validate the folder
+            string logRoot = LogFilePathController.getLogRoot(cp.core);
+            lb.title = "Log Files";
+            lb.includeBodyPadding = true;
+            lb.includeBodyColor = true;
+            lb.paginationPageSizeDefault = 50;
+            lb.paginationRecordAlias = "items";
+            lb.allowDownloadButton = allowFileListDownload;
+            //
+            string failMessage = "";
+            if (!Directory.Exists(logRoot)) {
+                //
+                // -- no log folder at all
+                addColumns(lb);
+                lb.description = $"Reading {cp.Utils.EncodeHTML(logRoot)}";
+                lb.infoMessage = $"No Logs folder was found at {cp.Utils.EncodeHTML(logRoot)}.";
+                lb.recordCount = 0;
+                return lb.getHtml();
+            }
+            if (!LogFilePathController.tryResolve(logRoot, relFolder, false, out string absFolder, out string relFolderChecked, out string rejectReason)) {
+                logger.Warn($"{cp.core.logCommonMessage}, log file tool folder rejected, reason [{rejectReason}], requested [{LogFilePathController.cleanForLog(relFolder)}]");
+                failMessage = "That folder is not inside the Logs folder. Showing the Logs folder instead.";
+                LogFilePathController.tryResolve(logRoot, "", false, out absFolder, out relFolderChecked, out _);
+            }
+            relFolder = relFolderChecked;
+            lb.description = $"Folder: {cp.Utils.EncodeHTML(relFolder == "" ? "Logs" : $"Logs\\{relFolder}")}. Reading {cp.Utils.EncodeHTML(logRoot)}. Only .log and .txt files are listed.";
+            if (failMessage != "") { lb.failMessage = failMessage; }
+            if (relFolder != "") { lb.addLinkButton("Up one folder", cp.Utils.EncodeHTML(LogFileToolLinks.folderLink(cp, LogFileToolLinks.parentOf(relFolder)))); }
+            lb.addFormHidden("logFolder", cp.Utils.EncodeHTML(relFolder));
+            //
+            // -- read builder state, in this order
+            string term = (lb.sqlSearchTerm ?? "").Trim();
+            if (term.Length > 200) { term = term.Substring(0, 200); }
+            string sortField = lb.sortField;
+            string sortDirection = lb.sortDirection;
+            int pageSize = lb.paginationPageSize;
+            if (pageSize > 500) { pageSize = lb.paginationPageSizeDefault; }
+            int pageNumber = lb.paginationPageNumber;
+            //
+            // -- items
+            var items = getItems(absFolder, term, sortField, sortDirection, out string readError);
+            addColumns(lb);
+            if (readError != "") { lb.failMessage = $"{lb.failMessage} {cp.Utils.EncodeHTML(readError)}".Trim(); }
+            lb.recordCount = items.Count;
+            //
+            // -- rows
+            int skip = LogEntryQueryController.getSkip(pageNumber, pageSize, items.Count);
+            foreach (ListItem item in items.Skip(skip).Take(pageSize)) {
+                lb.addRow();
+                string modifiedText = cp.Utils.EncodeHTML(item.modified.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+                if (item.isFolder) {
+                    string folderRel = relFolder == "" ? item.name : $"{relFolder}\\{item.name}";
+                    lb.setCell($"<a href=\"{cp.Utils.EncodeHTML(LogFileToolLinks.folderLink(cp, folderRel))}\"><i class=\"fas fa-folder\"></i> {cp.Utils.EncodeHTML(item.name)}</a>");
+                    lb.setCell("");
+                    lb.setCell(modifiedText);
+                } else {
+                    string fileRel = relFolder == "" ? item.name : $"{relFolder}\\{item.name}";
+                    lb.setCell($"<a href=\"{cp.Utils.EncodeHTML(LogFileToolLinks.fileLink(cp, fileRel))}\">{cp.Utils.EncodeHTML(item.name)}</a>");
+                    lb.setCell(cp.Utils.EncodeHTML(formatBytes(item.size)));
+                    lb.setCell(modifiedText);
+                }
+            }
+            if (items.Count == 0 && string.IsNullOrEmpty(lb.failMessage)) { lb.infoMessage = "No log files were found in this folder."; }
+            return lb.getHtml();
         }
         //
         //====================================================================================================
@@ -185,15 +180,6 @@ namespace Contensive.Processor.Addons.Tools {
             if (bytes < 1024L * 1024) { return string.Format(CultureInfo.InvariantCulture, "{0:0.0} KB", bytes / 1024.0); }
             if (bytes < 1024L * 1024 * 1024) { return string.Format(CultureInfo.InvariantCulture, "{0:0.0} MB", bytes / (1024.0 * 1024)); }
             return string.Format(CultureInfo.InvariantCulture, "{0:0.0} GB", bytes / (1024.0 * 1024 * 1024));
-        }
-        //
-        /// <summary>
-        /// a request value, with control characters removed and shortened, for the log
-        /// </summary>
-        internal static string cleanForLog(string value) {
-            if (string.IsNullOrEmpty(value)) { return ""; }
-            var chars = value.Where(c => c >= 0x20).Take(200).ToArray();
-            return new string(chars);
         }
     }
     //

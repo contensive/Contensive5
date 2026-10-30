@@ -81,5 +81,59 @@ namespace Contensive.Processor.Controllers {
                     return value;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Shorten to at most length characters without splitting a surrogate pair.
+        /// </summary>
+        public static string truncate(string value, int length) {
+            if (string.IsNullOrEmpty(value) || value.Length <= length) { return value ?? ""; }
+            int n = length;
+            if (n > 0 && char.IsHighSurrogate(value[n - 1])) { n--; }
+            return value.Substring(0, n);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Cap a long value for display. The value is truncated first, then encoded, then an encoded note "(truncated, N more characters)" is appended. 
+        /// Encoded html is never truncated.
+        /// </summary>
+        /// <param name="value">the raw text</param>
+        /// <param name="maxChars">the most raw characters to show</param>
+        /// <param name="encode">the html encoder, applied to the text and to the note</param>
+        public static string capForDisplay(string value, int maxChars, Func<string, string> encode) {
+            if (string.IsNullOrEmpty(value)) { return ""; }
+            if (value.Length <= maxChars) { return encode(value); }
+            string shown = truncate(value, maxChars);
+            return $"{encode(shown)}{encode($"\n(truncated, {value.Length - shown.Length} more characters)")}";
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Count the entries of each level in one pass. Entries with an unknown level (raw entries) are not counted. Every level in levels is present in the result.
+        /// </summary>
+        public static Dictionary<string, int> countLevels(IEnumerable<LogFileEntryModel> entries, IEnumerable<string> levels) {
+            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (string level in levels) { counts[level] = 0; }
+            foreach (LogFileEntryModel entry in entries) {
+                if (counts.TryGetValue(entry.level ?? "", out int count)) { counts[entry.level] = count + 1; }
+            }
+            return counts;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The number of rows to skip for a 1-based page. Computed as long so a huge page number cannot overflow. 
+        /// A page beyond the last page is clamped to the last page, so the pager and the rows agree. The result is within [0, rowCount].
+        /// </summary>
+        public static int getSkip(long pageNumber, long pageSize, int rowCount) {
+            if (rowCount <= 0) { return 0; }
+            if (pageSize < 1) { pageSize = 1; }
+            long lastPageSkip = ((rowCount - 1L) / pageSize) * pageSize;
+            long skip = (pageNumber - 1L) * pageSize;
+            if (pageNumber < 1 || skip < 0) { skip = 0; }
+            if (skip > lastPageSkip) { skip = lastPageSkip; }
+            return (int)skip;
+        }
     }
 }
