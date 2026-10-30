@@ -1,4 +1,5 @@
-﻿using Contensive.Models.Db;
+﻿using Contensive.BaseModels;
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
@@ -15,32 +16,294 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class TextMessageController {
         //
-        private const string blockListPrivateFilePathFilename = "Config\\TextMessageBlockList.txt";
+        //====================================================================================================
+        /// <summary>
+        /// The default country calling code for phone numbers that have none, from the site setting SMS Default Country Code. Default 1.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static string getDefaultCountryCode(CoreController core) {
+            string countryCode = core.cpParent.Site.GetText(sitePropertySmsDefaultCountryCode, "1");
+            return string.IsNullOrWhiteSpace(countryCode) ? "1" : countryCode.Trim();
+        }
         //
         //====================================================================================================
         /// <summary>
-        /// send text message. Returns false if there was an error, or the user is on the site's block list
+        /// Send one text message immediately. Returns the result, never throws for expected failures.
+        /// Pipeline:
+        /// 1. enabled (else Disabled, log row Not Sent)
+        /// 2. normalize to E.164 (else InvalidPhone, log row Not Sent)
+        /// 3. block list, and the person's blockTextMessage flag (else Blocked, log row Blocked)
+        /// 4. log row first, status Queued
+        /// 5. tracked links: when trackLinks and not isTest, site-domain urls are replaced with /tl/{token} links (SmsLinkController)
+        /// 6. segments. If enforceMaxSegments and over the SMS Max Segments setting, TooLong. Bodies over 1600 characters are truncated.
+        /// 7. provider send
+        /// 8. update the log row with provider id, message id, segments, status
+        /// 9. provider opt-out adds the number to the block list
         /// </summary>
         /// <param name="core"></param>
         /// <param name="request"></param>
-        /// <param name="userError"></param>
+        /// <param name="enforceMaxSegments">true for interactive sends (cp.SMS.SendText). The queue passes false.</param>
         /// <returns></returns>
-        public static bool sendImmediate(CoreController core, TextMessageSendRequest request, ref string userError, string logName) {
+        public static SmsSendResultModel sendImmediate(CoreController core, TextMessageSendRequest request, bool enforceMaxSegments)
+            => sendImmediate(core, request, enforceMaxSegments, out _);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Send one text message immediately. See the overload without the out argument for the pipeline.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="request"></param>
+        /// <param name="enforceMaxSegments"></param>
+        /// <param name="isRetryable">true only if the status is Failed and the provider says a later retry may succeed. Used by the queue.</param>
+        /// <returns></returns>
+        public static SmsSendResultModel sendImmediate(CoreController core, TextMessageSendRequest request, bool enforceMaxSegments, out bool isRetryable) {
+            isRetryable = false;
+            var result = new SmsSendResultModel { success = false, status = SmsSendStatusEnum.Failed };
             try {
-                if (isOnBlockedList(core, request.toPhone)) {
-                    //
-                    userError = "The text message was not sent because the phone is blocked by this application. See the Blocked Phone Report.";
-                    logTextMessage(core, request, false, userError, "blocked: " + logName);
-                    return false;
+                if (request == null) {
+                    result.userError = "The text message request is empty.";
+                    return result;
                 }
-                bool result = SmsController.sendMessage(core, request, ref userError);
-                logTextMessage(core, request, result, userError, logName);
+                string source = getSource(request);
+                string body = request.textBody ?? "";
+                string e164 = SmsPhoneController.toE164(request.toPhone, getDefaultCountryCode(core));
+                result.normalizedPhone = e164;
+                //
+                // -- 1. enabled
+                if (!SmsController.isEnabled(core)) {
+                    logger.Warn($"{core.logCommonMessage},Text message not sent, text messaging is not configured for this site. source [{source}]");
+                    result.status = SmsSendStatusEnum.Disabled;
+                    result.userError = "Text messaging is not configured for this site.";
+                    result.textMessageLogId = addLog(core, request, source, e164, TextMessageLogModel.StatusEnum.NotSent, "Not sent: text messaging is not configured")?.id ?? 0;
+                    return result;
+                }
+                //
+                // -- 2. normalize
+                if (string.IsNullOrEmpty(e164)) {
+                    result.status = SmsSendStatusEnum.InvalidPhone;
+                    result.userError = "The text message was not sent because the phone number is not valid.";
+                    result.textMessageLogId = addLog(core, request, source, e164, TextMessageLogModel.StatusEnum.NotSent, "Not sent: invalid phone number")?.id ?? 0;
+                    return result;
+                }
+                if (string.IsNullOrWhiteSpace(body)) {
+                    result.status = SmsSendStatusEnum.Failed;
+                    result.userError = "The text message was not sent because the message is empty.";
+                    result.textMessageLogId = addLog(core, request, source, e164, TextMessageLogModel.StatusEnum.NotSent, "Not sent: empty message")?.id ?? 0;
+                    return result;
+                }
+                //
+                // -- 3. block list, then the person's opt-out flag
+                if (TextMessageBlockListModel.isBlocked(core.cpParent, e164)) {
+                    result.status = SmsSendStatusEnum.Blocked;
+                    result.userError = "The text message was not sent because the phone is on this site's Text Message Block List.";
+                    result.textMessageLogId = addLog(core, request, source, e164, TextMessageLogModel.StatusEnum.Blocked, "Blocked: phone is on the Text Message Block List")?.id ?? 0;
+                    return result;
+                }
+                if (request.toMemberId > 0) {
+                    PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, request.toMemberId);
+                    if (person != null && person.blockTextMessage) {
+                        result.status = SmsSendStatusEnum.Blocked;
+                        result.userError = "The text message was not sent because the recipient has marked Block Text Messages.";
+                        result.textMessageLogId = addLog(core, request, source, e164, TextMessageLogModel.StatusEnum.Blocked, "Blocked: recipient has marked Block Text Messages")?.id ?? 0;
+                        return result;
+                    }
+                }
+                //
+                // -- 4. log row first. It gives an id and a ccguid for the provider context and tracked links
+                TextMessageLogModel log = addLog(core, request, source, e164, TextMessageLogModel.StatusEnum.Queued, "Queued");
+                result.textMessageLogId = log?.id ?? 0;
+                //
+                // -- 5. tracked links (hook for the tracked-link feature)
+                body = applyTrackedLinks(core, request, body, log);
+                //
+                // -- 6. segments
+                SmsSegmentInfoModel segmentInfo = SmsSegmentController.getInfo(body);
+                if (enforceMaxSegments) {
+                    int maxSegments = core.cpParent.Site.GetInteger(sitePropertySmsMaxSegments, 6);
+                    if (maxSegments < 1) { maxSegments = 6; }
+                    if (segmentInfo.segments > maxSegments) {
+                        result.status = SmsSendStatusEnum.TooLong;
+                        result.segments = segmentInfo.segments;
+                        result.userError = $"The text message was not sent because it uses {segmentInfo.segments} segments. The maximum is {maxSegments}.";
+                        updateLog(core, log, TextMessageLogModel.StatusEnum.NotSent, $"Not sent: {segmentInfo.segments} segments, maximum is {maxSegments}", "", "", segmentInfo.segments, 0);
+                        return result;
+                    }
+                }
+                string statusDetail = "";
+                if (body.Length > smsMaxBodyCharacters) {
+                    body = body.Substring(0, smsMaxBodyCharacters);
+                    segmentInfo = SmsSegmentController.getInfo(body);
+                    statusDetail = $"Body truncated to {smsMaxBodyCharacters} characters.";
+                }
+                result.segments = segmentInfo.segments;
+                //
+                // -- 7. provider
+                // -- interactive sends (enforceMaxSegments, cp.SMS.SendText) do not use SDK retries, the queue does
+                SmsProviderResult providerResult = SmsController.send(core, e164, body, log, enforceMaxSegments);
+                //
+                // -- 8. update the log row. The message may already be sent, so a failure to update the log must not change the result
+                result.providerMessageId = providerResult.providerMessageId ?? "";
+                int providerId = (providerResult.providerId > 0) ? providerResult.providerId : SmsController.getProviderId(core);
+                if (providerResult.success) {
+                    updateLog(core, log, TextMessageLogModel.StatusEnum.Sent, "OK", "", statusDetail, segmentInfo.segments, providerId, providerResult.providerMessageId);
+                    result.success = true;
+                    result.status = SmsSendStatusEnum.Sent;
+                    return result;
+                }
+                //
+                // -- 9. provider opt-out
+                if (providerResult.isOptedOut) {
+                    TextMessageBlockListModel.add(core.cpParent, e164, (int)TextMessageBlockListModel.BlockSourceEnum.ProviderOptOut, request.toMemberId, $"Provider opt-out [{providerResult.errorCode}]");
+                    updateLog(core, log, TextMessageLogModel.StatusEnum.Blocked, $"Blocked: recipient opted out [{providerResult.errorCode}]", providerResult.errorCode, providerResult.errorMessage, segmentInfo.segments, providerId);
+                    throwOptOutEvent(core, log, e164, request.toMemberId, providerResult.errorCode);
+                    result.status = SmsSendStatusEnum.Blocked;
+                    result.userError = "The text message was not sent because the recipient has opted out of text messages.";
+                    return result;
+                }
+                //
+                // -- failed
+                string failureMessage = string.IsNullOrWhiteSpace(providerResult.errorMessage) ? "The text message could not be sent." : providerResult.errorMessage;
+                updateLog(core, log, TextMessageLogModel.StatusEnum.Failed, $"attempt {request.attempts}, {failureMessage}", providerResult.errorCode, failureMessage, segmentInfo.segments, providerId);
+                result.status = SmsSendStatusEnum.Failed;
+                result.userError = failureMessage;
+                isRetryable = providerResult.isRetryable;
                 return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
+                isRetryable = false;
+                result.success = false;
+                result.status = SmsSendStatusEnum.Failed;
+                result.userError = "Unexpected error sending the text message.";
+                return result;
             }
-
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Pipeline step 5. Called after the log row exists and before segments are counted.
+        /// When request.trackLinks is true and request.isTest is false, replace the site-domain urls in the body with tracked links and return the new body.
+        /// The log row body is set to the final body (saved by the next log update).
+        /// </summary>
+        private static string applyTrackedLinks(CoreController core, TextMessageSendRequest request, string body, TextMessageLogModel log) {
+            if (!request.trackLinks || request.isTest || log == null) { return body; }
+            string trackedBody = SmsLinkController.replaceLinks(core, body, log.id, request.toMemberId);
+            if (!string.Equals(trackedBody, body, StringComparison.Ordinal)) { log.body = trackedBody; }
+            return trackedBody;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Pipeline step 9. Called when the provider rejected a send because the recipient opted out, after the number is on the block list and the row is saved as Blocked.
+        /// Throws "Text Message Opt Out" (smsOptOutSource=Provider, smsBody=provider code) so add-ons can clear consent.
+        /// </summary>
+        private static void throwOptOutEvent(CoreController core, TextMessageLogModel log, string e164, int memberId, string providerCode) {
+            SmsNotificationController.throwProviderOptOutEvent(core, log, e164, memberId, providerCode);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the log source label, max 50 characters. If the request has none, one is chosen from the request.
+        /// </summary>
+        private static string getSource(TextMessageSendRequest request) {
+            string source = request.source;
+            if (string.IsNullOrWhiteSpace(source)) {
+                source = (request.systemTextMessageId > 0) ? "System Text Message" : (request.groupTextMessageId > 0) ? "Group Text Message" : "cp.SMS.SendText";
+            }
+            return truncate(source.Trim(), 50);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// truncate a string for a Text field. null returns empty string
+        /// </summary>
+        private static string truncate(string text, int maxLength) {
+            if (string.IsNullOrEmpty(text)) { return ""; }
+            return (text.Length <= maxLength) ? text : text.Substring(0, maxLength);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the maximum body length sent to the provider. AWS limit (verify)
+        /// </summary>
+        public const int smsMaxBodyCharacters = 1600;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Add a row to the Text Message Log for an outbound message. Swallows errors (logging must not stop a send), returns null if the row could not be saved.
+        /// </summary>
+        private static TextMessageLogModel addLog(CoreController core, TextMessageSendRequest request, string source, string e164, TextMessageLogModel.StatusEnum status, string sendStatus) {
+            try {
+                TextMessageLogModel log = DbBaseModel.addDefault<TextMessageLogModel>(core.cpParent);
+                string toPhone = string.IsNullOrEmpty(e164) ? (request.toPhone ?? "") : e164;
+                log.name = truncate($"{source} {toPhone}".Trim(), 255);
+                log.sendStatus = truncate(sendStatus, 255);
+                log.body = request.textBody;
+                log.memberId = request.toMemberId;
+                log.systemTextMessageId = request.systemTextMessageId;
+                log.groupTextMessageId = request.groupTextMessageId;
+                log.toPhone = truncate(toPhone, 255);
+                log.source = source;
+                log.sentByMemberId = request.sentByMemberId;
+                log.isTest = request.isTest;
+                log.isInbound = false;
+                log.providerId = SmsController.getProviderId(core);
+                log.fromPhone = SmsController.getFromPhone(core);
+                log.statusId = (int)status;
+                log.statusDate = core.dateTimeNowMockable;
+                log.save(core.cpParent);
+                return log;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},addLog");
+                return null;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Update the outbound log row after a send attempt. Swallows errors, the send result does not depend on the log.
+        /// </summary>
+        private static void updateLog(CoreController core, TextMessageLogModel log, TextMessageLogModel.StatusEnum status, string sendStatus, string providerStatusCode, string statusDetail, int segments, int providerId)
+            => updateLog(core, log, status, sendStatus, providerStatusCode, statusDetail, segments, providerId, "");
+        //
+        private static void updateLog(CoreController core, TextMessageLogModel log, TextMessageLogModel.StatusEnum status, string sendStatus, string providerStatusCode, string statusDetail, int segments, int providerId, string providerMessageId) {
+            try {
+                if (log == null) { return; }
+                log.statusId = (int)status;
+                log.statusDate = core.dateTimeNowMockable;
+                log.sendStatus = truncate(sendStatus, 255);
+                log.providerStatusCode = truncate(providerStatusCode, 255);
+                log.statusDetail = truncate(statusDetail, 255);
+                log.segments = segments;
+                if (providerId > 0) { log.providerId = providerId; }
+                if (!string.IsNullOrEmpty(providerMessageId)) { log.providerMessageId = truncate(providerMessageId, 255); }
+                keepFinalStatus(core, log);
+                log.save(core.cpParent);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},updateLog");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// A delivery event can be processed between the provider call and this save (it finds the row by the log guid in the provider context).
+        /// If the row in the database is already Delivered or Failed, keep its status fields (statusId, statusDate, sendStatus, providerStatusCode, statusDetail, price)
+        /// so the pipeline never moves a row out of a final status. Read without the model cache.
+        /// </summary>
+        public static void keepFinalStatus(CoreController core, TextMessageLogModel log) {
+            if (log == null || log.id <= 0) { return; }
+            using (DataTable dt = core.db.executeQuery("select statusId, statusDate, sendStatus, providerStatusCode, statusDetail, price from ccTextMessageLog where id=@id", new Dictionary<string, object> { { "@id", log.id } })) {
+                if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
+                DataRow row = dt.Rows[0];
+                int currentStatusId = GenericController.getInteger(row["statusId"]);
+                if (currentStatusId != (int)TextMessageLogModel.StatusEnum.Delivered && currentStatusId != (int)TextMessageLogModel.StatusEnum.Failed) { return; }
+                log.statusId = currentStatusId;
+                log.statusDate = (row["statusDate"] is DateTime statusDate) ? statusDate : log.statusDate;
+                log.sendStatus = GenericController.getText(row["sendStatus"]);
+                log.providerStatusCode = GenericController.getText(row["providerStatusCode"]);
+                log.statusDetail = GenericController.getText(row["statusDetail"]);
+                log.price = GenericController.getNumber(row["price"]);
+            }
         }
         //
         //====================================================================================================
@@ -60,6 +323,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- send it to every in the groups and topics
                     List<string> recipientList = new();
+                    string defaultCountryCode = getDefaultCountryCode(core);
                     string sql = "select Distinct ccMembers.id,ccMembers.cellPhone, ccMembers.name"
                         + " From ((((ccGroupTextMessages"
                         + " left join ccGroupTextMessageGroupRules on ccGroupTextMessageGroupRules.groupTextMessageId=ccGroupTextMessages.id)"
@@ -77,9 +341,9 @@ namespace Contensive.Processor.Controllers {
                         if ((dt?.Rows != null) && (dt.Rows.Count > 0)) {
                             foreach (DataRow row in dt.Rows) {
                                 string recipientName = core.cpParent.Utils.EncodeText(row[2]);
-                                string recipientPhone = normalizePhoneNumber(core.cpParent.Utils.EncodeText(row[1]));
+                                string recipientPhone = SmsPhoneController.toE164(core.cpParent.Utils.EncodeText(row[1]), defaultCountryCode);
                                 int recipientId = core.cpParent.Utils.EncodeInteger(row[0]);
-                                if (verifyPhone(core, recipientPhone)) {
+                                if (!string.IsNullOrEmpty(recipientPhone)) {
                                     //
                                     // -- queue the text message
                                     var textMessageSendRequest = new TextMessageSendRequest {
@@ -95,7 +359,7 @@ namespace Contensive.Processor.Controllers {
                                     needToSend = true;
                                     continue;
                                 }
-                                recipientList.Add("Fail, invalid phone, " + recipientName + ", " + recipientPhone);
+                                recipientList.Add($"Fail, invalid phone, {recipientName}, {core.cpParent.Utils.EncodeText(row[1])}");
                             }
                         }
                     }
@@ -120,103 +384,15 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        /// <summary>
-        /// return list of phone numbers that should be blocked. format: phone - tab - dateBlocked - newLine
-        /// </summary>
-        /// <param name="core"></param>
-        /// <returns></returns>
-        public static string getBlockList(CoreController core) {
-            if (!string.IsNullOrEmpty(core.doc.textMessageBlockListStore)) { return core.doc.textMessageBlockListStore; }
-            core.doc.textMessageBlockListStore = core.privateFiles.readFileText(blockListPrivateFilePathFilename);
-            if (string.IsNullOrEmpty(core.doc.textMessageBlockListStore)) {
-                // -- if blank, add a new-line so the empty list can be cached
-                core.doc.textMessageBlockListStore = windowsNewLine;
-                core.privateFiles.saveFile(blockListPrivateFilePathFilename, core.doc.textMessageBlockListStore);
-            }
-            return core.doc.textMessageBlockListStore;
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// true if the phone number is on the blocked list
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="phoneNumber"></param>
-        /// <returns></returns>
-        public static bool isOnBlockedList(CoreController core, string phoneNumber) {
-            phoneNumber = normalizePhoneNumber(phoneNumber);
-            return getBlockList(core).IndexOf(Environment.NewLine + phoneNumber + "\t", StringComparison.CurrentCultureIgnoreCase) >= 0;
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Add to block list
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="phoneNumber"></param>
-        public static void addToBlockList(CoreController core, string phoneNumber) {
-            var blockList = getBlockList(core);
-            phoneNumber = normalizePhoneNumber(phoneNumber);
-            if (!verifyPhone(core, phoneNumber)) {
-                //
-                // bad number
-                //
-            } else if (isOnBlockedList(core, phoneNumber)) {
-                //
-                // They are already in the list
-                //
-            } else {
-                //
-                // add them to the list
-                //
-                core.doc.textMessageBlockListStore = blockList + Environment.NewLine + phoneNumber + "\t" + core.dateTimeNowMockable;
-                core.privateFiles.saveFile(blockListPrivateFilePathFilename, core.doc.textMessageBlockListStore);
-                core.doc.textMessageBlockListStore = "";
-            }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// remove text punctuation, etc. Attempt to convert (703) 303-9974 to 10 digit string
-        /// </summary>
-        /// <param name="phoneNumber"></param>
-        /// <returns></returns>
-        public static string normalizePhoneNumber(string phoneNumber) {
-            string normalizedPhoneNumber = "";
-            foreach (char validChr in phoneNumber) {
-                if ("0123456789".Contains(validChr.ToString())) {
-                    normalizedPhoneNumber += validChr;
-                }
-            }
-            return normalizedPhoneNumber;
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// need phone number rules
-        /// </summary>
-        public static bool verifyPhone(CoreController core, string cellPhone) {
-            try {
-                //The first digit should contain number between 7 to 9.
-                //The rest 9 digit can contain any number between 0 to 9.
-                //The mobile number can have 11 digits also by including 0 at the starting.
-                //The mobile number can be of 12 digits also by including 91 at the starting.
-                if (string.IsNullOrWhiteSpace(cellPhone)) { return false; }
-                return true;
-            } catch (Exception) {
-                return false;
-            }
-        }
-        //
-        //====================================================================================================
         //
         public static bool queuePersonTextMessage(CoreController core, PersonModel recipient, string textBody, bool Immediate, int systemTextMessageId, int groupTextMessageId, ref string userErrorMessage, string contextMessage) {
             try {
                 if (recipient == null) {
-                    userErrorMessage = "The text message was not sent because the recipient could not be found by thier id [" + recipient.id + "]";
+                    userErrorMessage = "The text message was not sent because the recipient could not be found.";
                     return false;
                 }
-                if (!verifyPhone(core, recipient.cellPhone)) {
+                string recipientE164 = SmsPhoneController.toE164(recipient.cellPhone, getDefaultCountryCode(core));
+                if (string.IsNullOrEmpty(recipientE164)) {
                     //
                     userErrorMessage = "The text message was not sent because the recipient's cell-phone is not valid, [" + recipient.name + "], cell phone [" + recipient.cellPhone + "].";
                     return false;
@@ -226,9 +402,9 @@ namespace Contensive.Processor.Controllers {
                     userErrorMessage = "The text message was not sent because the recipient has marked Block Text Messages, [" + recipient.name + "].";
                     return false;
                 }
-                if (isOnBlockedList(core, recipient.cellPhone)) {
+                if (TextMessageBlockListModel.isBlocked(core.cpParent, recipientE164)) {
                     //
-                    userErrorMessage = "The text message was not sent because the phone is blocked by this application. See the Blocked Phone Report.";
+                    userErrorMessage = "The text message was not sent because the phone is blocked by this application. See the Text Message Block List.";
                     return false;
                 }
                 string recipientName = (!string.IsNullOrWhiteSpace(recipient.name) && !recipient.name.ToLower().Equals("guest")) ? recipient.name : string.Empty;
@@ -379,6 +555,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="textMessageContextMessage">A short description of the message for logging)</param>
         private static void queueTextMessage(CoreController core, bool immediate, string textMessageContextMessage, TextMessageSendRequest textMessage) {
             try {
+                if (string.IsNullOrWhiteSpace(textMessage.source)) { textMessage.source = textMessageContextMessage; }
                 if (core.mockTextMessages) {
                     //
                     // -- mock the text message for testing
@@ -427,49 +604,25 @@ namespace Contensive.Processor.Controllers {
                         // -- bugfix, if data does not deserialize, skip message
                         logger.Error(new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"), $"{core.logCommonMessage}");
                         core.db.executeNonQuery("delete from ccTextMessageQueue where (id=@id)", new Dictionary<string, object> { { "@id", textMessage.id } });
-                        logTextMessage(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]", "Failed, message error");
-                        continue;
-                    }
-                    string userError = "";
-                    if (SmsController.sendMessage(core, request, ref userError)) {
-                        //
-                        // -- successful send
-                        core.db.executeNonQuery("delete from ccTextMessageQueue where ccguid=@ccguid", new Dictionary<string, object> { { "@ccguid", textMessage.ccguid } });
-                        logTextMessage(core, request, true, userError, "Sent to " + core.cpParent.Content.GetRecordName("people",request.toMemberId) + " " + request.toPhone);
                         continue;
                     }
                     //
-                    // -- setup retry
-                    logTextMessage(core, request, false, userError, "Failed " + core.cpParent.Content.GetRecordName("people", request.toMemberId) + " " + request.toPhone);
-                    core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=@ccguid", new Dictionary<string, object> { { "@ccguid", textMessage.ccguid } });
+                    // -- same pipeline as an immediate send, without the interactive max-segments limit. The pipeline writes the log row.
+                    SmsSendResultModel sendResult = sendImmediate(core, request, false, out bool isRetryable);
+                    if (sendResult.status == SmsSendStatusEnum.Failed && isRetryable) {
+                        //
+                        // -- setup retry, only for a failure the provider says may succeed later
+                        core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=@ccguid", new Dictionary<string, object> { { "@ccguid", textMessage.ccguid } });
+                        continue;
+                    }
+                    //
+                    // -- sent, or a final result (blocked, disabled, invalid phone, not retryable failure). remove from the queue
+                    core.db.executeNonQuery("delete from ccTextMessageQueue where ccguid=@ccguid", new Dictionary<string, object> { { "@ccguid", textMessage.ccguid } });
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             } finally {
                 core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null where sendSerialNumber=@serialNumber", new Dictionary<string, object> { { "@serialNumber", sendSerialNumber } });
-            }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// atempt to log a text message to the log (swallow the write protect errors)
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="request"></param>
-        public static void logTextMessage(CoreController core, TextMessageSendRequest request, bool success, string userError, string logName) {
-            try {
-                TextMessageLogModel log = DbBaseModel.addDefault<TextMessageLogModel>(core.cpParent);
-                log.sendStatus = success ? "OK" : "attempt " + request.attempts + ", " + userError;
-                log.body = request.textBody;
-                log.memberId = request.toMemberId;
-                log.name = logName;
-                log.systemTextMessageId = request.systemTextMessageId;
-                log.groupTextMessageId = request.groupTextMessageId;
-                log.toPhone = request.toPhone;
-                log.save(core.cpParent);
-            } catch (Exception ex) {
-                logger.Error(ex, "appendTextMessageLog");
-                // swallow
             }
         }
         //

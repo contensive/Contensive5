@@ -168,6 +168,7 @@
     <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
     <PackageReference Include="AWSSDK.Core" Version="3.7.500.27" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.501.19" />
+    <PackageReference Include="AWSSDK.PinpointSMSVoiceV2" Version="3.7.502.16" />
     <PackageReference Include="AWSSDK.RDS" Version="3.7.502" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.501.12" />
     <PackageReference Include="AWSSDK.SecretsManager.Caching" Version="1.0.6" />

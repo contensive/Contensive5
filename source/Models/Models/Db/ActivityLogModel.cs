@@ -326,7 +326,11 @@ namespace Contensive.Models.Db {
             TextFrom = 8,
             MeetingOnline = 9,
             MeetingInPerson = 10,
-            ContactUpdate = 11
+            ContactUpdate = 11,
+            TextDelivered = 12,
+            TextFailed = 13,
+            TextLinkClicked = 14,
+            TextOptOut = 15
         }
     }
 }

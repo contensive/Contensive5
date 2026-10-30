@@ -224,6 +224,98 @@ function Invoke-MSBuildSolution {
     if ($LASTEXITCODE -ne 0) { throw "MSBuild failed for: $SolutionPath" }
 }
 
+function Publish-NuGetDevPackages {
+<#
+.SYNOPSIS
+    Copies .nupkg files into the dev NuGet folder feed (GitHub repo
+    contensive/nuget-dev) and commits + pushes them, so cloud sessions can
+    build against unreleased packages.
+
+.DESCRIPTION
+    Warn-only: a missing clone or a failed pull, commit or push writes a
+    warning and returns $false; it never throws, so it never fails a build.
+    Skipped when the environment variable SKIP_NUGET_DEV is '1', and when the
+    repo being built (SourceRepoPath) is on main or master: release builds are
+    not dev builds.
+    Requires a clone at RepoPath that is signed in to GitHub (gh auth setup-git
+    or Git Credential Manager).
+
+.PARAMETER PackagePaths
+    Full paths of the .nupkg files to publish.
+
+.PARAMETER Version
+    Version string used in the commit message.
+
+.PARAMETER SourceRepoPath
+    A path inside the repo being built; its branch name goes in the commit message. Optional.
+
+.PARAMETER RepoPath
+    Local clone of contensive/nuget-dev. Defaults to C:\Git\nuget-dev.
+
+.OUTPUTS
+    $true if the packages were pushed, otherwise $false.
+#>
+    param(
+        [Parameter(Mandatory)][string[]] $PackagePaths,
+        [string] $Version        = '',
+        [string] $SourceRepoPath = '',
+        [string] $RepoPath       = 'C:\Git\nuget-dev'
+    )
+
+    if ($env:SKIP_NUGET_DEV -eq '1') {
+        Write-Host "  Dev NuGet push skipped (SKIP_NUGET_DEV=1)"
+        return $false
+    }
+    $branch = ''
+    if ($SourceRepoPath) {
+        try { $branch = (& git -C $SourceRepoPath rev-parse --abbrev-ref HEAD) } catch { $branch = '' }
+    }
+    if ($branch -eq 'main' -or $branch -eq 'master') {
+        Write-Host "  Dev NuGet push skipped (branch $branch is a release branch)"
+        return $false
+    }
+    if (-not $PackagePaths -or $PackagePaths.Count -eq 0) {
+        return $false
+    }
+    if (-not (Test-Path (Join-Path $RepoPath '.git'))) {
+        Write-Warning "$RepoPath is not a git clone, so the dev NuGet push was skipped. Clone https://github.com/contensive/nuget-dev.git there to enable it."
+        return $false
+    }
+
+    $names = ($PackagePaths | ForEach-Object { [System.IO.Path]::GetFileName($_) }) -join ', '
+    try {
+        & git -C $RepoPath pull --rebase --quiet
+        if ($LASTEXITCODE -ne 0) { throw "git pull failed in $RepoPath" }
+
+        $packagesFolder = Join-Path $RepoPath 'packages'
+        if (-not (Test-Path $packagesFolder)) {
+            New-Item -ItemType Directory -Path $packagesFolder | Out-Null
+        }
+        foreach ($package in $PackagePaths) {
+            Copy-Item $package -Destination $packagesFolder -Force
+        }
+
+        & git -C $RepoPath add packages
+        if ($LASTEXITCODE -ne 0) { throw "git add failed in $RepoPath" }
+
+        $message = "Dev build $Version"
+        if ($branch) { $message = "$message from branch $branch" }
+        $message = "$message`: $names"
+
+        & git -C $RepoPath commit --quiet -m $message
+        if ($LASTEXITCODE -ne 0) { throw "git commit failed in $RepoPath (nothing new to commit?)" }
+
+        & git -C $RepoPath push --quiet
+        if ($LASTEXITCODE -ne 0) { throw "git push failed in $RepoPath" }
+
+        Write-Host "  Pushed to contensive/nuget-dev: $names"
+        return $true
+    } catch {
+        Write-Warning "The dev NuGet push to contensive/nuget-dev failed: $($_.Exception.Message). The build continues; the packages are still in the deployment folder and C:\NuGetLocalPackages."
+        return $false
+    }
+}
+
 # ===========================================================================
 # Invoke-ContensiveBuild  — the single orchestrated entry point
 # ===========================================================================
@@ -443,11 +535,17 @@ function Invoke-ContensiveBuild {
         if (-not (Test-Path $localFeed)) {
             New-Item -ItemType Directory -Path $localFeed | Out-Null
         }
-        Get-ChildItem -Path $deploymentFolder -Filter '*.nupkg' | ForEach-Object {
+        $builtPackages = @(Get-ChildItem -Path $deploymentFolder -Filter '*.nupkg')
+        $builtPackages | ForEach-Object {
             Copy-Item $_.FullName -Destination $localFeed -Force
             Write-Host "  Copied to local feed: $($_.Name)"
         }
         Write-Host "NuGet packages built and copied to deployment folder"
+        #
+        # -- also publish to the dev NuGet folder feed (contensive/nuget-dev) for cloud sessions. Warn-only.
+        if ($builtPackages.Count -gt 0) {
+            $null = Publish-NuGetDevPackages -PackagePaths ($builtPackages | ForEach-Object { $_.FullName }) -Version $version -SourceRepoPath $CollectionPath
+        }
     }
 
     # -----------------------------------------------------------------------
@@ -712,4 +810,4 @@ Export-ModuleMember -Function Invoke-ContensiveBuild, Invoke-ContensiveDeploy, `
                                Get-ContensiveVersion, Find-MSBuild, `
                                New-DeploymentFolder,  Invoke-ZipFolder, `
                                Invoke-MSBuildSolution, Invoke-DotnetBuildSolution, `
-                               Get-ContensiveRemoteDeployTarget
+                               Get-ContensiveRemoteDeployTarget, Publish-NuGetDevPackages

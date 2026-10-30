@@ -1,85 +1,85 @@
-﻿using Contensive.BaseClasses;
+
+using Contensive.Models.Db;
+using Contensive.Processor.Models.Domain;
 using System;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
 namespace Contensive.Processor.Controllers {
+    //
+    //====================================================================================================
+    /// <summary>
+    /// Send SMS text messages through Twilio. Send-only: the Twilio SID is returned but there is no delivery, reply or STOP tracking.
+    /// </summary>
     public static class TwillioSmsController {
         //
         /// <summary>
-        /// Send an SMS text message through Twillio.
+        /// Twilio error code returned when the recipient has replied STOP to the Twilio number (verify)
         /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="phoneNumber">phone number formatted +11234567890. Other characters are removed</param>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, ref string userError)
-            => sendMessage(cp, phoneNumber, content, false, ref userError);
+        public const int twilioErrorRecipientOptedOut = 21610;
         //
+        //====================================================================================================
         /// <summary>
-        /// Send an SMS text or html message through Twillio. Html messages are converted to text.
+        /// Send one SMS text message through Twilio. Never throws, always returns a result.
         /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="phoneNumber">phone number formatted +11234567890. Other characters are removed. must be a valid phone number. cannot be blank.</param>
+        /// <param name="core"></param>
+        /// <param name="e164">destination phone, E.164. The pipeline has already normalized it.</param>
         /// <param name="content">cannot be blank.</param>
-        /// <param name="contentIsHtml"></param>
         /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, bool contentIsHtml, ref string userError) {
+        public static SmsProviderResult send(CoreController core, string e164, string content) {
+            var cp = core.cpParent;
             try {
                 //
                 // -- argument check
-                if (string.IsNullOrEmpty(phoneNumber)) {
-                    cp.Site.ErrorReport("empty phonenumber");
-                    return false;
+                if (string.IsNullOrEmpty(e164)) {
+                    return fail("EMPTY_PHONE", "The phone number is empty.");
                 }
                 if (string.IsNullOrEmpty(content)) {
-                    cp.Site.ErrorReport("empty smscontent");
-                    return false;
-                }
-                //
-                // -- convert html to text
-                string normalizedContent = content;
-                if (contentIsHtml) { normalizedContent = cp.Utils.ConvertHTML2Text(normalizedContent); }
-                //
-                // -- normalize phone number, remove invalid characters
-                if (phoneNumber.Substring(0, 2).Equals("+1")) { phoneNumber = phoneNumber.Substring(2); }
-                string normalizedPhoneNumber = "+1";
-                foreach (char validChr in phoneNumber) {
-                    if ("0123456789".Contains(validChr.ToString())) {
-                        normalizedPhoneNumber += validChr;
-                    }
+                    return fail("EMPTY_BODY", "The message is empty.");
                 }
                 //
                 // -- twillio settings
-                string accountSid = cp.Site.GetText("Twillio Account SID", "");
-                if (string.IsNullOrEmpty(accountSid)) {
-                    cp.Site.ErrorReport("empty twilio accountSid");
-                    return false;
-                }
-                string authToken = cp.Site.GetText("Twillio Auth Token", "");
-                if (string.IsNullOrEmpty(authToken)) {
-                    cp.Site.ErrorReport("empty twilio authToken");
-                    return false;
-                }
-                string twilioPhoneNumber = cp.Site.GetText("Twillio Number", "");
-                if (string.IsNullOrEmpty(twilioPhoneNumber)) {
-                    cp.Site.ErrorReport("empty twilio phone number");
-                    return false;
+                string accountSid = cp.Site.GetText(Constants.sitePropertySmsTwilioAccountSid, "");
+                string authToken = cp.Site.GetText(Constants.sitePropertySmsTwilioAuthToken, "");
+                string twilioPhoneNumber = cp.Site.GetText(Constants.sitePropertySmsTwilioNumber, "");
+                if (string.IsNullOrEmpty(accountSid) || string.IsNullOrEmpty(authToken) || string.IsNullOrEmpty(twilioPhoneNumber)) {
+                    cp.Site.ErrorReport("Twilio is the SMS provider but Twillio Account SID, Auth Token or Number is not set in site settings.");
+                    return fail("NOT_CONFIGURED", "Twilio is not fully configured in site settings.");
                 }
                 //
                 // -- send twilio
                 TwilioClient.Init(accountSid, authToken);
-                MessageResource.Create(new PhoneNumber(normalizedPhoneNumber), accountSid, from: new PhoneNumber(twilioPhoneNumber), null, normalizedContent);
-                return true;
+                MessageResource message = MessageResource.Create(new PhoneNumber(e164), accountSid, from: new PhoneNumber(twilioPhoneNumber), null, content);
+                return new SmsProviderResult {
+                    success = true,
+                    providerId = (int)TextMessageLogModel.ProviderEnum.Twilio,
+                    providerMessageId = message?.Sid ?? ""
+                };
             } catch (Twilio.Exceptions.ApiException ex) {
-                userError = ex.Message;
-                return false;
+                //
+                // -- the recipient replied STOP to the Twilio number
+                bool isOptedOut = (ex.Code == twilioErrorRecipientOptedOut);
+                var result = fail(ex.Code.ToString(), isOptedOut ? "The recipient has opted out of text messages." : ex.Message);
+                result.isOptedOut = isOptedOut;
+                result.isRetryable = !isOptedOut && (ex.Status == 429 || ex.Status >= 500);
+                return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                userError = "Unexpected exception sending Text Message [" + ex.ToString() + "]";
-                return false;
+                var result = fail("", "Unexpected error sending the text message.");
+                result.isRetryable = true;
+                return result;
             }
+        }
+        //
+        private static SmsProviderResult fail(string errorCode, string errorMessage) {
+            return new SmsProviderResult {
+                success = false,
+                providerId = (int)TextMessageLogModel.ProviderEnum.Twilio,
+                errorCode = errorCode,
+                errorMessage = errorMessage,
+                isRetryable = false
+            };
         }
     }
 }

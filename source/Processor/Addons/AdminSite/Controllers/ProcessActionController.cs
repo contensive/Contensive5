@@ -225,11 +225,14 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     systemTextMessageId = (adminData.adminContent.name.ToLower() == "system text message") ? textMessageId : 0,
                                                     groupTextMessageId = (adminData.adminContent.name.ToLower() == "group text message") ? textMessageId : 0,
                                                     toMemberId = recipient.id,
-                                                    toPhone = recipient.cellPhone
+                                                    toPhone = recipient.cellPhone,
+                                                    source = "Admin Test Text",
+                                                    isTest = true
                                                 };
                                                 //
                                                 // -- send the test immediate. This is a content test, not a test of the process
-                                                TextMessageController.sendImmediate(cp.core, request, ref userErrorMessage, "Sent Test to " + recipient.name);
+                                                var testResult = TextMessageController.sendImmediate(cp.core, request, false);
+                                                if (!testResult.success) { userErrorMessage = testResult.userError; }
                                                 if (!string.IsNullOrEmpty(userErrorMessage)) {
                                                     ErrorController.addUserError(cp.core, "There was an error sending the test text message [" + userErrorMessage + "]");
                                                 } else {

@@ -1,5 +1,5 @@
 ﻿
-using Amazon.CloudWatchLogs.Model;
+using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
@@ -32,26 +32,47 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// Send a text message. Returns false if message was not sent.
+        /// Send one text message immediately and return the result with the provider message id. See TextMessageController.sendImmediate for the pipeline.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public override SmsSendResultModel SendText(SmsSendRequestModel request) {
+            try {
+                if (request == null) {
+                    return new SmsSendResultModel { success = false, status = SmsSendStatusEnum.Failed, userError = "The text message request is empty." };
+                }
+                return TextMessageController.sendImmediate(cp.core, new TextMessageSendRequest {
+                    textBody = request.body,
+                    toPhone = request.toPhone,
+                    attempts = 0,
+                    systemTextMessageId = request.systemTextMessageId,
+                    groupTextMessageId = 0,
+                    toMemberId = request.toMemberId,
+                    sentByMemberId = request.sentByMemberId,
+                    source = request.source,
+                    trackLinks = request.trackLinks,
+                    isTest = request.isTest
+                }, true);
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                return new SmsSendResultModel { success = false, status = SmsSendStatusEnum.Failed, userError = "Unexpected error sending the text message." };
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Send a text message. Returns false if message was not sent. Wrapper over SendText.
         /// </summary>
         /// <param name="smsPhoneNumber"></param>
         /// <param name="smsMessage"></param>
         /// <returns></returns>
+        [Obsolete("Use SendText(SmsSendRequestModel), which returns the send status, the provider message id and an error message.", false)]
         public override bool Send(string smsPhoneNumber, string smsMessage) {
-            try {
-                string userError = "";
-                return TextMessageController.sendImmediate(cp.core, new TextMessageSendRequest {
-                    textBody = smsMessage,
-                    toPhone = smsPhoneNumber,
-                    attempts = 0,
-                    systemTextMessageId = 0,
-                    groupTextMessageId = 0,
-                    toMemberId = 0
-                }, ref userError, "Send to " + smsPhoneNumber);
-            } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
-                throw;
-            }
+            return SendText(new SmsSendRequestModel {
+                toPhone = smsPhoneNumber,
+                body = smsMessage,
+                source = "cp.SMS.Send"
+            }).success;
         }
         //
         //====================================================================================================
@@ -86,12 +107,13 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// Send a text message to a user by their user id. Returns false with a userError if the user has no cell phone.
+        /// Send a text message to a user by their user id. Returns false with a userError if the user has no cell phone. Wrapper over SendText.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="smsMessage"></param>
         /// <param name="userError"></param>
         /// <returns></returns>
+        [Obsolete("Use SendText(SmsSendRequestModel) with toMemberId set, which returns the send status, the provider message id and an error message.", false)]
         public override bool SendUser(int userId, string smsMessage, ref string userError) {
             try {
                 string cellPhone = PersonModel.getCellPhone(cp, userId);
@@ -99,11 +121,61 @@ namespace Contensive.Processor {
                     userError = $"User [{userId}] does not have a cell phone on file.";
                     return false;
                 }
-                return Send(cellPhone, smsMessage);
+                SmsSendResultModel result = SendText(new SmsSendRequestModel {
+                    toPhone = cellPhone,
+                    toMemberId = userId,
+                    body = smsMessage,
+                    source = "cp.SMS.SendUser"
+                });
+                if (!result.success) { userError = result.userError; }
+                return result.success;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if text messaging is configured and on for this site.
+        /// </summary>
+        public override bool IsEnabled => SmsController.isEnabled(cp.core);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Convert a phone number to E.164 with the site's default country code. Empty string if not valid.
+        /// </summary>
+        /// <param name="phone"></param>
+        /// <returns></returns>
+        public override string NormalizePhone(string phone) {
+            return SmsPhoneController.toE164(phone, TextMessageController.getDefaultCountryCode(cp.core));
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// True if the phone is on the Text Message Block List. An invalid phone is not blocked.
+        /// </summary>
+        /// <param name="phone"></param>
+        /// <returns></returns>
+        public override bool IsBlocked(string phone) {
+            try {
+                string e164 = NormalizePhone(phone);
+                if (string.IsNullOrEmpty(e164)) { return false; }
+                return TextMessageBlockListModel.isBlocked(cp, e164);
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The character count, segment count and encoding of a message body.
+        /// </summary>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public override SmsSegmentInfoModel GetSegmentInfo(string body) {
+            return SmsSegmentController.getInfo(body);
         }
         //
 

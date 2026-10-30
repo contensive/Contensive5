@@ -38,6 +38,9 @@ namespace Contensive.Processor.Controllers {
                     return string.Empty;
                 }
                 //
+                // -- bypass the anonymous machine endpoints that cannot pass the gate (see isGateExemptRoute)
+                if (isGateExemptRoute(normalizedRoute)) { return string.Empty; }
+                //
                 // -- check staging gate cookie
                 string cookieName = $"{core.session.cookiePrefix}stagingGate";
                 string cookieValue = core.webServer.requestCookie(cookieName);
@@ -73,6 +76,22 @@ namespace Contensive.Processor.Controllers {
                 LogController.log(core, $"StagingGateController.processGate exception, {ex.Message}", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 return string.Empty;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Routes that bypass the staging gate, by exact name. Keep this list short and explicit.
+        /// - sms/aws/sns: AWS SNS posts text message events here. It has no cookie and no passphrase; every message is signature-verified and topic-checked.
+        /// - tl and tl/{token}: tracked text message link redirect. It only redirects to the site itself, where the gate applies to the destination page.
+        /// </summary>
+        /// <param name="normalizedRoute">route from RouteController.normalizeRoute (lower case, no leading or trailing slash)</param>
+        /// <returns></returns>
+        public static bool isGateExemptRoute(string normalizedRoute) {
+            if (string.IsNullOrEmpty(normalizedRoute)) { return false; }
+            if (normalizedRoute.Equals("sms/aws/sns", StringComparison.OrdinalIgnoreCase)) { return true; }
+            if (normalizedRoute.Equals("tl", StringComparison.OrdinalIgnoreCase)) { return true; }
+            if (normalizedRoute.StartsWith("tl/", StringComparison.OrdinalIgnoreCase) && normalizedRoute.IndexOf('/', 3) < 0) { return true; }
+            return false;
         }
         //
         //====================================================================================================

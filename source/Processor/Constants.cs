@@ -164,6 +164,78 @@ namespace Contensive.Processor {
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
         //
+        // -- text message (SMS) site properties. Declared on the Text Messages tab of Site Settings in aoBase51.xml
+        //
+        /// <summary>
+        /// master provider switch. 0=off, 1=Twilio, 2=AWS End User Messaging
+        /// </summary>
+        public const string sitePropertySmsProviderId = "SMS Provider Id";
+        /// <summary>
+        /// AWS phone number id/arn, E.164 number, pool id/arn or sender id texts are sent from. Blank disables AWS sending
+        /// </summary>
+        public const string sitePropertySmsAwsOriginationIdentity = "AWS SMS Origination Identity";
+        /// <summary>
+        /// AWS End User Messaging configuration set for this site. Blank sends without events
+        /// </summary>
+        public const string sitePropertySmsAwsConfigurationSet = "AWS SMS Configuration Set";
+        /// <summary>
+        /// AWS region for End User Messaging. Blank uses the server's region
+        /// </summary>
+        public const string sitePropertySmsAwsRegion = "AWS SMS Region";
+        /// <summary>
+        /// comma separated allow-list of SNS topic arns that may post to the notification endpoint
+        /// </summary>
+        public const string sitePropertySmsAwsSnsTopicArns = "AWS SMS SNS Topic ARNs";
+        /// <summary>
+        /// optional max price (USD) per message part
+        /// </summary>
+        public const string sitePropertySmsAwsMaxPrice = "AWS SMS Max Price";
+        /// <summary>
+        /// country calling code used to normalize phone numbers that have none. default 1
+        /// </summary>
+        public const string sitePropertySmsDefaultCountryCode = "SMS Default Country Code";
+        /// <summary>
+        /// max segments allowed for an interactive send. default 6
+        /// </summary>
+        public const string sitePropertySmsMaxSegments = "SMS Max Segments";
+        /// <summary>
+        /// diagnostic, the date and type of the last provider notification received
+        /// </summary>
+        public const string sitePropertySmsLastNotificationReceived = "SMS Last Notification Received";
+        /// <summary>
+        /// internal flag, true after the legacy block list file (Config\TextMessageBlockList.txt) was migrated into the Text Message Block List table. Not on the settings form
+        /// </summary>
+        public const string sitePropertySmsBlockListMigrated = "SMS Block List Migrated";
+        /// <summary>
+        /// Twilio credentials
+        /// </summary>
+        public const string sitePropertySmsTwilioAccountSid = "Twillio Account SID";
+        public const string sitePropertySmsTwilioAuthToken = "Twillio Auth Token";
+        public const string sitePropertySmsTwilioNumber = "Twillio Number";
+        //
+        // -- text message events. Records in aoBase51.xml. Thrown by name with arguments (sms... keys). The GUIDs are a contract with add-ons that catch them (aoCrm)
+        //
+        /// <summary>
+        /// Thrown when an outbound text changes to Delivered or Failed. Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsPhone, smsStatus, smsStatusCode, smsStatusDetail, smsSource
+        /// </summary>
+        public const string eventNameTextMessageStatusChanged = "Text Message Status Changed";
+        public const string eventGuidTextMessageStatusChanged = "{E912CCC6-7A50-48BE-8296-CF332CFDEA17}";
+        /// <summary>
+        /// Thrown on the first click of a tracked link. Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsLinkUrl, smsSource
+        /// </summary>
+        public const string eventNameTextMessageLinkClicked = "Text Message Link Clicked";
+        public const string eventGuidTextMessageLinkClicked = "{21643295-9E4E-4B7B-8714-48184545937A}";
+        /// <summary>
+        /// Thrown when a text is received (not an opt-out). Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsMemberIdList, smsPhone, smsBody, smsKeyword
+        /// </summary>
+        public const string eventNameTextMessageReceived = "Text Message Received";
+        public const string eventGuidTextMessageReceived = "{F4ABCC00-3CA6-448F-A0FB-912F76F714FD}";
+        /// <summary>
+        /// Thrown when a number opts out, by keyword (STOP) or when the provider rejects a send as opted out. Arguments smsEventName, smsTextMessageLogId, smsMemberId, smsMemberIdList, smsPhone, smsBody, smsOptOutSource
+        /// </summary>
+        public const string eventNameTextMessageOptOut = "Text Message Opt Out";
+        public const string eventGuidTextMessageOptOut = "{9E507644-11DE-4D71-868E-EA9D26A8A5DA}";
+        //
         //========================================================================
         // end-points (must match remote names)
         //
