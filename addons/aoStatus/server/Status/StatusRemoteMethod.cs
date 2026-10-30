@@ -393,12 +393,11 @@ namespace Contensive.Addons.Status {
                             bool checkSuccessful = serverDiag.windowsUpdateCheckSuccessful;
                             string errorMessage = serverDiag.windowsUpdateErrorMessage ?? "";
                             //
-                            // -- Mirror the 7-day staleness threshold from the plain-text path.
+                            // -- Flag stale data so the consumer knows the result may be outdated.
                             // A dead scheduled task could leave months-old data with no indication.
                             TimeSpan timeSinceCheck = DateTime.Now - serverDiag.lastCheckDate;
-                            if (checkSuccessful && timeSinceCheck.TotalDays > 7) {
-                                checkSuccessful = false;
-                                errorMessage = $"Last successful Windows update check was {timeSinceCheck.TotalDays:F0} days ago (last checked {serverDiag.lastCheckDate:yyyy-MM-dd HH:mm}) -- the server's scheduled diagnostics task may not be running.";
+                            if (timeSinceCheck.TotalDays > 7) {
+                                errorMessage = $"Last server diagnostic ran {timeSinceCheck.TotalDays:F0} days ago (last checked {serverDiag.lastCheckDate:yyyy-MM-dd HH:mm}). Results may be outdated.";
                             }
                             windowsUpdates = new StatusResponseModel.StatusWindowsUpdatesModel {
                                 updatesAvailable = serverDiag.windowsUpdateCount > 0,
