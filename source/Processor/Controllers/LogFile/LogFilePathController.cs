@@ -32,6 +32,41 @@ namespace Contensive.Processor.Controllers {
             return full.EndsWith(sep.ToString(), StringComparison.Ordinal) ? full : $"{full}{sep}";
         }
         //
+        // -- Windows reserved device names. The superscript digits are also reserved by Windows (COM¹ COM² COM³ LPT¹ LPT² LPT³)
+        private static readonly string[] deviceNames = {
+            "CON", "PRN", "AUX", "NUL",
+            "COM0", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+            "COM\u00B9", "COM\u00B2", "COM\u00B3", "LPT\u00B9", "LPT\u00B2", "LPT\u00B3"
+        };
+        //
+        //====================================================================================================
+        /// <summary>
+        /// true if the segment is a Windows reserved device name. The base name is the text before the first dot, trimmed, compared case-insensitively. 
+        /// Windows treats "CON.log" as the console device, on every extension. Checked on every platform so behavior does not depend on the host.
+        /// </summary>
+        public static bool isDeviceName(string segment) {
+            if (string.IsNullOrEmpty(segment)) { return false; }
+            int dot = segment.IndexOf('.');
+            string baseName = (dot < 0 ? segment : segment.Substring(0, dot)).Trim();
+            return Array.FindIndex(deviceNames, x => string.Equals(x, baseName, StringComparison.OrdinalIgnoreCase)) >= 0;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// a request value, with control characters removed and shortened to 200 characters, for the log
+        /// </summary>
+        public static string cleanForLog(string value) {
+            if (string.IsNullOrEmpty(value)) { return ""; }
+            var sb = new System.Text.StringBuilder();
+            foreach (char c in value) {
+                if (c < 0x20) { continue; }
+                sb.Append(c);
+                if (sb.Length >= 200) { break; }
+            }
+            return sb.ToString();
+        }
+        //
         //====================================================================================================
         /// <summary>
         /// Resolve a requested path (relative to the log root) to a full path that is verified to be inside the root. 
@@ -81,6 +116,7 @@ namespace Contensive.Processor.Controllers {
                 if (segment.Length == 0) { rejectReason = "empty segment"; return false; }
                 char lastChar = segment[segment.Length - 1];
                 if (lastChar == '.' || lastChar == ' ') { rejectReason = "dot segment or trailing dot or space"; return false; }
+                if (isDeviceName(segment)) { rejectReason = "device name"; return false; }
             }
             //
             // -- 6. resolve

@@ -73,6 +73,14 @@ public class LogFilePathControllerTests {
     [DataRow("a.log ", true)]
     [DataRow("sub\\\\d.log", true)]
     [DataRow("CON.log", true)]
+    [DataRow("nul.txt", true)]
+    [DataRow("com1.log", true)]
+    [DataRow("sub\\LPT9.log", true)]
+    [DataRow("aux.tar.log", true)]
+    [DataRow("Prn .log", true)]
+    [DataRow("COM\u00B2.log", true)]
+    [DataRow("sub\\lpt\u00B3.txt", true)]
+    [DataRow("sub\\NUL", false)]
     [DataRow("a<.log", true)]
     [DataRow("\u0001.log", true)]
     [DataRow("..\\Logs2\\x.log", true)]
@@ -124,5 +132,29 @@ public class LogFilePathControllerTests {
         Assert.AreEqual("reparse point", reason);
         // cleanup, remove the junction without deleting the target
         Directory.Delete(junction, false);
+    }
+    //
+    [TestMethod]
+    public void tryResolve_deviceName_reasonIsDeviceName() {
+        // arrange
+        // act
+        bool ok = LogFilePathController.tryResolve(rootFull, "sub\\LPT9.log", true, out _, out _, out string reason);
+        // assert
+        Assert.IsFalse(ok);
+        Assert.AreEqual("device name", reason);
+    }
+    //
+    [TestMethod]
+    [DataRow("console.log", false)]
+    [DataRow("com10.log", false)]
+    [DataRow("lpt.log", false)]
+    [DataRow("a.con.log", false)]
+    [DataRow("con.log", true)]
+    [DataRow("COM0", true)]
+    public void isDeviceName_cases(string segment, bool expected) {
+        // arrange
+        // act
+        // assert
+        Assert.AreEqual(expected, LogFilePathController.isDeviceName(segment));
     }
 }
