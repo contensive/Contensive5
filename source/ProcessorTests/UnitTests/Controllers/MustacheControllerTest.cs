@@ -1,7 +1,5 @@
-using Contensive.Processor.Controllers;
+using Contensive.Processor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Contensive.Processor.Tests;
-using static Contensive.Processor.Tests.TestConstants;
 
 namespace Contensive.Processor.Tests.UnitTests.Controllers;
 
@@ -13,7 +11,9 @@ public class MustacheControllerTest {
         string source = "{{Name}}-{{#Phones}}x{{.}}y{{/Phones}}";
         string expect = $"Krishna-x555-555-5555yx666-666-6666y";
         var testobj = new { Name = "Krishna", Phones = new[] { "555-555-5555", "666-666-6666" } };
-        string result = MustacheController.renderStringToString(source, testobj);
-        Assert.AreEqual(expect, result);
+        using (CPClass cp = new()) {
+            string result = cp.Mustache.Render(source, testobj);
+            Assert.AreEqual(expect, result);
+        }
     }
 }

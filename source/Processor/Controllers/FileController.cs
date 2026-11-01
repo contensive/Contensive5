@@ -629,23 +629,38 @@ namespace Contensive.Processor.Controllers {
                     }
                     if (!string.IsNullOrEmpty(remoteUnixPath)) {
                         //
-                        // -- get a list of all objects to delete (the delete call does not include prefix)
+                        // -- collect all object keys to delete across paginated results
                         string unixPath = convertToUnixSlash(joinPath(remotePathPrefix, dosPath));
                         ListObjectsRequest listrequest = new() {
                             BucketName = core.serverConfig.awsBucketName,
                             Prefix = unixPath
                         };
-                        ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
-                        //
-                        // -- create delete request from object list
-                        DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest {
-                            BucketName = core.serverConfig.awsBucketName
-                        };
-                        foreach (S3Object entry in listResponse.S3Objects) {
-                            deleteRequest.AddKey(entry.Key);
+                        var keysToDelete = new List<string>();
+                        bool morePages = true;
+                        while (morePages) {
+                            ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
+                            foreach (S3Object entry in listResponse.S3Objects) {
+                                keysToDelete.Add(entry.Key);
+                            }
+                            //
+                            // -- if more results exist, use last key as marker (no Delimiter so NextMarker is not populated)
+                            if (listResponse.IsTruncated && listResponse.S3Objects.Count > 0) {
+                                listrequest.Marker = listResponse.S3Objects[listResponse.S3Objects.Count - 1].Key;
+                            } else {
+                                morePages = false;
+                            }
                         }
-                        if (deleteRequest.Objects.Count > 0) {
-                            DeleteObjectsResponse deleteResponse = s3Client.DeleteObjectsAsync(deleteRequest).waitSynchronously();
+                        //
+                        // -- batch delete in groups of 1000 (S3 DeleteObjects limit)
+                        for (int i = 0; i < keysToDelete.Count; i += 1000) {
+                            var deleteRequest = new DeleteObjectsRequest {
+                                BucketName = core.serverConfig.awsBucketName
+                            };
+                            int batchEnd = Math.Min(i + 1000, keysToDelete.Count);
+                            for (int j = i; j < batchEnd; j++) {
+                                deleteRequest.AddKey(keysToDelete[j]);
+                            }
+                            s3Client.DeleteObjectsAsync(deleteRequest).waitSynchronously();
                         }
                     }
                 }
@@ -779,36 +794,46 @@ namespace Contensive.Processor.Controllers {
             try {
                 string dosPath = normalizeDosPath(path);
                 string remoteUnixPath = convertToUnixSlash(joinPath(remotePathPrefix, dosPath));
+                var returnFileList = new List<FileDetail>();
                 ListObjectsRequest request = new ListObjectsRequest {
                     BucketName = core.serverConfig.awsBucketName,
-                    Prefix = remoteUnixPath
+                    Prefix = remoteUnixPath,
+                    Delimiter = @"/"
                 };
-                ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
-                IEnumerable<S3Object> fileList = response.S3Objects.Where(x => !x.Key.EndsWith(@"/"));
-                var returnFileList = new List<FileDetail>();
-                foreach (S3Object file in fileList) {
+                bool morePages = true;
+                while (morePages) {
+                    ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
+                    IEnumerable<S3Object> fileList = response.S3Objects.Where(x => !x.Key.EndsWith(@"/"));
+                    foreach (S3Object file in fileList) {
+                        //
+                        // -- create a fileDetail for each file found
+                        string fileName = file.Key;
+                        string keyPath = "";
+                        int pos = fileName.LastIndexOf("/", StringComparison.InvariantCulture);
+                        if (pos > -1) {
+                            keyPath = fileName.Substring(0, pos + 1);
+                            fileName = fileName.Substring(pos + 1);
+                        }
+                        if (remoteUnixPath.Equals(keyPath)) {
+                            returnFileList.Add(new FileDetail {
+                                Attributes = 0,
+                                Type = "",
+                                DateCreated = file.LastModified,
+                                DateLastAccessed = file.LastModified,
+                                DateLastModified = file.LastModified,
+                                Name = fileName,
+                                Size = file.Size
+                            });
+                        }
+                    }
                     //
-                    // -- create a fileDetail for each file found
-                    string fileName = file.Key;
-                    string keyPath = "";
-                    int pos = fileName.LastIndexOf("/", StringComparison.InvariantCulture);
-                    if (pos > -1) {
-                        keyPath = fileName.Substring(0, pos + 1);
-                        fileName = fileName.Substring(pos + 1);
+                    // -- if more results exist, set the marker for the next page
+                    if (response.IsTruncated) {
+                        request.Marker = response.NextMarker;
+                    } else {
+                        morePages = false;
                     }
-                    if (remoteUnixPath.Equals(keyPath)) {
-                        returnFileList.Add(new FileDetail {
-                            Attributes = 0,
-                            Type = "",
-                            DateCreated = file.LastModified,
-                            DateLastAccessed = file.LastModified,
-                            DateLastModified = file.LastModified,
-                            Name = fileName,
-                            Size = file.Size
-                        });
-
-                    }
-                };
+                }
                 return returnFileList;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -928,25 +953,35 @@ namespace Contensive.Processor.Controllers {
                 //
                 // Build your call out to S3 and store the response
                 var returnFolders = new List<FolderDetail>();
-                logger.Info($"{core.logCommonMessage},getFolderList_remote, s3Client.ListObjects, path [" + path + "]");
-                ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
-                foreach (var commonPrefix in response.CommonPrefixes) {
-                    string subFolder = commonPrefix.Substring(prefixLength);
-                    if (string.IsNullOrWhiteSpace(subFolder)) { continue; }
+                logger.Info($"{core.logCommonMessage},getFolderList_remote, s3Client.ListObjects, path [{path}]");
+                bool morePages = true;
+                while (morePages) {
+                    ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
+                    foreach (var commonPrefix in response.CommonPrefixes) {
+                        string subFolder = commonPrefix.Substring(prefixLength);
+                        if (string.IsNullOrWhiteSpace(subFolder)) { continue; }
+                        //
+                        // -- remove trailing slash as this returns folder names, not paths (path ends in slash, folder name ends in the name)
+                        subFolder = subFolder.Substring(0, subFolder.Length - 1);
+                        //
+                        // -- skip subfolders as they match the ends-with-a-slash query
+                        if (subFolder.Contains("/")) { continue; }
+                        returnFolders.Add(new FolderDetail {
+                            Attributes = 0,
+                            Type = "",
+                            DateCreated = DateTime.MinValue,
+                            DateLastAccessed = DateTime.MinValue,
+                            DateLastModified = DateTime.MinValue,
+                            Name = subFolder
+                        });
+                    }
                     //
-                    // -- remove trailing slash as this returns folder names, not paths (path ends in slash, folder name ends in the name)
-                    subFolder = subFolder.Substring(0, subFolder.Length - 1);
-                    //
-                    // -- skip subfolders as they match the ends-with-a-slash query
-                    if (subFolder.Contains("/")) { continue; }
-                    returnFolders.Add(new FolderDetail {
-                        Attributes = 0,
-                        Type = "",
-                        DateCreated = DateTime.MinValue,
-                        DateLastAccessed = DateTime.MinValue,
-                        DateLastModified = DateTime.MinValue,
-                        Name = subFolder
-                    });
+                    // -- if more results exist, set the marker for the next page
+                    if (response.IsTruncated) {
+                        request.Marker = response.NextMarker;
+                    } else {
+                        morePages = false;
+                    }
                 }
                 return returnFolders;
             } catch (Exception ex) {

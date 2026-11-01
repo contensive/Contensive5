@@ -50,11 +50,11 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 int userIdToRestore = core.session.user.id;
-                if (!AuthController.authenticateById(core, core.session, person.id)) {
-                    // 
+                if (!AuthController.authenticateById(core, core.session, person.id, "impersonation")) {
+                    //
                     // -- login failed
                     userError = "Impersonation failed because the user with the requested credential could not be logged-in.";
-                    AuthController.authenticateById(core, core.session, userIdToRestore);
+                    AuthController.authenticateById(core, core.session, userIdToRestore, "impersonation");
                     return false;
                 }
                 // 
@@ -85,7 +85,7 @@ namespace Contensive.Processor.Controllers {
                 PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, userId);
                 if ((person == null)) {  return false; }
                 //
-                if (!AuthController.authenticateById(core, core.session, userId)) { return false;  }
+                if (!AuthController.authenticateById(core, core.session, userId, "impersonation")) { return false; }
                 core.visitProperty.clearProperty("adminImpersonation");
                 return true;
             } catch (Exception ex) {

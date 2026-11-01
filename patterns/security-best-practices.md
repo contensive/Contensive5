@@ -597,6 +597,126 @@ When building or auditing a form-handling addon:
 
 ---
 
+## Input Sanitization for Text Fields
+
+### Strip HTML From Text and LongText Fields
+
+CDef fields of type **Text** (255 chars) and **LongText** (nvarchar(max)) are plain-text fields. HTML has no legitimate purpose in them. All user-supplied values going into these field types must be stripped of HTML before saving using `cp.Utils.ConvertHTML2Text()`.
+
+```csharp
+// CORRECT — strip HTML before saving to a Text or LongText field
+string title = cp.Utils.ConvertHTML2Text(cp.Doc.GetText("title"));
+string details = cp.Utils.ConvertHTML2Text(cp.Doc.GetText("details"));
+
+csEvent.SetField("Name", title);
+csEvent.SetField("details", details);
+```
+
+```csharp
+// WRONG — raw user input saved directly
+string title = cp.Doc.GetText("title");
+csEvent.SetField("Name", title);
+```
+
+**Why `ConvertHTML2Text` instead of HTML-encoding:**
+
+| Approach | Double-encode on re-save? | Length accuracy? | Data reusable across contexts? |
+|---|---|---|---|
+| `ConvertHTML2Text` (strip) | No — idempotent; short-circuits when no `<` present | Yes — stored length matches real text | Yes — raw text works for JSON, CSV, search, display |
+| `HtmlEncode` (encode) | Yes — `&lt;` becomes `&amp;lt;` on each save | No — `<` is 1 char but `&lt;` is 4 | No — must decode for every non-HTML context |
+
+**Do NOT HTML-encode on input.** Store the user's actual text. Encode on output using the appropriate method for each rendering context: `CP.JSON.Serialize()` for JSON, jQuery `.text()` for DOM insertion, etc.
+
+### Enforce Field Length at Client and Server
+
+Every user input that maps to a CDef **Text** field (255 chars) must be validated at both layers:
+
+**Client-side (UX — prevents frustration):**
+- Add `maxlength="255"` to `<input>` elements
+- Add JavaScript validation before submit for values built programmatically
+
+```html
+<input id="js-eventTitle" type="text" maxlength="255">
+```
+
+```javascript
+if (title.length > 255) {
+    alert('Title must be 255 characters or less.');
+    return;
+}
+```
+
+**Server-side (enforcement — the real boundary):**
+- Truncate after `ConvertHTML2Text` but before `SetField`
+- Always truncate after sanitization because stripping tags may change the length
+
+```csharp
+string title = cp.Utils.ConvertHTML2Text(cp.Doc.GetText("title"));
+if (title.Length > 255) { title = title.Substring(0, 255); }
+csEvent.SetField("Name", title);
+```
+
+**LongText fields** (nvarchar(max)) do not require length truncation but still require `ConvertHTML2Text` sanitization.
+
+---
+
+## POST for State-Changing Remote Methods
+
+Remote method addons that create, update, or delete data must be called with HTTP POST, not GET. The client-side `fetch` or AJAX call must specify `method: 'POST'` and send parameters in the request body.
+
+```javascript
+// CORRECT — POST with body
+fetch('/remoteMethodSaveRecord', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: queryString
+})
+```
+
+```javascript
+// WRONG — GET with query string
+fetch('/remoteMethodSaveRecord?' + queryString)
+```
+
+**Why this matters:**
+
+| Concern | GET | POST |
+|---|---|---|
+| Data location | URL query string | Request body |
+| Size limit | ~2,000–8,000 chars (server/proxy dependent) | Effectively unlimited |
+| Server logs | Full data visible in access logs | Body not logged |
+| Browser history | Stored with full URL | Not stored |
+| Caching | Cached by browsers/proxies | Not cached |
+| HTTP semantics | Read-only retrieval | State-changing operations |
+
+The server-side C# handler code does not change — `cp.Doc.GetText()` reads from both GET query strings and POST body parameters.
+
+Read-only remote methods (fetching data for display) may use GET.
+
+---
+
+## Safe Criteria Strings in CS.Open
+
+When building criteria strings for `CS.Open()`, always use `cp.Doc.GetInteger()` for ID values. This method returns `0` for non-numeric input, preventing SQL injection through malicious string values.
+
+```csharp
+// CORRECT — GetInteger returns 0 for non-numeric input
+int recordId = cp.Doc.GetInteger("recordid");
+if (recordId != 0) {
+    cs.Open("Calendar Events", $"id={recordId}");
+}
+```
+
+```csharp
+// WRONG — string input directly in criteria allows SQL injection
+string recordId = cp.Doc.GetText("recordid");
+cs.Open("Calendar Events", $"id={recordId}");
+```
+
+For non-integer criteria values, use `DbBaseModel.encodeSQLText()` to escape string literals, or prefer the ORM (`DbBaseModel.create`, `DbBaseModel.createList`) which handles parameterization automatically.
+
+---
+
 ## Security Checklist
 
 ### All Sensitive Operations
@@ -608,6 +728,24 @@ When building or auditing a form-handling addon:
 ### Addon Execute Methods
 - [ ] Does the method check `isAuthenticated` at the entry point?
 - [ ] If modifying data, does it check appropriate permissions (`isEditing()`, `isAuthenticatedAdmin()`, etc.)?
+
+### Input Sanitization
+- [ ] Are all user inputs for Text fields passed through `cp.Utils.ConvertHTML2Text()` before saving?
+- [ ] Are all user inputs for LongText fields passed through `cp.Utils.ConvertHTML2Text()` before saving?
+- [ ] Are Text field values truncated to 255 characters on the server after sanitization?
+- [ ] Do HTML `<input>` elements for Text fields have `maxlength="255"`?
+- [ ] Is there client-side JavaScript validation for field length before submit?
+- [ ] Is `HtmlEncode` avoided on input? (Use `ConvertHTML2Text` to strip; encode on output instead)
+
+### Remote Methods
+- [ ] Do state-changing remote methods (create, update, delete) use HTTP POST?
+- [ ] Are parameters sent in the POST body, not the URL query string?
+- [ ] Do client-side `fetch` calls use `encodeURIComponent()` on all parameter values?
+- [ ] Are read-only remote methods the only ones using GET?
+
+### Database Criteria
+- [ ] Are ID values retrieved with `cp.Doc.GetInteger()` (not `GetText()`) before use in `CS.Open()` criteria?
+- [ ] Are string values in criteria escaped with `DbBaseModel.encodeSQLText()` or handled via ORM?
 
 ### Content / Data Access
 - [ ] Is content access controlled by `isEditing()` or permission checks?
@@ -629,10 +767,14 @@ When building or auditing a form-handling addon:
 - [ ] Server checks honeypot: `cp.Security.CheckHoneypot()` returns fake success if spam
 - [ ] Server checks rate limit: `cp.Security.CheckRateLimit("actionKey")` before processing
 - [ ] Server records action: `cp.Security.RecordAction("actionKey")` after successful submit
-- [ ] User input sanitized before display: `cp.Security.SanitizeInput(input, "display")`
+- [ ] Text/LongText input stripped of HTML: `cp.Utils.ConvertHTML2Text(input)` before saving
+- [ ] HTMLContent field input sanitized for display: `cp.Security.SanitizeInput(input, "display")`
 - [ ] All database operations use ORM (`DbBaseModel.create`, `model.save()`)
-- [ ] Text fields truncated to database column length limits
-- [ ] Security checks executed in correct order: honeypot → rate limit → auth → validation → processing
+- [ ] Text fields (255 char) truncated at server after sanitization: `if (value.Length > 255) { value = value.Substring(0, 255); }`
+- [ ] Text inputs have `maxlength` attributes matching database column length
+- [ ] Client-side JavaScript validates field length before submit
+- [ ] State-changing operations use HTTP POST (not GET)
+- [ ] Security checks executed in correct order: honeypot → rate limit → auth → validation → sanitization → processing
 
 ---
 

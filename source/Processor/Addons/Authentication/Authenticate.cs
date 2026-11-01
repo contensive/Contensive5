@@ -83,7 +83,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     data = new AuthenticateResponseData()
                 };
             } else {
-                if (!AuthController.authenticateById(core, core.session, userId)) {
+                if (!AuthController.authenticateById(core, core.session, userId, "password")) {
                     //
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus.Unauthorized);

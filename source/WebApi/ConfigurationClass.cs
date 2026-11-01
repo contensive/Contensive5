@@ -114,7 +114,7 @@ namespace Contensive.WebApi {
                                     // stream to byte array
                                     byte[] array = new byte[inputStream.Length];
                                     inputStream.Seek(0, SeekOrigin.Begin);
-                                    inputStream.Read(array, 0, array.Length);
+                                    inputStream.ReadExactly(array, 0, array.Length);
                                     // Use new sanitization with Moderate level (default, safe for most deployments)
                                     string normalizedFilename = Processor.Controllers.FileController.sanitizeFilename(
                                         formFile.FileName,

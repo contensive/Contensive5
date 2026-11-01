@@ -56,7 +56,16 @@ namespace Contensive.BaseClasses {
         /// Set the response redirect (302)
         /// </summary>
         /// <param name="link"></param>
+        [Obsolete("Use Redirect(string, string) instead, with a very brief reason used for diagnostics", false)]
         public abstract void Redirect(string link);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Set the response redirect (302) with a reason logged for diagnostics
+        /// </summary>
+        /// <param name="link"></param>
+        /// <param name="reason">A short description of why the redirect is being performed, logged for diagnostics</param>
+        public abstract void Redirect(string link, string reason);
         //
         //====================================================================================================
         /// <summary>

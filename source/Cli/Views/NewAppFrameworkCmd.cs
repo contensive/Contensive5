@@ -195,9 +195,9 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\files\\";
                             appConfig.localPrivatePath = $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\private\\";
                             appConfig.localTempPath = $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\temp\\";
-                            appConfig.remoteWwwPath = "";
-                            appConfig.remoteFilePath = "";
-                            appConfig.remotePrivatePath = "";
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
                             appConfig.cdnFileUrl = $"/{appConfig.name}/files/";
                         } else {
                             //
@@ -221,9 +221,9 @@ namespace Contensive.CLI {
                             appConfig.localFilesPath = GenericController.promptForReply("cdn files", $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\files\\");
                             appConfig.localPrivatePath = GenericController.promptForReply("private files", $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\private\\");
                             appConfig.localTempPath = GenericController.promptForReply("temp files (ephemeral storage)", $"{cp.core.serverConfig.localDataDriveLetter}:\\inetpub\\{appConfig.name}\\temp\\");
-                            appConfig.remoteWwwPath = "";
-                            appConfig.remoteFilePath = "";
-                            appConfig.remotePrivatePath = "";
+                            appConfig.remoteWwwPath = $"/{appConfig.name}/www/";
+                            appConfig.remoteFilePath = $"/{appConfig.name}/files/";
+                            appConfig.remotePrivatePath = $"/{appConfig.name}/private/";
                             appConfig.cdnFileUrl = GenericController.promptForReply("files Url (typically a virtual path on the application website)", $"/{appConfig.name}/files/");
                         } else {
                             //
@@ -310,13 +310,12 @@ namespace Contensive.CLI {
                         }
                     }
                     //
-                    // -- save the app configuration and reload the server using this app
+                    // -- save the app configuration and set it as the active app
                     logger.Info($"{cp.core.logCommonMessage},Save app configuration.");
                     appConfig.appStatus = AppConfigModel.AppStatusEnum.maintenance;
                     cp.core.serverConfig.apps.Add(appConfig.name, appConfig);
                     cp.core.serverConfig.save(cp.core);
-                    cp.core.serverConfig = ServerConfigModel.create(cp.core);
-                    cp.core.appConfig = AppConfigModel.getObject(cp.core, cp.core.serverConfig, appConfig.name);
+                    cp.core.appConfig = appConfig;
                     //
                     // update local host file
                     //
@@ -333,12 +332,10 @@ namespace Contensive.CLI {
                     logger.Info($"{cp.core.logCommonMessage},Create database.");
                     cp.core.dbServer.createCatalog(appConfig.name);
                     //
-                    logger.Info($"{cp.core.logCommonMessage},Creating database and deploying DefaultAspxSite to IIS site.");
-                }
-                //
-                // initialize the new app, use the save authentication that was used to authorize this object
-                //
-                using (CPClass cp = new(appName)) {
+                    // -- continue using the same cp instance (re-constructing CPClass from the app name
+                    // -- fails on servers using AWS Secrets Manager because the second constructor
+                    // -- cannot always read the newly-saved config back from the secret store)
+                    //
                     logger.Info($"{cp.core.logCommonMessage},Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath, isFramework: true);
                     //

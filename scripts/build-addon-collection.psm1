@@ -41,12 +41,22 @@ function Get-ContensiveVersion {
     (e.g. "26.4.23.30150-staging").
 .PARAMETER DeploymentRoot
     Root folder under which versioned deployment sub-folders are created.
+.PARAMETER RepoPath
+    Path inside the git repository. Used with 'git -C' to reliably detect
+    the current branch regardless of the process working directory.
+    Required — without it, branch detection fails when the build runs from
+    a directory outside the repo (e.g. C:\Windows\System32 in an elevated
+    Administrator shell).
 .OUTPUTS
     Version string, e.g. "26.4.23.30150" or "26.4.23.30150-staging"
 #>
     param(
-        [Parameter(Mandatory)][string]$DeploymentRoot
+        [Parameter(Mandatory)][string]$DeploymentRoot,
+        [Parameter(Mandatory)][string]$RepoPath
     )
+    if (-not (Test-Path $RepoPath)) {
+        throw "Get-ContensiveVersion: -RepoPath '$RepoPath' does not exist. Pass `$projectRoot or a path inside the git repo (e.g. -RepoPath `$projectRoot)."
+    }
     $now   = Get-Date
     $yy    = $now.ToString('yy')
     $month = $now.Month.ToString()
@@ -56,7 +66,7 @@ function Get-ContensiveVersion {
     #
     # -- append branch name as pre-release suffix for non-main branches
     $branch = ''
-    try { $branch = (git rev-parse --abbrev-ref HEAD 2>$null) } catch {}
+    try { $branch = (git -C $RepoPath rev-parse --abbrev-ref HEAD 2>$null) } catch {}
     if ($branch -and $branch -ne 'main' -and $branch -ne 'master') {
         # sanitize: NuGet pre-release allows only alphanumerics and hyphens
         $suffix = $branch -replace '[^a-zA-Z0-9-]', '-'
@@ -214,6 +224,98 @@ function Invoke-MSBuildSolution {
     if ($LASTEXITCODE -ne 0) { throw "MSBuild failed for: $SolutionPath" }
 }
 
+function Publish-NuGetDevPackages {
+<#
+.SYNOPSIS
+    Copies .nupkg files into the dev NuGet folder feed (GitHub repo
+    contensive/nuget-dev) and commits + pushes them, so cloud sessions can
+    build against unreleased packages.
+
+.DESCRIPTION
+    Warn-only: a missing clone or a failed pull, commit or push writes a
+    warning and returns $false; it never throws, so it never fails a build.
+    Skipped when the environment variable SKIP_NUGET_DEV is '1', and when the
+    repo being built (SourceRepoPath) is on main or master: release builds are
+    not dev builds.
+    Requires a clone at RepoPath that is signed in to GitHub (gh auth setup-git
+    or Git Credential Manager).
+
+.PARAMETER PackagePaths
+    Full paths of the .nupkg files to publish.
+
+.PARAMETER Version
+    Version string used in the commit message.
+
+.PARAMETER SourceRepoPath
+    A path inside the repo being built; its branch name goes in the commit message. Optional.
+
+.PARAMETER RepoPath
+    Local clone of contensive/nuget-dev. Defaults to C:\Git\nuget-dev.
+
+.OUTPUTS
+    $true if the packages were pushed, otherwise $false.
+#>
+    param(
+        [Parameter(Mandatory)][string[]] $PackagePaths,
+        [string] $Version        = '',
+        [string] $SourceRepoPath = '',
+        [string] $RepoPath       = 'C:\Git\nuget-dev'
+    )
+
+    if ($env:SKIP_NUGET_DEV -eq '1') {
+        Write-Host "  Dev NuGet push skipped (SKIP_NUGET_DEV=1)"
+        return $false
+    }
+    $branch = ''
+    if ($SourceRepoPath) {
+        try { $branch = (& git -C $SourceRepoPath rev-parse --abbrev-ref HEAD) } catch { $branch = '' }
+    }
+    if ($branch -eq 'main' -or $branch -eq 'master') {
+        Write-Host "  Dev NuGet push skipped (branch $branch is a release branch)"
+        return $false
+    }
+    if (-not $PackagePaths -or $PackagePaths.Count -eq 0) {
+        return $false
+    }
+    if (-not (Test-Path (Join-Path $RepoPath '.git'))) {
+        Write-Warning "$RepoPath is not a git clone, so the dev NuGet push was skipped. Clone https://github.com/contensive/nuget-dev.git there to enable it."
+        return $false
+    }
+
+    $names = ($PackagePaths | ForEach-Object { [System.IO.Path]::GetFileName($_) }) -join ', '
+    try {
+        & git -C $RepoPath pull --rebase --quiet
+        if ($LASTEXITCODE -ne 0) { throw "git pull failed in $RepoPath" }
+
+        $packagesFolder = Join-Path $RepoPath 'packages'
+        if (-not (Test-Path $packagesFolder)) {
+            New-Item -ItemType Directory -Path $packagesFolder | Out-Null
+        }
+        foreach ($package in $PackagePaths) {
+            Copy-Item $package -Destination $packagesFolder -Force
+        }
+
+        & git -C $RepoPath add packages
+        if ($LASTEXITCODE -ne 0) { throw "git add failed in $RepoPath" }
+
+        $message = "Dev build $Version"
+        if ($branch) { $message = "$message from branch $branch" }
+        $message = "$message`: $names"
+
+        & git -C $RepoPath commit --quiet -m $message
+        if ($LASTEXITCODE -ne 0) { throw "git commit failed in $RepoPath (nothing new to commit?)" }
+
+        & git -C $RepoPath push --quiet
+        if ($LASTEXITCODE -ne 0) { throw "git push failed in $RepoPath" }
+
+        Write-Host "  Pushed to contensive/nuget-dev: $names"
+        return $true
+    } catch {
+        Write-Warning "The dev NuGet push to contensive/nuget-dev failed: $($_.Exception.Message). The build continues; the packages are still in the deployment folder and C:\NuGetLocalPackages."
+        return $false
+    }
+}
+
 # ===========================================================================
 # Invoke-ContensiveBuild  — the single orchestrated entry point
 # ===========================================================================
@@ -237,11 +339,14 @@ function Invoke-ContensiveBuild {
     collection XML and will stage the build artifacts.
 
 .PARAMETER SolutionPath
-    Absolute path to the .sln file to build.
+    Absolute path to the .sln file to build. Optional — omit for
+    collections that have no .NET project (e.g. theme/data-only collections).
+    When omitted, the build and DLL copy steps are skipped.
 
 .PARAMETER BinPath
     Absolute path to the bin folder produced by the build
     (e.g. '...\server\FMA\bin\Release' or '...\server\FMA\bin\Debug').
+    Optional — omit when SolutionPath is omitted.
 
 .PARAMETER Configuration
     Build configuration (Debug or Release). Defaults to Release.
@@ -282,8 +387,8 @@ function Invoke-ContensiveBuild {
     param(
         [Parameter(Mandatory)][string]   $CollectionName,
         [Parameter(Mandatory)][string]   $CollectionPath,
-        [Parameter(Mandatory)][string]   $SolutionPath,
-        [Parameter(Mandatory)][string]   $BinPath,
+        [string]   $SolutionPath      = '',
+        [string]   $BinPath           = '',
         [Parameter(Mandatory)][string]   $DeploymentRoot,
         [string]   $Configuration   = 'Release',
         [string[]] $CleanFolders    = @(),
@@ -309,10 +414,11 @@ function Invoke-ContensiveBuild {
     # -----------------------------------------------------------------------
     # Step 1 — Resolve version, deployment folder, and tools
     # -----------------------------------------------------------------------
-    $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot
+    $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot -RepoPath $CollectionPath
     $deploymentFolder = New-DeploymentFolder  -DeploymentRoot $DeploymentRoot -Version $version
+    $hasSolution      = [bool]$SolutionPath
     $useDotnet        = [bool]$DotnetProjectPath
-    if (-not $useDotnet) {
+    if ($hasSolution -and -not $useDotnet) {
         $msbuild = Find-MSBuild
     }
 
@@ -383,19 +489,23 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 4 — Build the solution
+    # Step 4 — Build the solution (skipped for data-only collections)
     # -----------------------------------------------------------------------
-    if ($useDotnet) {
-        Invoke-DotnetBuildSolution -SolutionPath  $SolutionPath `
-                                   -Configuration $Configuration `
-                                   -Version       $version `
-                                   -ProjectPath   $DotnetProjectPath
+    if ($hasSolution) {
+        if ($useDotnet) {
+            Invoke-DotnetBuildSolution -SolutionPath  $SolutionPath `
+                                       -Configuration $Configuration `
+                                       -Version       $version `
+                                       -ProjectPath   $DotnetProjectPath
+        } else {
+            Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
+                                   -MSBuild           $msbuild `
+                                   -Configuration     $Configuration `
+                                   -PackagesDirectory $PackagesDirectory `
+                                   -Version           $version
+        }
     } else {
-        Invoke-MSBuildSolution -SolutionPath      $SolutionPath `
-                               -MSBuild           $msbuild `
-                               -Configuration     $Configuration `
-                               -PackagesDirectory $PackagesDirectory `
-                               -Version           $version
+        Write-Host "No solution — skipping build step."
     }
 
     # -----------------------------------------------------------------------
@@ -425,22 +535,30 @@ function Invoke-ContensiveBuild {
         if (-not (Test-Path $localFeed)) {
             New-Item -ItemType Directory -Path $localFeed | Out-Null
         }
-        Get-ChildItem -Path $deploymentFolder -Filter '*.nupkg' | ForEach-Object {
+        $builtPackages = @(Get-ChildItem -Path $deploymentFolder -Filter '*.nupkg')
+        $builtPackages | ForEach-Object {
             Copy-Item $_.FullName -Destination $localFeed -Force
             Write-Host "  Copied to local feed: $($_.Name)"
         }
         Write-Host "NuGet packages built and copied to deployment folder"
+        #
+        # -- also publish to the dev NuGet folder feed (contensive/nuget-dev) for cloud sessions. Warn-only.
+        if ($builtPackages.Count -gt 0) {
+            $null = Publish-NuGetDevPackages -PackagePaths ($builtPackages | ForEach-Object { $_.FullName }) -Version $version -SourceRepoPath $CollectionPath
+        }
     }
 
     # -----------------------------------------------------------------------
     # Step 5 — Assemble the collection zip and copy to deployment folder
     # -----------------------------------------------------------------------
     Write-Host "Building collection zip..."
-    Copy-Item (Join-Path $BinPath '*.dll') -Destination $collectionFolder -Force
-    Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.dep') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $BinPath '*.deps.json') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    if ($BinPath) {
+        Copy-Item (Join-Path $BinPath '*.dll') -Destination $collectionFolder -Force
+        Copy-Item (Join-Path $BinPath '*.pdb') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+        Copy-Item (Join-Path $BinPath '*.dll.config') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+        Copy-Item (Join-Path $BinPath '*.dep') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+        Copy-Item (Join-Path $BinPath '*.deps.json') -Destination $collectionFolder -Force -ErrorAction SilentlyContinue
+    }
 
     Push-Location $collectionFolder
     try {
@@ -692,4 +810,4 @@ Export-ModuleMember -Function Invoke-ContensiveBuild, Invoke-ContensiveDeploy, `
                                Get-ContensiveVersion, Find-MSBuild, `
                                New-DeploymentFolder,  Invoke-ZipFolder, `
                                Invoke-MSBuildSolution, Invoke-DotnetBuildSolution, `
-                               Get-ContensiveRemoteDeployTarget
+                               Get-ContensiveRemoteDeployTarget, Publish-NuGetDevPackages

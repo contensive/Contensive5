@@ -221,6 +221,11 @@ namespace Contensive.Processor.Controllers {
                                             //
                                             string defaultFieldTypeName = ContentFieldMetadataModel.getFieldTypeNameFromFieldTypeId(core, DefaultMetaDataField.fieldTypeId);
                                             string fieldTypeName = XmlController.getXMLAttribute(core, MetaDataChildNode, "FieldType", defaultFieldTypeName);
+                                            //
+                                            // -- if fieldType is not provided, default to "text"
+                                            if (string.IsNullOrEmpty(fieldTypeName)) {
+                                                fieldTypeName = "text";
+                                            }
                                             metaDataField.fieldTypeId = core.db.getFieldTypeIdFromFieldTypeName(fieldTypeName);
                                             //
                                             // -- editSortPriority: read as string to detect blank/missing attribute
@@ -237,7 +242,13 @@ namespace Contensive.Processor.Controllers {
                                             }
                                             string cdefFieldAuthorableText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Authorable", "");
                                             metaDataField.authorable = string.IsNullOrEmpty(cdefFieldAuthorableText) ? true : getBoolean(cdefFieldAuthorableText);
-                                            metaDataField.caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
+                                            string caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
+                                            //
+                                            // -- if caption is not provided, default to the field name
+                                            if (string.IsNullOrEmpty(caption)) {
+                                                caption = FieldName;
+                                            }
+                                            metaDataField.caption = caption;
                                             metaDataField.defaultValue = XmlController.getXMLAttribute(core, MetaDataChildNode, "DefaultValue", DefaultMetaDataField.defaultValue);
                                             metaDataField.notEditable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "NotEditable", DefaultMetaDataField.notEditable);
                                             metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);
@@ -261,7 +272,7 @@ namespace Contensive.Processor.Controllers {
                                                 // -- allow typo where "memberselectgroupid" is set to the name
                                                 memberSelectGroup = XmlController.getXMLAttribute(core, MetaDataChildNode, "MemberSelectGroupId", "");
                                                 if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup != "0") && getInteger(memberSelectGroup) == 0) {
-                                                    logger.Warn($"{core.logCommonMessage}", new GenericException("CollectionInstallMetadataController.loadXML, error in collection file [" + collectionName + "], the content field [" + targetMetaData.name + "." + DefaultMetaDataField.nameLc + "], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'"));
+                                                    logger.Warn($"{core.logCommonMessage}, CollectionInstallMetadataController.loadXML, error in collection file [{collectionName}], the content field [{targetMetaData.name}.{DefaultMetaDataField.nameLc}], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'");
                                                     metaDataField.memberSelectGroupName_set(core, memberSelectGroup);
                                                 }
                                             }
@@ -663,9 +674,23 @@ namespace Contensive.Processor.Controllers {
                 logger.Info($"{core.logCommonMessage},metadata Load, stage 5: verify 'Content' content definition");
                 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 //
+                // -- pre-load lookup models used by verifyContent_returnId to avoid per-CDef ORM queries
+                var tableCache = DbBaseModel.createList<TableModel>(core.cpParent, "(1=1)")
+                    .GroupBy(t => (t.name ?? "").ToLowerInvariant())
+                    .Where(g => !string.IsNullOrEmpty(g.Key))
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                var sortMethodCacheByName = DbBaseModel.createList<SortMethodModelx>(core.cpParent, "(1=1)")
+                    .GroupBy(s => (s.name ?? "").ToLowerInvariant())
+                    .Where(g => !string.IsNullOrEmpty(g.Key))
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                var sortMethodCacheByClause = DbBaseModel.createList<SortMethodModelx>(core.cpParent, "(1=1)")
+                    .Where(s => !string.IsNullOrEmpty(s.orderByClause))
+                    .GroupBy(s => s.orderByClause.ToLowerInvariant())
+                    .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+                //
                 foreach (var keypairvalue in Collection.metaData) {
                     if (keypairvalue.Value.name.ToLowerInvariant() == "content") {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, false);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                         break;
                     }
                 }
@@ -686,7 +711,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if ((fieldChanged || workingMetaData.dataChanged) && (workingMetaData.name.ToLowerInvariant() != "content")) {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, false);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                     }
                 }
                 core.cacheRuntime.clear();
@@ -841,7 +866,14 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Update a table from a collection metadata node
         /// </summary>
-        internal static void installMetaDataMiniCollection_buildDb_saveMetaDataToDb(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext, bool invalidateCache = true) {
+        internal static void installMetaDataMiniCollection_buildDb_saveMetaDataToDb(
+                CoreController core,
+                ContentMetadataModel contentMetadata,
+                string logMsgContext,
+                bool invalidateCache = true,
+                Dictionary<string, TableModel> tableCache = null,
+                Dictionary<string, SortMethodModelx> sortMethodCacheByName = null,
+                Dictionary<string, SortMethodModelx> sortMethodCacheByClause = null) {
             try {
                 //
                 logMsgContext += ", updating db metadata for content [" + contentMetadata.name + "]";
@@ -851,9 +883,8 @@ namespace Contensive.Processor.Controllers {
                 {
                     if (contentMetadata.dataChanged) {
                         //
-                        // -- update definition (use SingleRecord as an update flag)
-                        var datasource = DataSourceModel.createByUniqueName(core.cpParent, contentMetadata.dataSourceName);
-                        ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext, invalidateCache);
+                        // -- update definition
+                        ContentMetadataModel.verifyContent_returnId(core, contentMetadata, logMsgContext, invalidateCache, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                     }
                     //
                     // -- update Content Field Records and Content Field Help records

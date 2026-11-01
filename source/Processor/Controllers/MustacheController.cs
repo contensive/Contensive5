@@ -1,38 +1,52 @@
-﻿
-//using Stubble.Core.Builders;
-using System.IO;
-using System.Text;
 
+using System;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
-    /// Templating methods (Mustache, Stubble, Handlebars - need signed, and framework+core or standard)
+    /// Templating controller. Renders Mustache templates using either Nustache (legacy) or Stubble,
+    /// controlled by the site property "mustache with stubble" (default false = Nustache).
     /// </summary>
-    public static class MustacheController {
-        public static string renderStringToString(string template, object dataSet) {
-            //
+    public class MustacheController {
+        //
+        private readonly CPClass cp;
+        //
+        /// <summary>
+        /// Lazy-initialized Stubble renderer. Using Lazy avoids loading the Stubble assembly
+        /// at class-initialization time, which would fail in strong-named environments (net48/IIS)
+        /// if Stubble.Core.dll is not re-signed. The assembly is only loaded when the toggle is on.
+        /// </summary>
+        private static readonly Lazy<object> stubbleRenderer = new Lazy<object>(() => {
+            return new Stubble.Core.Builders.StubbleBuilder()
+                .Configure(settings => {
+                    settings.SetIgnoreCaseOnKeyLookup(true);
+                })
+                .Build();
+        });
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Constructor. Requires a CPClass instance to read the site property toggle.
+        /// </summary>
+        public MustacheController(CPClass cp) {
+            this.cp = cp;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render a Mustache template with the given data object.
+        /// Uses Stubble when site property "mustache with stubble" is true, otherwise Nustache.
+        /// </summary>
+        public string renderStringToString(string template, object dataSet) {
             if (string.IsNullOrEmpty(template)) {
                 return string.Empty;
             }
             if (dataSet is null) {
                 return template;
             }
-            //
-            // -- stubble (is not signed, manually signed but cannot add to nuget package)
-            // -- consider using ILRepack to merge the unsigned assembly into the signed assembly (copilot suggests this)
-            //
-            //var stubble = new StubbleBuilder().Build();
-            //return stubble.Render(template, dataSet);
-            //
-            // -- Nustache, no net480 version (no standard2.0 version)
-            //
+            if (cp.Site.GetBoolean("mustache with stubble")) {
+                return ((Stubble.Core.StubbleVisitorRenderer)stubbleRenderer.Value).Render(template, dataSet);
+            }
             return Nustache.Core.Render.StringToString(template, dataSet);
-            //
-            // -- does not follow mustache spec ( sections are {{#each item}}{{/each}} not {{#item}}{{/item}} )
-            // -- maybe it does follow the spec if array, not list
-            //
-            //var templateCompiled = Handlebars.Compile(template);
-            //return templateCompiled(dataSet);
         }
         //
         //====================================================================================================

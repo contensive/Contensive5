@@ -132,7 +132,7 @@ namespace Contensive.Processor.Addons.Tools {
                             }
                             //
                             statusMessage = statusMessage + "<div>&nbsp;</div>"
-                                + "<div>Your new content is ready. <a href=\"?" + rnAdminForm + "=22\">Click here</a> to create another Content Definition, or hit [Cancel] to return to the main menu.</div>";
+                                + "<div>Your new content is ready. <a href=\"?addonGuid={A1A2EC13-2DCD-4EC5-84DE-379A09B31517}\">Click here</a> to create another Content Definition, or hit [Cancel] to return to the main menu.</div>";
                             ButtonList = ButtonCancel;
                             BlockForm = true;
                         }

@@ -32,7 +32,6 @@ namespace Contensive.CLI {
             Console.Write(GetCacheCmd.helpText);
             Console.Write(HousekeepCmd.helpText);
             Console.Write(IisRecycleCmd.helpText);
-            Console.Write(IisResetCmd.helpText);
             Console.Write(InstallCmd.helpText);
             Console.Write(InstallFileCmd.helpText);
             Console.Write(MigrateWebrootCmd.helpText);

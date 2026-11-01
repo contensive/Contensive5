@@ -62,8 +62,16 @@ namespace Contensive.Processor.Controllers {
         /// <param name="buttonClass"></param>
         /// <returns></returns>
         public static string getButton(string buttonName, string buttonValue, string buttonId, string buttonClass) {
-            //afwButton 
+            //afwButton
             return "<input type=\"submit\" name=\"" + buttonName + "\" value=\"" + buttonValue + "\" id=\"" + buttonId + "\" class=\"btn btn-primary mr-1 me-1 mb-1 btn-sm " + buttonClass + "\">";
+        }
+        //
+        /// <summary>
+        /// Create a client-side button (type="button") that does not submit the form.
+        /// Attach JavaScript behavior in the layout HTML using the buttonId or buttonClass.
+        /// </summary>
+        public static string getClientButton(string buttonName, string buttonValue, string buttonId, string buttonClass) {
+            return $"<button type=\"button\" name=\"{buttonName}\" id=\"{buttonId}\" class=\"btn btn-primary mr-1 me-1 mb-1 btn-sm {buttonClass}\">{buttonValue}</button>";
         }
         //
         public static string getButtonBar(List<string> buttons) {

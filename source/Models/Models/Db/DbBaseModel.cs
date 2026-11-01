@@ -521,6 +521,18 @@ namespace Contensive.Models.Db {
                 var sqlList = new System.Collections.Specialized.NameValueCollection {
                     { "ccguid", cp.Db.EncodeSQLText(ccguid) }
                 };
+                //
+                // -- look up the contentcontrolid for this model's content definition
+                // so the new record is assigned to the correct sub-content (e.g. "Page Templates" vs "Email Templates")
+                string contentName = derivedContentName(typeof(T));
+                using (var dtContent = cp.Db.ExecuteQuery($"select id from cccontent where name={cp.Db.EncodeSQLText(contentName)}")) {
+                    if (dtContent?.Rows != null && dtContent.Rows.Count > 0) {
+                        int contentId = cp.Utils.EncodeInteger(dtContent.Rows[0]["id"]);
+                        if (contentId > 0) {
+                            sqlList.Add("contentcontrolid", cp.Db.EncodeSQLNumber(contentId));
+                        }
+                    }
+                }
                 cp.Db.Insert(tableName, sqlList, cp.User.IdInSession);
                 cp.Cache.Invalidate(cp.Cache.CreateTableDependencyKey(tableName, derivedDataSourceName(typeof(T))));
                 //

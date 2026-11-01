@@ -1,0 +1,469 @@
+# repo-catalog.yml
+# Stable metadata for all repos that participate in the monthly Contensive release.
+# This file is the source of truth for tier assignments, package production/consumption,
+# and exclusions. new-release.ps1 reads this to generate a fresh release-manifest.yml.
+#
+# Tier definitions:
+#   0 - Foundation: produces core packages (CPBaseClass, DbModels, Processor)
+#   1 - Shared libraries: produces packages consumed by other addons
+#   2 - Leaf addons with C# code: consumes packages but produces none others depend on
+#   3 - Data/UI-only collections: no C# build, just collection XML and assets
+
+repos:
+  # ==========================================================================
+  # TIER 0 - Foundation
+  # ==========================================================================
+  - name: Contensive5
+    path: C:\Git\Contensive5
+    tier: 0
+    produces:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.Processor
+    depends_on: []
+
+  # ==========================================================================
+  # TIER 1 - Shared Libraries (build in this order)
+  # ==========================================================================
+  - name: aoMCP
+    path: C:\Git\aoMCP
+    tier: 1
+    produces:
+      - Contensive.Addons.Mcp.Shared
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+
+  - name: aoCrm
+    path: C:\Git\aoCrm
+    tier: 1
+    produces:
+      - Contensive.CRM
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.Processor
+      - Contensive.Addons.Mcp.Shared
+
+  - name: aoDesignBlocks
+    path: C:\Git\aoDesignBlocks
+    tier: 1
+    produces:
+      - Contensive.DesignBlockBase
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.CRM
+      - Contensive.Addons.Mcp.Shared
+
+  - name: aoEcommerce
+    path: C:\Git\aoEcommerce
+    tier: 1
+    produces:
+      - Contensive.EcommerceApi
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.DesignBlockBase
+
+  # ==========================================================================
+  # TIER 2 - Leaf Addons with C# Code
+  # ==========================================================================
+  - name: aoAddonManager
+    path: C:\Git\aoAddonManager
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoAnalytics
+    path: C:\Git\aoAnalytics
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoBlog
+    path: C:\Git\aoBlog
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoCalender2
+    path: C:\Git\aoCalender2
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoCodeMirrorEditor
+    path: C:\Git\aoCodeMirrorEditor
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoContactManager
+    path: C:\Git\aoContactManager
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoContentPortal
+    path: C:\Git\aoContentPortal
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoDashboard
+    path: C:\Git\aoDashboard
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoDistanceLearning
+    path: C:\Git\aoDistanceLearning
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoFilemanager
+    path: C:\Git\aoFilemanager
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoFormWizard
+    path: C:\Git\aoFormWizard
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoHelpCenter
+    path: C:\Git\aoHelpCenter
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoHtmlImport
+    path: C:\Git\aoHtmlImport
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoImportWizard
+    path: C:\Git\aoImportWizard
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoLibrary
+    path: C:\Git\aoLibrary
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoMeetingManager
+    path: C:\Git\aoMeetingManager
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoMemberBoss
+    path: C:\Git\aoMemberBoss
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoMembershipApplication
+    path: C:\Git\aoMembershipApplication
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoMembershipManager
+    path: C:\Git\aoMembershipManager
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoMenuCrm
+    path: C:\Git\aoMenuCrm
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoMenuing
+    path: C:\Git\aoMenuing
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoNewsletter2
+    path: C:\Git\aoNewsletter2
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoPageBuilder
+    path: C:\Git\aoPageBuilder
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoPersonalization
+    path: C:\Git\aoPersonalization
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoPortalFramework
+    path: C:\Git\aoPortalFramework
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoReCAPTCHA
+    path: C:\Git\aoReCAPTCHA
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoRedactorEditor
+    path: C:\Git\aoRedactorEditor
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoReporting
+    path: C:\Git\aoReporting
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoRSS
+    path: C:\Git\aoRSS
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoSamples
+    path: C:\Git\aoSamples
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoSecurity
+    path: C:\Git\aoSecurity
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoShare
+    path: C:\Git\aoShare
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoSiteMonitor
+    path: C:\Git\aoSiteMonitor
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoTextSearch2
+    path: C:\Git\aoTextSearch2
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoThemes
+    path: C:\Git\aoThemes
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoToolPanel
+    path: C:\Git\aoToolPanel
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoTools
+    path: C:\Git\aoTools
+    tier: 2
+    produces: []
+    depends_on: []
+
+  - name: aoWhosOnline
+    path: C:\Git\aoWhosOnline
+    tier: 2
+    produces: []
+    depends_on: []
+
+  # ==========================================================================
+  # TIER 3 - Data/UI-Only Collections
+  # ==========================================================================
+  - name: aoAngularJs
+    path: C:\Git\aoAngularJs
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoArticleLibrary
+    path: C:\Git\aoArticleLibrary
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoBootstrap
+    path: C:\Git\aoBootstrap
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoCallToAction
+    path: C:\Git\aoCallToAction
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoCatalog
+    path: C:\Git\aoCatalog
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoDonations
+    path: C:\Git\aoDonations
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoEmailBlockedReport
+    path: C:\Git\aoEmailBlockedReport
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoEmailBounceProcess
+    path: C:\Git\aoEmailBounceProcess
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoEvents
+    path: C:\Git\aoEvents
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoGoogleAnalytics
+    path: C:\Git\aoGoogleAnalytics
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoGridly
+    path: C:\Git\aoGridly
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoGridstack
+    path: C:\Git\aoGridstack
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoJQuery
+    path: C:\Git\aoJQuery
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoLists
+    path: C:\Git\aoLists
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoLoginLightbox
+    path: C:\Git\aoLoginLightbox
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoMeetingManagerMobileApp
+    path: C:\Git\aoMeetingManagerMobileApp
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoNewsStories
+    path: C:\Git\aoNewsStories
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoOwlCarousel
+    path: C:\Git\aoOwlCarousel
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoPageExtension
+    path: C:\Git\aoPageExtension
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoPageNavigation2
+    path: C:\Git\aoPageNavigation2
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoPeopleMergeTool
+    path: C:\Git\aoPeopleMergeTool
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoPrefs
+    path: C:\Git\aoPrefs
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoProcessEmail
+    path: C:\Git\aoProcessEmail
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoSEOSiteMap
+    path: C:\Git\aoSEOSiteMap
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoSocialMedia
+    path: C:\Git\aoSocialMedia
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoSpider
+    path: C:\Git\aoSpider
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoTemplateManager
+    path: C:\Git\aoTemplateManager
+    tier: 3
+    produces: []
+    depends_on: []
+
+  - name: aoVisitTracking
+    path: C:\Git\aoVisitTracking
+    tier: 3
+    produces: []
+    depends_on: []

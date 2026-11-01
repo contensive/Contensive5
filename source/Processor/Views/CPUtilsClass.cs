@@ -112,10 +112,9 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
-        public override void IISReset()  {
-            {
-                cp.core.webServer.reset();
-            }
+        [Obsolete("Use IISRecycle() instead. IISReset is no longer supported.", false)]
+        public override void IISReset() {
+            // -- no-op, IISReset functionality has been removed
         }
         //
         // ====================================================================================================

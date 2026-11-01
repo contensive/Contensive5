@@ -1,6 +1,7 @@
 
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using Contensive.Processor.Controllers;
 using System;
 
 namespace Contensive.Processor.Addons.CustomBlocking {
@@ -23,36 +24,34 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         errorMessage = "Please enter your access code."
                     };
                 }
-                //
-                // -- find matching OTP record (unused, any expiration)
-                string otpQuery = $"select top 1 id, expires from ccLoginByEmailOtp where email={cp.Db.EncodeSQLText(emailInput)} and otp={cp.Db.EncodeSQLText(otpInput)} and (used=0 or used is null) order by id desc";
-                int otpRecordId = 0;
-                DateTime otpExpires = DateTime.MinValue;
-                using (var cs = cp.CSNew()) {
-                    if (cs.OpenSQL(otpQuery)) {
-                        otpRecordId = cs.GetInteger("id");
-                        otpExpires = cs.GetDate("expires");
-                    }
+                if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)) {
+                    return new SubmitLoginByEmailNewUserOtpResult {
+                        success = false,
+                        errorMessage = "First name and last name are required."
+                    };
                 }
-                if (otpRecordId == 0) {
+                //
+                // -- verify OTP code
+                var verifyResult = LoginByEmailOtpController.verifyOtp(cp, emailInput, otpInput);
+                if (!verifyResult.valid) {
+                    if (verifyResult.tooManyAttempts) {
+                        return new SubmitLoginByEmailNewUserOtpResult {
+                            success = false,
+                            expired = true,
+                            errorMessage = "Too many incorrect attempts. Please request a new code."
+                        };
+                    }
+                    if (verifyResult.expired) {
+                        return new SubmitLoginByEmailNewUserOtpResult {
+                            success = false,
+                            expired = true,
+                            errorMessage = "Your access code has expired. Please request a new code."
+                        };
+                    }
                     return new SubmitLoginByEmailNewUserOtpResult {
                         success = false,
                         errorMessage = "Invalid access code. Please check your code and try again."
                     };
-                }
-                if (otpExpires < DateTime.Now) {
-                    return new SubmitLoginByEmailNewUserOtpResult {
-                        success = false,
-                        expired = true,
-                        errorMessage = "Your access code has expired. Please request a new code."
-                    };
-                }
-                //
-                // -- mark OTP as used
-                var otpRecord = DbBaseModel.create<LoginByEmailOtpModel>(cp, otpRecordId);
-                if (otpRecord != null) {
-                    otpRecord.used = true;
-                    otpRecord.save(cp);
                 }
                 //
                 // -- check if the current session user already has an email
@@ -101,7 +100,43 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                     newUser.save(cp);
                     loginUserId = newUser.id;
                 }
-                cp.User.LoginByID(loginUserId);
+                //
+                // -- block admin/developer OTP login
+                var loginUser = DbBaseModel.create<PersonModel>(cp, loginUserId);
+                if (loginUser != null && (loginUser.admin || loginUser.developer)) {
+                    return new SubmitLoginByEmailNewUserOtpResult {
+                        success = false,
+                        errorMessage = "Admin and developer accounts require password login."
+                    };
+                }
+                //
+                // -- promote contact to prospect (unqualified)
+                if (loginUser != null) {
+                    loginUser.personTypeId = (int)PersonTypeEnum.Contact;
+                    loginUser.save(cp);
+                }
+                cp.Group.AddUser("{208E01F2-F8F7-4DDE-B423-91EA6ACE0FCB}", loginUserId);
+                //
+                // -- add completed activity: registered via OTP
+                cp.Site.AddActivity(
+                    "Registered via email verification",
+                    $"{firstName} {lastName} ({emailInput}) registered through email OTP verification on a blocked page.",
+                    loginUserId,
+                    (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate
+                );
+                //
+                // -- add scheduled activity: contact new registration
+                cp.Site.AddActivity(
+                    "Contact new registration",
+                    $"New registration: {firstName} {lastName} ({emailInput}). Please follow up with this contact.",
+                    loginUserId,
+                    (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate,
+                    DateTime.Now,
+                    0,
+                    0
+                );
+                //
+                AuthController.loginByIdWithMethod(((CPClass)cp).core, ((CPClass)cp).core.session, loginUserId, false, "otp");
                 return new SubmitLoginByEmailNewUserOtpResult {
                     success = true,
                     successMessage = "Your account has been created and you have been logged in."

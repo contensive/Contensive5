@@ -12,6 +12,7 @@ using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using Contensive.Processor.Addons.PageManager;
 using Contensive.Processor.Views;
+using Contensive.Processor.Models;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -512,7 +513,7 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
                                 if (dataSet != null) {
-                                    templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                                    templateHtml = core.cpParent.Mustache.Render(templateHtml, dataSet);
                                 }
                             } catch (Newtonsoft.Json.JsonException) {
                                 //
@@ -1113,7 +1114,10 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- render addonList
-                        resultInnerContent.Append(AddonListItemModel_Dup.render(core, core.doc.pageController.page.addonList));
+                        var addonList = core.cpParent.JSON.Deserialize<List<AddonListItemModel>>(core.doc.pageController.page.addonList);
+                        resultInnerContent.Append(AddonListItemModel.render(core.cpParent,  addonList, new CPUtilsBaseClass.addonExecuteContext {
+                            addonType = CPUtilsBaseClass.addonContext.ContextPage
+                        }));
                     }
                 }
                 // -- End Text Search
@@ -1335,21 +1339,53 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- get template from pages
                 core.doc.pageController.template = null;
-                foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
-                    if (page.templateId > 0) {
-                        core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, page.templateId);
+                bool isLandingPage = requestedPageId.Equals(0);
+                if (isLandingPage) {
+                    //
+                    // -- landing page: check page record template, then default landing page template
+                    if (requestedPage.templateId > 0) {
+                        core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, requestedPage.templateId);
                         if (core.doc.pageController.template == null) {
                             //
                             // -- templateId is not valid
-                            page.templateId = 0;
-                            page.save(core.cpParent);
+                            requestedPage.templateId = 0;
+                            requestedPage.save(core.cpParent);
                         } else {
-                            if (page == core.doc.pageController.pageToRootList.First()) {
-                                core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
-                            } else {
-                                core.doc.pageController.templateReason = "This template was used because it is selected one of this page's parents [" + page.name + "].";
+                            core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
+                        }
+                    }
+                    if (core.doc.pageController.template == null) {
+                        //
+                        // -- landing page: check default landing page template site property
+                        int landingTemplateId = core.siteProperties.defaultLandingPageTemplateId;
+                        if (landingTemplateId > 0) {
+                            core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, landingTemplateId);
+                            if (core.doc.pageController.template != null) {
+                                core.doc.pageController.templateReason = "This template was used because it is the default landing page template.";
                             }
-                            break;
+                        }
+                    }
+                    //
+                    // -- if still null, fall through to standard fallback chain below
+                } else {
+                    //
+                    // -- non-landing page: walk parent chain
+                    foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
+                        if (page.templateId > 0) {
+                            core.doc.pageController.template = DbBaseModel.create<PageTemplateModel>(core.cpParent, page.templateId);
+                            if (core.doc.pageController.template == null) {
+                                //
+                                // -- templateId is not valid
+                                page.templateId = 0;
+                                page.save(core.cpParent);
+                            } else {
+                                if (page == core.doc.pageController.pageToRootList.First()) {
+                                    core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
+                                } else {
+                                    core.doc.pageController.templateReason = $"This template was used because it is selected one of this page's parents [{page.name}].";
+                                }
+                                break;
+                            }
                         }
                     }
                 }
@@ -1826,7 +1862,7 @@ namespace Contensive.Processor.Controllers {
                         // Authenticate
                         //
                         if (pageForm.authenticateOnFormProcess) {
-                            AuthController.authenticateById(core, core.session, core.session.user.id);
+                            AuthController.authenticateById(core, core.session, core.session.user.id, "form");
                         }
                         //
                         // Join Group requested by page that created form

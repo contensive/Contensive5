@@ -1,5 +1,6 @@
 
 using Contensive.BaseClasses;
+using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using System;
 
@@ -25,6 +26,13 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                 // -- verify OTP code
                 var verifyResult = LoginByEmailOtpController.verifyOtp(cp, emailInput, otpInput);
                 if (!verifyResult.valid) {
+                    if (verifyResult.tooManyAttempts) {
+                        return new SubmitLoginByEmailOtpResult {
+                            success = false,
+                            expired = true,
+                            errorMessage = "Too many incorrect attempts. Please request a new code."
+                        };
+                    }
                     if (verifyResult.expired) {
                         return new SubmitLoginByEmailOtpResult {
                             success = false,
@@ -46,7 +54,16 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                         errorMessage = "User account not found."
                     };
                 }
-                cp.User.LoginByID(userId);
+                //
+                // -- block admin/developer OTP login
+                var user = DbBaseModel.create<PersonModel>(cp, userId);
+                if (user != null && (user.admin || user.developer)) {
+                    return new SubmitLoginByEmailOtpResult {
+                        success = false,
+                        errorMessage = "Admin and developer accounts require password login."
+                    };
+                }
+                AuthController.loginByIdWithMethod(((CPClass)cp).core, ((CPClass)cp).core.session, userId, false, "otp");
                 return new SubmitLoginByEmailOtpResult {
                     success = true,
                     successMessage = "You have been logged in successfully."

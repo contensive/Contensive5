@@ -1552,9 +1552,19 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
             layoutBuilderBase.addFormButton(buttonValue, buttonName, buttonId, buttonClass);
         }
-        /// <summary>  
-        /// You should avoid setting the body directly. Instead, use the addRow() and setCell() methods to populate the body.  
-        /// Automatically calls the body property of the inherited class.  
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue) => addClientButton(buttonValue, "", "", "");
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue, string buttonName) => addClientButton(buttonValue, buttonName, "", "");
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue, string buttonName, string buttonId) => addClientButton(buttonValue, buttonName, buttonId, "");
+        /// <inheritdoc />
+        public override void addClientButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
+            layoutBuilderBase.addClientButton(buttonValue, buttonName, buttonId, buttonClass);
+        }
+        /// <summary>
+        /// You should avoid setting the body directly. Instead, use the addRow() and setCell() methods to populate the body.
+        /// Automatically calls the body property of the inherited class.
         /// </summary>  
         public override string body {
             get => layoutBuilderBase.body;

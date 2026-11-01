@@ -1572,7 +1572,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encodeEmailSubjectText(CoreController core, string subject, PersonModel recipientNullable, object bodyRenderData) {
             if (string.IsNullOrWhiteSpace(subject)) { return ""; }
-            subject = MustacheController.renderStringToString(subject, bodyRenderData);
+            subject = core.cpParent.Mustache.Render(subject, bodyRenderData);
             subject = ContentRenderController.renderHtmlForEmail(core, subject, recipientNullable, "", false);
             return subject;
         }
@@ -1596,7 +1596,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- body
             if (!string.IsNullOrWhiteSpace(body)) {
-                body = MustacheController.renderStringToString(body, bodyRenderData);
+                body = core.cpParent.Mustache.Render(body, bodyRenderData);
                 body = ContentRenderController.renderHtmlForEmail(core, body, recipientNullable, queryStringForLinkAppend, addLinkAuthToAllLinks);
             }
             //

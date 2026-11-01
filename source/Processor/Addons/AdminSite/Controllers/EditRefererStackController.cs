@@ -98,12 +98,41 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
             if (string.IsNullOrEmpty(editRefererStackEncoded)) {
                 string referer = core.webServer.requestReferer;
                 if (!string.IsNullOrEmpty(referer)) {
+                    referer = stripOneTimeActionParams(referer);
                     editRefererStackEncoded = push("", referer);
                 }
             }
             if (!string.IsNullOrEmpty(editRefererStackEncoded)) {
                 core.doc.addRefreshQueryString(RequestNameEditRefererStack, editRefererStackEncoded);
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Strip one-time filter/sort action parameters from a URL so they are not
+        /// replayed when the URL is used as a return-navigation target.
+        /// These parameters (e.g. IndexFilterRemoveAll) are processed once on the
+        /// list page and should not persist in the referer stack.
+        /// </summary>
+        private static string stripOneTimeActionParams(string url) {
+            string[] paramsToStrip = {
+                "IndexFilterRemoveAll",
+                "IndexFilterRemoveFind",
+                "IndexFilterRemoveCDef",
+                "IndexFilterRemoveGroup",
+                "IndexFilterAddCDef",
+                "IndexFilterAddGroup",
+                "IndexSortRemoveAll",
+                "IndexFilterActiveOnly",
+                "IndexFilterLastEditedByMe",
+                "IndexFilterLastEditedToday",
+                "IndexFilterLastEditedPast7Days",
+                "IndexFilterLastEditedPast30Days"
+            };
+            foreach (string param in paramsToStrip) {
+                url = GenericController.modifyLinkQuery(url, param, "", false);
+            }
+            return url;
         }
     }
 }

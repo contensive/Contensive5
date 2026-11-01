@@ -34,7 +34,8 @@
 param(
     [string]$SourcePath = $PSScriptRoot,
     [string]$InstallPath = "$env:ProgramFiles\Contensive",
-    [string]$ServiceName = "Contensive Task Service"
+    [string]$ServiceName = "Contensive Task Service",
+    [switch]$SkipServiceStart
 )
 
 $ErrorActionPreference = "Stop"
@@ -68,7 +69,13 @@ if (-not (Test-Path $installScript)) {
     Write-Host "ERROR: install.ps1 not found at $installScript" -ForegroundColor Red
     exit 1
 }
-& $installScript -SourcePath $SourcePath -InstallPath $InstallPath -ServiceName $ServiceName
+$installArgs = @{
+    SourcePath  = $SourcePath
+    InstallPath = $InstallPath
+    ServiceName = $ServiceName
+}
+if ($SkipServiceStart) { $installArgs.SkipServiceStart = $true }
+& $installScript @installArgs
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Green

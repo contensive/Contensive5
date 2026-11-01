@@ -56,10 +56,15 @@ namespace Contensive.CLI {
                     AppConfigModel app = (AppConfigModel)kvp.Value;
                     Console.WriteLine("    name: " + app.name);
                     Console.WriteLine("        enabled: " + app.enabled);
+                    Console.WriteLine("        status: " + app.appStatus);
+                    Console.WriteLine("        delete protection: " + app.deleteProtection);
+                    if (app.appStatus != AppConfigModel.AppStatusEnum.ok) {
+                        Console.WriteLine("        (app is not ready -- status is not ok, skipping details)");
+                        continue;
+                    }
                     try {
                         using (CPClass cp = new CPClass(app.name)) {
                             Console.WriteLine("        data version: " + cp.Site.GetText("BUILDVERSION"));
-                            Console.WriteLine("        delete protection: " + app.deleteProtection);
                             Console.WriteLine("        admin route: " + app.adminRoute);
                             Console.WriteLine("        local file storage");
                             Console.WriteLine("            www (app) path: " + app.localWwwPath);

@@ -114,9 +114,9 @@ namespace Contensive.Processor.Controllers {
                         }
                         break;
                     }
+                case "cdnfiles":
                 case "cdn":
                 case "cdnfile":
-                case "cdnfiles":
                 case "file":
                 case "files":
                 case "content": {
@@ -430,6 +430,83 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Validate that recognized UI zip files (layoutFiles.zip, wwwFiles.zip, etc.) have correctly
+        /// configured Resource nodes in the collection XML. Logs warnings for misconfigured nodes.
+        /// </summary>
+        internal static void validateResourceNodes(CoreController core, string collectionName, string collectionGuid, string collectionVersionFolder, XmlDocument collectionXml) {
+            //
+            // -- recognized UI zip filenames and their expected resource type (matching the filename without ".zip")
+            var recognizedZips = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                { "layoutFiles.zip", "layoutFiles" },
+                { "wwwFiles.zip", "wwwFiles" },
+                { "cdnFiles.zip", "cdnFiles" },
+                { "privateFiles.zip", "privateFiles" },
+                { "helpFiles.zip", "helpFiles" }
+            };
+            //
+            // -- find which recognized zip files exist in the collection folder
+            var existingZips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var file in core.privateFiles.getFileList(collectionVersionFolder)) {
+                if (recognizedZips.ContainsKey(file.Name)) {
+                    existingZips.Add(file.Name);
+                }
+            }
+            //
+            // -- build map of resource nodes: filename -> (type, path)
+            var resourceNodes = new Dictionary<string, (string type, string path)>(StringComparer.OrdinalIgnoreCase);
+            foreach (XmlNode node in collectionXml.DocumentElement.ChildNodes) {
+                if (node.Name.Equals("resource", StringComparison.OrdinalIgnoreCase)) {
+                    string name = XmlController.getXMLAttribute(core, node, "name", "");
+                    string type = XmlController.getXMLAttribute(core, node, "type", "");
+                    string path = XmlController.getXMLAttribute(core, node, "path", "");
+                    if (!string.IsNullOrEmpty(name)) {
+                        resourceNodes[name] = (type, path);
+                    }
+                }
+            }
+            //
+            // -- build map of valid type aliases for each zip file
+            var validTypeAliases = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            validTypeAliases["layoutFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "layoutfiles", "layoutfile", "layout" };
+            validTypeAliases["wwwFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "wwwfiles", "wwwfile", "wwwroot", "www" };
+            validTypeAliases["cdnFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "cdnfiles", "cdn", "cdnfile", "file", "files", "content" };
+            validTypeAliases["privateFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "privatefiles", "privatefile", "private" };
+            validTypeAliases["helpFiles.zip"] = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "helpfiles", "helpcenter", "helpcenterfile", "helpcenterfiles", "helpfile", "help" };
+            //
+            // -- validate each existing recognized zip file
+            foreach (string zipFilename in existingZips) {
+                string expectedType = recognizedZips[zipFilename];
+                var validAliases = validTypeAliases[zipFilename];
+
+                if (resourceNodes.ContainsKey(zipFilename)) {
+                    var (actualType, actualPath) = resourceNodes[zipFilename];
+                    bool typeMatches = validAliases.Contains(actualType);
+                    bool hasPath = !string.IsNullOrEmpty(actualPath);
+
+                    if (!typeMatches || hasPath) {
+                        //
+                        // -- resource node exists but is misconfigured
+                        string issues = "";
+                        if (!typeMatches) {
+                            issues += $"Type=\"{actualType}\" should be Type=\"{expectedType}\" (or a valid alias)";
+                        }
+                        if (hasPath) {
+                            if (issues.Length > 0) { issues += "; "; }
+                            issues += $"Path=\"{actualPath}\" should be omitted (no Path attribute)";
+                        }
+
+                        logger.Warn($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], " +
+                            $"Misconfigured collection: <Resource Name=\"{zipFilename}\" /> exists but is misconfigured. " +
+                            $"Issues: {issues}. " +
+                            $"Expected: <Resource Name=\"{zipFilename}\" Type=\"{expectedType}\" /> (without Path attribute). " +
+                            $"This file may not be processed correctly during installation.");
+                    }
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Save the resource manifest and clean up orphaned files from a previous version.
         /// Loads the old manifest, saves the new one, then deletes any files and empty folders
         /// that were in the old manifest but not in the new one.
@@ -542,6 +619,53 @@ namespace Contensive.Processor.Controllers {
             }
             foreach (var subFolder in core.tempFiles.getFolderList(folderPath)) {
                 prefixTempHelpFiles(core, $"{folderPath}{subFolder.Name}\\", helpPrefix);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Auto-install recognized UI zip files (layoutFiles.zip, wwwFiles.zip, cdnFiles.zip,
+        /// privateFiles.zip, helpFiles.zip) that exist in the collection folder but have no
+        /// matching Resource node in the collection XML. Creates a synthetic XmlNode and
+        /// delegates to installResourceNode so all existing install logic is reused.
+        /// </summary>
+        internal static void installRecognizedZipsWithoutResourceNodes(CoreController core, string collectionName, string collectionGuid, string collectionVersionFolder, XmlDocument collectionXml, ResourceManifestModel resourceManifest, HashSet<string> trackedFolders, List<string> assembliesInZip, ref string wwwFileList, ref string contentFileList, ref string execFileList, ref string layoutFileList) {
+            //
+            // -- recognized UI zip filenames and their expected resource type
+            var recognizedZips = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                { "layoutFiles.zip", "layoutFiles" },
+                { "wwwFiles.zip", "wwwFiles" },
+                { "cdnFiles.zip", "cdnFiles" },
+                { "privateFiles.zip", "privateFiles" },
+                { "helpFiles.zip", "helpFiles" }
+            };
+            //
+            // -- build set of zip filenames that already have a Resource node in the XML
+            var resourcedZips = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (XmlNode node in collectionXml.DocumentElement.ChildNodes) {
+                if (node.Name.Equals("resource", StringComparison.OrdinalIgnoreCase)) {
+                    string name = XmlController.getXMLAttribute(core, node, "name", "");
+                    if (recognizedZips.ContainsKey(name)) {
+                        resourcedZips.Add(name);
+                    }
+                }
+            }
+            //
+            // -- find recognized zips that exist in the folder but have no Resource node
+            foreach (var file in core.privateFiles.getFileList(collectionVersionFolder)) {
+                if (!recognizedZips.ContainsKey(file.Name)) { continue; }
+                if (resourcedZips.Contains(file.Name)) { continue; }
+                //
+                // -- this recognized zip has no Resource node; create a synthetic node and install it
+                string resourceType = recognizedZips[file.Name];
+                logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], auto-installing [{file.Name}] as resource type [{resourceType}] (no <Resource> node found in collection XML).");
+                //
+                var syntheticNode = collectionXml.CreateElement("Resource");
+                syntheticNode.SetAttribute("name", file.Name);
+                syntheticNode.SetAttribute("type", resourceType);
+                syntheticNode.SetAttribute("path", "");
+                //
+                installResourceNode(core, syntheticNode, collectionName, collectionGuid, collectionVersionFolder, resourceManifest, trackedFolders, assembliesInZip, ref wwwFileList, ref contentFileList, ref execFileList, ref layoutFileList);
             }
         }
         //

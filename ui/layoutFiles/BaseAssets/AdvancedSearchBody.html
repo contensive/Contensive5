@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="layout" content="Admin Advanced Search Body">
+    <meta name="layout-guid" content="{6070D858-6F8B-4311-9142-C4B195BF917A}">
+    <title>Admin Advanced Search Body</title>
+</head>
+<body>
+<div style="background-color:#f8f8f8;padding:5px;">
+    {{#fields}}
+    <div class="p-2 border-bottom">
+        <label>{{caption}}</label>
+        <div class="ms-5">
+            <div class="d-flex flex-wrap align-items-center">
+                {{#radioOptions}}
+                <label class="d-inline-flex align-items-center me-3">
+                    {{#isChecked}}
+                    <input type="radio" name="{{name}}" value="{{value}}" {{#radioId}}id="{{radioId}}"{{/radioId}} class="me-1" checked>
+                    {{/isChecked}}
+                    {{^isChecked}}
+                    <input type="radio" name="{{name}}" value="{{value}}" {{#radioId}}id="{{radioId}}"{{/radioId}} class="me-1">
+                    {{/isChecked}}
+                    {{{label}}}
+                </label>
+                {{/radioOptions}}
+                {{#hasValueInput}}
+                <div style="max-width:300px;flex:1 1 auto;">
+                    {{{valueInputHtml}}}
+                </div>
+                {{/hasValueInput}}
+            </div>
+        </div>
+    </div>
+    {{/fields}}
+</div>
+<script>
+    (function () {
+        var btn = document.getElementById("btnAdvSearchReset");
+        if (!btn) return;
+        var container = btn.closest("form") || document;
+        function isAllIgnore() {
+            var groups = {};
+            container.querySelectorAll("input[type='radio'][name^='FieldMatch']").forEach(function (r) {
+                if (!groups[r.name]) groups[r.name] = null;
+                if (r.checked) groups[r.name] = r.value;
+            });
+            for (var g in groups) {
+                if (groups[g] !== "0") return false;
+            }
+            return true;
+        }
+        function updateBtn() {
+            btn.disabled = isAllIgnore();
+        }
+        updateBtn();
+        container.addEventListener("change", function (e) {
+            if (e.target.type === "radio" && e.target.name.indexOf("FieldMatch") === 0) {
+                updateBtn();
+            }
+        });
+        btn.addEventListener("click", function () {
+            container.querySelectorAll("input[type='radio'][value='0']").forEach(function (radio) {
+                radio.checked = true;
+            });
+            container.querySelectorAll("input.ccAdvSearchText, input[name^='fieldvalue']").forEach(function (input) {
+                input.value = "";
+            });
+            updateBtn();
+        });
+    })();
+</script>
+</body>
+</html>

@@ -1,10 +1,16 @@
 <div class="p-2 ccEditRow">
-    <!-- list caption -->
-    <label for="name432">{{listCaption}}</label>
-    <!-- list -->
     <div class="ml-5 ms-5 ms-5">
         {{#hasExclusiveSets}}
-        <!-- Exclusive Set Groups (select dropdowns) -->
+        <!-- Exclusive Group Sets section -->
+        <h5 class="mt-2 mb-0">{{exclusiveSetsCaption}}</h5>
+        <p class="text-muted small mb-2">{{exclusiveSetsDescription}}</p>
+        <!-- Column headers for exclusive sets -->
+        <div class="row pb-1">
+            <div class="col-sm-3">&nbsp;</div>
+            <div class="col-sm-3">Expires</div>
+            <div class="col-sm-3">Role</div>
+            <div class="col-sm-3">&nbsp;</div>
+        </div>
         {{#exclusiveSetList}}
         <div class="mb-3">
             <h6 class="fw-bold border-bottom pb-1">{{setLabel}}</h6>
@@ -23,7 +29,9 @@
         </div>
         {{/exclusiveSetList}}
         {{/hasExclusiveSets}}
-        <!-- Normal Groups (checkboxes) -->
+        <!-- Individual Groups section -->
+        <h5 class="mt-3 mb-0">{{individualGroupsCaption}}</h5>
+        <p class="text-muted small mb-2">{{individualGroupsDescription}}</p>
         <div class="row pb-1">
             <!-- checkbox and group name -->
             <div class="col-sm-3">&nbsp;</div>

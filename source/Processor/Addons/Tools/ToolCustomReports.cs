@@ -69,7 +69,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Format = core.docProperties.getText("Format");
                 //
                 title = "Custom Report Tool";
-                Description = "Custom Reports are a way for you to create a snapshot of data to view or download. To request a report, select the Custom Reports tab, check the report(s) you want, and click the [Request Download] Button. When your report is ready, it will be available in the <a href=\"?" + rnAdminForm + "=30\">Download Manager</a>. To create a new custom report, select the Request New Report tab, enter a name and SQL statement, and click the Apply button.";
+                Description = "Custom Reports are a way for you to create a snapshot of data to view or download. To request a report, select the Custom Reports tab, check the report(s) you want, and click the [Request Download] Button. When your report is ready, it will be available in the <a href=\"?addonGuid={55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}\">Download Manager</a>. To create a new custom report, select the Request New Report tab, enter a name and SQL statement, and click the Apply button.";
                 SQLFieldName = "SQLQuery";
                 //
                 if (!core.session.isAuthenticatedAdmin()) {

@@ -443,6 +443,9 @@ namespace Contensive.Processor.Controllers {
                 // -- legacy methods=
                 string HardCodedPage = core.docProperties.getText(RequestNameHardCodedPage);
                 if (string.IsNullOrEmpty(HardCodedPage)) { return false; }
+                //
+                // -- block search-engine indexing for all method= URLs (login, OTP, etc.)
+                core.doc.noFollow = true;
                 switch (GenericController.toLCase(HardCodedPage)) {
                     case HardCodedPageLogout: {
                             //

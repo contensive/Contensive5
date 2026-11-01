@@ -21,6 +21,7 @@ docs/api/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
+!scripts/[Rr]elease/
 [Rr]eleases/
 x64/
 x86/
@@ -279,6 +280,10 @@ tests/e2e/playwright/.cache/
 
 # Processor build-output zip files (large, kept locally only)
 source/Processor/cdnFiles.zip
+source/Processor/helpFiles.zip
 source/Processor/layoutFiles.zip
 source/Processor/privateFiles.zip
 source/Processor/wwwFiles.zip
+ 
+# Collection zip files
+collections/**/*.zip

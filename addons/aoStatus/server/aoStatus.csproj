@@ -9,9 +9,9 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Contensive.CPBaseClass" Version="26.9.25.22751" />
-    <PackageReference Include="Contensive.DbModels" Version="26.9.25.22751" />
+    <PackageReference Include="Contensive.CPBaseClass" Version="26.10.8.29984" />
+    <PackageReference Include="Contensive.DbModels" Version="26.10.8.29984" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="AWSSDK.RDS" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.RDS" Version="4.0.106.2" />
   </ItemGroup>
 </Project>

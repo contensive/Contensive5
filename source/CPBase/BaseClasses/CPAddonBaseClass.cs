@@ -146,6 +146,34 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Execute an addon as a background task. Returns the task id for status tracking via cp.Task.GetStatus().
+        /// Timeout cascade: taskTimeout > 0 uses taskTimeout, else addon.processTimeout, else 1800 seconds (30 min).
+        /// </summary>
+        /// <param name="addonGuid">The guid of the addon to be executed.</param>
+        /// <param name="argumentKeyValuePairs">The executing addon can read these arguments with methods like cp.doc.getText("key").</param>
+        /// <param name="taskTimeout">Timeout in seconds. 0 means use the addon's processTimeout or the default 30 minutes.</param>
+        /// <returns>The task id for status tracking, or 0 if the task could not be queued.</returns>
+        public abstract int ExecuteAsProcessTask(string addonGuid, Dictionary<string, string> argumentKeyValuePairs, int taskTimeout);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task with default timeout. Returns the task id for status tracking via cp.Task.GetStatus().
+        /// </summary>
+        /// <param name="addonGuid">The guid of the addon to be executed.</param>
+        /// <param name="argumentKeyValuePairs">The executing addon can read these arguments with methods like cp.doc.getText("key").</param>
+        /// <returns>The task id for status tracking, or 0 if the task could not be queued.</returns>
+        public abstract int ExecuteAsProcessTask(string addonGuid, Dictionary<string, string> argumentKeyValuePairs);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Execute an addon as a background task with no arguments and default timeout. Returns the task id for status tracking via cp.Task.GetStatus().
+        /// </summary>
+        /// <param name="addonGuid">The guid of the addon to be executed.</param>
+        /// <returns>The task id for status tracking, or 0 if the task could not be queued.</returns>
+        public abstract int ExecuteAsProcessTask(string addonGuid);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Install addon collection from a file in private files
         /// </summary>
         /// <param name="tempPathFilename">The path and filename in the tempFiles store. A path starts with the folder name and ends with a slash (like myfolder\subfolder\)</param>
@@ -233,6 +261,57 @@ namespace Contensive.BaseClasses {
         /// <param name="returnUserError">If the export is successful, this returns string.empty.</param>
         /// <returns></returns>
         public abstract bool ExportCollection(string collectionGuid, ref string collectionZipCdnPathFilename, ref string returnUserError);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON into HTML for view mode using the default execute context.
+        /// The addonListJson is a JSON serialized List of AddonListItemModel objects stored in page and template records.
+        /// Returns the rendered HTML string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <returns>Rendered HTML</returns>
+        public abstract string RenderAddonList(string addonListJson);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON into HTML for view mode with an explicit execute context.
+        /// The addonListJson is a JSON serialized List of AddonListItemModel objects stored in page and template records.
+        /// Returns the rendered HTML string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <param name="executeContext">The context where the addons are being executed (on a page, in an email, etc.).</param>
+        /// <returns>Rendered HTML</returns>
+        public abstract string RenderAddonList(string addonListJson, CPUtilsBaseClass.addonExecuteContext executeContext);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Render the addonList JSON for edit mode. Each addon item is rendered and the renderedHtml and renderedAssets
+        /// properties are populated on the items. Returns the modified addonList as a JSON string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <param name="executeContext">The context where the addons are being executed.</param>
+        /// <returns>JSON serialized List of AddonListItemModel with renderedHtml and renderedAssets populated</returns>
+        public abstract string RenderEditAddonList(string addonListJson, CPUtilsBaseClass.addonExecuteContext executeContext);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Normalize the addonList JSON by clearing transient view properties (renderedHtml, renderedAssets)
+        /// and updating addon names from the database. Returns the cleaned addonList as a JSON string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <returns>JSON serialized List of AddonListItemModel with transient properties cleared</returns>
+        public abstract string NormalizeAddonList(string addonListJson);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Remove an addon instance from the addonList by its instanceGuid.
+        /// Traverses the list including nested column structures.
+        /// Returns the updated addonList as a JSON string.
+        /// </summary>
+        /// <param name="addonListJson">JSON serialized List of AddonListItemModel</param>
+        /// <param name="instanceGuid">The instanceGuid of the addon to remove</param>
+        /// <returns>JSON serialized List of AddonListItemModel with the instance removed</returns>
+        public abstract string DeleteAddonListInstance(string addonListJson, string instanceGuid);
         //
         //====================================================================================================
         /// <summary>

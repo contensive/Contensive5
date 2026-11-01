@@ -32,14 +32,13 @@ public class EmailControllerTests {
     //
     [TestMethod]
     public void groupEmail_Send_Test() {
-        using (CPClass cp = new(testAppName)) {
-            cp.core.mockEmail = true;
-            string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
-            string emailAddress2 = GenericController.getRandomInteger().ToString() + "@kma.net";
-            TestController.testGroupEmail(cp, emailAddress1, emailAddress2);
-            // assert
-            Assert.AreEqual(2, cp.core.mockEmailList.Count);
-        }
+        using CPClass cp = new(testAppName);
+        cp.core.mockEmail = true;
+        string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+        string emailAddress2 = GenericController.getRandomInteger().ToString() + "@kma.net";
+        TestController.testGroupEmail(cp, emailAddress1, emailAddress2);
+        // assert
+        Assert.AreEqual(2, cp.core.mockEmailList.Count);
     }
     //
     [TestMethod]

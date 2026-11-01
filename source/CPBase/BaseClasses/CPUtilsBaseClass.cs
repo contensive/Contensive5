@@ -423,8 +423,9 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// For websites, run an iisreset. Call from a remote method that detects the server restoration and recovers
+        /// Deprecated. IIS Reset is no longer supported. This method is now a no-op. Use cp.Utils.IISRecycle() instead.
         /// </summary>
+        [Obsolete("Use cp.Utils.IISRecycle() to restart the application pool. IISReset is no longer supported.", false)]
         public abstract void IISReset();
         //
         //====================================================================================================

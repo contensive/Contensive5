@@ -289,6 +289,12 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Background task management: queue tasks, check status
+        /// </summary>
+        public abstract CPTaskBaseClass Task { get; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// A local file system that automatically deletes files
         /// </summary>
         public abstract CPFileSystemBaseClass TempFiles { get; }

@@ -73,9 +73,25 @@ Key behaviors:
 ### Public API
 
 ```csharp
-// Throw an event by name — this is the only method to use
+// Throw an event by name
 string result = cp.Site.ThrowEventByName("event name");
+
+// Throw an event with arguments. Each catcher reads them with cp.Doc.GetText("key")
+string result = cp.Site.ThrowEventByName("event name", new Dictionary<string, string> {
+    { "myPrefixOrderId", orderId.ToString() }
+});
 ```
+
+### Event arguments
+
+`ThrowEventByName(string eventName, Dictionary<string, string> eventArguments)` passes arguments to every catcher (internally `EventController.throwEventByName(core, eventName, eventArguments)`).
+
+- Each catcher runs with its own copy of the arguments as `argumentKeyValuePairs`, so they are copied into document properties. The catcher reads them with `cp.Doc.GetText(key)`, `cp.Doc.GetInteger(key)`.
+- Before each catcher the arguments overwrite any document property with the same key (including values from the request). After the catchers run, the previous values are restored and keys that did not exist are cleared, so arguments never leak into the rest of the request.
+- Prefix the keys (for example `sms...`) to avoid collisions with other document properties.
+- Pass every key your catchers read, with an empty string when it does not apply.
+- Treat arguments as hints. Pass a record id and let the catcher reload the record for authoritative data.
+- `null` arguments are treated as none. The original `ThrowEventByName(string)` is unchanged and passes no arguments.
 
 The following methods are deprecated and should not be used in new code:
 - `cp.Site.ThrowEvent(string eventNameIdOrGuid)` — Deprecated
@@ -163,6 +179,21 @@ Use this event when your addon needs to respond to any collection being installe
 </Data>
 ```
 
+### Text message events
+
+Thrown by core text messaging (AWS End User Messaging SMS). The GUIDs are fixed: add-ons (aoCrm) register catchers by these GUIDs. Every event passes all of these arguments, empty when not applicable: `smsEventName, smsTextMessageLogId, smsMemberId, smsMemberIdList, smsPhone, smsBody, smsSource, smsIsTest, smsStatus, smsStatusCode, smsStatusDetail, smsLinkUrl, smsKeyword, smsOptOutSource`.
+
+The Text Message Log row (`ccTextMessageLog`, id = `smsTextMessageLogId`) is saved in its final state before the event is thrown, so a catcher should reload it (columns `isInbound, isTest, source, statusId, fromPhone, toPhone, body, memberId, providerStatusCode, statusDetail`). `smsPhone` is the contact's number (E.164). `smsIsTest` is `1` or `0`. `smsMemberIdList` is a comma list of people whose phone matches the number exactly.
+
+| Event | GUID | Thrown by / when | Arguments filled |
+|---|---|---|---|
+| `Text Message Status Changed` | `{E912CCC6-7A50-48BE-8296-CF332CFDEA17}` | `SmsNotificationController.processDeliveryEvent`, when an outbound text changes to Delivered or Failed (once per text) | smsTextMessageLogId (outbound row), smsMemberId, smsMemberIdList, smsPhone, smsSource, smsIsTest, smsStatus (`Delivered`/`Failed`), smsStatusCode (for example `TEXT_DELIVERED`), smsStatusDetail |
+| `Text Message Link Clicked` | `{21643295-9E4E-4B7B-8714-48184545937A}` | `SmsLinkController.processClick`, first click of a tracked link `/tl/{token}`; not for test sends | smsTextMessageLogId (outbound row), smsMemberId, smsMemberIdList, smsPhone, smsSource, smsIsTest, smsLinkUrl |
+| `Text Message Received` | `{F4ABCC00-3CA6-448F-A0FB-912F76F714FD}` | `SmsNotificationController.processInbound`, any inbound text that is not an opt-out | smsTextMessageLogId (inbound row), smsMemberId, smsMemberIdList, smsPhone, smsBody, smsSource (`Inbound`), smsIsTest (`0`), smsKeyword (`START`, `HELP` or empty) |
+| `Text Message Opt Out` | `{9E507644-11DE-4D71-868E-EA9D26A8A5DA}` | inbound STOP keyword (`processInbound`), or a send rejected because the recipient opted out (send pipeline). The number is on the Text Message Block List before the event | smsTextMessageLogId (inbound STOP row, or the outbound row that was rejected), smsMemberId, smsMemberIdList, smsPhone, smsBody (the text, or the provider code), smsSource, smsIsTest, smsOptOutSource (`Keyword`/`Provider`) |
+
+Catchers run in `ContextSimple`. Most of these events are thrown on an anonymous request (the SNS endpoint or the link redirect), but a provider opt-out (`Text Message Opt Out` with `smsOptOutSource=Provider`) is thrown inside the sender's request, where the current user is the admin who sent the text. Do not depend on the current user: write through models and `cp.Site.AddActivity`, using the ids from the log row.
+
 ## Example: Help Center Reindex on Collection Install
 
 This walkthrough shows how the Help Center addon would use the event pattern to reindex after every collection installation.
@@ -227,7 +258,8 @@ This ensures that uninstalling an addon automatically cleans up its event regist
 | File | Purpose |
 |---|---|
 | `source/Processor/aoBase51.xml` | Base collection — event CDefs and data records |
-| `source/Processor/Controllers/EventController.cs` | `throwEventByName()` — event execution logic |
+| `source/Processor/Controllers/EventController.cs` | `throwEventByName()` — event execution logic, with and without arguments |
+| `source/Processor/Controllers/Sms/SmsNotificationController.cs` | Text message events: argument keys, delivery and inbound events |
 | `source/CPBase/BaseClasses/CPSiteBaseClass.cs` | `ThrowEventByName()` — public API definition |
 | `source/Processor/Views/CPSiteClass.cs` | `ThrowEventByName()` — public API implementation |
 | `source/Models/Models/Db/AddonEventModel.cs` | Event database model |

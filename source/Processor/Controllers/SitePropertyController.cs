@@ -391,6 +391,25 @@ namespace Contensive.Processor.Controllers {
         private const string systemPageTemplateId_spName = "System Page Template Id";
         private int? systemPageTemplateId_local;
         //
+        /// <summary>
+        /// Optional template for landing pages. When set, landing pages use this template
+        /// instead of inheriting from the parent chain or domain default.
+        /// When 0, landing pages follow the standard template resolution flow.
+        /// </summary>
+        public int defaultLandingPageTemplateId {
+            get {
+                if (_defaultLandingPageTemplateId != null) { return (int)_defaultLandingPageTemplateId; }
+                _defaultLandingPageTemplateId = getInteger(defaultLandingPageTemplateId_spName, 0);
+                return (int)_defaultLandingPageTemplateId;
+            }
+            set {
+                _defaultLandingPageTemplateId = value;
+                setProperty(defaultLandingPageTemplateId_spName, (int)_defaultLandingPageTemplateId);
+            }
+        }
+        private const string defaultLandingPageTemplateId_spName = "Default Landing Page Template Id";
+        private int? _defaultLandingPageTemplateId;
+        //
         //====================================================================================================
         /// <summary>
         /// clear a value from the database
@@ -654,8 +673,8 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (dbNotReady) {
                     //
-                    // -- cannot set property
-                    throw new GenericException("Cannot set site property before Db is ready.");
+                    // -- db not ready, skip persisting property
+                    return;
                 } else {
                     if (!string.IsNullOrEmpty(propertyName.Trim())) {
                         if (propertyName.ToLowerInvariant().Equals("adminurl")) {
@@ -821,7 +840,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- property not found in db, cache and return default
                 nameValueDict.Add(cacheName, DefaultValue);
-                setProperty(cacheName, DefaultValue);
+                if (!dbNotReady) {
+                    setProperty(cacheName, DefaultValue);
+                }
                 return DefaultValue;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -1023,7 +1044,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // reset the filename and save default robots.txt
                     robotsTxtFilename = defaultFilename;
-                    result = "User-agent: *\r\nDisallow: /admin/";
+                    result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /*?*method=";
                     core.privateFiles.saveFile(robotsTxtFilename, result);
                 }
                 return result;

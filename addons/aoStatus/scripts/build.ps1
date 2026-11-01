@@ -14,7 +14,7 @@ Import-Module (Join-Path $PSScriptRoot '..\..\..\scripts\build-addon-collection.
 $projectRoot = (Resolve-Path "$PSScriptRoot\..").Path
 
 # Display build info
-$version = Get-ContensiveVersion -DeploymentRoot 'C:\Deployments\aoStatus'
+$version = Get-ContensiveVersion -DeploymentRoot 'C:\Deployments\aoStatus' -RepoPath $projectRoot
 Write-Host ""
 Write-Host "========================================"
 Write-Host "  aoStatus Build"

@@ -43,6 +43,12 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- argument validation
                 if (userId.Equals(0)) { return false; }
+                if (session.isFingerprintedSession) {
+                    //
+                    // -- block recognition on fingerprint-constructed visits (IP+UserAgent only, no cookies)
+                    logger.Trace($"{core.logCommonMessage},recognizeById blocked, fingerprint-based session cannot recognize user");
+                    return false;
+                }
                 //
                 // -- find user and validate
                 PersonModel contextUser = DbBaseModel.create<PersonModel>(core.cpParent, userId);
@@ -153,7 +159,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 userErrorMessage = "";
                 int userId = preflightAuthentication_returnUserId(core, session, requestUsername, requestPassword, false, ref userErrorMessage);
-                if (!userId.Equals(0) && authenticateById(core, session, userId)) {
+                if (!userId.Equals(0) && authenticateById(core, session, userId, "password")) {
                     //
                     // -- successful
                     LogController.addActivityCompletedVisit(core, "Login", "successful login, credential [" + requestUsername + "]", session.user.id);
@@ -190,6 +196,13 @@ namespace Contensive.Processor.Controllers {
                 logger.Trace($"{core.logCommonMessage},AuthenticationController.authenticateById, enter, userid [" + userId + "]");
                 //
                 if (userId == 0) { return false; }
+                if (session.isFingerprintedSession) {
+                    //
+                    // -- block authentication on fingerprint-constructed visits (IP+UserAgent only, no cookies)
+                    logger.Info($"{core.logCommonMessage},authenticateById blocked, fingerprint-based session cannot authenticate");
+                    ErrorController.addUserError(core, "Login requires cookie support. Please enable cookies and try again.");
+                    return false;
+                }
                 if (!recognizeById(core, session, userId, requestUserAutoLogin)) {
                     //
                     // -- pause to make brute force attempt for expensive
@@ -200,6 +213,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- recognize success, log them in to that user
                 session.visit.visitAuthenticated = true;
+                //
+                // -- successful auth, clear login attempts
+                session.visit.loginAttempts = 0;
                 //
                 // -- verify start time for visit
                 if (session.visit.startTime != DateTime.MinValue) session.visit.startTime = core.doc.profileStartTime;
@@ -218,6 +234,41 @@ namespace Contensive.Processor.Controllers {
             => authenticateById(core, authContext, userId, false);
         //
         //========================================================================
+        /// <summary>
+        /// Authenticate by ID with a login method tag for the authentication log.
+        /// Logs success to ccAuthenticationLog with the specified loginMethod.
+        /// </summary>
+        public static bool authenticateById(CoreController core, SessionController session, int userId, bool requestUserAutoLogin, string loginMethod) {
+            bool result = authenticateById(core, session, userId, requestUserAutoLogin);
+            if (result) {
+                AuthenticationLogModel.log(core.cpParent, userId, true, "login success", loginMethod, "");
+            }
+            return result;
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Authenticate by ID with a login method tag (no auto-login).
+        /// </summary>
+        public static bool authenticateById(CoreController core, SessionController session, int userId, string loginMethod)
+            => authenticateById(core, session, userId, false, loginMethod);
+        //
+        //========================================================================
+        /// <summary>
+        /// Login by ID with a login method tag for the authentication log.
+        /// Used by internal code (OTP, etc.) that needs to specify the login method.
+        /// </summary>
+        public static bool loginByIdWithMethod(CoreController core, SessionController session, int userId, bool setAutoLogin, string loginMethod) {
+            if (core?.session == null) { return false; }
+            bool result = authenticateById(core, session, userId, loginMethod);
+            if (result) {
+                core.session.user.autoLogin = setAutoLogin;
+                core.session.user.save(core.cpParent);
+            }
+            return result;
+        }
+        //
+        //========================================================================
         //
         public static void processLoginFail(CoreController core, int userId) {
             try {
@@ -234,9 +285,7 @@ namespace Contensive.Processor.Controllers {
         public static void processLoginSuccess(CoreController core, int userId) {
             try {
                 //
-                // -- successful login, clear login attempts
-                core.session.visit.loginAttempts = 0;
-                core.db.executeNonQuery($"update ccvisits set loginattempts={core.session.visit.loginAttempts} where id={core.session.visit.id}");
+                // -- loginAttempts reset is now handled in authenticateById
                 //
                 AuthenticationLogModel.log(core.cpParent, userId, true);
             } catch (Exception ex) {
@@ -384,7 +433,6 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- success, password match
                         logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId success, pw match");
-                        processLoginSuccess(core, record.id);
                         return record.id;
                     }
                     // 
@@ -450,7 +498,6 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- success, passwordHash match, return success
                             logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
-                            processLoginSuccess(core, record.id);
                             return record.id;
                         }
                     default: {
@@ -490,7 +537,6 @@ namespace Contensive.Processor.Controllers {
                             // -- success, passwordHash match, try upgrde to current password hasher and return success
                             logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
                             trySetPassword(core.cpParent, requestPassword, record, ref userErrorMessage);
-                            processLoginSuccess(core, record.id);
                             return record.id;
                         }
                 }
@@ -548,7 +594,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static bool loginById(CoreController core, SessionController session, int userId, bool setAutoLogin) {
             if (core?.session == null) { return false; }
-            bool result = authenticateById(core, session, userId);
+            bool result = authenticateById(core, session, userId, "loginById");
             if (result) {
                 core.session.user.autoLogin = setAutoLogin;
                 core.session.user.save(core.cpParent);

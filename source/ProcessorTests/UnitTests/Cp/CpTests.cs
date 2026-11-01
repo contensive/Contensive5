@@ -51,40 +51,6 @@ public class CpTests {
     /// cpExecuteAddontest
     /// </summary>
     [TestMethod]
-    public void views_cp_ExecuteAddon_script_test() {
-        // arrange
-        using (CPClass cp = new(testAppName)) {
-            using (CPCSBaseClass cs = cp.CSNew()) {
-                string addonName = "testAddon-1-" + cp.Utils.GetRandomInteger().ToString();
-                int recordId = 0;
-                string addonGuid = cp.Utils.CreateGuid();
-                string activeScript = "function m\nm=cp.doc.getText(\"echo\")\nend function";
-                string echoText = "text added to document";
-                //
-                if (cs.Insert(AddonModel.tableMetadata.contentName)) {
-                    recordId = cs.GetInteger("id");
-                    cs.SetField("name", addonName);
-                    cs.SetField("ccGuid", addonGuid);
-                    cs.SetField("scriptingcode", activeScript);
-                }
-                cs.Close();
-                cp.Doc.SetProperty("echo", echoText);
-                // act
-                // assert
-                Assert.AreEqual(echoText, cp.executeAddon(addonName));
-                //
-                Assert.AreEqual(echoText, cp.executeAddon(addonGuid));
-                //
-                Assert.AreEqual(echoText, cp.executeAddon(recordId.ToString()));
-                cp.Content.Delete(AddonModel.tableMetadata.contentName, "id=" + recordId.ToString());
-            }
-        }
-    }
-    //====================================================================================================
-    /// <summary>
-    /// cpExecuteAddontest
-    /// </summary>
-    [TestMethod]
     public void views_cp_ExecuteAddon_text_test() {
         // arrange
         using (CPClass cp = new(testAppName)) {
@@ -129,9 +95,6 @@ public class CpTests {
             string htmlText = "12345";
             string wysiwygText = "<b>abcde</b>";
             string addonGuid = cp.Utils.CreateGuid();
-            // string activeScript = "cp.doc.getText(\"echo\")";
-            string activeScript = "function m\nm=cp.doc.getText(\"echo\")\nend function";
-            string echoText = "text added to document";
             //
             using (CPCSBaseClass cs = cp.CSNew()) {
                 if (cs.Insert(AddonModel.tableMetadata.contentName)) {
@@ -140,20 +103,16 @@ public class CpTests {
                     cs.SetField("copytext", htmlText);
                     cs.SetField("copy", wysiwygText);
                     cs.SetField("ccGuid", addonGuid);
-                    cs.SetField("scriptingcode", activeScript);
                     cs.SetField("remotemethod", "1");
                 }
             }
-            // -- invalidate route map cache
-            //  RouteMapModel.invalidateCache(cp.core);
             // - clear local route map cache
             cp.core.routeMapRebuild();
             //
-            cp.Doc.SetProperty("echo", echoText);
             // act
             string result = cp.executeRoute(addonName);
             // assert
-            Assert.AreEqual(htmlText + wysiwygText + echoText, result);
+            Assert.AreEqual(htmlText + wysiwygText, result);
         }
     }
 }

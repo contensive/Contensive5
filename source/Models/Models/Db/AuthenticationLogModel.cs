@@ -21,13 +21,21 @@ namespace Contensive.Models.Db {
         // 
         public bool success { get; set; }
         public int memberId { get; set; }
+        public string detail { get; set; }
+        public string loginMethod { get; set; }
+        //
+        public static void log(CPBaseClass cp, int userid, bool success, string logMessage, string loginMethod, string detail) {
+            var logRecord = DbBaseModel.addDefault<AuthenticationLogModel>(cp);
+            logRecord.name = logMessage;
+            logRecord.memberId = userid;
+            logRecord.success = success;
+            logRecord.loginMethod = loginMethod;
+            logRecord.detail = detail;
+            logRecord.save(cp);
+        }
         //
         public static void log(CPBaseClass cp, int userid, bool success, string logMessage) {
-            var log = DbBaseModel.addDefault<AuthenticationLogModel>(cp);
-            log.name = logMessage;
-            log.memberId = userid;
-            log.success = success;
-            log.save(cp);
+            log(cp, userid, success, logMessage, "", "");
         }
         //
         public static void log(CPBaseClass cp, int userid, bool success) {
@@ -41,7 +49,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static bool allowLoginForLockoutPolicy(CPBaseClass cp, int userId) {
             int accountLockoutPolicyDuration = 15;
-            DataTable dt = cp.Db.ExecuteQuery("select top 3 success from ccAuthenticationLog where memberid=@userId and dateadded>@lockoutDate order by id desc", new Dictionary<string, object> { { "@userId", userId }, { "@lockoutDate", DateTime.Now.AddMinutes(accountLockoutPolicyDuration) } });
+            DataTable dt = cp.Db.ExecuteQuery("select top 3 success from ccAuthenticationLog where memberid=@userId and dateadded>@lockoutDate and (loginMethod in ('password','otp') or loginMethod is null) order by id desc", new Dictionary<string, object> { { "@userId", userId }, { "@lockoutDate", DateTime.Now.AddMinutes(accountLockoutPolicyDuration) } });
             if (dt == null || dt.Rows.Count == 0) return true;
             // return false if 3 false in a row
             int failCnt = 0;

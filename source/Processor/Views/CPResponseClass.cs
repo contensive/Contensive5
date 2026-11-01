@@ -95,9 +95,21 @@ namespace Contensive.Processor {
         /// redirect to a link
         /// </summary>
         /// <param name="link"></param>
+        [Obsolete("Use Redirect(string, string) instead", false)]
         public override void Redirect(string link) {
-            string callStack = "CP.Redirect call from " + GenericController.getCallStack();
+            string callStack = $"CP.Redirect call from {GenericController.getCallStack()}";
             cp.core.webServer.redirect(link, callStack, false, false, false);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// redirect to a link with a diagnostic reason
+        /// </summary>
+        /// <param name="link"></param>
+        /// <param name="reason">A short description of why the redirect is being performed</param>
+        public override void Redirect(string link, string reason) {
+            string redirectReason = $"CP.Redirect reason [{reason}], call from {GenericController.getCallStack()}";
+            cp.core.webServer.redirect(link, redirectReason, false, false, false);
         }
         //
         //====================================================================================================

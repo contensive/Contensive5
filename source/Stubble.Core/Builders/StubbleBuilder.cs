@@ -7,7 +7,7 @@ namespace Stubble.Core.Builders
     /// <summary>
     /// A builder for configuring and building a <see cref="StubbleVisitorRenderer"/>
     /// </summary>
-    public sealed class StubbleBuilder : IStubbleBuilder<StubbleVisitorRenderer>/*9++
+    public sealed class StubbleBuilder : IStubbleBuilder<StubbleVisitorRenderer>
     {
         /// <summary>
         /// Gets the action for configuring settings for the renderer

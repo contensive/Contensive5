@@ -379,7 +379,7 @@ namespace Contensive.Processor.Controllers {
                     string serializedDataObject = null;
                     using (System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash)) {
                         mutex.WaitOne();
-                        serializedDataObject = core.privateFiles.readFileText("appCache\\" + FileController.encodeDosPathFilename(keyHash.hash + ".txt"));
+                        serializedDataObject = core.privateFiles.readFileText("appCache\\" + FileController.sanitizePathFilename(keyHash.hash + ".txt", BaseModels.ServerConfigBaseModel.FilenameSanitizationLevelEnum.Permissive));
                         mutex.ReleaseMutex();
                     }
                     if (!string.IsNullOrEmpty(serializedDataObject)) {
@@ -889,7 +889,7 @@ namespace Contensive.Processor.Controllers {
                     cacheTypeMsg = "local-file";
                     string serializedData = SerializeObject(cacheDocument);
                     using System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash); mutex.WaitOne();
-                    core.privateFiles.saveFile("appCache\\" + FileController.encodeDosPathFilename(keyHash + ".txt"), serializedData);
+                    core.privateFiles.saveFile("appCache\\" + FileController.sanitizePathFilename(keyHash + ".txt", BaseModels.ServerConfigBaseModel.FilenameSanitizationLevelEnum.Permissive), serializedData);
                     mutex.ReleaseMutex();
                 }
                 string depKey = cacheDocument.keyPtrHash?.key ?? "";

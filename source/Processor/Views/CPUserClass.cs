@@ -595,7 +595,7 @@ namespace Contensive.Processor {
         //
         [Obsolete("Use LoginById(integer) instead", false)]
         public override bool LoginByID(string RecordID, bool SetAutoLogin = false) {
-            return AuthController.authenticateById(cp.core, cp.core.session, getInteger(RecordID));
+            return AuthController.authenticateById(cp.core, cp.core.session, getInteger(RecordID), "loginById");
         }
         //
         //=======================================================================================================

@@ -1,7 +1,6 @@
 ﻿
 using System;
-using System.IO;
-using System.Net;
+using System.Net.Http;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -56,17 +55,14 @@ namespace Contensive.Processor.Controllers {
         private const string YourAPIKey = @"3A9124FB";
         //
         private static string ValidateEmail(CoreController core, string emailAddress) {
-           var requestUrl = string.Format(QueryFormatString, ApiUrl, YourAPIKey, emailAddress);
-            var myRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
-            using( WebResponse webResponse = myRequest.GetResponse() ) {
-                try {
-                    using (var reader = new StreamReader(webResponse.GetResponseStream())) {
-                        return reader.ReadToEnd();
-                    }
-                } catch (Exception exception) {
-                    logger.Error($"{core.logCommonMessage}", exception);
-                    return string.Empty;
+            var requestUrl = string.Format(QueryFormatString, ApiUrl, YourAPIKey, emailAddress);
+            try {
+                using (var httpClient = new HttpClient()) {
+                    return httpClient.GetStringAsync(requestUrl).Result;
                 }
+            } catch (Exception exception) {
+                logger.Error($"{core.logCommonMessage}", exception);
+                return string.Empty;
             }
         }
         //

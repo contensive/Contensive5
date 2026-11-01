@@ -1957,9 +1957,9 @@ namespace Contensive.Processor.Controllers {
                 if (!string.IsNullOrEmpty(InstanceOptionValue_AddonEncoded)) {
                     result += HtmlController.encodeHtml(InstanceOptionValue_AddonEncoded);
                 }
-                if (string.IsNullOrEmpty(SrcSelectorSuffix) && list.Length==0) {
+                if (string.IsNullOrEmpty(SrcSelectorSuffix) && list.Length == 0 && PosLeft == 0) {
                     //
-                    // empty list with no suffix, return with name=value
+                    // no selector brackets provided and empty list with no suffix, return with name=value
                     //
                 } else if (GenericController.toLCase(SrcSelectorSuffix) == "resourcelink") {
                     //

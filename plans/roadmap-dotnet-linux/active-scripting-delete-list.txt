@@ -1,0 +1,41 @@
+C:\Git>findstr /i /s /c:"<Code><![CDATA[" *.xml
+
+aoAnalytics\.claude\worktrees\nervous-brahmagupta-d81171\collections\aoAnalytics\aoAnalytics.xml:                       <Code><![CDATA[
+
+aoArticleLibrary\collections\aoArticleLibrary\aoArticleLibrary.xml:                     <Code><![CDATA[function getContent()
+
+aoCodeMirrorEditor\etc\old\Code Mirror Editors.xml:                     <Code><![CDATA[
+
+aoGoogleAnalytics\etc\Analyticsx\Analytics.xml:                 <Code><![CDATA[
+
+aoJQuery\collections\jQuery\JQuery.xml:                 <Code><![CDATA[function m
+aoJQuery\collections\JQuery-1-8-legacyCollection\JQuery-1-8-legacy.xml:                 <Code><![CDATA[function m
+
+aoLoginLightbox\Collections\Login Lightbox\Login Lightbox.xml:                  <Code><![CDATA[
+aoLoginLightbox\Collections\Login Lightbox\Login Lightbox.xml:                  <Code><![CDATA[function m
+aoLoginLightbox\Login Lightbox\Login Lightbox.xml:                      <Code><![CDATA[
+aoLoginLightbox\Login Lightbox\Login Lightbox.xml:                      <Code><![CDATA[function m
+
+aoMemberBoss\etc\MemberBoss New Site-1\MemberBoss New Site.xml:                 <Code><![CDATA[
+
+aoNewsStories\collections\aoNewsStories\aoNewsStories.xml:                      <Code><![CDATA[function m
+
+aoReCAPTCHA\collections\Legacy\xReCaptcha V2\ReCaptcha V2.xml:                  <Code><![CDATA[function getContent()
+
+aoRedactorEditor\collections\Redactor Html Editor v5.0\Redactor Html Editor.xml:                        <Code><![CDATA[
+
+aoRSS\etc\collection\RSS Clients\RSS Clients.xml:                       <Code><![CDATA[function m
+aoRSS\etc\files-from-old-collection\Webcast and Podcast.xml:            <Code><![CDATA[function m
+
+aoSocialMedia\collections\Social Media\Social Media.xml:                        <Code><![CDATA[
+aoSocialMedia\collections\Social Media\Social Media.xml:                        <Code><![CDATA[function m
+
+Contensive5\etc\EditModalTest.xml:                      <Code><![CDATA[
+
+ContensiveSite\collections\Contensive-Demo\Contensive-Demo.xml:                 <Code><![CDATA[function m
+ContensiveSite\collections\Contensive-Demo\Contensive-Demo.xml:                 <Code><![CDATA[function m
+
+pheonixComputers\etc\Phoenix Computers\Phoenix Computers.xml:                   <Code><![CDATA[function getContent()
+pheonixComputers\etc\Phoenix Computers\Phoenix Computers.xml:                   <Code><![CDATA[function getContent()
+pheonixComputers\etc\Phoenix Computers1\Phoenix Computers.xml:                  <Code><![CDATA[function getContent()
+pheonixComputers\etc\Phoenix Computers1\Phoenix Computers.xml:                  <Code><![CDATA[function getContent()

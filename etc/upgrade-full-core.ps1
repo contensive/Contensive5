@@ -6,10 +6,12 @@
 .DESCRIPTION
     This script performs a complete server upgrade in one step:
       1. Upgrade server components (CLI, TaskService, WebApi package) via upgrade.ps1
+         The task service is installed but NOT started yet (new code, old database).
       2. Upgrade all application databases and collections via cc -u
       3. Deploy binaries to every IIS site:
          - Core WebApi apps: copy WebApi files from the install package
          - Framework ASPX apps: import defaultaspxsite.zip via Web Deploy (msdeploy)
+      4. Start the task service (database is now upgraded to match the new code)
 
     After this script completes, all applications should be running
     the new version with no additional manual steps required.
@@ -54,7 +56,7 @@ Write-Host ""
 # ============================================================
 
 Write-Host ""
-Write-Host "[1/3] Upgrading server components..." -ForegroundColor Cyan
+Write-Host "[1/4] Upgrading server components..." -ForegroundColor Cyan
 Write-Host ""
 
 $upgradeScript = Join-Path $SourcePath "upgrade.ps1"
@@ -62,14 +64,14 @@ if (-not (Test-Path $upgradeScript)) {
     Write-Host "ERROR: upgrade.ps1 not found at $upgradeScript" -ForegroundColor Red
     exit 1
 }
-& $upgradeScript -SourcePath $SourcePath -InstallPath $InstallPath -ServiceName $ServiceName
+& $upgradeScript -SourcePath $SourcePath -InstallPath $InstallPath -ServiceName $ServiceName -SkipServiceStart
 
 # ============================================================
 # Step 2: Upgrade all databases (cc -u)
 # ============================================================
 
 Write-Host ""
-Write-Host "[2/3] Upgrading all application databases (cc -u)..." -ForegroundColor Cyan
+Write-Host "[2/4] Upgrading all application databases (cc -u)..." -ForegroundColor Cyan
 Write-Host ""
 
 # Refresh PATH in this session so cc.exe is available after install
@@ -101,7 +103,7 @@ Write-Host "Database upgrade complete." -ForegroundColor Green
 # ============================================================
 
 Write-Host ""
-Write-Host "[3/3] Deploying binaries to IIS sites..." -ForegroundColor Cyan
+Write-Host "[3/4] Deploying binaries to IIS sites..." -ForegroundColor Cyan
 Write-Host ""
 
 # Locate source packages
@@ -307,6 +309,28 @@ else {
                         continue
                     }
 
+                    # Stop the app pool to release file locks on bin DLLs.
+                    # Without this, msdeploy may silently skip locked assemblies
+                    # (e.g. Processor.dll), leaving stale binaries that cause
+                    # assembly version mismatch errors at runtime.
+                    if ($iisModuleAvailable) {
+                        try {
+                            $pool = Get-Item "IIS:\AppPools\$appName" -ErrorAction SilentlyContinue
+                            if ($pool -and $pool.State -eq "Started") {
+                                Write-Host "  [$appName] Stopping app pool..."
+                                Stop-WebAppPool -Name $appName
+                                $retries = 0
+                                while ((Get-WebAppPoolState -Name $appName).Value -ne "Stopped" -and $retries -lt 15) {
+                                    Start-Sleep -Seconds 1
+                                    $retries++
+                                }
+                            }
+                        }
+                        catch {
+                            Write-Host "  [$appName] Could not stop app pool: $_" -ForegroundColor Yellow
+                        }
+                    }
+
                     # Replicate IIS Manager "Deploy > Import Application" behavior.
                     # Uses -dest:auto so the package manifest selects the correct provider.
                     # -setParam retargets the package to this IIS site.
@@ -321,6 +345,20 @@ else {
                         Write-Host "  [$appName] Web Deploy output:" -ForegroundColor Red
                         $msdeployOutput | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
                         throw "msdeploy exited with code $LASTEXITCODE"
+                    }
+
+                    # Start the app pool back up
+                    if ($iisModuleAvailable) {
+                        try {
+                            $pool = Get-Item "IIS:\AppPools\$appName" -ErrorAction SilentlyContinue
+                            if ($pool -and $pool.State -eq "Stopped") {
+                                Start-WebAppPool -Name $appName
+                                Write-Host "  [$appName] App pool started" -ForegroundColor Green
+                            }
+                        }
+                        catch {
+                            Write-Host "  [$appName] Could not start app pool: $_" -ForegroundColor Yellow
+                        }
                     }
                 }
                 else {
@@ -384,8 +422,8 @@ else {
                 Write-Host "  [$appName] FAILED: $_" -ForegroundColor Red
                 $failCount++
 
-                # Try to restart the app pool if we stopped it for a Core site
-                if (-not $isFramework -and $iisModuleAvailable) {
+                # Try to restart the app pool if we stopped it
+                if ($iisModuleAvailable) {
                     try {
                         $pool = Get-Item "IIS:\AppPools\$appName" -ErrorAction SilentlyContinue
                         if ($pool -and $pool.State -eq "Stopped") {
@@ -400,6 +438,31 @@ else {
         Write-Host ""
         Write-Host "IIS deployment summary: $successCount deployed, $skipCount skipped, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
     }
+}
+
+# ============================================================
+# Step 4: Start the task service (database is now upgraded)
+# ============================================================
+
+Write-Host ""
+Write-Host "[4/4] Starting task service..." -ForegroundColor Cyan
+
+$svc = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
+if ($svc) {
+    if ($svc.Status -eq "Stopped") {
+        try {
+            Start-Service -Name $ServiceName
+            Write-Host "  Task service started." -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  WARNING: Task service could not be started: $_" -ForegroundColor Yellow
+            Write-Host "  Start it manually with: sc start `"$ServiceName`"" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "  Task service is already running." -ForegroundColor Green
+    }
+} else {
+    Write-Host "  WARNING: Task service '$ServiceName' not found." -ForegroundColor Yellow
 }
 
 # ============================================================

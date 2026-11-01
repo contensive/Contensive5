@@ -52,9 +52,28 @@ inner join cctables t on t.id = c.contenttableid
 -- then use t.name for the SQL table name
 ```
 
+## Collection XML Schema Rules
+
+When working with collection XML files (e.g., `aoBase51.xml`, addon collection.xml files):
+
+**ALWAYS consult the XSD schema first:** https://contensive.s3.amazonaws.com/xsd/Collection.xsd
+
+### Critical: Field Elements Do Not Have GUIDs
+
+**`<Field>` elements DO NOT have a `Guid` attribute.** This is a common and persistent mistake that must be avoided.
+
+Only these collection XML elements have GUID attributes:
+- `<Collection>` — The collection itself
+- `<CDef>` — Content Definition
+- `<Addon>` — Addon
+- `<NavigatorEntry>` — Navigator Entry
+- `<Data><Record>` — Data Record
+
+Fields are uniquely identified by their `Name` attribute within their parent CDef. Before adding any attribute to a collection XML element, verify it exists in the XSD schema.
+
 ## GUIDs
 
-When you need a GUID value (for CDefs, Fields, Addons, or any XML/code element), you MUST generate it using a system command. NEVER invent or type GUID values manually — Claude's token prediction produces sequential/predictable values that cause collisions.
+When you need a GUID value (for Collections, CDefs, Addons, NavigatorEntries, or Data Records), you MUST generate it using a system command. NEVER invent or type GUID values manually — Claude's token prediction produces sequential/predictable values that cause collisions.
 
 **Required:** Run this command to generate each GUID:
 ```bash
@@ -62,6 +81,8 @@ powershell -Command "[guid]::NewGuid().ToString('B').ToUpper()"
 ```
 
 This returns a proper v4 UUID like `{7F2A9C4E-B831-4D6F-A5E2-9C1B3D8F6A42}`. Generate a separate GUID for every element that needs one — never reuse or increment.
+
+**Remember:** Generate GUIDs ONLY for elements that require them according to the XSD schema (see section above).
 
 ## Code Style
 

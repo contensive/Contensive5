@@ -170,10 +170,10 @@ namespace Contensive.Processor.Controllers {
             AddonModel addon = core.cacheRuntime.addonCache.create(addonGuid);
             if (addon == null) {
                 if (executeContext == null) {
-                    logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext is null");
+                    logger.Warn($"{core.logCommonMessage}, cp.addon.execute, no addon found with guid [{addonGuid}]. The addon may have been deleted or its collection is not installed. Verify the addon exists in the Addon Manager.");
                     return "";
                 }
-                logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext [" + executeContext.errorContextMessage + "]");
+                logger.Warn($"{core.logCommonMessage}, cp.addon.execute, no addon found with guid [{addonGuid}], context [{executeContext.errorContextMessage}]. The addon may have been deleted or its collection is not installed. Verify the addon exists in the Addon Manager.");
                 return "";
             }
             return execute(addon, executeContext);
@@ -218,18 +218,18 @@ namespace Contensive.Processor.Controllers {
                 if (executeContext == null) {
                     //
                     // -- no addon and no context
-                    logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon and null executeContext."));
+                    logger.Warn($"{core.logCommonMessage}, AddonController.execute called with null addon and null executeContext. A caller passed an addon that could not be found. Check the addonList on the page or template for this url to find and fix the missing addon reference.");
                     return "";
                 }
                 //
                 // -- no addon
-                logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
+                logger.Warn($"{core.logCommonMessage}, AddonController.execute called with null addon, executeContext [{executeContext.errorContextMessage}]. A caller passed an addon that could not be found. Check the addonList on the page or template for this url to find and fix the missing addon reference.");
                 return "";
             }
             if (executeContext == null) {
                 //
                 // -- no context
-                logger.Error(new ArgumentException($"AddonController.execute call with invalid executeContext,  was not configured for addon [#{addon.id}, {addon.name}]."), $"{core.logCommonMessage}");
+                logger.Error($"{core.logCommonMessage}, AddonController.execute called with null executeContext for addon [#{addon.id}, {addon.name}]. The caller did not provide an executeContext.");
                 return "";
             }
             //
@@ -291,12 +291,18 @@ namespace Contensive.Processor.Controllers {
                     executeContext.forceJavascriptToHead = executeContext.forceJavascriptToHead || addon.javascriptForceHead;
                     //
                     // -- run included add-ons before their parent
-                    foreach (var dependentAddon in core.cacheRuntime.addonCache.getDependsOnList(addon.id)) {
+                    foreach (int dependentAddonId in core.cacheRuntime.addonCache.getDependsOnIdList(addon.id)) {
+                        var dependentAddon = core.cacheRuntime.addonCache.create(dependentAddonId);
                         if (dependentAddon == null) {
-                            logger.Warn($"{core.logCommonMessage}", new GenericException("Dependent addon not found. An included addon of [" + addon.name + "] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [" + addon.name + "] or manually correct the included addon selection."));
+                            string collectionName = "";
+                            if (addon.collectionId > 0) {
+                                var collection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, addon.collectionId);
+                                if (collection != null) { collectionName = collection.name; }
+                            }
+                            logger.Warn($"{core.logCommonMessage}, Dependent addon not found. An included addon (id={dependentAddonId}) of [{addon.name}] was not found. The included addon may have been deleted. Reinstall [{addon.name}] by reinstalling its collection [{collectionName}] to rebuild the dependency.");
                             continue;
                         }
-                        executeContext.errorContextMessage = "adding dependent addon [" + dependentAddon.name + "] for addon [" + addon.name + "] called within context [" + executeContext.errorContextMessage + "]";
+                        executeContext.errorContextMessage = $"adding dependent addon [{dependentAddon.name}] for addon [{addon.name}] called within context [{executeContext.errorContextMessage}]";
                         result.Append(executeDependency(dependentAddon, executeContext));
                     }
                     executeContext.forceJavascriptToHead = save_forceJavascriptToHead;
@@ -602,16 +608,23 @@ namespace Contensive.Processor.Controllers {
                         // -- Scripting code
                         hint = 14;
                         if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
-                            try {
-                                if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
-                                    result.Append(AddonScriptController.execute_Script_JScript(core, ref addon));
-                                } else {
-                                    result.Append(AddonScriptController.execute_Script_VBScript(core, ref addon));
-                                }
-                            } catch (Exception ex) {
+                            if (core.siteProperties.getBoolean("deprecate active scripting")) {
                                 //
-                                // -- exeption in outside code
-                                logger.Error(ex, $"{core.logCommonMessage}, Exception in script component of addon [{getAddonDescription(core, addon)}]");
+                                // -- active scripting deprecated for this site, block execution and log error
+                                string scriptLanguage = (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) ? "JScript" : "VBScript";
+                                logger.Error($"{core.logCommonMessage}, Active scripting execution blocked for addon [{getAddonDescription(core, addon)}]. This addon contains {scriptLanguage} scripting code that must be converted to a .NET addon. Disable the 'Deprecate Active Scripting' site property to allow legacy scripting temporarily.");
+                            } else {
+                                try {
+                                    if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
+                                        result.Append(AddonScriptController.execute_Script_JScript(core, ref addon));
+                                    } else {
+                                        result.Append(AddonScriptController.execute_Script_VBScript(core, ref addon));
+                                    }
+                                } catch (Exception ex) {
+                                    //
+                                    // -- exeption in outside code
+                                    logger.Error(ex, $"{core.logCommonMessage}, Exception in script component of addon [{getAddonDescription(core, addon)}]");
+                                }
                             }
                         }
                         //
@@ -1370,7 +1383,7 @@ namespace Contensive.Processor.Controllers {
                                                                                                 Copy += (ColumnStart + "[null]" + ColumnEnd);
                                                                                             } else if ((CellData == null)) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);
-                                                                                            } else if (VisualBasicConvert.Microsoft_VisualBasic_Information_IsArray(CellData)) {
+                                                                                            } else if (CellData is Array) {
                                                                                                 Copy += ColumnStart + "[array]";
                                                                                             } else if (string.IsNullOrEmpty(getText(CellData))) {
                                                                                                 Copy += (ColumnStart + "[empty]" + ColumnEnd);
@@ -1957,8 +1970,6 @@ namespace Contensive.Processor.Controllers {
         public void executeAsProcess(AddonModel addon, Dictionary<string, string> arguments) {
             try {
                 if (addon == null) {
-                    //
-                    // -- addon not found
                     string errMsg = "executeAsProcess called with null addon model.";
                     logger.Error($"{core.logCommonMessage},{errMsg}");
                     return;
@@ -1969,11 +1980,15 @@ namespace Contensive.Processor.Controllers {
                 foreach (var key in core.docProperties.getKeyList()) {
                     if (!compositeArgs.ContainsKey(key)) { compositeArgs.Add(key, core.docProperties.getText(key)); }
                 }
+                //
+                // -- timeout cascade: addon.processTimeout > 0 ? addon.processTimeout : 1800 (30 min default)
+                int effectiveTimeout = (addon.processTimeout ?? 0) > 0 ? addon.processTimeout.Value : 1800;
+                int requestedBy = core.session?.user?.id ?? 0;
                 TaskSchedulerController.addTaskToQueue(core, new TaskModel.CmdDetailClass {
                     addonId = addon.id,
                     addonName = addon.name,
                     args = compositeArgs
-                }, false);
+                }, false, "", "", effectiveTimeout, requestedBy);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}, executeAsProcess");
             }
@@ -1985,6 +2000,38 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="addon"></param>
         public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, []);
+        //
+        //====================================================================================================================
+        /// <summary>
+        /// Execute the addon in a background process and return the task id for status tracking.
+        /// Timeout cascade: taskTimeout > 0 uses taskTimeout, else addon.processTimeout, else 1800 seconds (30 min).
+        /// </summary>
+        public int executeAsProcessTask(AddonModel addon, Dictionary<string, string> arguments, int taskTimeout, int requestedBy) {
+            try {
+                if (addon == null) {
+                    string errMsg = "executeAsProcessTask called with null addon model.";
+                    logger.Error($"{core.logCommonMessage},{errMsg}");
+                    return 0;
+                }
+                //
+                // -- build arguments from the execute context on top of docProperties
+                var compositeArgs = new Dictionary<string, string>(arguments);
+                foreach (var key in core.docProperties.getKeyList()) {
+                    if (!compositeArgs.ContainsKey(key)) { compositeArgs.Add(key, core.docProperties.getText(key)); }
+                }
+                //
+                // -- timeout cascade: taskTimeout > 0 ? taskTimeout : addon.processTimeout > 0 ? addon.processTimeout : 1800
+                int effectiveTimeout = taskTimeout > 0 ? taskTimeout : ((addon.processTimeout ?? 0) > 0 ? addon.processTimeout.Value : 1800);
+                return TaskSchedulerController.addTaskToQueue(core, new TaskModel.CmdDetailClass {
+                    addonId = addon.id,
+                    addonName = addon.name,
+                    args = compositeArgs
+                }, false, "", "", effectiveTimeout, requestedBy);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}, executeAsProcessTask");
+                return 0;
+            }
+        }
         //
         //====================================================================================================================
         /// <summary>

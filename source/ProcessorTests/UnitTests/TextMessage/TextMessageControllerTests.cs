@@ -1,4 +1,5 @@
 
+using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
@@ -14,43 +15,31 @@ namespace Contensive.Processor.Tests.UnitTests.TextMessage;
 [TestClass]
 public class TextMessageControllerTests {
     //
+    /// <summary>
+    /// a valid 10 digit US phone number, random so tests do not collide
+    /// </summary>
+    private static string getTestPhone() => $"703{GenericController.getRandomInteger(8999999) + 1000000}";
+    //
     [TestMethod]
     public void blockedList_test1() {
         using (CPClass cp = new(testAppName)) {
             // arrange
             cp.core.mockTextMessages = true;
-            DbBaseModel.deleteRows<SystemTextMessageModel>(cp, "(1=1)");
-            DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
-            DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
-            DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-            string test1 = GenericController.getRandomInteger().ToString();
-            string test2 = GenericController.getRandomInteger().ToString();
-            Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
-            //
-            // act
-            TextMessageController.addToBlockList(cp.core, test1);
-            // assert
-            Assert.IsTrue(TextMessageController.isOnBlockedList(cp.core, test1));
-            Assert.IsFalse(TextMessageController.isOnBlockedList(cp.core, test2));
-        }
-    }
-    //
-    [TestMethod]
-    public void verifyPhone_test1() {
-        using (CPClass cp = new(testAppName)) {
-            // arrange
-            cp.core.mockTextMessages = true;
-            DbBaseModel.deleteRows<SystemTextMessageModel>(cp, "(1=1)");
-            DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
-            DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
-            DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-            string test1 = GenericController.getRandomInteger().ToString();
-            string test2 = GenericController.getRandomInteger().ToString();
-            Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
-            //
-            // act - assert
-            Assert.IsTrue(TextMessageController.verifyPhone(cp.core, test1));
-            Assert.IsFalse(TextMessageController.verifyPhone(cp.core, ""));
+            string test1 = getTestPhone();
+            string test2 = getTestPhone();
+            string test1E164 = SmsPhoneController.toE164(test1, "1");
+            string test2E164 = SmsPhoneController.toE164(test2, "1");
+            try {
+                // act
+                TextMessageBlockListModel.add(cp, test1E164, (int)TextMessageBlockListModel.BlockSourceEnum.Admin, 0, "unit test");
+                // assert
+                Assert.IsTrue(TextMessageBlockListModel.isBlocked(cp, test1E164));
+                Assert.IsFalse(TextMessageBlockListModel.isBlocked(cp, test2E164));
+                Assert.IsTrue(cp.SMS.IsBlocked(test1));
+                Assert.IsFalse(cp.SMS.IsBlocked(test2));
+            } finally {
+                TextMessageBlockListModel.remove(cp, test1E164);
+            }
         }
     }
     //
@@ -63,27 +52,19 @@ public class TextMessageControllerTests {
             DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-            string testPhone = GenericController.getRandomInteger().ToString();
+            string testPhone = getTestPhone();
             string testMessage = GenericController.getRandomInteger().ToString();
             Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
             //
             // act - assert
-            string userError = "";
-            bool response = SmsController.sendMessage(cp.core, new TextMessageSendRequest {
-                attempts = 1,
-                textBody = testMessage,
-                systemTextMessageId = 0,
-                groupTextMessageId = 0,
-                toMemberId = 0,
-                toPhone = testPhone
-            }, ref userError);
+            SmsProviderResult response = SmsController.send(cp.core, SmsPhoneController.toE164(testPhone, "1"), testMessage, null);
             //
             // assert
-            Assert.AreEqual("", userError );
-            Assert.IsTrue(response);
+            Assert.IsTrue(response.success);
+            Assert.AreEqual("", response.errorMessage);
             Assert.IsTrue(cp.core.mockTextMessageList.Count == 1);
             Assert.AreEqual(cp.core.mockTextMessageList.First().textMessageRequest.textBody, testMessage);
-            Assert.AreEqual(cp.core.mockTextMessageList.First().textMessageRequest.toPhone, testPhone);
+            Assert.AreEqual(cp.core.mockTextMessageList.First().textMessageRequest.toPhone, SmsPhoneController.toE164(testPhone, "1"));
         }
     }
     //
@@ -96,7 +77,7 @@ public class TextMessageControllerTests {
             DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-            string testPhone = GenericController.getRandomInteger().ToString();
+            string testPhone = getTestPhone();
             string testMessage = GenericController.getRandomInteger().ToString();
             Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
             //
@@ -127,7 +108,7 @@ public class TextMessageControllerTests {
             DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-            string testPhone = GenericController.getRandomInteger().ToString();
+            string testPhone = getTestPhone();
             string testMessage = GenericController.getRandomInteger().ToString();
             Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
             //
@@ -158,7 +139,7 @@ public class TextMessageControllerTests {
             DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-            string testPhone = GenericController.getRandomInteger().ToString();
+            string testPhone = getTestPhone();
             string testMessage = GenericController.getRandomInteger().ToString();
             Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
             //
@@ -189,7 +170,7 @@ public class TextMessageControllerTests {
             DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
             DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
             string testName = GenericController.getRandomInteger().ToString();
-            string testPhone = GenericController.getRandomInteger().ToString();
+            string testPhone = getTestPhone();
             string testMessage = GenericController.getRandomInteger().ToString();
             string testAppendCopy = GenericController.getRandomInteger().ToString();
             Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
@@ -238,13 +219,13 @@ public class TextMessageControllerTests {
             // -- create groupMember1
             var user1 = DbBaseModel.addDefault<PersonModel>(cp);
             user1.name = GenericController.getRandomInteger().ToString();
-            user1.cellPhone = GenericController.getRandomInteger().ToString();
+            user1.cellPhone = getTestPhone();
             user1.blockTextMessage = false;
             user1.save(cp);
             // -- create groupMember2
             var user2 = DbBaseModel.addDefault<PersonModel>(cp);
             user2.name = GenericController.getRandomInteger().ToString();
-            user2.cellPhone = GenericController.getRandomInteger().ToString();
+            user2.cellPhone = getTestPhone();
             user2.blockTextMessage = false;
             user2.save(cp);
             // -- add groupMembers to group
@@ -317,13 +298,13 @@ public class TextMessageControllerTests {
             // -- create groupMember1
             var user1 = DbBaseModel.addDefault<PersonModel>(cp);
             user1.name = GenericController.getRandomInteger().ToString();
-            user1.cellPhone = GenericController.getRandomInteger().ToString();
+            user1.cellPhone = getTestPhone();
             user1.blockTextMessage = false;
             user1.save(cp);
             // -- create groupMember2
             var user2 = DbBaseModel.addDefault<PersonModel>(cp);
             user2.name = GenericController.getRandomInteger().ToString();
-            user2.cellPhone = GenericController.getRandomInteger().ToString();
+            user2.cellPhone = getTestPhone();
             user2.blockTextMessage = false;
             user2.save(cp);
             // -- add groupMembers to group
@@ -359,13 +340,13 @@ public class TextMessageControllerTests {
             foreach (var mock in cp.core.mockTextMessageList) {
                 if (mock.textMessageRequest.toMemberId == user1.id) {
                     Assert.AreEqual(text.body, mock.textMessageRequest.textBody);
-                    Assert.AreEqual(user1.cellPhone, mock.textMessageRequest.toPhone);
+                    Assert.AreEqual(SmsPhoneController.toE164(user1.cellPhone, "1"), mock.textMessageRequest.toPhone);
                     user1Pass = true;
                     continue;
                 }
                 if (mock.textMessageRequest.toMemberId == user2.id) {
                     Assert.AreEqual(text.body, mock.textMessageRequest.textBody);
-                    Assert.AreEqual(user2.cellPhone, mock.textMessageRequest.toPhone);
+                    Assert.AreEqual(SmsPhoneController.toE164(user2.cellPhone, "1"), mock.textMessageRequest.toPhone);
                     user2Pass = true;
                     continue;
                 }

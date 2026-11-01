@@ -40,9 +40,10 @@ The enum is defined in `PersonTypeEnum` (in `Contensive.Models.Db`).
 ### How `personTypeId` is Set
 
 - **SessionController.createGuest()** — sets `personTypeId = Guest` (2) for every new visitor.
-- **SessionController (bot detection)** — if bot detection identifies the visit as non-human, upgrades the record to `personTypeId = Bot` (1).
-- **AuthController.recognizeById()** — when a user is recognized or authenticated, promotes to `personTypeId = Contact` (3). All authentication paths flow through this method.
-- **Housekeeping backfill** — legacy records with `personTypeId = 0` (Unknown) are backfilled daily using the `createdByVisit` flag and visitor/visit bot flags.
+- **SessionController (bot detection)** — if bot detection identifies the visit as non-human, demotes the record to `personTypeId = Bot` (1).
+- **AuthController.recognizeById()** — when a user is recognized or authenticated, promotes to `personTypeId = Contact` (3). All authentication paths flow through this method. See [Authentication Pattern — Complete Priority Order](authentication-pattern.md#complete-priority-order) for the full list of triggers that cause promotion.
+- **Admin-created records** — when a record is created through the admin site, the field default (`DefaultValue="3"` in the collection XML) sets `personTypeId = Contact` (3) automatically.
+- **Housekeeping backfill** — records with `personTypeId = 0` (Unknown) are backfilled daily. See the [Housekeeping](#housekeeping) section below for the full decision logic.
 
 ### Relationship to `createdByVisit`
 
@@ -177,7 +178,17 @@ People record created (personTypeId = Guest)
 
 Daily housekeeping in `PersonClass.executeDailyTasks()` handles cleanup:
 
-1. **Backfill** — Legacy records with `personTypeId = 0` are classified based on `createdByVisit` and visitor/visit bot flags.
+1. **Backfill** — Records with `personTypeId = 0` (Unknown) are classified using the following sequential logic:
+
+   | Order | Condition | Result |
+   |---|---|---|
+   | 1 | `createdByVisit = 1` AND joined to a `ccvisitors` record with `bot = 1` | Bot (1) |
+   | 2 | `createdByVisit = 1` AND joined to a `ccvisits` record with `bot = 1` | Bot (1) |
+   | 3 | `createdByVisit = 1` AND still Unknown after bot checks | Guest (2) |
+   | 4 | `createdByVisit = 0` AND still Unknown | Contact (3) |
+
+   This means **imported records** that do not set `personTypeId` will have `personTypeId = 0` and `createdByVisit = 0` (since an import is not a visit), so housekeeping classifies them as **Contact (3)** — they are retained permanently.
+
 2. **Bot purge** — Records with `personTypeId = Bot` are deleted unconditionally.
 3. **Guest purge** — Records with `personTypeId = Guest` are deleted if their `lastVisit` exceeds the configurable retention period (2–30 days).
 4. **Legacy fallback** — The original join-based bot and heuristic-based guest cleanup queries still run for any records not yet backfilled.

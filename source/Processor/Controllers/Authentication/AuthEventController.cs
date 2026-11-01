@@ -43,7 +43,7 @@ namespace Contensive.Processor.Controllers {
                     string userErrorMessage = "";
                     int userId = AuthController.preflightAuthentication_returnUserId(core, core.session, authUsername, authPassword, false, ref userErrorMessage);
                     if (userId > 0) {
-                        AuthController.authenticateById(core, core.session, userId);
+                        AuthController.authenticateById(core, core.session, userId, "password");
                         return true;
                     }
                 }
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Controllers {
                     string userErrorMessage = "";
                     int userId = AuthController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
                     if (userId > 0) {
-                        AuthController.authenticateById(core, core.session, userId);
+                        AuthController.authenticateById(core, core.session, userId, "password");
                         return true;
                     }
                 }
@@ -85,7 +85,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- allow Link Login
                         logger.Trace($"{core.logCommonMessage},attempt link Login, userid [{linkToken.id}]");
-                        if (AuthController.authenticateById(core, core.session, linkToken.id)) {
+                        if (AuthController.authenticateById(core, core.session, linkToken.id, "link")) {
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link login", core.session.user.id);
                             return true;
                         }
@@ -117,7 +117,7 @@ namespace Contensive.Processor.Controllers {
                     if (core.siteProperties.allowAutoLogin) {
                         //
                         // -- login by the visitor.memberid
-                        if (AuthController.authenticateById(core, core.session, core.session.visitor.memberId, true)) {
+                        if (AuthController.authenticateById(core, core.session, core.session.visitor.memberId, true, "auto")) {
                             LogController.addActivityCompletedVisit(core, "Login", "auto-login", core.session.user.id);
                             return true;
                         }

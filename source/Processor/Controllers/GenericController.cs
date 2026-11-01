@@ -2102,7 +2102,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             for (CPtr = Source.Length - 1; CPtr >= 1; CPtr--) {
                                 C = Source.Substring(CPtr - 1, 1);
-                                CValue = VisualBasicConvert.Microsoft_VisualBasic_Strings_Asc(C);
+                                CValue = (int)C[0];
                                 crc = crc + CValue;
                                 if ((CValue < CMin) || (CValue > CMax)) {
                                     //
@@ -2114,7 +2114,7 @@ namespace Contensive.Processor.Controllers {
                                         CValue = CValue + CMax - CMin + 1;
                                     }
                                 }
-                                result += VisualBasicConvert.Microsoft_VisualBasic_Strings_Chr(CValue);
+                                result += (char)CValue;
                             }
                             //
                             // Test mod
@@ -2182,8 +2182,17 @@ namespace Contensive.Processor.Controllers {
         public static string executeCommandSync(string command) {
             string result = "";
             try {
+                string shell;
+                string shellArgs;
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)) {
+                    shell = "cmd.exe";
+                    shellArgs = $"/c {command}";
+                } else {
+                    shell = "/bin/sh";
+                    shellArgs = $"-c \"{command.Replace("\"", "\\\"")}\"";
+                }
                 Process proc = new System.Diagnostics.Process {
-                    StartInfo = new ProcessStartInfo("%comspec%", "/c " + command) {
+                    StartInfo = new ProcessStartInfo(shell, shellArgs) {
                         RedirectStandardOutput = true,
                         UseShellExecute = false,
                         CreateNoWindow = true
@@ -2244,7 +2253,8 @@ namespace Contensive.Processor.Controllers {
             string callStack = "";
             StackTrace stackTrace = new StackTrace();
             foreach (var stackFrame in stackTrace.GetFrames()) {
-                callStack += " > " + stackFrame.GetMethod().GetType().Name + "." + stackFrame.GetMethod().Name + "()";
+                string typeName = stackFrame.GetMethod().DeclaringType?.Name ?? "UnknownType";
+                callStack += $" > {typeName}.{stackFrame.GetMethod().Name}()";
             }
             return callStack;
         }

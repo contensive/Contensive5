@@ -75,16 +75,7 @@ namespace Contensive.CLI {
                                 IisRecycleCmd.execute(cpServer, appName);
                                 break;
                             case "--iisreset":
-                                //
-                                // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
-                                    Console.WriteLine("The --iisreset command requires elevated permissions (run as administrator).");
-                                    return;
-                                }
-                                //
-                                // -- reset IIS
-                                writeCommandLine("--iisreset", "");
-                                IisResetCmd.execute(cpServer);
+                                Console.WriteLine("The --iisreset command has been removed. Use --iisrecycle instead.");
                                 break;
                             case "--serverdiagnostic":
                             case "--serverdiagnostics": {

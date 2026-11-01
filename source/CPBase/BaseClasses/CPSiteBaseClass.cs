@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.BaseClasses {
     //
@@ -323,6 +324,16 @@ namespace Contensive.BaseClasses {
         /// <param name="eventName"></param>
         /// <returns></returns>
         public abstract string ThrowEventByName(string eventName);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Throw an Event with arguments. Every addon that catches the event runs with the arguments, and reads them with cp.Doc.GetText("key").
+        /// The arguments are copied into document properties and stay set for the rest of the request, so prefix the keys (for example sms...) to avoid collisions.
+        /// </summary>
+        /// <param name="eventName">The name of the Add-on Event record.</param>
+        /// <param name="eventArguments">Key/value pairs passed to each catcher. null is treated as no arguments.</param>
+        /// <returns>The concatenated output of the catcher addons.</returns>
+        public abstract string ThrowEventByName(string eventName, Dictionary<string, string> eventArguments);
         //
         //
         [Obsolete("Deprecated. Use ThrowEventByName(string)",false)] 

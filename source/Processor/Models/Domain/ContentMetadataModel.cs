@@ -1150,7 +1150,14 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <param name="contentMetadata"></param>
         /// <returns></returns>
-        public static int verifyContent_returnId(CoreController core, ContentMetadataModel contentMetadata, string logMsgContext, bool invalidateCache = true) {
+        public static int verifyContent_returnId(
+                CoreController core,
+                ContentMetadataModel contentMetadata,
+                string logMsgContext,
+                bool invalidateCache = true,
+                Dictionary<string, TableModel> tableCache = null,
+                Dictionary<string, SortMethodModelx> sortMethodCacheByName = null,
+                Dictionary<string, SortMethodModelx> sortMethodCacheByClause = null) {
             try {
                 //
                 logMsgContext += ", verifying content [" + contentMetadata.name + "]";
@@ -1204,7 +1211,13 @@ namespace Contensive.Processor.Models.Domain {
                     if (collection != null) { InstalledByCollectionId = collection.id; }
                     //
                     // Get the table object for this content metadata, create one if missing
-                    var table = DbBaseModel.createByUniqueName<TableModel>(core.cpParent, contentMetadata.tableName);
+                    TableModel table = null;
+                    if (tableCache != null) {
+                        tableCache.TryGetValue(contentMetadata.tableName, out table);
+                    }
+                    if (table == null) {
+                        table = DbBaseModel.createByUniqueName<TableModel>(core.cpParent, contentMetadata.tableName);
+                    }
                     if (table == null) {
                         //
                         // -- table model not found, create it - only name and datasource matter
@@ -1232,6 +1245,11 @@ namespace Contensive.Processor.Models.Domain {
                             }
                         }
                         table.save(core.cpParent);
+                        //
+                        // -- add newly created table to cache so subsequent CDefs can find it
+                        if (tableCache != null && !string.IsNullOrEmpty(table.name)) {
+                            tableCache[table.name.ToLowerInvariant()] = table;
+                        }
                         content.contentTableId = table.id;
                         content.save(core.cpParent);
                     }
@@ -1239,14 +1257,28 @@ namespace Contensive.Processor.Models.Domain {
                     // sortmethod - First try lookup by name
                     int defaultSortMethodId = 0;
                     if (!string.IsNullOrEmpty(contentMetadata.defaultSortMethod)) {
-                        var sortMethod = DbBaseModel.createByUniqueName<SortMethodModelx>(core.cpParent, contentMetadata.defaultSortMethod);
+                        SortMethodModelx sortMethod = null;
+                        if (sortMethodCacheByName != null) {
+                            sortMethodCacheByName.TryGetValue(contentMetadata.defaultSortMethod, out sortMethod);
+                        }
+                        if (sortMethod == null) {
+                            sortMethod = DbBaseModel.createByUniqueName<SortMethodModelx>(core.cpParent, contentMetadata.defaultSortMethod);
+                        }
                         if (sortMethod != null) { defaultSortMethodId = sortMethod.id; }
                     }
-                    if (defaultSortMethodId == 0) {
+                    if (defaultSortMethodId == 0 && !string.IsNullOrEmpty(contentMetadata.defaultSortMethod)) {
                         //
                         // fallback - maybe they put the orderbyclause in (common mistake)
-                        var sortMethodList = DbBaseModel.createList<SortMethodModelx>(core.cpParent, "(OrderByClause=" + DbController.encodeSQLText(contentMetadata.defaultSortMethod) + ")and(active<>0)", "id");
-                        if (sortMethodList.Count() > 0) { defaultSortMethodId = sortMethodList.First().id; }
+                        SortMethodModelx sortMethodByClause = null;
+                        if (sortMethodCacheByClause != null) {
+                            sortMethodCacheByClause.TryGetValue(contentMetadata.defaultSortMethod, out sortMethodByClause);
+                        }
+                        if (sortMethodByClause != null) {
+                            defaultSortMethodId = sortMethodByClause.id;
+                        } else {
+                            var sortMethodList = DbBaseModel.createList<SortMethodModelx>(core.cpParent, $"(OrderByClause={DbController.encodeSQLText(contentMetadata.defaultSortMethod)})and(active<>0)", "id");
+                            if (sortMethodList.Count() > 0) { defaultSortMethodId = sortMethodList.First().id; }
+                        }
                     }
 
                     //

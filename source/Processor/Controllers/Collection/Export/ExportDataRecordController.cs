@@ -1,7 +1,6 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,11 +55,11 @@ namespace Contensive.Processor.Controllers {
                                 // 
                                 // name and guid empty, export all records
                                 Criteria = "";
-                            } else if ((VisualBasicConvert.String_Len(dataExport.recordName) == 36) & (VisualBasicConvert.Strings_Mid(dataExport.recordName, 9, 1) == "-")) {
-                                // 
+                            } else if ((dataExport.recordName?.Length == 36) & (dataExport.recordName.Length > 8 && dataExport.recordName[8] == '-')) {
+                                //
                                 // use name as guid 726ED098-5A9E-49A9-8840-767A74F41D01 format
                                 Criteria = "ccguid=" + cp.Db.EncodeSQLText(dataExport.recordName);
-                            } else if ((VisualBasicConvert.String_Len(dataExport.recordName) == 32) & (VisualBasicConvert.Strings_InStr(1, dataExport.recordName, " ") == 0)) {
+                            } else if ((dataExport.recordName?.Length == 32) & (!dataExport.recordName.Contains(" "))) {
                                 // 
                                 // use name as guid 726ED0985A9E49A98840767A74F41D01 format
                                 Criteria = "ccguid=" + cp.Db.EncodeSQLText(dataExport.recordName);

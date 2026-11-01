@@ -33,7 +33,7 @@ This pattern keeps widgets self-contained and avoids conflicts when multiple wid
 
 #### UI folder structure and build packaging
 
-The `/ui/` folder contains four subfolders for different types of UI assets:
+The `/ui/` folder contains four subfolders for different types of UI assets. See [Filesystem Architecture Pattern](filesystem-architecture-pattern.md) for how these filesystems operate at runtime in local and remote (S3) configurations.
 
 ```
 ui/

@@ -31,7 +31,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsBuildingFolder">list of collection guids in the process of folder building. use to block recursive loop.</param>
         /// <returns></returns>
         public static bool buildCollectionFoldersFromCollectionZips(CoreController core, Stack<string> contextLog, string sourceTempFolderPath, DateTime CollectionLastChangeDate, ref List<string> collectionsToInstall, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder, bool installDependencies) {
-            bool success = false;
+            bool success = true;
             try {
                 //
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + sourceTempFolderPath + "]");
@@ -42,7 +42,9 @@ namespace Contensive.Processor.Controllers {
                     List<CPFileSystemClass.FileDetail> SrcFileNamelist = core.tempFiles.getFileList(sourceTempFolderPath);
                     foreach (CPFileSystemClass.FileDetail file in SrcFileNamelist) {
                         if ((file.Extension == ".zip") || (file.Extension == ".xml")) {
-                            success = buildCollectionFolderFromCollectionZip(core, contextLog, sourceTempFolderPath + file.Name, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsToInstall, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies);
+                            if (!buildCollectionFolderFromCollectionZip(core, contextLog, sourceTempFolderPath + file.Name, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsToInstall, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies)) {
+                                success = false;
+                            }
                         }
                     }
                 }
@@ -72,6 +74,8 @@ namespace Contensive.Processor.Controllers {
         public static bool buildCollectionFolderFromCollectionZip(CoreController core, Stack<string> contextLog, string sourceTempFolderPathFilename, DateTime CollectionLastChangeDate, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsDownloaded, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder, bool installDependencies) {
             try {
                 //
+                // -- capture error count on entry so the return value reflects only errors from THIS invocation
+                int errorCountOnEntry = return_ErrorMessage.errors.Count;
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + sourceTempFolderPathFilename + "]");
                 traceContextLog(core, contextLog);
                 //
@@ -289,7 +293,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, Exiting with ErrorMessage [" + return_ErrorMessage + "]");
                 //
-                return return_ErrorMessage.errors.Count == 0;
+                return return_ErrorMessage.errors.Count == errorCountOnEntry;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

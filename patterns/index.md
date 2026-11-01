@@ -57,6 +57,7 @@ Comprehensive API documentation for downstream projects consuming CPBase, Models
 
 ## Infrastructure
 
+- [Filesystem Architecture](filesystem-architecture-pattern.md) — local vs remote (S3) file storage, multi-server deployments, staleness/sync behavior, and migration between modes
 - [Redis Cache Setup](redis-cache-setup.md) — setting up AWS ElastiCache for Redis as the remote cache service
 - [Secrets Management](secrets-management-pattern.md) — switchable config storage (file vs AWS Secrets Manager), EC2/Docker setup, and migration guide
 

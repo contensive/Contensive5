@@ -236,6 +236,19 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
+        /// return the list of dependency addon IDs for the provided addonId
+        /// </summary>
+        /// <param name="addonId"></param>
+        /// <returns></returns>
+        public List<int> getDependsOnIdList(int addonId) {
+            if (!dependencyDictionary.ContainsKey(addonId)) {
+                return new List<int>();
+            }
+            return dependencyDictionary[addonId];
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// nlog class instance
         /// </summary>
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

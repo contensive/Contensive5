@@ -32,7 +32,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 resultList.Append(Environment.NewLine + "isAdmin: " + cp.User.IsAdmin.ToString());
                 resultList.Append(Environment.NewLine + "IsAdvancedEditing: " + cp.User.IsAdvancedEditing().ToString());
                 resultList.Append(Environment.NewLine + "IsEditing(\"page content\"): " + cp.User.IsEditing("page content").ToString());
-                resultList.Append(Environment.NewLine + "IsEditingAnything(): " + cp.User.IsEditingAnything.ToString());
+                resultList.Append(Environment.NewLine + "IsEditing(): " + cp.User.IsEditing());
                 resultList.Append(Environment.NewLine + "IsContentManager(\"page content\"): " + cp.User.IsContentManager("page content").ToString());
                 resultList.Append(Environment.NewLine + "IsDebugging: " + cp.User.IsDebugging.ToString());
                 resultList.Append(Environment.NewLine + "IsDeveloper: " + cp.User.IsDeveloper.ToString());

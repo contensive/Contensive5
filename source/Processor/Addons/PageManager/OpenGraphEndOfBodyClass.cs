@@ -3,7 +3,6 @@ using Contensive.Processor.Controllers;
 using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
 using System;
-using System.Windows.Input;
 using System.Xml.Linq;
 //
 namespace Contensive.Processor.Addons.PageManager {

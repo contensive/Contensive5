@@ -319,10 +319,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //        content = CreateGUIDToolClass.get(cp.core);
                         //        break;
                         //    }
-                        //case AdminformToolIISReset: {
-                        //        content = IISResetToolClass.get(cp.core);
-                        //        break;
-                        //    }
                         //case AdminFormToolContentSchema: {
                         //        content = ContentSchemaToolClass.get(cp.core);
                         //        break;

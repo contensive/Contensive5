@@ -6,7 +6,6 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Controllers {
@@ -52,7 +51,7 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage},{UserErrorMessage}");
                     return false;
                 }
-                if (!AuthController.authenticateById(core, core.session, userId)) {
+                if (!AuthController.authenticateById(core, core.session, userId, "password")) {
                     ErrorController.addUserError(core, loginFailedError);
                     return false;
                 }

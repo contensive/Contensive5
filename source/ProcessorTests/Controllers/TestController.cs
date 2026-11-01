@@ -26,6 +26,7 @@ public class TestController {
         DbBaseModel.deleteRows<GroupEmailModel>(cp, "1=1");
         DbBaseModel.deleteRows<EmailGroupModel>(cp, "1=1");
         DbBaseModel.deleteRows<MemberRuleModel>(cp, "1=1");
+        DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
         Assert.AreEqual(0, cp.core.mockEmailList.Count);
         //
         // -- create 3 people
