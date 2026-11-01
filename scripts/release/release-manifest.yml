@@ -14,7 +14,7 @@ repos:
     has_tests: true
     has_build_script: false
     steps:
-      merge: { status: failed, timestamp: "2026-11-01T16:52:52", notes: "error: Your local changes to the following files would be overwritten by checkout:" }
+      merge: { status: failed, timestamp: "2026-11-01T17:05:06", notes: "Already on 'main'" }
       nuget: { status: pending, timestamp: null, notes: "" }
       build: { status: pending, timestamp: null, notes: "" }
       test: { status: pending, timestamp: null, notes: "" }
