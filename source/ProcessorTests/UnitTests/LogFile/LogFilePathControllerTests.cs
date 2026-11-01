@@ -121,12 +121,14 @@ public class LogFilePathControllerTests {
     [TestMethod]
     public void tryResolve_reparsePoint_isRejected() {
         // arrange, a junction inside the root that points outside it. mklink /J needs no elevation but may be blocked
+        // Use a .log extension so the extension check (step 8) passes and the reparse point check (step 10) is reached
         string junction = Path.Combine(rootFull, "link");
+        File.WriteAllText(Path.Combine(tempBase, "escape.log"), "secret");
         var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", $"/c mklink /J \"{junction}\" \"{tempBase}\"") { CreateNoWindow = true, UseShellExecute = false, RedirectStandardOutput = true });
         process?.WaitForExit();
         if (!Directory.Exists(junction)) { Assert.Inconclusive("mklink /J is not permitted here"); }
         // act
-        bool ok = LogFilePathController.tryResolve(rootFull, "link\\config.json", true, out _, out _, out string reason);
+        bool ok = LogFilePathController.tryResolve(rootFull, "link\\escape.log", true, out _, out _, out string reason);
         // assert
         Assert.IsFalse(ok);
         Assert.AreEqual("reparse point", reason);

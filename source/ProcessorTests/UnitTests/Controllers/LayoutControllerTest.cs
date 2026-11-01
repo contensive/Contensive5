@@ -33,7 +33,8 @@ public class LayoutControllerTest {
         Assert.AreEqual("", after.layoutPlatform5.content);
         Assert.AreEqual(testGuid, after.ccguid);
         Assert.AreEqual(testName, after.name);
-        Assert.AreEqual(0, after.contentControlId, "Root content inserts by table name should have contentControlId=0");
+        int expectedContentId = cp.Content.GetID("Layouts");
+        Assert.AreEqual(expectedContentId, after.contentControlId, "verify() should set contentControlId to the Layouts content definition id");
         //
         DbBaseModel.delete<LayoutModel>(cp, testGuid);
     }
@@ -93,7 +94,8 @@ public class LayoutControllerTest {
             Assert.AreEqual("", after.layoutPlatform5.content);
             Assert.AreEqual(testGuid, after.ccguid);
             Assert.AreEqual(testName, after.name);
-            Assert.AreEqual(0, after.contentControlId, "Root content inserts by table name should have contentControlId=0");
+            int expectedContentId = cp.Content.GetID("Layouts");
+            Assert.AreEqual(expectedContentId, after.contentControlId, "verify() should set contentControlId to the Layouts content definition id");
             //
             DbBaseModel.delete<LayoutModel>(cp, testGuid);
         }
@@ -123,7 +125,8 @@ public class LayoutControllerTest {
             Assert.AreEqual(testContent5, after.layoutPlatform5.content);
             Assert.AreEqual(testGuid, after.ccguid);
             Assert.AreEqual(testName, after.name);
-            Assert.AreEqual(0, after.contentControlId, "Root content inserts by table name should have contentControlId=0");
+            int expectedContentId = cp.Content.GetID("Layouts");
+            Assert.AreEqual(expectedContentId, after.contentControlId, "verify() should set contentControlId to the Layouts content definition id");
             //
             DbBaseModel.delete<LayoutModel>(cp, testGuid);
         }
