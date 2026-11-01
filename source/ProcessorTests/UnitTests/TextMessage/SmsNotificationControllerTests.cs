@@ -31,8 +31,8 @@ public class SmsNotificationControllerTests {
     }
     //
     private static string getDeliveryJson(string eventType, string messageId, string e164, string app, string logGuid)
-        => $$"""
-        {"eventType":"{{eventType}}","eventVersion":"1.0","eventTimestamp":1793113200000,"isFinal":true,"originationPhoneNumber":"+12025550100","destinationPhoneNumber":"{{e164}}","isoCountryCode":"US","messageId":"{{messageId}}","messageEncoding":"GSM","messageType":"TRANSACTIONAL","messageStatus":"{{eventType}}","messageStatusDescription":"status for {{eventType}}","totalMessageParts":1,"totalMessagePrice":0.00581,"context":{"app":"{{app}}","log":"{{logGuid}}"}}
+        => $$$"""
+        {"eventType":"{{{eventType}}}","eventVersion":"1.0","eventTimestamp":1793113200000,"isFinal":true,"originationPhoneNumber":"+12025550100","destinationPhoneNumber":"{{{e164}}}","isoCountryCode":"US","messageId":"{{{messageId}}}","messageEncoding":"GSM","messageType":"TRANSACTIONAL","messageStatus":"{{{eventType}}}","messageStatusDescription":"status for {{{eventType}}}","totalMessageParts":1,"totalMessagePrice":0.00581,"context":{"app":"{{{app}}}","log":"{{{logGuid}}}"}}
         """;
     //
     private static string getInboundJson(string from, string body, string inboundMessageId)
