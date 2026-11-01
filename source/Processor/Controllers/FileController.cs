@@ -781,7 +781,8 @@ namespace Contensive.Processor.Controllers {
                 string remoteUnixPath = convertToUnixSlash(joinPath(remotePathPrefix, dosPath));
                 ListObjectsRequest request = new ListObjectsRequest {
                     BucketName = core.serverConfig.awsBucketName,
-                    Prefix = remoteUnixPath
+                    Prefix = remoteUnixPath,
+                    Delimiter = @"/"
                 };
                 ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
                 IEnumerable<S3Object> fileList = response.S3Objects.Where(x => !x.Key.EndsWith(@"/"));
