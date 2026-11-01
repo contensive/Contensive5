@@ -1,0 +1,1160 @@
+﻿release: "2026-11"
+created: "2026-11-01"
+status: in-progress
+
+repos:
+  - name: Contensive5
+    path: C:\Git\Contensive5
+    tier: 0
+    produces:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.Processor
+    depends_on: []
+    has_tests: true
+    has_build_script: false
+    steps:
+      merge: { status: pending, timestamp: "2026-11-01T11:32:11", notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoCrm
+    path: C:\Git\aoCrm
+    tier: 1
+    produces:
+      - Contensive.CRM
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.Processor
+      - Contensive.Addons.Mcp.Shared
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoDesignBlocks
+    path: C:\Git\aoDesignBlocks
+    tier: 1
+    produces:
+      - Contensive.DesignBlockBase
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.CRM
+      - Contensive.Addons.Mcp.Shared
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoEcommerce
+    path: C:\Git\aoEcommerce
+    tier: 1
+    produces:
+      - Contensive.EcommerceApi
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+      - Contensive.DesignBlockBase
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMCP
+    path: C:\Git\aoMCP
+    tier: 1
+    produces:
+      - Contensive.Addons.Mcp.Shared
+    depends_on:
+      - Contensive.CPBaseClass
+      - Contensive.DbModels
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoAddonManager
+    path: C:\Git\aoAddonManager
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoAnalytics
+    path: C:\Git\aoAnalytics
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoBlog
+    path: C:\Git\aoBlog
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoCalender2
+    path: C:\Git\aoCalender2
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoCodeMirrorEditor
+    path: C:\Git\aoCodeMirrorEditor
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoContactManager
+    path: C:\Git\aoContactManager
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoContentPortal
+    path: C:\Git\aoContentPortal
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoDashboard
+    path: C:\Git\aoDashboard
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoDistanceLearning
+    path: C:\Git\aoDistanceLearning
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoFilemanager
+    path: C:\Git\aoFilemanager
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoFormWizard
+    path: C:\Git\aoFormWizard
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoHelpCenter
+    path: C:\Git\aoHelpCenter
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoHtmlImport
+    path: C:\Git\aoHtmlImport
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoImportWizard
+    path: C:\Git\aoImportWizard
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoLibrary
+    path: C:\Git\aoLibrary
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMeetingManager
+    path: C:\Git\aoMeetingManager
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMemberBoss
+    path: C:\Git\aoMemberBoss
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMembershipApplication
+    path: C:\Git\aoMembershipApplication
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMembershipManager
+    path: C:\Git\aoMembershipManager
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: true
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: pending, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMenuCrm
+    path: C:\Git\aoMenuCrm
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMenuing
+    path: C:\Git\aoMenuing
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoNewsletter2
+    path: C:\Git\aoNewsletter2
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPageBuilder
+    path: C:\Git\aoPageBuilder
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPersonalization
+    path: C:\Git\aoPersonalization
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPortalFramework
+    path: C:\Git\aoPortalFramework
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoReCAPTCHA
+    path: C:\Git\aoReCAPTCHA
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoRedactorEditor
+    path: C:\Git\aoRedactorEditor
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoReporting
+    path: C:\Git\aoReporting
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoRSS
+    path: C:\Git\aoRSS
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoSamples
+    path: C:\Git\aoSamples
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoSecurity
+    path: C:\Git\aoSecurity
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoShare
+    path: C:\Git\aoShare
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoSiteMonitor
+    path: C:\Git\aoSiteMonitor
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: false
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoTextSearch2
+    path: C:\Git\aoTextSearch2
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoThemes
+    path: C:\Git\aoThemes
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoToolPanel
+    path: C:\Git\aoToolPanel
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoTools
+    path: C:\Git\aoTools
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoWhosOnline
+    path: C:\Git\aoWhosOnline
+    tier: 2
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: pending, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "no test project" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoAngularJs
+    path: C:\Git\aoAngularJs
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoArticleLibrary
+    path: C:\Git\aoArticleLibrary
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoBootstrap
+    path: C:\Git\aoBootstrap
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoCallToAction
+    path: C:\Git\aoCallToAction
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoCatalog
+    path: C:\Git\aoCatalog
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoDonations
+    path: C:\Git\aoDonations
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoEmailBlockedReport
+    path: C:\Git\aoEmailBlockedReport
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoEmailBounceProcess
+    path: C:\Git\aoEmailBounceProcess
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoEvents
+    path: C:\Git\aoEvents
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoGoogleAnalytics
+    path: C:\Git\aoGoogleAnalytics
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoGridly
+    path: C:\Git\aoGridly
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoGridstack
+    path: C:\Git\aoGridstack
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoJQuery
+    path: C:\Git\aoJQuery
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoLists
+    path: C:\Git\aoLists
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoLoginLightbox
+    path: C:\Git\aoLoginLightbox
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoMeetingManagerMobileApp
+    path: C:\Git\aoMeetingManagerMobileApp
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoNewsStories
+    path: C:\Git\aoNewsStories
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoOwlCarousel
+    path: C:\Git\aoOwlCarousel
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPageExtension
+    path: C:\Git\aoPageExtension
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPageNavigation2
+    path: C:\Git\aoPageNavigation2
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPeopleMergeTool
+    path: C:\Git\aoPeopleMergeTool
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoPrefs
+    path: C:\Git\aoPrefs
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoProcessEmail
+    path: C:\Git\aoProcessEmail
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoSEOSiteMap
+    path: C:\Git\aoSEOSiteMap
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoSocialMedia
+    path: C:\Git\aoSocialMedia
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoSpider
+    path: C:\Git\aoSpider
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoTemplateManager
+    path: C:\Git\aoTemplateManager
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
+
+  - name: aoVisitTracking
+    path: C:\Git\aoVisitTracking
+    tier: 3
+    produces: []
+    depends_on: []
+    has_tests: false
+    has_build_script: true
+    steps:
+      merge: { status: pending, timestamp: null, notes: "" }
+      nuget: { status: pending, timestamp: null, notes: "" }
+      build: { status: skipped, timestamp: null, notes: "" }
+      test: { status: skipped, timestamp: null, notes: "" }
+      staging: { status: pending, timestamp: null, notes: "" }
+      smoke: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: null, notes: "" }
