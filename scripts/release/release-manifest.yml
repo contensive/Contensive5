@@ -14,7 +14,7 @@ repos:
     has_tests: true
     has_build_script: false
     steps:
-      merge: { status: failed, timestamp: "2026-11-01T17:06:07", notes: "Already on 'main'" }
+      merge: { status: done, timestamp: "2026-11-01T17:09:11", notes: "" }
       nuget: { status: pending, timestamp: null, notes: "" }
       build: { status: pending, timestamp: null, notes: "" }
       test: { status: pending, timestamp: null, notes: "" }
@@ -35,7 +35,7 @@ repos:
     has_tests: true
     has_build_script: true
     steps:
-      merge: { status: pending, timestamp: null, notes: "" }
+      merge: { status: done, timestamp: "2026-11-01T17:10:14", notes: "" }
       nuget: { status: pending, timestamp: null, notes: "" }
       build: { status: pending, timestamp: null, notes: "" }
       test: { status: pending, timestamp: null, notes: "" }
@@ -56,7 +56,7 @@ repos:
     has_tests: true
     has_build_script: true
     steps:
-      merge: { status: pending, timestamp: null, notes: "" }
+      merge: { status: failed, timestamp: "2026-11-01T17:10:14", notes: "git checkout main failed in C:\Git\aoDesignBlocks" }
       nuget: { status: pending, timestamp: null, notes: "" }
       build: { status: pending, timestamp: null, notes: "" }
       test: { status: pending, timestamp: null, notes: "" }
@@ -76,7 +76,7 @@ repos:
     has_tests: true
     has_build_script: true
     steps:
-      merge: { status: pending, timestamp: null, notes: "" }
+      merge: { status: failed, timestamp: "2026-11-01T17:10:14", notes: "git merge dev failed in C:\Git\aoEcommerce - resolve conflicts manually" }
       nuget: { status: pending, timestamp: null, notes: "" }
       build: { status: pending, timestamp: null, notes: "" }
       test: { status: pending, timestamp: null, notes: "" }
@@ -95,7 +95,7 @@ repos:
     has_tests: false
     has_build_script: true
     steps:
-      merge: { status: pending, timestamp: null, notes: "" }
+      merge: { status: done, timestamp: "2026-11-01T17:10:17", notes: "" }
       nuget: { status: pending, timestamp: null, notes: "" }
       build: { status: pending, timestamp: null, notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }

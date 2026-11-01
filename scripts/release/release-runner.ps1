@@ -385,6 +385,24 @@ function Test-StepReady {
 # ===========================================================================
 # Step handlers
 # ===========================================================================
+function Invoke-GitCommand {
+    <#
+    .SYNOPSIS
+        Runs a git command with stderr suppressed so PowerShell 5.1 doesn't
+        treat informational messages (e.g., "Already on 'main'") as errors.
+        Returns stdout. Sets $LASTEXITCODE.
+    #>
+    param([string[]]$Arguments)
+    $prevPref = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $output = & git @Arguments 2>$null
+        return $output
+    } finally {
+        $ErrorActionPreference = $prevPref
+    }
+}
+
 function Invoke-StepMerge {
     param([hashtable]$Repo)
     $repoPath = $Repo.path
@@ -393,40 +411,35 @@ function Invoke-StepMerge {
     }
     Write-Host "  Merging dev into main for $($Repo.name)..."
 
-    # Git writes informational messages to stderr (e.g., "Already on 'main'").
-    # PowerShell 5.1 with ErrorActionPreference=Stop treats stderr as terminating
-    # errors when captured via 2>&1. Use 2>$null to discard stderr for git commands
-    # and check $LASTEXITCODE instead.
-
     # Check if dev branch exists (local or remote)
-    $null = & git -C $repoPath rev-parse --verify dev 2>$null
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--verify', 'dev') | Out-Null
     $hasLocalDev = ($LASTEXITCODE -eq 0)
-    $null = & git -C $repoPath rev-parse --verify origin/dev 2>$null
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--verify', 'origin/dev') | Out-Null
     $hasRemoteDev = ($LASTEXITCODE -eq 0)
     if (-not $hasLocalDev -and -not $hasRemoteDev) {
         Write-Host "  No dev branch found for $($Repo.name) - marking done" -ForegroundColor Yellow
         return
     }
 
-    # Checkout main (suppress informational messages)
-    & git -C $repoPath checkout main 2>$null
+    # Checkout main
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'checkout', 'main') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "git checkout main failed in $repoPath" }
 
-    & git -C $repoPath pull origin main 2>$null
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'pull', 'origin', 'main') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "git pull main failed in $repoPath" }
 
     # Fetch latest so origin/dev is current
-    & git -C $repoPath fetch origin 2>$null
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'fetch', 'origin') | Out-Null
 
     # Check if there are any differences between main and origin/dev
     $devRef = if ($hasRemoteDev) { 'origin/dev' } else { 'dev' }
-    $diffOutput = & git -C $repoPath diff main..$devRef --stat 2>$null
+    $diffOutput = Invoke-GitCommand -Arguments @('-C', $repoPath, 'diff', "main..$devRef", '--stat')
     if (-not $diffOutput) {
         Write-Host "  No changes between main and dev for $($Repo.name) - marking done" -ForegroundColor Yellow
         return
     }
 
-    & git -C $repoPath merge $devRef 2>$null
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'merge', $devRef) | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "git merge dev failed in $repoPath - resolve conflicts manually" }
     Write-Host "  Merge complete for $($Repo.name)" -ForegroundColor Green
 }
