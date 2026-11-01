@@ -392,11 +392,34 @@ function Invoke-StepMerge {
         throw "Repo path not found: $repoPath"
     }
     Write-Host "  Merging dev into main for $($Repo.name)..."
-    & git -C $repoPath checkout main 2>&1
+
+    # Check if dev branch exists (local or remote)
+    $hasLocalDev = & git -C $repoPath rev-parse --verify dev 2>$null
+    $hasRemoteDev = & git -C $repoPath rev-parse --verify origin/dev 2>$null
+    if (-not $hasLocalDev -and -not $hasRemoteDev) {
+        Write-Host "  No dev branch found for $($Repo.name) - marking done" -ForegroundColor Yellow
+        return
+    }
+
+    # Checkout main (suppress informational messages)
+    $null = & git -C $repoPath checkout main 2>&1
     if ($LASTEXITCODE -ne 0) { throw "git checkout main failed in $repoPath" }
-    & git -C $repoPath pull origin main 2>&1
+
+    $null = & git -C $repoPath pull origin main 2>&1
     if ($LASTEXITCODE -ne 0) { throw "git pull main failed in $repoPath" }
-    & git -C $repoPath merge origin/dev 2>&1
+
+    # Fetch latest so origin/dev is current
+    $null = & git -C $repoPath fetch origin 2>&1
+
+    # Check if there are any differences between main and origin/dev
+    $devRef = if ($hasRemoteDev) { 'origin/dev' } else { 'dev' }
+    $diffOutput = & git -C $repoPath diff main..$devRef --stat 2>$null
+    if (-not $diffOutput) {
+        Write-Host "  No changes between main and dev for $($Repo.name) - marking done" -ForegroundColor Yellow
+        return
+    }
+
+    $null = & git -C $repoPath merge $devRef 2>&1
     if ($LASTEXITCODE -ne 0) { throw "git merge dev failed in $repoPath - resolve conflicts manually" }
     Write-Host "  Merge complete for $($Repo.name)" -ForegroundColor Green
 }
