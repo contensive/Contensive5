@@ -393,23 +393,30 @@ function Invoke-StepMerge {
     }
     Write-Host "  Merging dev into main for $($Repo.name)..."
 
+    # Git writes informational messages to stderr (e.g., "Already on 'main'").
+    # PowerShell 5.1 with ErrorActionPreference=Stop treats stderr as terminating
+    # errors when captured via 2>&1. Use 2>$null to discard stderr for git commands
+    # and check $LASTEXITCODE instead.
+
     # Check if dev branch exists (local or remote)
-    $hasLocalDev = & git -C $repoPath rev-parse --verify dev 2>$null
-    $hasRemoteDev = & git -C $repoPath rev-parse --verify origin/dev 2>$null
+    $null = & git -C $repoPath rev-parse --verify dev 2>$null
+    $hasLocalDev = ($LASTEXITCODE -eq 0)
+    $null = & git -C $repoPath rev-parse --verify origin/dev 2>$null
+    $hasRemoteDev = ($LASTEXITCODE -eq 0)
     if (-not $hasLocalDev -and -not $hasRemoteDev) {
         Write-Host "  No dev branch found for $($Repo.name) - marking done" -ForegroundColor Yellow
         return
     }
 
     # Checkout main (suppress informational messages)
-    $null = & git -C $repoPath checkout main 2>&1
+    & git -C $repoPath checkout main 2>$null
     if ($LASTEXITCODE -ne 0) { throw "git checkout main failed in $repoPath" }
 
-    $null = & git -C $repoPath pull origin main 2>&1
+    & git -C $repoPath pull origin main 2>$null
     if ($LASTEXITCODE -ne 0) { throw "git pull main failed in $repoPath" }
 
     # Fetch latest so origin/dev is current
-    $null = & git -C $repoPath fetch origin 2>&1
+    & git -C $repoPath fetch origin 2>$null
 
     # Check if there are any differences between main and origin/dev
     $devRef = if ($hasRemoteDev) { 'origin/dev' } else { 'dev' }
@@ -419,7 +426,7 @@ function Invoke-StepMerge {
         return
     }
 
-    $null = & git -C $repoPath merge $devRef 2>&1
+    & git -C $repoPath merge $devRef 2>$null
     if ($LASTEXITCODE -ne 0) { throw "git merge dev failed in $repoPath - resolve conflicts manually" }
     Write-Host "  Merge complete for $($Repo.name)" -ForegroundColor Green
 }
