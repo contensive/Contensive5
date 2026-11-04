@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Contensive.Processor;
@@ -37,14 +38,19 @@ namespace Contensive.CLI {
                 cp.core.serverConfig.programFilesPath = currentPath;
                 cp.core.serverConfig.save(cp.core);
             }
+            var allErrors = new List<string>();
             if (!string.IsNullOrEmpty(appName)) {
                 //
                 // -- upgrade app
                 using CPClass upgradeApp = new Contensive.Processor.CPClass(appName);
                 if (upgradeApp.GetAppConfig().enabled) {
-                    BuildController.upgrade(upgradeApp.core, false, repair);
+                    var errors = BuildController.upgrade(upgradeApp.core, false, repair);
+                    if (errors.Count > 0) {
+                        foreach (string error in errors) {
+                            allErrors.Add($"[{appName}] {error}");
+                        }
+                    }
                     upgradeApp.Cache.InvalidateAll();
-
                 }
             } else {
                 //
@@ -52,11 +58,19 @@ namespace Contensive.CLI {
                 foreach (var kvp in cp.core.serverConfig.apps) {
                     using CPClass upgradeApp = new CPClass(kvp.Key);
                     if (upgradeApp.GetAppConfig().enabled) {
-                        BuildController.upgrade(upgradeApp.core, false, repair);
+                        var errors = BuildController.upgrade(upgradeApp.core, false, repair);
+                        if (errors.Count > 0) {
+                            foreach (string error in errors) {
+                                allErrors.Add($"[{kvp.Key}] {error}");
+                            }
+                        }
                         upgradeApp.Cache.InvalidateAll();
                     }
                 }
             }
+            //
+            // -- display accumulated installation errors
+            displayInstallationErrors(allErrors);
             //
             // -- check for Core apps with overlapping application/static file paths
             checkWebrootMigration(cp, appName);
@@ -157,6 +171,23 @@ namespace Contensive.CLI {
                     checkApp(kvp.Key);
                 }
             }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Display accumulated installation errors/warnings to the console.
+        /// Called after upgrade or install to surface any issues that occurred during collection installation.
+        /// </summary>
+        internal static void displayInstallationErrors(List<string> errors) {
+            if (errors == null || errors.Count == 0) { return; }
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"  INSTALLATION WARNINGS ({errors.Count} issue(s) during collection installation):");
+            Console.ResetColor();
+            foreach (string error in errors) {
+                Console.WriteLine($"    {error}");
+            }
+            Console.WriteLine();
         }
     }
 }

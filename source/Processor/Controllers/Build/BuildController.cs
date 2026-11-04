@@ -32,7 +32,8 @@ namespace Contensive.Processor.Controllers.Build {
         /// <param name="core"></param>
         /// <param name="isNewBuild"></param>
         /// <param name="repair"></param>
-        public static void upgrade(CoreController core, bool isNewBuild, bool repair) {
+        public static List<string> upgrade(CoreController core, bool isNewBuild, bool repair) {
+            var installationErrors = new List<string>();
             try {
                 //
                 // -- increase sql timeout for upgrade operations (default is 30s which can timeout on large databases)
@@ -72,8 +73,7 @@ namespace Contensive.Processor.Controllers.Build {
                     bool skipCdefInstall = false;
                     CollectionInstallController.installBaseCollection(core, context, isNewBuild, repair, ref nonCriticalErrorList, logPrefix, collectionsInstalledList, skipCdefInstall);
                     foreach (string nonCriticalError in nonCriticalErrorList) {
-                        //
-                        // -- error messages, already reported?
+                        installationErrors.Add(nonCriticalError);
                     }
                     //
                     // -- verify staff group
@@ -228,10 +228,19 @@ namespace Contensive.Processor.Controllers.Build {
                         foreach (var collection in DbBaseModel.createList<AddonCollectionModel>(core.cpParent, "(updatable>0)")) {
                             if (!collectionsInstalledList.Contains(collection.ccguid)) {
                                 //
-                                // -- install all of them, ignore install errors
+                                // -- install all of them, accumulate errors but do not stop
                                 ErrorReturnModel installErrorMessage = new();
                                 nonCriticalErrorList = new List<string>();
                                 CollectionLibraryController.installCollectionFromLibrary(core, false, new Stack<string>(), collection.ccguid, ref installErrorMessage, isNewBuild, repair, ref nonCriticalErrorList, "", ref collectionsInstalledList, skipCdefInstall);
+                                foreach (string error in installErrorMessage.errors) {
+                                    installationErrors.Add($"Collection [{collection.name}]: {error}");
+                                }
+                                foreach (string warning in installErrorMessage.warnings) {
+                                    installationErrors.Add($"Collection [{collection.name}]: {warning}");
+                                }
+                                foreach (string nonCriticalError in nonCriticalErrorList) {
+                                    installationErrors.Add($"Collection [{collection.name}]: {nonCriticalError}");
+                                }
                             }
                         }
                     }
@@ -267,6 +276,7 @@ namespace Contensive.Processor.Controllers.Build {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
+            return installationErrors;
         }
         //
         //====================================================================================================

@@ -409,7 +409,7 @@ namespace Contensive.CLI {
                     }
                     //
                     logger.Info($"{cp.core.logCommonMessage},Run db upgrade.");
-                    Processor.Controllers.Build.BuildController.upgrade(cp.core, true, true);
+                    var installationErrors = Processor.Controllers.Build.BuildController.upgrade(cp.core, true, true);
                     //
                     // -- set the application back to normal mode
                     cp.core.serverConfig.save(cp.core);
@@ -419,6 +419,9 @@ namespace Contensive.CLI {
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailFromAddress, defaultEmailAddress);
                     //
                     logger.Info($"{cp.core.logCommonMessage},Upgrade complete.");
+                    //
+                    // -- display any installation errors that occurred during upgrade
+                    UpgradeCmd.displayInstallationErrors(installationErrors);
                     if (webApiInstalled) {
                         logger.Info($"{cp.core.logCommonMessage},WebApi deployed to IIS site [{appName}].");
                     } else {
