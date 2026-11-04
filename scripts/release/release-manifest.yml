@@ -41,7 +41,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T16:54:04", notes: "" }
       test: { status: done, timestamp: "2026-11-01T23:45:52", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-01T23:51:07", notes: "" }
+      publish: { status: pending, timestamp: "2026-11-03T21:36:28", notes: "" }
 
   - name: aoDesignBlocks
     path: C:\Git\aoDesignBlocks
@@ -62,7 +62,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T16:56:11", notes: "Local staging deploy failed for aoDesignBlocks" }
       test: { status: done, timestamp: "2026-11-02T00:00:18", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T00:09:35", notes: "" }
+      publish: { status: pending, timestamp: "2026-11-03T21:36:28", notes: "" }
 
   - name: aoEcommerce
     path: C:\Git\aoEcommerce
@@ -82,7 +82,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:00:23", notes: "" }
       test: { status: done, timestamp: "2026-11-02T00:18:12", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T07:21:47", notes: "" }
+      publish: { status: pending, timestamp: "2026-11-03T21:36:28", notes: "" }
 
   - name: aoMCP
     path: C:\Git\aoMCP
@@ -101,7 +101,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:05:17", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-01T23:23:37", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:37:27", notes: "" }
 
   - name: aoAddonManager
     path: C:\Git\aoAddonManager
@@ -117,7 +117,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:05:50", notes: "" }
       test: { status: done, timestamp: "2026-11-02T10:22:22", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:13", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:38:58", notes: "" }
 
   - name: aoAnalytics
     path: C:\Git\aoAnalytics
@@ -133,7 +133,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:08:34", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:14", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:38:58", notes: "" }
 
   - name: aoBlog
     path: C:\Git\aoBlog
@@ -149,7 +149,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:11:40", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:17", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:38:59", notes: "" }
 
   - name: aoCalender2
     path: C:\Git\aoCalender2
@@ -165,7 +165,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:16:37", notes: "" }
       test: { status: done, timestamp: "2026-11-02T10:22:25", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:19", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:02", notes: "" }
 
   - name: aoCodeMirrorEditor
     path: C:\Git\aoCodeMirrorEditor
@@ -181,7 +181,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:18:26", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:21", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:03", notes: "" }
 
   - name: aoContactManager
     path: C:\Git\aoContactManager
@@ -197,7 +197,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:21:32", notes: "Local staging deploy failed for aoContactManager" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:42", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:11", notes: "" }
 
   - name: aoContentPortal
     path: C:\Git\aoContentPortal
@@ -213,7 +213,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:21:34", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:49", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:13", notes: "" }
 
   - name: aoDashboard
     path: C:\Git\aoDashboard
@@ -229,7 +229,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:22:26", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:51", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:23", notes: "" }
 
   - name: aoDistanceLearning
     path: C:\Git\aoDistanceLearning
@@ -245,7 +245,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:22:55", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:54", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:25", notes: "" }
 
   - name: aoFilemanager
     path: C:\Git\aoFilemanager
@@ -261,7 +261,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:24:25", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:16:57", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:28", notes: "" }
 
   - name: aoFormWizard
     path: C:\Git\aoFormWizard
@@ -277,7 +277,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:25:17", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:00", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:32", notes: "" }
 
   - name: aoHelpCenter
     path: C:\Git\aoHelpCenter
@@ -293,7 +293,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:26:39", notes: "" }
       test: { status: done, timestamp: "2026-11-02T13:45:24", notes: "Tests failed for Tests.csproj in aoHelpCenter" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:04", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:37", notes: "" }
 
   - name: aoHtmlImport
     path: C:\Git\aoHtmlImport
@@ -309,7 +309,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:28:01", notes: "" }
       test: { status: done, timestamp: "2026-11-02T10:22:36", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:08", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:41", notes: "" }
 
   - name: aoImportWizard
     path: C:\Git\aoImportWizard
@@ -325,7 +325,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:28:57", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:12", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:46", notes: "" }
 
   - name: aoLibrary
     path: C:\Git\aoLibrary
@@ -341,7 +341,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:29:55", notes: "Local staging deploy failed for aoLibrary" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:14", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:49", notes: "" }
 
   - name: aoMeetingManager
     path: C:\Git\aoMeetingManager
@@ -357,7 +357,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:29:57", notes: "" }
       test: { status: done, timestamp: "2026-11-02T16:49:34", notes: "Tests failed for MeetingManager.tests.csproj in aoMeetingManager" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:17", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:52", notes: "" }
 
   - name: aoMembershipApplication
     path: C:\Git\aoMembershipApplication
@@ -373,7 +373,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:41:48", notes: "Local staging deploy failed for aoMembershipApplication" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:21", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:55", notes: "" }
 
   - name: aoMembershipManager
     path: C:\Git\aoMembershipManager
@@ -389,7 +389,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:41:49", notes: "" }
       test: { status: done, timestamp: "2026-11-02T10:23:13", notes: "" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:26", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:39:58", notes: "" }
 
   - name: aoMenuing
     path: C:\Git\aoMenuing
@@ -405,7 +405,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:42:24", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:28", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:01", notes: "" }
 
   - name: aoNewsletter2
     path: C:\Git\aoNewsletter2
@@ -421,7 +421,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:42:51", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:32", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:05", notes: "" }
 
   - name: aoPageBuilder
     path: C:\Git\aoPageBuilder
@@ -437,7 +437,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:43:51", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:35", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:11", notes: "" }
 
   - name: aoPersonalization
     path: C:\Git\aoPersonalization
@@ -453,7 +453,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:44:22", notes: "Local staging deploy failed for aoPersonalization" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: pending, timestamp: null, notes: "" }
+      publish: { status: pending, timestamp: "2026-11-03T21:38:49", notes: "" }
 
   - name: aoReCAPTCHA
     path: C:\Git\aoReCAPTCHA
@@ -469,7 +469,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:44:23", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:38", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:13", notes: "" }
 
   - name: aoRedactorEditor
     path: C:\Git\aoRedactorEditor
@@ -485,7 +485,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:45:01", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:44", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:17", notes: "" }
 
   - name: aoReporting
     path: C:\Git\aoReporting
@@ -501,7 +501,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:45:20", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:46", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:22", notes: "" }
 
   - name: aoRSS
     path: C:\Git\aoRSS
@@ -517,7 +517,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:45:38", notes: "Local staging deploy failed for aoRSS" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:50", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:24", notes: "" }
 
   - name: aoSecurity
     path: C:\Git\aoSecurity
@@ -533,7 +533,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:45:39", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:52", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:27", notes: "" }
 
   - name: aoShare
     path: C:\Git\aoShare
@@ -549,7 +549,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:48:38", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:17:56", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:31", notes: "" }
 
   - name: aoTextSearch2
     path: C:\Git\aoTextSearch2
@@ -565,7 +565,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:49:21", notes: "Local staging deploy failed for aoTextSearch2" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:18:00", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:34", notes: "" }
 
   - name: aoThemes
     path: C:\Git\aoThemes
@@ -581,7 +581,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:49:22", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:18:04", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:36", notes: "" }
 
   - name: aoToolPanel
     path: C:\Git\aoToolPanel
@@ -597,7 +597,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:50:15", notes: "" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:18:13", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:46", notes: "" }
 
   - name: aoTools
     path: C:\Git\aoTools
@@ -613,7 +613,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:50:40", notes: "Local staging deploy failed for aoTools" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:18:17", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:48", notes: "" }
 
   - name: aoWhosOnline
     path: C:\Git\aoWhosOnline
@@ -629,7 +629,7 @@ repos:
       staging: { status: done, timestamp: "2026-11-02T17:50:41", notes: "Local staging deploy failed for aoWhosOnline" }
       test: { status: skipped, timestamp: null, notes: "no test project" }
       smoke: { status: done, timestamp: "2026-11-02T21:12:57", notes: "" }
-      publish: { status: done, timestamp: "2026-11-02T21:18:19", notes: "" }
+      publish: { status: done, timestamp: "2026-11-03T21:40:52", notes: "" }
 
   - name: aoArticleLibrary
     path: C:\Git\aoArticleLibrary

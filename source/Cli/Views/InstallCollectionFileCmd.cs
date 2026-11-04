@@ -46,6 +46,9 @@ namespace Contensive.CLI {
                 } else {
                     installCollectionFile(appName, collectionPhysicalPathFilename, skipCdefInstall);
                 }
+                //
+                // -- run compatibility scan after install
+                CompatibilityCmd.execute(cpServer, appName);
             } catch (Exception ex) {
                 Console.WriteLine("Error: [" + ex + "]");
             }

@@ -102,10 +102,17 @@ function Invoke-AddonLibraryDeploy {
     Write-Host "Collection XML: $($xmlFile.FullName)"
 
     $collectionGuid = $collectionNode.Guid
+    $xmlCollectionName = $collectionNode.name
     $helpText = if ($collectionNode | Get-Member -Name 'Help' -MemberType Property) { $collectionNode.Help } else { '' }
 
     if ([string]::IsNullOrWhiteSpace($collectionGuid)) {
         throw "No Guid attribute found on <Collection> element in $($xmlFile.Name)"
+    }
+    if ([string]::IsNullOrWhiteSpace($xmlCollectionName)) {
+        throw "No name attribute found on <Collection> element in $($xmlFile.Name)"
+    }
+    if ($xmlCollectionName -ne $CollectionName) {
+        Write-Host "NOTE: Using collection name from XML ('$xmlCollectionName') instead of parameter ('$CollectionName')" -ForegroundColor DarkYellow
     }
 
     Write-Host "GUID:          $collectionGuid"
@@ -278,7 +285,7 @@ function Invoke-AddonLibraryDeploy {
     # -------------------------------------------------------------------
     $payload = @{
         collectionGuid       = $collectionGuid
-        collectionName       = $CollectionName
+        collectionName       = $xmlCollectionName
         description          = if ($helpText) { $helpText } else { '' }
         collectionFileBase64 = $zipBase64
         collectionFileName   = $zipFile.Name
@@ -297,7 +304,7 @@ function Invoke-AddonLibraryDeploy {
     # -------------------------------------------------------------------
     $url = "https://$TargetDomain/addon-library-upload"
     Write-Host "Uploading to $url..."
-    Write-Host "Collection:     $CollectionName"
+    Write-Host "Collection:     $xmlCollectionName"
     Write-Host "Version:        $(if ($collectionVersion) { $collectionVersion } else { '(not detected)' })"
     Write-Host "CP version:     $(if ($contensiveVersion) { $contensiveVersion } else { '(not detected)' })"
     Write-Host "Payload size:   $([Math]::Round($jsonPayload.Length / 1MB, 1)) MB"
@@ -357,7 +364,7 @@ function Invoke-AddonLibraryDeploy {
 
     Write-Host ""
     Write-Host "========================================"
-    Write-Host "  Upload complete: $CollectionName -> $TargetDomain"
+    Write-Host "  Upload complete: $xmlCollectionName -> $TargetDomain"
     Write-Host "========================================"
 }
 
