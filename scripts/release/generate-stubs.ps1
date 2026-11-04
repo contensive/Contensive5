@@ -7,7 +7,7 @@
 .DESCRIPTION
     Scans repos listed in repo-catalog.yml and creates missing deploy script
     stubs following the established Contensive stub pattern.
-    This script is idempotent — it will not overwrite existing files.
+    This script is idempotent -- it will not overwrite existing files.
 #>
 [CmdletBinding()]
 param()
@@ -71,7 +71,7 @@ function Get-CollectionInfo {
 }
 
 # ---------------------------------------------------------------------------
-# Stub creation functions — use arrays of lines to avoid here-string issues
+# Stub creation functions -- use arrays of lines to avoid here-string issues
 # ---------------------------------------------------------------------------
 function New-BuildDeployLocalCmd {
     param([string]$Path)
@@ -82,7 +82,7 @@ function New-BuildDeployLocalCmd {
         'pause'
         'exit /b %errorlevel%'
     )
-    # Fix the %% back to % — we doubled them to avoid PS interpretation
+    # Fix the %% back to % -- we doubled them to avoid PS interpretation
     $text = ($lines -join "`r`n") -replace '%%', '%'
     Set-Content -Path $Path -Value $text -NoNewline -Encoding ASCII
 }
@@ -160,7 +160,7 @@ function New-DeployToAddonLibraryPs1 {
         "    [string]`$TargetDomain = 'www.contensive.com'"
         ')'
         ''
-        "$ErrorActionPreference = 'Stop'"
+        "`$ErrorActionPreference = 'Stop'"
         ''
         "Import-Module (Join-Path `$PSScriptRoot '..\..\Contensive5\scripts\deploy-to-addon-library.psm1') -Force"
         ''
@@ -195,7 +195,7 @@ function New-BuildCmd {
 function New-BuildPs1Placeholder {
     param([string]$Path, [string]$RepoName, [string]$CollectionName, [string]$CollectionPath, [string]$DeploymentRoot, [bool]$HasUi)
 
-    # Build a plain text file content — no here-strings
+    # Build a plain text file content -- no here-strings
     $sb = [System.Text.StringBuilder]::new()
     [void]$sb.AppendLine('#Requires -Version 5.1')
     [void]$sb.AppendLine("# TODO: Configure this build script for $RepoName.")

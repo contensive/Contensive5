@@ -14,7 +14,7 @@ namespace Contensive.Processor.Tests.UnitTests.TextMessage;
 [TestClass]
 public class SnsMessageVerifierTests {
     //
-    private const string topicArn = "arn:aws:sns:us-east-1:123456789012:contensive-sms-c5test";
+    private const string topicArn = "arn:aws:sns:us-east-1:123456789012:contensive-sms-test";
     private const string certUrl = "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-0123456789abcdef.pem";
     //
     private static RSA rsa;
@@ -62,7 +62,7 @@ public class SnsMessageVerifierTests {
             TopicArn = topicArn,
             Message = "You have chosen to subscribe to the topic. To confirm the subscription, visit the SubscribeURL included in this message.",
             Token = "2336412f37fb687f5d51e6e241d09c805a5a57b30d712f794cc5f6a988666d92768dd60a747ba6f3beb71854e285d6ad02428b09ceece29417f1f02d609c582afbacc99c583a916b9981dd2728f4ae6fdb82efd087cc3b7849e05798d2d2785c03b0879594eeac82c01f235d0e717736",
-            SubscribeURL = "https://sns.us-east-1.amazonaws.com/?Action=ConfirmSubscription&TopicArn=arn:aws:sns:us-east-1:123456789012:contensive-sms-c5test&Token=2336412f",
+            SubscribeURL = "https://sns.us-east-1.amazonaws.com/?Action=ConfirmSubscription&TopicArn=arn:aws:sns:us-east-1:123456789012:contensive-sms-test&Token=2336412f",
             Timestamp = "2026-10-27T15:00:00.000Z",
             SignatureVersion = signatureVersion,
             SigningCertURL = certUrl

@@ -4,7 +4,7 @@
     Host: C:\Git\Contensive5\scripts\contensive-build.psm1
 
 .DESCRIPTION
-    Provides Invoke-ContensiveBuild — the single entry point that runs every
+    Provides Invoke-ContensiveBuild -- the single entry point that runs every
     step of a standard Contensive collection build.  Individual helper
     functions are also exported for repos that need to extend the standard flow.
 
@@ -44,7 +44,7 @@ function Get-ContensiveVersion {
 .PARAMETER RepoPath
     Path inside the git repository. Used with 'git -C' to reliably detect
     the current branch regardless of the process working directory.
-    Required — without it, branch detection fails when the build runs from
+    Required -- without it, branch detection fails when the build runs from
     a directory outside the repo (e.g. C:\Windows\System32 in an elevated
     Administrator shell).
 .OUTPUTS
@@ -317,7 +317,7 @@ function Publish-NuGetDevPackages {
 }
 
 # ===========================================================================
-# Invoke-ContensiveBuild  — the single orchestrated entry point
+# Invoke-ContensiveBuild  -- the single orchestrated entry point
 # ===========================================================================
 function Invoke-ContensiveBuild {
 <#
@@ -326,7 +326,7 @@ function Invoke-ContensiveBuild {
     solution, assemble collection zip, deploy, and clean up.
 
 .DESCRIPTION
-    All build steps are defined here. Addon repos supply only configuration —
+    All build steps are defined here. Addon repos supply only configuration --
     they never duplicate step logic. To change the build process for every
     repo, edit this function.
 
@@ -339,14 +339,14 @@ function Invoke-ContensiveBuild {
     collection XML and will stage the build artifacts.
 
 .PARAMETER SolutionPath
-    Absolute path to the .sln file to build. Optional — omit for
+    Absolute path to the .sln file to build. Optional -- omit for
     collections that have no .NET project (e.g. theme/data-only collections).
     When omitted, the build and DLL copy steps are skipped.
 
 .PARAMETER BinPath
     Absolute path to the bin folder produced by the build
     (e.g. '...\server\FMA\bin\Release' or '...\server\FMA\bin\Debug').
-    Optional — omit when SolutionPath is omitted.
+    Optional -- omit when SolutionPath is omitted.
 
 .PARAMETER Configuration
     Build configuration (Debug or Release). Defaults to Release.
@@ -357,7 +357,7 @@ function Invoke-ContensiveBuild {
 
 .PARAMETER CleanFolders
     Array of folders to delete before building (typically bin\ and obj\
-    for each project in the solution). Defaults to empty — nothing cleaned.
+    for each project in the solution). Defaults to empty -- nothing cleaned.
 
 .PARAMETER UiPath
     Root folder containing UI asset sub-folders (wwwFiles, cdnFiles, etc.).
@@ -404,7 +404,7 @@ function Invoke-ContensiveBuild {
     )
 
     # -----------------------------------------------------------------------
-    # Step 0 — Require elevated (Administrator) permissions
+    # Step 0 -- Require elevated (Administrator) permissions
     # -----------------------------------------------------------------------
     $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -412,7 +412,7 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 1 — Resolve version, deployment folder, and tools
+    # Step 1 -- Resolve version, deployment folder, and tools
     # -----------------------------------------------------------------------
     $version          = Get-ContensiveVersion -DeploymentRoot $DeploymentRoot -RepoPath $CollectionPath
     $deploymentFolder = New-DeploymentFolder  -DeploymentRoot $DeploymentRoot -Version $version
@@ -429,9 +429,9 @@ function Invoke-ContensiveBuild {
     Write-Host ""
 
     # -----------------------------------------------------------------------
-    # Step 1.5 — Resolve the actual collection folder
+    # Step 1.5 -- Resolve the actual collection folder
     # -----------------------------------------------------------------------
-    # If CollectionPath has subfolders, each is its own collection — use
+    # If CollectionPath has subfolders, each is its own collection -- use
     # the subfolder matching CollectionName. Otherwise use CollectionPath directly.
     $subFolders = Get-ChildItem -Path $CollectionPath -Directory -ErrorAction SilentlyContinue
     if ($subFolders) {
@@ -439,13 +439,13 @@ function Invoke-ContensiveBuild {
         if (-not (Test-Path $collectionFolder)) {
             throw "Collection subfolder not found: $collectionFolder"
         }
-        Write-Host "Multi-collection repo detected — using: $collectionFolder"
+        Write-Host "Multi-collection repo detected -- using: $collectionFolder"
     } else {
         $collectionFolder = $CollectionPath
     }
 
     # -----------------------------------------------------------------------
-    # Step 2 — Clean build output folders
+    # Step 2 -- Clean build output folders
     # -----------------------------------------------------------------------
     Write-Host "Cleaning build folders..."
     foreach ($folder in $CleanFolders) {
@@ -461,7 +461,7 @@ function Invoke-ContensiveBuild {
     $collectionZip = Join-Path $collectionFolder "$CollectionName.zip"
 
     # -----------------------------------------------------------------------
-    # Step 3 — Package UI assets
+    # Step 3 -- Package UI assets
     # -----------------------------------------------------------------------
     if ($UiPath) {
         Write-Host "Packaging UI assets..."
@@ -475,7 +475,7 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 3.5 — Package help files
+    # Step 3.5 -- Package help files
     # -----------------------------------------------------------------------
     $resolvedHelpPath = $HelpFilesPath
     if (-not $resolvedHelpPath -and $UiPath) {
@@ -489,7 +489,7 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 4 — Build the solution (skipped for data-only collections)
+    # Step 4 -- Build the solution (skipped for data-only collections)
     # -----------------------------------------------------------------------
     if ($hasSolution) {
         if ($useDotnet) {
@@ -505,11 +505,11 @@ function Invoke-ContensiveBuild {
                                    -Version           $version
         }
     } else {
-        Write-Host "No solution — skipping build step."
+        Write-Host "No solution -- skipping build step."
     }
 
     # -----------------------------------------------------------------------
-    # Step 4.5 — Build NuGet packages (if specified)
+    # Step 4.5 -- Build NuGet packages (if specified)
     # -----------------------------------------------------------------------
     if ($NuGetProjects.Count -gt 0) {
         Write-Host "Building NuGet packages..."
@@ -549,7 +549,7 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 5 — Assemble the collection zip and copy to deployment folder
+    # Step 5 -- Assemble the collection zip and copy to deployment folder
     # -----------------------------------------------------------------------
     Write-Host "Building collection zip..."
     if ($BinPath) {
@@ -574,7 +574,7 @@ function Invoke-ContensiveBuild {
     Write-Host "Collection deployed to: $deploymentFolder"
 
     # -----------------------------------------------------------------------
-    # Step 6 — Clean staging files from collection folder
+    # Step 6 -- Clean staging files from collection folder
     # -----------------------------------------------------------------------
     Write-Host "Cleaning collection staging folder..."
     $collectionZipName = "$CollectionName.zip"
@@ -590,7 +590,7 @@ function Invoke-ContensiveBuild {
     Write-Host "========================================"
 
     # -----------------------------------------------------------------------
-    # Step 7 — Local deployment (Contensive CLI)
+    # Step 7 -- Local deployment (Contensive CLI)
     # -----------------------------------------------------------------------
     if ($LocalDeployTarget) {
         $deployZip = Join-Path $deploymentFolder "$CollectionName.zip"
@@ -607,7 +607,7 @@ function Invoke-ContensiveBuild {
     }
 
     # -----------------------------------------------------------------------
-    # Step 8 — Remote deployment (HTTP POST)
+    # Step 8 -- Remote deployment (HTTP POST)
     # -----------------------------------------------------------------------
     if ($RemoteDeployTarget) {
         $deployZip = Join-Path $deploymentFolder "$CollectionName.zip"
@@ -619,7 +619,7 @@ function Invoke-ContensiveBuild {
 }
 
 # ===========================================================================
-# Invoke-ContensiveDeploy  — deploy a collection zip to a remote site
+# Invoke-ContensiveDeploy  -- deploy a collection zip to a remote site
 # ===========================================================================
 function Invoke-ContensiveDeploy {
 <#
@@ -659,7 +659,7 @@ function Invoke-ContensiveDeploy {
     }
 
     # -------------------------------------------------------------------
-    # Token caching — reuse today's token or prompt for a new one
+    # Token caching -- reuse today's token or prompt for a new one
     # -------------------------------------------------------------------
     $tokenFile = Join-Path $env:TEMP "$SiteName-bearer-token.txt"
     $needToken = $true
@@ -702,7 +702,7 @@ function Invoke-ContensiveDeploy {
         $httpCode = (Get-Content $httpCodeFile -Raw).Trim()
 
         # --------------------------------------------------------------
-        # Auth failure — prompt for new token and retry once
+        # Auth failure -- prompt for new token and retry once
         # --------------------------------------------------------------
         if ($httpCode -eq '401' -or $httpCode -eq '403') {
             Write-Host ""
@@ -751,7 +751,7 @@ function Invoke-ContensiveDeploy {
 }
 
 # ===========================================================================
-# Get-ContensiveRemoteDeployTarget — prompt for remote domain with saved default
+# Get-ContensiveRemoteDeployTarget -- prompt for remote domain with saved default
 # ===========================================================================
 function Get-ContensiveRemoteDeployTarget {
 <#

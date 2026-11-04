@@ -5,7 +5,7 @@ rem Run all ProcessorTests
 rem Must be run from the project's git\project\scripts folder
 rem
 rem Before running, ensure the latest build has been installed
-rem on the c5test application by running upgrade-full.cmd from
+rem on the test application by running upgrade-full.cmd from
 rem the latest contensive.zip deployment folder.
 rem
 rem ==============================================================
@@ -17,7 +17,7 @@ echo ==============================================================
 echo  Contensive5 ProcessorTests
 echo ==============================================================
 echo.
-echo  Before running tests, the c5test database must be upgraded
+echo  Before running tests, the test database must be upgraded
 echo  to match the current code. If you have not run the upgrade
 echo  since your last schema change, press Ctrl+C now and run
 echo  upgrade-full.cmd from the latest contensive.zip deployment.

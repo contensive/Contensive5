@@ -22,7 +22,7 @@
     Path to the local NuGet package folder. Defaults to C:\NuGetLocalPackages.
 
 .PARAMETER WhatIf
-    Dry run — show what would change without modifying files.
+    Dry run -- show what would change without modifying files.
 
 .EXAMPLE
     .\update-contensive-packages.ps1 -RepoPath C:\Git\aoDesignBlocks
@@ -61,7 +61,7 @@ function Get-LatestLocalPackages {
         # or   Contensive.CPBaseClass.26.11.1.30150-dev.nupkg
         $baseName = $file.BaseName  # strip .nupkg
 
-        # Find where the version starts — look for the pattern where a segment
+        # Find where the version starts -- look for the pattern where a segment
         # transitions from letters/dots to digits
         # Strategy: split on '.', find the first segment that's all digits
         $parts = $baseName -split '\.'
@@ -145,7 +145,7 @@ foreach ($csproj in $csprojFiles) {
         $packageId = $m.Groups[2].Value
         $currentVersion = $m.Groups[3].Value
 
-        # Check for pinned comment — look at the line before or same line
+        # Check for pinned comment -- look at the line before or same line
         $lineIndex = $content.Substring(0, $m.Index).Split("`n").Count - 1
         $lines = $content.Split("`n")
         $isPinned = $false
@@ -163,7 +163,7 @@ foreach ($csproj in $csprojFiles) {
         }
 
         if (-not $localPackages.ContainsKey($packageId)) {
-            Write-Host "  NOT FOUND: $packageId not in local feed — keeping $currentVersion" -ForegroundColor DarkGray
+            Write-Host "  NOT FOUND: $packageId not in local feed -- keeping $currentVersion" -ForegroundColor DarkGray
             $totalSkipped++
             continue
         }
@@ -203,7 +203,7 @@ if ($totalUpdated -gt 0 -and -not $WhatIf) {
     if ($slnFiles.Count -gt 0) {
         & dotnet restore $slnFiles[0].FullName
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "WARNING: dotnet restore failed — check package versions" -ForegroundColor Red
+            Write-Host "WARNING: dotnet restore failed -- check package versions" -ForegroundColor Red
         } else {
             Write-Host "Restore complete" -ForegroundColor Green
         }

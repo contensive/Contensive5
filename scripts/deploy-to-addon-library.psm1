@@ -4,7 +4,7 @@
     Host: C:\Git\Contensive5\scripts\deploy-to-addon-library.psm1
 
 .DESCRIPTION
-    Provides Invoke-AddonLibraryDeploy — the single entry point that parses
+    Provides Invoke-AddonLibraryDeploy -- the single entry point that parses
     a collection XML for GUID and description, locates the built zip and
     optional promo image, then uploads everything to the addon-library-upload
     remote method on the target Contensive site.
@@ -82,12 +82,27 @@ function Invoke-AddonLibraryDeploy {
     if ($xmlFiles.Count -eq 0) {
         throw "No XML file found in: $CollectionPath"
     }
-    $xmlFile = $xmlFiles[0]
+    # Find the collection XML (the one with a <Collection> root element)
+    $xmlFile = $null
+    $collectionXml = $null
+    $collectionNode = $null
+    foreach ($candidate in $xmlFiles) {
+        [xml]$candidateXml = Get-Content $candidate.FullName -Encoding UTF8
+        $node = $candidateXml | Select-Object -ExpandProperty Collection -ErrorAction SilentlyContinue
+        if ($node) {
+            $xmlFile = $candidate
+            $collectionXml = $candidateXml
+            $collectionNode = $node
+            break
+        }
+    }
+    if (-not $xmlFile) {
+        throw "No collection XML found (no file with a <Collection> root element) in: $CollectionPath"
+    }
     Write-Host "Collection XML: $($xmlFile.FullName)"
 
-    [xml]$collectionXml = Get-Content $xmlFile.FullName -Encoding UTF8
-    $collectionGuid = $collectionXml.Collection.Guid
-    $helpText = $collectionXml.Collection.Help
+    $collectionGuid = $collectionNode.Guid
+    $helpText = if ($collectionNode | Get-Member -Name 'Help' -MemberType Property) { $collectionNode.Help } else { '' }
 
     if ([string]::IsNullOrWhiteSpace($collectionGuid)) {
         throw "No Guid attribute found on <Collection> element in $($xmlFile.Name)"
@@ -123,7 +138,41 @@ function Invoke-AddonLibraryDeploy {
     }
 
     # -------------------------------------------------------------------
-    # Step 2b: Validate required library listing content
+    # Step 2b: Detect minimum Contensive version from CPBaseClass package ref
+    # -------------------------------------------------------------------
+    $contensiveVersion = ''
+    # Derive repo root by walking up from CollectionPath until we find a .git directory
+    $repoRoot = (Resolve-Path $CollectionPath).Path
+    while ($repoRoot -and -not (Test-Path (Join-Path $repoRoot '.git'))) {
+        $parent = Split-Path $repoRoot -Parent
+        if ($parent -eq $repoRoot) { $repoRoot = ''; break }
+        $repoRoot = $parent
+    }
+    $csprojFiles = @(Get-ChildItem -Path $repoRoot -Filter '*.csproj' -File -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' })
+    foreach ($csproj in $csprojFiles) {
+        [xml]$proj = Get-Content $csproj.FullName -Encoding UTF8
+        $packageRefs = $proj.Project.ItemGroup |
+            Select-Object -ExpandProperty PackageReference -ErrorAction SilentlyContinue
+        if (-not $packageRefs) { continue }
+        $cpBaseRef = $packageRefs |
+            Where-Object { $_.Include -eq 'Contensive.CPBaseClass' } |
+            Select-Object -First 1
+        if ($cpBaseRef) {
+            $rawVersion = $cpBaseRef.Version
+            # Strip pre-release suffix (e.g., "26.10.28.21692-feature-branch" -> "26.10.28.21692")
+            $contensiveVersion = ($rawVersion -split '-')[0]
+            break
+        }
+    }
+    if ($contensiveVersion) {
+        Write-Host "Min CP version: $contensiveVersion"
+    } else {
+        Write-Host "Min CP version: (not detected -- no Contensive.CPBaseClass PackageReference found)"
+    }
+
+    # -------------------------------------------------------------------
+    # Step 2c: Validate required library listing content
     # -------------------------------------------------------------------
     $missingItems = @()
     if ([string]::IsNullOrWhiteSpace($helpText)) {
@@ -143,9 +192,13 @@ function Invoke-AddonLibraryDeploy {
         }
         Write-Host ""
         Write-Host "The addon will appear in the library without a description and/or image."
-        Write-Host "Press any key to continue anyway, or Ctrl+C to cancel and add the missing content first..."
-        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
-        Write-Host ""
+        if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
+            Write-Host "Press any key to continue anyway, or Ctrl+C to cancel and add the missing content first..."
+            $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+            Write-Host ""
+        } else {
+            Write-Host "Non-interactive mode -- continuing with missing content." -ForegroundColor DarkYellow
+        }
     }
 
     # -------------------------------------------------------------------
@@ -162,8 +215,8 @@ function Invoke-AddonLibraryDeploy {
     if ($directZips.Count -gt 0) {
         $zipFile = $directZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     } else {
-        # Look in the most recent subfolder (version subfolders sorted descending)
-        $subfolders = Get-ChildItem -Path $DeploymentPath -Directory | Sort-Object Name -Descending
+        # Look in the most recently written subfolder
+        $subfolders = Get-ChildItem -Path $DeploymentPath -Directory | Sort-Object LastWriteTime -Descending
         foreach ($sf in $subfolders) {
             $sfZips = @(Get-ChildItem -Path $sf.FullName -Filter '*.zip' -File -ErrorAction SilentlyContinue)
             if ($sfZips.Count -gt 0) {
@@ -230,6 +283,7 @@ function Invoke-AddonLibraryDeploy {
         collectionFileBase64 = $zipBase64
         collectionFileName   = $zipFile.Name
         collectionVersion    = $collectionVersion
+        contensiveVersion    = $contensiveVersion
     }
     if ($promoImageBase64) {
         $payload['promoImageBase64']   = $promoImageBase64
@@ -243,6 +297,9 @@ function Invoke-AddonLibraryDeploy {
     # -------------------------------------------------------------------
     $url = "https://$TargetDomain/addon-library-upload"
     Write-Host "Uploading to $url..."
+    Write-Host "Collection:     $CollectionName"
+    Write-Host "Version:        $(if ($collectionVersion) { $collectionVersion } else { '(not detected)' })"
+    Write-Host "CP version:     $(if ($contensiveVersion) { $contensiveVersion } else { '(not detected)' })"
     Write-Host "Payload size:   $([Math]::Round($jsonPayload.Length / 1MB, 1)) MB"
     Write-Host "Token prefix:   $($token.Substring(0, [Math]::Min(8, $token.Length)))..."
     Write-Host ""

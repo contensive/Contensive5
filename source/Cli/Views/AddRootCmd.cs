@@ -52,7 +52,7 @@ namespace Contensive.CLI {
                 currentUser.username = "root";
                 currentUser.admin = true;
                 currentUser.developer = true;
-                currentUser.dateExpires = DateTime.Now.AddHours(1);
+                currentUser.dateExpires = DateTime.UtcNow.AddHours(1);
                 currentUser.save(cp);
                 //
                 // -- clear used passwords

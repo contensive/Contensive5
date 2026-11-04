@@ -36,7 +36,7 @@ if (-not $CatalogPath) { $CatalogPath = Join-Path $scriptDir 'repo-catalog.yml' 
 if (-not $OutputPath) { $OutputPath = Join-Path $scriptDir 'release-manifest.yml' }
 
 # ---------------------------------------------------------------------------
-# Minimal YAML parser — repo-catalog.yml uses a simple flat structure
+# Minimal YAML parser -- repo-catalog.yml uses a simple flat structure
 # ---------------------------------------------------------------------------
 function Read-RepoCatalog {
     param([string]$Path)
@@ -121,16 +121,17 @@ function Get-RepoFeatures {
         return $result
     }
 
-    # Check for test projects — look for *Test*.csproj or *Tests*.csproj
+    # Check for test projects -- look for *Test*.csproj or *Tests*.csproj
     $testProjects = Get-ChildItem -Path $RepoPath -Filter '*Test*.csproj' -Recurse -ErrorAction SilentlyContinue
     if ($testProjects.Count -gt 0) {
         $result.has_tests = $true
     }
 
-    # Check for build script
+    # Check for build script (includes build-core.cmd for Tier 0)
     $buildScript = Join-Path $RepoPath 'scripts\build.ps1'
     $buildCmd = Join-Path $RepoPath 'scripts\build.cmd'
-    if ((Test-Path $buildScript) -or (Test-Path $buildCmd)) {
+    $buildCoreCmd = Join-Path $RepoPath 'scripts\build-core.cmd'
+    if ((Test-Path $buildScript) -or (Test-Path $buildCmd) -or (Test-Path $buildCoreCmd)) {
         $result.has_build_script = $true
     }
 

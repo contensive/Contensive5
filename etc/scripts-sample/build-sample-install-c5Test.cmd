@@ -1,7 +1,7 @@
 
 rem build and deliver to deployment folder
 
-set appName=c5test
+set appName=test
 @echo Build project and install on site: %appName%
 pause
 

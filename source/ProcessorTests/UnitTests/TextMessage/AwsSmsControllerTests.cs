@@ -21,24 +21,24 @@ public class AwsSmsControllerTests {
     //
     [TestMethod]
     public void buildRequest_allSettings() {
-        SendTextMessageRequest request = AwsSmsController.buildRequest("+17033039974", "hello", getSettings("contensive-test", "0.05"), "c5test", "{AAAA-BBBB}");
+        SendTextMessageRequest request = AwsSmsController.buildRequest("+17033039974", "hello", getSettings("contensive-test", "0.05"), "test", "{AAAA-BBBB}");
         Assert.AreEqual("+17033039974", request.DestinationPhoneNumber);
         Assert.AreEqual("+18335551234", request.OriginationIdentity);
         Assert.AreEqual("hello", request.MessageBody);
         Assert.AreEqual("TRANSACTIONAL", request.MessageType.Value);
         Assert.AreEqual("contensive-test", request.ConfigurationSetName);
         Assert.AreEqual("0.05", request.MaxPrice);
-        Assert.AreEqual("c5test", request.Context["app"]);
+        Assert.AreEqual("test", request.Context["app"]);
         Assert.AreEqual("{AAAA-BBBB}", request.Context["log"]);
     }
     //
     [TestMethod]
     public void buildRequest_blankOptionalSettingsOmitted() {
-        SendTextMessageRequest request = AwsSmsController.buildRequest("+17033039974", "hello", getSettings("", "  "), "c5test", "");
+        SendTextMessageRequest request = AwsSmsController.buildRequest("+17033039974", "hello", getSettings("", "  "), "test", "");
         Assert.IsNull(request.ConfigurationSetName);
         Assert.IsNull(request.MaxPrice);
         Assert.AreEqual("TRANSACTIONAL", request.MessageType.Value);
-        Assert.AreEqual("c5test", request.Context["app"]);
+        Assert.AreEqual("test", request.Context["app"]);
         Assert.IsFalse(request.Context.ContainsKey("log"));
     }
     //

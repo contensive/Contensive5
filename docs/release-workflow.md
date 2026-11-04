@@ -73,13 +73,31 @@ mark the step done:
 
 Tier 0 must be fully published before any other tier can update NuGet packages.
 
+The **build** step calls `scripts/build-core.cmd`, which:
+- Builds and packs CPBase, DbModels, and Processor NuGet packages
+- Copies packages to `C:\NuGetLocalPackages` (the local feed)
+- Builds WebApi, CLI, TaskService, iisDefaultSite
+- Creates a deployment package at `C:\Deployments\Contensive5-Core\{version}\contensive.zip`
+
+The **test** step automatically:
+1. Extracts the deployment zip
+2. Runs `upgrade-full.ps1` to upgrade the local server and database (requires Administrator)
+3. Runs the test projects
+
+**Important:** The test step requires an **Administrator PowerShell** because
+`upgrade-full.ps1` installs components, upgrades databases (`cc -u`), and
+deploys to IIS sites. If the runner is not elevated, it will print manual
+instructions and leave the step as `pending`.
+
 ```powershell
 .\release-runner.ps1 -Step build   -Tier 0
 .\release-runner.ps1 -Step test    -Tier 0
 .\release-runner.ps1 -Step staging -Tier 0
 ```
 
-Smoke test on staging, then mark and publish:
+The **staging** step auto-skips for Tier 0 (the local machine is already upgraded).
+
+Verify the local site, then mark smoke and publish:
 
 ```powershell
 .\release-runner.ps1 -Mark done -Step smoke -Repo Contensive5
@@ -88,25 +106,44 @@ Smoke test on staging, then mark and publish:
 
 ---
 
-## Step 5: Update NuGet Refs and Build Tier 1
+## Step 5: Build and Publish Tier 1
 
-Once Tier 0 is published, Tier 1 repos can pick up the new core packages:
-
-```powershell
-.\release-runner.ps1 -Step nuget   -Tier 1
-.\release-runner.ps1 -Step build   -Tier 1
-.\release-runner.ps1 -Step test    -Tier 1
-.\release-runner.ps1 -Step staging -Tier 1
-```
-
-Smoke test each Tier 1 repo, then mark and publish:
+Tier 1 repos depend on each other (aoMCP → aoCrm → aoDesignBlocks → aoEcommerce),
+so each must be fully published before the next can start. Process them one at a time
+in this order:
 
 ```powershell
+# aoMCP (no Tier 1 dependencies)
+.\release-runner.ps1 -Step nuget   -Repo aoMCP
+.\release-runner.ps1 -Step build   -Repo aoMCP
+.\release-runner.ps1 -Step test    -Repo aoMCP
+.\release-runner.ps1 -Step staging -Repo aoMCP
 .\release-runner.ps1 -Mark done -Step smoke -Repo aoMCP
+.\release-runner.ps1 -Step publish -Repo aoMCP
+
+# aoCrm (depends on aoMCP)
+.\release-runner.ps1 -Step nuget   -Repo aoCrm
+.\release-runner.ps1 -Step build   -Repo aoCrm
+.\release-runner.ps1 -Step test    -Repo aoCrm
+.\release-runner.ps1 -Step staging -Repo aoCrm
 .\release-runner.ps1 -Mark done -Step smoke -Repo aoCrm
+.\release-runner.ps1 -Step publish -Repo aoCrm
+
+# aoDesignBlocks (depends on aoCrm, aoMCP)
+.\release-runner.ps1 -Step nuget   -Repo aoDesignBlocks
+.\release-runner.ps1 -Step build   -Repo aoDesignBlocks
+.\release-runner.ps1 -Step test    -Repo aoDesignBlocks
+.\release-runner.ps1 -Step staging -Repo aoDesignBlocks
 .\release-runner.ps1 -Mark done -Step smoke -Repo aoDesignBlocks
+.\release-runner.ps1 -Step publish -Repo aoDesignBlocks
+
+# aoEcommerce (depends on aoDesignBlocks)
+.\release-runner.ps1 -Step nuget   -Repo aoEcommerce
+.\release-runner.ps1 -Step build   -Repo aoEcommerce
+.\release-runner.ps1 -Step test    -Repo aoEcommerce
+.\release-runner.ps1 -Step staging -Repo aoEcommerce
 .\release-runner.ps1 -Mark done -Step smoke -Repo aoEcommerce
-.\release-runner.ps1 -Step publish -Tier 1
+.\release-runner.ps1 -Step publish -Repo aoEcommerce
 ```
 
 ---
@@ -120,7 +157,7 @@ Smoke test each Tier 1 repo, then mark and publish:
 .\release-runner.ps1 -Step staging -Tier 2
 ```
 
-Smoke test and publish. Mark each repo individually or in bulk:
+Verify on the local site and publish. Mark each repo individually or in bulk:
 
 ```powershell
 .\release-runner.ps1 -Mark done -Step smoke -Repo aoBlog
@@ -134,13 +171,13 @@ Smoke test and publish. Mark each repo individually or in bulk:
 ## Step 7: Deploy Tier 3 (Data/UI Only)
 
 Tier 3 repos have no C# build or tests (auto-skipped). Just merge, deploy to
-staging, smoke test, and publish:
+the local site, verify, and publish:
 
 ```powershell
 .\release-runner.ps1 -Step staging -Tier 3
 ```
 
-Mark each repo after verifying on staging:
+Mark each repo after verifying on the local site:
 
 ```powershell
 .\release-runner.ps1 -Mark done -Step smoke -Repo aoBootstrap
@@ -214,11 +251,11 @@ Preview what package versions would change without modifying files:
 | Step | What happens | Automated? |
 |------|-------------|-----------|
 | `merge` | `git checkout main && git merge origin/dev` | Yes |
-| `nuget` | Updates `Contensive.*` PackageReference versions from `C:\NuGetLocalPackages` | Yes |
-| `build` | Runs the repo's `scripts/build.ps1` (falls back to `dotnet build` if no script) | Yes |
-| `test` | Runs `dotnet test` on any `*Test*.csproj` projects | Yes |
-| `staging` | Runs the repo's `scripts/build-deploy-remote.cmd` | Yes |
-| `smoke` | You verify on staging, then mark done or failed | Manual |
+| `nuget` | Updates `Contensive.*` PackageReference versions from `C:\NuGetLocalPackages` (skipped for repos with no dependencies) | Yes |
+| `build` | Tier 0: runs `build-core.cmd` (NuGet packages + full platform build). Others: runs `scripts/build.ps1` (falls back to `dotnet build`) | Yes |
+| `test` | Tier 0: extracts deployment zip, runs `upgrade-full.ps1` to upgrade local server/database, then runs tests (requires Admin). Others: runs `dotnet test` on `*Test*.csproj` projects | Yes |
+| `staging` | Tier 0: auto-skipped (local machine already upgraded in test step). Others: runs `scripts/build-deploy-local.cmd` to install the addon on the local Contensive site | Yes |
+| `smoke` | You verify the addon on the local site, then mark done or failed | Manual |
 | `publish` | Runs the repo's `scripts/deploy-to-addon-library.cmd` | Yes |
 
 ## Step Statuses

@@ -51,7 +51,7 @@ public class SmsNotificationControllerTests {
     //
     [TestMethod]
     public void isTopicAllowed_exactMatchOnly() {
-        const string arn = "arn:aws:sns:us-east-1:123456789012:contensive-sms-c5test";
+        const string arn = "arn:aws:sns:us-east-1:123456789012:contensive-sms-test";
         Assert.IsTrue(SmsNotificationController.isTopicAllowed(arn, arn));
         Assert.IsTrue(SmsNotificationController.isTopicAllowed(arn, $"arn:aws:sns:us-east-1:123456789012:other , {arn} "));
         Assert.IsFalse(SmsNotificationController.isTopicAllowed(arn, ""));

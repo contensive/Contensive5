@@ -165,11 +165,6 @@ repos:
     produces: []
     depends_on: []
 
-  - name: aoMemberBoss
-    path: C:\Git\aoMemberBoss
-    tier: 2
-    produces: []
-    depends_on: []
 
   - name: aoMembershipApplication
     path: C:\Git\aoMembershipApplication
@@ -183,11 +178,6 @@ repos:
     produces: []
     depends_on: []
 
-  - name: aoMenuCrm
-    path: C:\Git\aoMenuCrm
-    tier: 2
-    produces: []
-    depends_on: []
 
   - name: aoMenuing
     path: C:\Git\aoMenuing
@@ -209,12 +199,6 @@ repos:
 
   - name: aoPersonalization
     path: C:\Git\aoPersonalization
-    tier: 2
-    produces: []
-    depends_on: []
-
-  - name: aoPortalFramework
-    path: C:\Git\aoPortalFramework
     tier: 2
     produces: []
     depends_on: []
@@ -243,12 +227,6 @@ repos:
     produces: []
     depends_on: []
 
-  - name: aoSamples
-    path: C:\Git\aoSamples
-    tier: 2
-    produces: []
-    depends_on: []
-
   - name: aoSecurity
     path: C:\Git\aoSecurity
     tier: 2
@@ -257,12 +235,6 @@ repos:
 
   - name: aoShare
     path: C:\Git\aoShare
-    tier: 2
-    produces: []
-    depends_on: []
-
-  - name: aoSiteMonitor
-    path: C:\Git\aoSiteMonitor
     tier: 2
     produces: []
     depends_on: []
@@ -300,11 +272,6 @@ repos:
   # ==========================================================================
   # TIER 3 - Data/UI-Only Collections
   # ==========================================================================
-  - name: aoAngularJs
-    path: C:\Git\aoAngularJs
-    tier: 3
-    produces: []
-    depends_on: []
 
   - name: aoArticleLibrary
     path: C:\Git\aoArticleLibrary
@@ -318,80 +285,10 @@ repos:
     produces: []
     depends_on: []
 
-  - name: aoCallToAction
-    path: C:\Git\aoCallToAction
-    tier: 3
-    produces: []
-    depends_on: []
 
-  - name: aoCatalog
-    path: C:\Git\aoCatalog
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoDonations
-    path: C:\Git\aoDonations
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoEmailBlockedReport
-    path: C:\Git\aoEmailBlockedReport
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoEmailBounceProcess
-    path: C:\Git\aoEmailBounceProcess
-    tier: 3
-    produces: []
-    depends_on: []
 
   - name: aoEvents
     path: C:\Git\aoEvents
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoGoogleAnalytics
-    path: C:\Git\aoGoogleAnalytics
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoGridly
-    path: C:\Git\aoGridly
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoGridstack
-    path: C:\Git\aoGridstack
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoJQuery
-    path: C:\Git\aoJQuery
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoLists
-    path: C:\Git\aoLists
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoLoginLightbox
-    path: C:\Git\aoLoginLightbox
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoMeetingManagerMobileApp
-    path: C:\Git\aoMeetingManagerMobileApp
     tier: 3
     produces: []
     depends_on: []
@@ -402,68 +299,3 @@ repos:
     produces: []
     depends_on: []
 
-  - name: aoOwlCarousel
-    path: C:\Git\aoOwlCarousel
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoPageExtension
-    path: C:\Git\aoPageExtension
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoPageNavigation2
-    path: C:\Git\aoPageNavigation2
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoPeopleMergeTool
-    path: C:\Git\aoPeopleMergeTool
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoPrefs
-    path: C:\Git\aoPrefs
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoProcessEmail
-    path: C:\Git\aoProcessEmail
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoSEOSiteMap
-    path: C:\Git\aoSEOSiteMap
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoSocialMedia
-    path: C:\Git\aoSocialMedia
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoSpider
-    path: C:\Git\aoSpider
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoTemplateManager
-    path: C:\Git\aoTemplateManager
-    tier: 3
-    produces: []
-    depends_on: []
-
-  - name: aoVisitTracking
-    path: C:\Git\aoVisitTracking
-    tier: 3
-    produces: []
-    depends_on: []
