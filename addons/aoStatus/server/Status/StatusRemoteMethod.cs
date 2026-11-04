@@ -269,6 +269,28 @@ namespace Contensive.Addons.Status {
                     }
                 }
                 //
+                // -- check that "Deprecate Active Scripting" is enabled (warning only, does not fail status)
+                {
+                    if (!cp.Site.GetBoolean("deprecate active scripting", true)) {
+                        string warning = "Site property 'Deprecate Active Scripting' is false. It should be set to true to block legacy VBScript/JScript addon execution.";
+                        resultList.AppendLine($"warning, {warning}");
+                        warningsList.Add(warning);
+                    } else {
+                        resultList.AppendLine("ok, Deprecate Active Scripting is enabled.");
+                    }
+                }
+                //
+                // -- check that "Mustache with Stubble" is enabled (warning only, does not fail status)
+                {
+                    if (!cp.Site.GetBoolean("mustache with stubble", true)) {
+                        string warning = "Site property 'Mustache with Stubble, not Nustache' is false. It should be set to true to use the modern Stubble renderer.";
+                        resultList.AppendLine($"warning, {warning}");
+                        warningsList.Add(warning);
+                    } else {
+                        resultList.AppendLine("ok, Mustache with Stubble is enabled.");
+                    }
+                }
+                //
                 // -- check robots.txt blocks method= URLs (warning only, does not fail status)
                 {
                     string robotsTxt = cp.Site.GetText("robotsTxt");

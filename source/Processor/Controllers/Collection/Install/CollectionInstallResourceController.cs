@@ -30,6 +30,23 @@ namespace Contensive.Processor.Controllers {
             string resourcePath = XmlController.getXMLAttribute(core, metaDataSection, "path", "");
             string filename = XmlController.getXMLAttribute(core, metaDataSection, "name", "");
             //
+            // -- when no type is specified, infer it from a recognized zip filename
+            if (string.IsNullOrEmpty(resourceType)) {
+                var recognizedZipTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
+                    { "layoutFiles.zip", "layoutFiles" },
+                    { "wwwFiles.zip", "wwwFiles" },
+                    { "cdnFiles.zip", "cdnFiles" },
+                    { "privateFiles.zip", "privateFiles" },
+                    { "helpFiles.zip", "helpFiles" }
+                };
+                string baseFilename = System.IO.Path.GetFileName(filename);
+                if (recognizedZipTypes.TryGetValue(baseFilename, out string inferredType)) {
+                    resourceType = inferredType;
+                    resourcePath = "";
+                    logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], GUID [{collectionGuid}], resource [{filename}] has no Type attribute, inferred Type=\"{inferredType}\" from filename.");
+                }
+            }
+            //
             logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [{collectionName}], resource found, name [{filename}], type [{resourceType}], path [{resourcePath}]");
             //
             filename = FileController.convertToDosSlash(filename);
@@ -480,7 +497,7 @@ namespace Contensive.Processor.Controllers {
 
                 if (resourceNodes.ContainsKey(zipFilename)) {
                     var (actualType, actualPath) = resourceNodes[zipFilename];
-                    bool typeMatches = validAliases.Contains(actualType);
+                    bool typeMatches = validAliases.Contains(actualType) || string.IsNullOrEmpty(actualType);
                     bool hasPath = !string.IsNullOrEmpty(actualPath);
 
                     if (!typeMatches || hasPath) {
