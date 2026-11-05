@@ -5,8 +5,6 @@ using Contensive.AccountBilling.Controllers;
 using Contensive.AccountBilling.Models.Db;
 using Contensive.AccountBilling.Models.Domain;
 using Contensive.BaseClasses;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 using Stripe;
 using Stripe.Forwarding;
 using static Contensive.AccountBilling.Controllers.OnlinePaymentFormController;

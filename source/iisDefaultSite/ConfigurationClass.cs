@@ -8,7 +8,6 @@ using Contensive.BaseModels;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
-using Microsoft.VisualBasic.CompilerServices;
 //
 /// <summary>
 /// 
@@ -49,7 +48,7 @@ public class ConfigurationClass {
     public static void verifyRouteMap(CPClass cp) {
         // 
         // -- if application var does not equal routemap.datecreated rebuild
-        if (routeMapDateInvalid() || cp.routeMap.dateCreated != Conversions.ToDate(HttpContext.Current.Application["RouteMapDateCreated"])) {
+        if (routeMapDateInvalid() || cp.routeMap.dateCreated != cp.Utils.EncodeDate(HttpContext.Current.Application["RouteMapDateCreated"])) {
             if (routeMapDateInvalid()) {
                 LogController.logShortLine("configurationClass, loadRouteMap, [" + cp.Site.Name + "], rebuild because HttpContext.Current.Application(RouteMapDateCreated) is not valid", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Info);
             } else {

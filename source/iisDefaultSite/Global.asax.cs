@@ -3,7 +3,6 @@ using System.Text;
 using System.Web;
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
-using Microsoft.VisualBasic;
 //
 /// <summary>
 /// 
@@ -144,7 +143,7 @@ public class Global_asax : HttpApplication {
         builder.AppendFormat(", Guid: {0}", appId);
         builder.AppendFormat(", Thread Id: {0}", System.Threading.Thread.CurrentThread.ManagedThreadId);
         builder.AppendFormat(", Appdomain: {0}", AppDomain.CurrentDomain.FriendlyName);
-        builder.Append(Interaction.IIf(System.Threading.Thread.CurrentThread.IsThreadPoolThread, ", Pool Thread", ", No Thread").ToString());
+        builder.Append(  System.Threading.Thread.CurrentThread.IsThreadPoolThread ?  ", Pool Thread" : ", No Thread").ToString();
         return builder.ToString();
     }
     // 

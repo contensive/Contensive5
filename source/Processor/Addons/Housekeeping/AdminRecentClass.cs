@@ -22,20 +22,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 env.log("Housekeep, executeHourlyTasks, ccAdminRecents");
                 //
-                string sql = "" +
-                    "delete r" +
-                    " from ccAdminRecents r" +
-                    " left join cccontent c on c.id=SUBSTRING([href], 6, 99)" +
-                    " where href like 'cid=%'" +
-                    " and (c.id is null)";
+                string sql = $"if object_id('ccAdminRecents','U') is not null delete r from ccAdminRecents r left join cccontent c on c.id=SUBSTRING([href], 5, 99) where href like 'cid=%' and (c.id is null)";
                 env.core.db.executeNonQuery(sql);
                 //
-                sql = "" +
-                    "delete r" +
-                    " from ccAdminRecents r" +
-                    " left join ccAggregateFunctions c on c.id=SUBSTRING([href], 16, 99)" +
-                    " where href like '/admin?addonid=%'" +
-                    " and (c.id is null)";
+                sql = $"if object_id('ccAdminRecents','U') is not null delete r from ccAdminRecents r left join ccAggregateFunctions c on c.id=SUBSTRING([href], 17, 99) where href like '/admin?addonid=%' and (c.id is null)";
                 env.core.db.executeNonQuery(sql);
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");

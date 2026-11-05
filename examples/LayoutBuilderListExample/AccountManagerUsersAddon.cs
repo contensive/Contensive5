@@ -2,7 +2,6 @@ using Contensive.AccountBilling.Controllers;
 using Contensive.AccountBilling.Models.Domain;
 using Contensive.AccountBilling.Views;
 using Contensive.BaseClasses;
-using Microsoft.VisualBasic;
 using My.Resources;
 using System;
 using System.Data;
