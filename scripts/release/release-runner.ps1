@@ -47,6 +47,16 @@
 .PARAMETER Branch
     With -Hotfix: the hotfix branch to check out and build.
 
+.PARAMETER SetupE2E
+    Create %LOCALAPPDATA%\contensive\e2e.env from e2e.env.template if it is missing (an existing
+    file is never overwritten), open it in Notepad and print where each value comes from.
+    Instructions: docs/e2e-setup.md.
+
+.PARAMETER CheckE2E
+    Validate the e2e settings and tools without deploying or running anything. Shows each key as
+    OK / MISSING / PLACEHOLDER / INVALID and whether node, npm.cmd and npx.cmd are found. Never
+    prints a value. Exit code 0 when ready, 1 when not.
+
 .PARAMETER ManifestPath
     Path to release-manifest.yml. Defaults to the file alongside this script.
 
@@ -61,6 +71,8 @@
     .\release-runner.ps1 -Step e2e -Repo aoEcommerce
     .\release-runner.ps1 -Mark done -Step e2e -Repo aoEcommerce -Reason "Stripe sandbox outage"
     .\release-runner.ps1 -Hotfix -Repo aoEcommerce -Branch hotfix/20261106-fix-refund
+    .\release-runner.ps1 -SetupE2E
+    .\release-runner.ps1 -CheckE2E
 #>
 [CmdletBinding(DefaultParameterSetName = 'Status')]
 param(
@@ -106,6 +118,12 @@ param(
 
     [Parameter(ParameterSetName = 'Hotfix', Mandatory)]
     [string]$Branch,
+
+    [Parameter(ParameterSetName = 'SetupE2E', Mandatory)]
+    [switch]$SetupE2E,
+
+    [Parameter(ParameterSetName = 'CheckE2E', Mandatory)]
+    [switch]$CheckE2E,
 
     [string]$ManifestPath = ''
 )
@@ -585,12 +603,305 @@ function Test-StepReady {
 # ===========================================================================
 # E2E helpers
 # ===========================================================================
+$script:e2eDocLocal = 'C:\Git\Contensive5\docs\e2e-setup.md'
+$script:e2eDocUrl = 'https://github.com/contensive/Contensive5/blob/main/docs/e2e-setup.md'
+
+function Get-E2EEnvFilePath {
+    <#
+    .SYNOPSIS
+        Full path of the secrets file: %LOCALAPPDATA%\contensive\e2e.env. Returns '' when
+        LOCALAPPDATA is not set (not Windows).
+    #>
+    if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { return '' }
+    return (Join-Path $env:LOCALAPPDATA 'contensive\e2e.env')
+}
+
+function Test-E2EPlaceholderValue {
+    <#
+    .SYNOPSIS
+        True when a value is empty or still a template placeholder (<...>, changeme).
+    #>
+    param([string]$Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return $true }
+    $v = $Value.Trim()
+    if ($v -match '^<.*>$') { return $true }
+    if ($v -ieq 'changeme' -or $v -ieq 'change-me' -or $v -ieq 'change_me') { return $true }
+    return $false
+}
+
+function Read-E2EEnvFile {
+    <#
+    .SYNOPSIS
+        Parses an e2e.env file (KEY=VALUE lines, # comments, optional quotes) into a hashtable.
+        Returns an empty hashtable when the file is missing. Values stay in memory; callers never print them.
+    #>
+    param([string]$Path)
+    $values = @{}
+    if ([string]::IsNullOrEmpty($Path) -or -not (Test-Path $Path)) { return $values }
+    foreach ($rawLine in (Get-Content $Path)) {
+        $entry = $rawLine.Trim()
+        if (-not $entry -or $entry.StartsWith('#')) { continue }
+        $eqIndex = $entry.IndexOf('=')
+        if ($eqIndex -lt 1) { continue }
+        $key = $entry.Substring(0, $eqIndex).Trim()
+        $value = $entry.Substring($eqIndex + 1).Trim()
+        if ($value.Length -ge 2) {
+            $first = $value.Substring(0, 1)
+            $last = $value.Substring($value.Length - 1, 1)
+            if (($first -eq '"' -and $last -eq '"') -or ($first -eq "'" -and $last -eq "'")) {
+                $value = $value.Substring(1, $value.Length - 2)
+            }
+        }
+        $values[$key] = $value
+    }
+    return $values
+}
+
+function Get-E2ESettingsReport {
+    <#
+    .SYNOPSIS
+        Checks every e2e setting and returns one row per key: name, required, status, source, length.
+        status is OK, MISSING, PLACEHOLDER, INVALID or NOT SET (optional keys only).
+        source is 'environment variable', 'e2e.env' or ''. Values are never returned, only their length.
+        -TokenValue: the deploy token the caller already resolved (the e2e step hides it from the process environment).
+    #>
+    param(
+        [string]$TokenValue = '',
+        [switch]$UseTokenValue
+    )
+    $fileValues = Read-E2EEnvFile -Path (Get-E2EEnvFilePath)
+    $defs = @(
+        @{ name = 'E2E_BASE_URL';            required = $true },
+        @{ name = 'E2E_ADMIN_USER';          required = $true },
+        @{ name = 'E2E_ADMIN_PASSWORD';      required = $true },
+        @{ name = 'E2E_CUSTOMER_PASSWORD';   required = $true },
+        @{ name = 'CONTENSIVE_TEST_TOKEN';   required = $true },
+        @{ name = 'E2E_TEST_EMAIL_TO';       required = $false },
+        @{ name = 'E2E_ALLOWED_HOSTS';       required = $false },
+        @{ name = 'E2E_AUTHNET_LOGIN_ID';    required = $false },
+        @{ name = 'E2E_AUTHNET_TRANSACTION_KEY'; required = $false },
+        @{ name = 'E2E_STRIPE_SECRET_KEY';   required = $false },
+        @{ name = 'E2E_STRIPE_WEBHOOK_SECRET'; required = $false }
+    )
+    # effective value + source per key: a real environment variable wins over the file
+    $effective = @{}
+    $sources = @{}
+    foreach ($d in $defs) {
+        $n = $d.name
+        $fromEnv = [Environment]::GetEnvironmentVariable($n, 'Process')
+        if ($n -eq 'CONTENSIVE_TEST_TOKEN' -and $UseTokenValue) { $fromEnv = $TokenValue }
+        if (-not [string]::IsNullOrEmpty($fromEnv)) {
+            $effective[$n] = $fromEnv
+            $sources[$n] = 'environment variable'
+        } elseif ($fileValues.ContainsKey($n) -and -not [string]::IsNullOrEmpty($fileValues[$n])) {
+            $effective[$n] = $fileValues[$n]
+            $sources[$n] = 'e2e.env'
+        } else {
+            $effective[$n] = ''
+            $sources[$n] = ''
+        }
+    }
+    $allowed = @('test.sitefpo.com')
+    if (-not (Test-E2EPlaceholderValue $effective['E2E_ALLOWED_HOSTS'])) {
+        $allowed = @($effective['E2E_ALLOWED_HOSTS'].Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+    }
+    $rows = @()
+    foreach ($d in $defs) {
+        $n = $d.name
+        $v = $effective[$n]
+        $status = 'OK'
+        $detail = ''
+        if ([string]::IsNullOrEmpty($v)) {
+            if ($d.required) { $status = 'MISSING' } else { $status = 'NOT SET' }
+        } elseif (Test-E2EPlaceholderValue $v) {
+            $status = 'PLACEHOLDER'
+        } elseif ($n -eq 'E2E_BASE_URL') {
+            $uri = $null
+            if (-not [Uri]::TryCreate($v.Trim(), [UriKind]::Absolute, [ref]$uri)) {
+                $status = 'INVALID'; $detail = 'not a valid absolute URL'
+            } elseif ($uri.Scheme -ne 'https') {
+                $status = 'INVALID'; $detail = 'must be https'
+            } else {
+                $hostAllowed = $false
+                foreach ($h in $allowed) { if ($uri.Host -ieq $h) { $hostAllowed = $true } }
+                if (-not $hostAllowed) {
+                    $status = 'INVALID'; $detail = "host '$($uri.Host)' is not allowed (allowed: $($allowed -join ', '))"
+                }
+            }
+        } elseif ($n -eq 'E2E_STRIPE_SECRET_KEY' -and $v.Trim() -notmatch '^(sk|rk)_test_') {
+            $status = 'INVALID'; $detail = 'must be a Stripe TEST key (sk_test_ or rk_test_)'
+        }
+        $length = 0
+        if ($status -eq 'OK' -or $status -eq 'INVALID') { $length = $v.Trim().Length }
+        $rows += @{ name = $n; required = $d.required; status = $status; source = $sources[$n]; length = $length; detail = $detail }
+    }
+    return $rows
+}
+
+function Write-E2EKeyChecklist {
+    <#
+    .SYNOPSIS
+        Numbered "where does each value come from" list, shared by -SetupE2E and the setup-incomplete block.
+    #>
+    Write-Host "  Where each value comes from:"
+    Write-Host "    1. E2E_BASE_URL            https://test.sitefpo.com"
+    Write-Host "    2. E2E_ADMIN_USER / E2E_ADMIN_PASSWORD"
+    Write-Host "                               the 'e2e-admin' account on the test site. Lost? In test.sitefpo.com"
+    Write-Host "                               admin > People, create a new user with developer/admin rights."
+    Write-Host "    3. E2E_CUSTOMER_PASSWORD   make up any new password (the suite creates the TEST-E2E customers with it)."
+    Write-Host "    4. CONTENSIVE_TEST_TOKEN   the bearer token for https://test.sitefpo.com/installCollection"
+    Write-Host "                               (the same token build-deploy-remote.cmd asks for; a long-lived one is best)."
+    Write-Host "                               Only this release machine needs it."
+    Write-Host "    5. Optional: E2E_TEST_EMAIL_TO (a mailbox Jay reads) and the gateway sandbox keys."
+}
+
+function Write-E2ESetupBlock {
+    <#
+    .SYNOPSIS
+        The clear "e2e setup incomplete" instruction block. Names, paths and commands only; never a value.
+    #>
+    param([string[]]$Problems)
+    $file = Get-E2EEnvFilePath
+    $fileText = $file
+    $exists = $false
+    if ($file) { $exists = Test-Path $file } else { $fileText = '(LOCALAPPDATA is not set on this machine)' }
+    $existsText = 'does NOT exist yet'
+    if ($exists) { $existsText = 'exists' }
+    Write-Host ""
+    Write-Host ("=" * 70) -ForegroundColor Red
+    Write-Host "  E2E SETUP INCOMPLETE - nothing was deployed or changed" -ForegroundColor Red
+    Write-Host ("=" * 70) -ForegroundColor Red
+    Write-Host "  What is wrong:"
+    foreach ($p in $Problems) { Write-Host "    - $p" -ForegroundColor Yellow }
+    Write-Host ""
+    Write-Host "  The settings come from environment variables, or from this file:"
+    Write-Host "    $fileText  ($existsText)"
+    Write-Host "  (%LOCALAPPDATA% is usually C:\Users\<you>\AppData\Local. The file is outside git on purpose.)"
+    Write-Host ""
+    Write-Host "  How to fix it:"
+    Write-Host "    1. Create or edit the file:   .\release-runner.ps1 -SetupE2E" -ForegroundColor Cyan
+    Write-Host "    2. Fill in the values (see the list below), save, close Notepad."
+    Write-Host "    3. Verify (prints names only):  .\release-runner.ps1 -CheckE2E" -ForegroundColor Cyan
+    Write-Host "    4. Run the step again."
+    Write-Host ""
+    Write-E2EKeyChecklist
+    Write-Host ""
+    Write-Host "  Full instructions: $($script:e2eDocLocal)"
+    Write-Host "                     $($script:e2eDocUrl)"
+    Write-Host ("=" * 70) -ForegroundColor Red
+    Write-Host ""
+}
+
+function Invoke-E2ESetupCommand {
+    <#
+    .SYNOPSIS
+        -SetupE2E: creates %LOCALAPPDATA%\contensive\e2e.env from e2e.env.template when it is missing
+        (never overwrites), opens it in Notepad and prints the checklist.
+    #>
+    $file = Get-E2EEnvFilePath
+    if (-not $file) {
+        Write-Host "  LOCALAPPDATA is not set, so there is no place for e2e.env on this machine." -ForegroundColor Yellow
+        Write-Host "  Set the settings as environment variables with the same names instead."
+        Write-Host "  Full instructions: $($script:e2eDocLocal)"
+        Write-Host "                     $($script:e2eDocUrl)"
+        return
+    }
+    $template = Join-Path $script:scriptDir 'e2e.env.template'
+    if (-not (Test-Path $template)) { throw "Template not found: $template" }
+    $dir = Split-Path -Parent $file
+    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+    Write-Host ""
+    if (Test-Path $file) {
+        Write-Host "  e2e.env already exists, it was NOT changed:" -ForegroundColor Green
+        Write-Host "    $file"
+    } else {
+        Copy-Item -Path $template -Destination $file
+        Write-Host "  Created e2e.env from the template:" -ForegroundColor Green
+        Write-Host "    $file"
+    }
+    Write-Host ""
+    Write-E2EKeyChecklist
+    Write-Host ""
+    Write-Host "  Next:"
+    Write-Host "    - Replace every <...> placeholder in the file, save, close Notepad."
+    Write-Host "    - Then run:  .\release-runner.ps1 -CheckE2E"
+    Write-Host "  Full instructions: $($script:e2eDocLocal)"
+    Write-Host "                     $($script:e2eDocUrl)"
+    Write-Host ""
+    $notepad = Get-Command notepad.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($notepad) {
+        try { Start-Process -FilePath $notepad.Source -ArgumentList "`"$file`"" } catch { Write-Host "  Could not open Notepad; open the file by hand." -ForegroundColor Yellow }
+    } else {
+        Write-Host "  Notepad not found; open the file in any editor." -ForegroundColor Yellow
+    }
+}
+
+function Invoke-E2ECheckCommand {
+    <#
+    .SYNOPSIS
+        -CheckE2E: validates the e2e settings and tools without deploying or running anything.
+        Prints names, sources, statuses and masked lengths only. Returns 0 (all required OK) or 1.
+    #>
+    $file = Get-E2EEnvFilePath
+    Write-Host ""
+    Write-Host "E2E setup check" -ForegroundColor Cyan
+    Write-Host ("-" * 50)
+    if ($file) {
+        $fileState = 'NOT FOUND'
+        if (Test-Path $file) { $fileState = 'found' }
+        Write-Host "  Settings file: $file ($fileState)"
+    } else {
+        Write-Host "  Settings file: (LOCALAPPDATA is not set; environment variables only)"
+    }
+    Write-Host "  Precedence: environment variable > e2e.env"
+    Write-Host ""
+    $rows = @(Get-E2ESettingsReport)
+    $bad = @()
+    foreach ($r in $rows) {
+        $kind = 'optional'
+        if ($r.required) { $kind = 'required' }
+        $color = 'Green'
+        if ($r.status -ne 'OK') {
+            if ($r.required -or $r.status -eq 'INVALID' -or $r.status -eq 'PLACEHOLDER') { $color = 'Red' } else { $color = 'DarkGray' }
+        }
+        $line = "  {0,-30} {1,-9} {2,-12}" -f $r.name, $kind, $r.status
+        if ($r.source) { $line = "$line from $($r.source)" }
+        if ($r.status -eq 'OK') { $line = "$line, value hidden ($($r.length) characters)" }
+        if ($r.detail) { $line = "$line - $($r.detail)" }
+        Write-Host $line -ForegroundColor $color
+        if ($r.status -eq 'INVALID' -or $r.status -eq 'PLACEHOLDER' -or ($r.required -and $r.status -ne 'OK')) { $bad += "$($r.name) ($($r.status))" }
+    }
+    Write-Host ""
+    foreach ($tool in @('node.exe', 'npm.cmd', 'npx.cmd')) {
+        $cmd = Get-Command $tool -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($cmd) {
+            Write-Host ("  {0,-30} found" -f $tool) -ForegroundColor Green
+        } else {
+            Write-Host ("  {0,-30} NOT FOUND on PATH (install Node.js LTS 18 or later)" -f $tool) -ForegroundColor Red
+            $bad += "$tool (not found)"
+        }
+    }
+    Write-Host ""
+    if ($bad.Count -eq 0) {
+        Write-Host "  RESULT: OK - the e2e step has everything it needs." -ForegroundColor Green
+        Write-Host ""
+        return 0
+    }
+    Write-Host "  RESULT: NOT READY - $($bad -join ', ')" -ForegroundColor Red
+    Write-Host "  Fix: .\release-runner.ps1 -SetupE2E   then   .\release-runner.ps1 -CheckE2E"
+    Write-Host "  Full instructions: $($script:e2eDocLocal)"
+    Write-Host "                     $($script:e2eDocUrl)"
+    Write-Host ""
+    return 1
+}
+
 function Import-E2EEnvironment {
     <#
     .SYNOPSIS
         Loads %LOCALAPPDATA%\contensive\e2e.env (KEY=VALUE lines) into the process
         environment. Real environment variables win: a key is only set when the
-        process variable is empty. Never prints a value.
+        process variable is empty. Placeholder values (<...>, changeme) count as not set.
+        Never prints a value.
         CONTENSIVE_TEST_TOKEN is the exception: it is NOT put in the process
         environment (child processes such as npm and Playwright would inherit it).
         It is returned so the caller can pass it to the deploy call only.
@@ -599,23 +910,12 @@ function Import-E2EEnvironment {
     #>
     $setKeys = @()
     $token = ''
-    $envFile = Join-Path $env:LOCALAPPDATA 'contensive\e2e.env'
-    if (Test-Path $envFile) {
-        foreach ($rawLine in (Get-Content $envFile)) {
-            $entry = $rawLine.Trim()
-            if (-not $entry -or $entry.StartsWith('#')) { continue }
-            $eqIndex = $entry.IndexOf('=')
-            if ($eqIndex -lt 1) { continue }
-            $key = $entry.Substring(0, $eqIndex).Trim()
-            $value = $entry.Substring($eqIndex + 1).Trim()
-            if ($value.Length -ge 2) {
-                $first = $value.Substring(0, 1)
-                $last = $value.Substring($value.Length - 1, 1)
-                if (($first -eq '"' -and $last -eq '"') -or ($first -eq "'" -and $last -eq "'")) {
-                    $value = $value.Substring(1, $value.Length - 2)
-                }
-            }
-            if (-not $value) { continue }
+    $envFile = Get-E2EEnvFilePath
+    if ($envFile -and (Test-Path $envFile)) {
+        $fileValues = Read-E2EEnvFile -Path $envFile
+        foreach ($key in $fileValues.Keys) {
+            $value = $fileValues[$key]
+            if (Test-E2EPlaceholderValue $value) { continue }
             if ($key -eq 'CONTENSIVE_TEST_TOKEN') {
                 $token = $value
                 continue
@@ -633,37 +933,26 @@ function Import-E2EEnvironment {
 function Test-E2EEnvironment {
     <#
     .SYNOPSIS
-        Throws if a required e2e variable is missing or E2E_BASE_URL is not an
-        allowed target. Messages carry variable names only, never values.
-        The deploy token is passed in (it is not in the process environment).
+        Throws if a required e2e setting is missing, still a placeholder, or invalid (E2E_BASE_URL not https
+        or not an allowed host). Before throwing it prints the full setup-instruction block.
+        Messages carry names only, never values. The deploy token is passed in (it is not in the process environment).
     #>
     param([string]$Token)
 
-    $required = @('E2E_BASE_URL', 'E2E_ADMIN_USER', 'E2E_ADMIN_PASSWORD', 'E2E_CUSTOMER_PASSWORD')
-    $missing = @()
-    foreach ($name in $required) {
-        if ([string]::IsNullOrEmpty([Environment]::GetEnvironmentVariable($name, 'Process'))) { $missing += $name }
+    $rows = @(Get-E2ESettingsReport -TokenValue $Token -UseTokenValue)
+    $problems = @()
+    $names = @()
+    foreach ($r in $rows) {
+        $isProblem = ($r.required -and $r.status -ne 'OK') -or $r.status -eq 'INVALID' -or $r.status -eq 'PLACEHOLDER'
+        if (-not $isProblem) { continue }
+        $names += $r.name
+        $text = "$($r.name): $($r.status)"
+        if ($r.detail) { $text = "$text - $($r.detail)" }
+        $problems += $text
     }
-    if ([string]::IsNullOrWhiteSpace($Token)) { $missing += 'CONTENSIVE_TEST_TOKEN' }
-    if ($missing.Count -gt 0) {
-        $envFile = Join-Path $env:LOCALAPPDATA 'contensive\e2e.env'
-        throw "Missing e2e setting(s): $($missing -join ', '). Set them as environment variables or in $envFile"
-    }
-
-    $uri = $null
-    if (-not [Uri]::TryCreate($env:E2E_BASE_URL, [UriKind]::Absolute, [ref]$uri)) {
-        throw "E2E_BASE_URL is not a valid absolute URL"
-    }
-    $allowed = @('test.sitefpo.com')
-    if ($env:E2E_ALLOWED_HOSTS) {
-        $allowed = @($env:E2E_ALLOWED_HOSTS.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-    }
-    $hostAllowed = $false
-    foreach ($h in $allowed) {
-        if ($uri.Host -ieq $h) { $hostAllowed = $true }
-    }
-    if ($uri.Scheme -ne 'https' -or -not $hostAllowed) {
-        throw "E2E_BASE_URL host '$($uri.Host)' is not an allowed e2e target"
+    if ($problems.Count -gt 0) {
+        Write-E2ESetupBlock -Problems $problems
+        throw "e2e setup incomplete: $($names -join ', '); run -CheckE2E"
     }
 }
 
@@ -1721,6 +2010,15 @@ function Show-Report {
 # ===========================================================================
 # Main
 # ===========================================================================
+
+# --- e2e settings help: no manifest needed ---
+if ($SetupE2E) {
+    Invoke-E2ESetupCommand
+    exit 0
+}
+if ($CheckE2E) {
+    exit (Invoke-E2ECheckCommand)
+}
 
 # Default to -Status if no parameters specified
 if (-not $Step -and -not $Mark -and -not $Report -and -not $Status -and -not $Hotfix) {

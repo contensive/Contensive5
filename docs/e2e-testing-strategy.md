@@ -257,6 +257,7 @@ A small number of tests prove that the real redirects still work:
 - Names: `E2E_STRIPE_SECRET_KEY`, `E2E_STRIPE_WEBHOOK_SECRET`, `E2E_AUTHNET_LOGIN_ID`,
   `E2E_AUTHNET_TRANSACTION_KEY`.
 - They come from environment variables or `%LOCALAPPDATA%\contensive\e2e.env`, never from git.
+- Where the file is, where each value comes from, and how to create and check it: [docs/e2e-setup.md](https://github.com/contensive/Contensive5/blob/main/docs/e2e-setup.md) (local: `C:\Git\Contensive5\docs\e2e-setup.md`).
 - Sandbox/test-mode keys only. The pack refuses a Stripe key that does not start with `sk_test_`
   or `rk_test_`.
 - When a gateway's credentials are missing, its tests call `test.skip()` with a clear message.

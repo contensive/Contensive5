@@ -128,6 +128,18 @@ suite is not checked out gets `e2e: pending`, not `skipped`.
 .\release-runner.ps1 -Step e2e -Repo aoEcommerce
 ```
 
+**First time, or weeks later and you have forgotten how the secrets file works?** Two commands, no reading needed:
+
+```powershell
+.\release-runner.ps1 -SetupE2E   # creates %LOCALAPPDATA%\contensive\e2e.env from a template if missing, opens Notepad, prints where each value comes from
+.\release-runner.ps1 -CheckE2E   # checks every key (OK / MISSING / PLACEHOLDER / INVALID) and node/npm/npx; prints no values; exit 0 or 1
+```
+
+If the file is missing, a key is missing, a value is still a `<placeholder>` or `changeme`, or `E2E_BASE_URL` is invalid, the step prints an
+"E2E SETUP INCOMPLETE" block (what is wrong, the file path and whether it exists, the two commands above, the doc), marks the step `failed`
+with the note "e2e setup incomplete: <names>; run -CheckE2E", and changes nothing on the site.
+Full instructions: [docs/e2e-setup.md](https://github.com/contensive/Contensive5/blob/main/docs/e2e-setup.md) (local: `C:\Git\Contensive5\docs\e2e-setup.md`).
+
 What it does, in order:
 1. Loads `%LOCALAPPDATA%\contensive\e2e.env` (real environment variables win) and checks that
    `E2E_BASE_URL` is `https` on an allowed host (`test.sitefpo.com` unless `E2E_ALLOWED_HOSTS` says otherwise).
@@ -170,7 +182,7 @@ values (logins, settings). Keep it on the release machine and do not share it ou
 Reading a failure: `-Status` prints `e2e report: <path>` under the repo. Open that `index.html`. The per-test
 traces, screenshots and videos are inside the archived folder. `-Report` lists every e2e report under "E2E Reports".
 
-Settings file, placeholders only:
+Settings file, placeholders only (the maintained copy is `scripts/release/e2e.env.template`; `-SetupE2E` creates the file from it):
 
 ```ini
 # Contensive e2e secrets - never commit. KEY=VALUE, one per line, # comments, no quotes needed.
