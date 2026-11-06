@@ -155,16 +155,13 @@ What it does, in order:
 5. Deploys the **same zip that publish would upload** to the test site with `CONTENSIVE_TEST_TOKEN`
    (no prompts) and records its path and SHA-256 in the manifest. `/installCollection` installs synchronously and
    answers `{"success":true|false,"message":...}`: HTTP 200 with `success` not `true` fails the step.
-6. Sets `E2E_EXPECTED_VERSION` for the suite, waits for the site to answer 200 twice in a row (up to
-   `E2E_READY_TIMEOUT_SEC`, default 180 s), then runs `npx playwright test`.
+6. Waits `E2E_SETTLE_SEC` (default 30 s) for the site to recycle after the install. It then waits for the site to answer 200
+   twice in a row (up to `E2E_READY_TIMEOUT_SEC`, default 180 s), then runs `npx playwright test`.
 
-   **Installed build = tested build.** The expected version is the name of the folder the build wrote the zip into
-   (`<DeploymentRoot>\<version>\<Collection>.zip`, for example `26.11.6.30150` or `26.11.6.30150-branch-name`).
-   The suite's first setup project must read the installed collection version from the site and fail if it differs
-   (compare the 4-part number; the `-branch` suffix may or may not be part of the installed value). With several zips
-   the variable holds the versions joined by `;`. If the version cannot be derived the step still runs, but its notes
-   carry `WARNING: installed version not verified`. Until a suite asserts it, a green run proves only that the install
-   reported success, not which build the site is serving.
+   **Installed build = tested build** rests on the install result: the step fails unless `/installCollection` answers
+   `success: true`, and the settle wait keeps the old app from being tested while it recycles. The suite does not read
+   the installed version back from the site, because the test account has no developer rights and core's Add-on
+   Collections record has no version field (Jay, 2026-11-06).
 7. Archives the HTML report and results under `C:\Deployments\e2e-reports\<repo>\<runId>\`
    (override the root with `E2E_REPORT_ROOT`), and records the passed/failed/flaky/skipped counts.
 8. Always (even on failure, unless the run was killed; the next seed restores a leftover snapshot) restores any
