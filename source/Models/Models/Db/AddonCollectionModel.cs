@@ -17,6 +17,10 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// field properties
         /// </summary>
+        /// <summary>
+        /// The assembly file version of the primary DLL, captured at install time.
+        /// </summary>
+        public string assemblyVersion { get; set; }
         public bool blockNavigatorNode { get; set; }
         /// <summary>
         /// files to install in cdn
