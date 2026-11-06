@@ -248,6 +248,8 @@ namespace Contensive.Processor.Controllers {
                 PersonModel earlyResolvedUser = null;
                 bool earlyBearerAuth = false;
                 string fingerprintHash = "";
+                bool fingerprintingEnabled = false;
+                bool fingerprintReused = false;
                 isFingerprintedSession = false;
                 if ((visitor == null || visitor.id == 0) && (visit == null || visit.id == 0)) {
                     if (core.webServer?.requestHeaders != null
@@ -277,43 +279,72 @@ namespace Contensive.Processor.Controllers {
                     // -- If no bearer token found, try bot/spider fingerprinting for cookie-less requests.
                     //    This groups bot hits from the same IP+UserAgent into a single visitor/visit,
                     //    preventing database pollution from crawlers and background processes.
+                    //    Only bot visitors that never returned a cookie are matched, and a match is reused only if
+                    //    every person on it is a Bot person and the visit is a bot visit that is not authenticated.
+                    //    A reused session never sends the visit or visitor cookie, so only the client that created
+                    //    it can ever hold a cookie for it. Site property
+                    //    "Allow Visit Fingerprinting" (default true) turns lookup and save off.
                     //
                     if (earlyResolvedUser == null && (visitor == null || visitor.id == 0) && !string.IsNullOrEmpty(core.webServer.requestRemoteIP)) {
-                        string userAgent = core.webServer.requestBrowser ?? "";
-                        string remoteIP = core.webServer.requestRemoteIP ?? "";
-                        //
-                        // -- Create fingerprint from IP + User-Agent
-                        //    Use hex encoding to ensure safe storage in DB text field
-                        string fingerprint = $"{remoteIP}|{userAgent}";
-                        using (var sha256 = SHA256.Create()) {
-                            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprint));
-                            fingerprintHash = BitConverter.ToString(hashBytes).Replace("-", "");
-                        }
                         isFingerprintedSession = true;
-                        //
-                        // -- Look for existing visitor with this fingerprint.
-                        //    Use dynamic SQL so the SELECT is only parsed when the column exists.
-                        //    A static IF COL_LENGTH check does not work because SQL Server validates
-                        //    column references in both branches at parse time.
-                        {
-                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors WITH (NOLOCK) where (fingerprint=@fp) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
+                        fingerprintingEnabled = core.siteProperties.getBoolean(sitePropertyName_AllowVisitFingerprinting, true);
+                        if (fingerprintingEnabled) {
+                            string userAgent = core.webServer.requestBrowser ?? "";
+                            string remoteIP = core.webServer.requestRemoteIP ?? "";
+                            //
+                            // -- Create fingerprint from IP + User-Agent
+                            //    Use hex encoding to ensure safe storage in DB text field
+                            string fingerprint = $"{remoteIP}|{userAgent}";
+                            using (var sha256 = SHA256.Create()) {
+                                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprint));
+                                fingerprintHash = BitConverter.ToString(hashBytes).Replace("-", "");
+                            }
+                            //
+                            // -- Look for existing bot visitor with this fingerprint.
+                            //    Use dynamic SQL so the SELECT is only parsed when the column exists.
+                            //    A static IF COL_LENGTH check does not work because SQL Server validates
+                            //    column references in both branches at parse time.
+                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors WITH (NOLOCK) where (fingerprint=@fp)and(bot=1)and(cookieSupport=0) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
                             using var dt = core.db.executeQuery(fingerprintSql, new Dictionary<string, object> { { "@fingerprintParam", fingerprintHash } });
                             if (dt?.Rows.Count > 0) {
                                 int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
                                 if (existingVisitorId > 0) {
-                                    visitor = new VisitorModel {
+                                    var matchedVisitor = new VisitorModel {
                                         id = existingVisitorId,
                                         memberId = GenericController.getInteger(dt.Rows[0]["memberId"]),
                                         bot = GenericController.getBoolean(dt.Rows[0]["bot"]),
                                         cookieSupport = GenericController.getBoolean(dt.Rows[0]["cookieSupport"])
                                     };
                                     //
-                                    // -- Reuse this visitor's most recent visit if within 1 hour
+                                    // -- candidate visit: this visitor's most recent visit if within 1 hour
                                     string oneHourAgo = DbController.encodeSQLDate(core.doc.profileStartTime.AddHours(-1));
-                                    var visitList = DbBaseModel.createList<VisitModel>(core.cpParent, $"(visitorId={visitor.id})and(lastVisitTime>{oneHourAgo})", "id desc", 1);
-                                    if (visitList.Count > 0) {
-                                        visit = visitList[0];
-                                        trackVisits = true;
+                                    var visitList = DbBaseModel.createList<VisitModel>(core.cpParent, $"(visitorId={matchedVisitor.id})and(lastVisitTime>{oneHourAgo})", "id desc", 1);
+                                    VisitModel matchedVisit = (visitList.Count > 0) ? visitList[0] : null;
+                                    //
+                                    // -- every person attached to the match must be a Bot person, and the visit a bot visit
+                                    bool matchedVisitAuthenticated = matchedVisit?.visitAuthenticated ?? false;
+                                    bool visitorMemberIsShareable = isFingerprintMemberShareable(matchedVisitor.memberId);
+                                    bool visitMemberIsShareable = (matchedVisit != null) && (matchedVisit.memberId.Equals(matchedVisitor.memberId) ? visitorMemberIsShareable : isFingerprintMemberShareable(matchedVisit.memberId));
+                                    bool canReuse = SessionFingerprintPolicy.canReuseFingerprintVisit(
+                                        fingerprintingEnabled: fingerprintingEnabled,
+                                        matchedVisitorIsBot: matchedVisitor.bot,
+                                        matchedVisitorCookieSupport: matchedVisitor.cookieSupport,
+                                        visitorMemberIsShareable: visitorMemberIsShareable,
+                                        hasMatchedVisit: matchedVisit != null,
+                                        matchedVisitIsBot: matchedVisit?.bot ?? false,
+                                        matchedVisitAuthenticated: matchedVisitAuthenticated,
+                                        visitMemberIsShareable: visitMemberIsShareable);
+                                    if (canReuse) {
+                                        visitor = matchedVisitor;
+                                        fingerprintReused = true;
+                                        if (matchedVisit != null) {
+                                            visit = matchedVisit;
+                                            trackVisits = true;
+                                        }
+                                    } else {
+                                        //
+                                        // -- refused, leave visitor and visit empty so a new visitor and visit are created
+                                        logger.Info($"{core.logCommonMessage},SessionController, fingerprint match refused, new visit created. visitorId [{matchedVisitor.id}], visitId [{matchedVisit?.id ?? 0}], visitAuthenticated [{matchedVisitAuthenticated}], visitorMemberIsShareable [{visitorMemberIsShareable}], visitMemberIsShareable [{visitMemberIsShareable}]");
                                     }
                                 }
                             }
@@ -338,7 +369,9 @@ namespace Contensive.Processor.Controllers {
                                 visitor = testVisitor;
                                 visit.visitorId = visitor.id;
                                 resultSessionContect_visitor_changes = true;
-                                setVisitorCookie(core, this);
+                                if (SessionFingerprintPolicy.shouldSendSessionCookies(fingerprintReused: fingerprintReused)) {
+                                    setVisitorCookie(core, this);
+                                }
                             }
                         }
                     }
@@ -436,8 +469,10 @@ namespace Contensive.Processor.Controllers {
                             visit.bot = true;
                         }
                         //
-                        // -- new visit, update the persistant visitor cookie
-                        setVisitorCookie(core, this);
+                        // -- new visit, update the persistant visitor cookie (never for a fingerprint-reused visitor)
+                        if (SessionFingerprintPolicy.shouldSendSessionCookies(fingerprintReused: fingerprintReused)) {
+                            setVisitorCookie(core, this);
+                        }
                         //
                         // -- new visit, OnNewVisit Add-on call
                         AllowOnNewVisitEvent = true;
@@ -574,7 +609,20 @@ namespace Contensive.Processor.Controllers {
                     //    may not yet exist during the upgrade process (cc -u). Dynamic SQL via
                     //    EXEC ensures the UPDATE is only parsed when the column exists.
                     //
-                    if (isFingerprintedSession && !string.IsNullOrEmpty(fingerprintHash) && visitor.id > 0) {
+                    //    Only bot sessions are saved (visit.bot is resolved above for new visits),
+                    //    never an authenticated visit or a real person.
+                    //
+                    bool userIsGuestOrBot = (user != null) && SessionFingerprintPolicy.isGuestOrBotPerson(personTypeId: user.personTypeId, isAdmin: user.admin, isDeveloper: user.developer);
+                    bool saveFingerprint = SessionFingerprintPolicy.shouldSaveFingerprint(
+                        fingerprintingEnabled: fingerprintingEnabled,
+                        isFingerprintedSession: isFingerprintedSession,
+                        hasFingerprintHash: !string.IsNullOrEmpty(fingerprintHash),
+                        visitorId: visitor.id,
+                        visitIsBot: visit.bot,
+                        visitorIsBot: visitor.bot,
+                        visitAuthenticated: visit.visitAuthenticated,
+                        userIsGuestOrBot: userIsGuestOrBot);
+                    if (saveFingerprint) {
                         core.db.executeNonQuery($"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC('update ccvisitors set fingerprint=''{fingerprintHash.Replace("'", "''")}'' where id={visitor.id}')");
                     }
                 }
@@ -592,8 +640,10 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // -- Write Visit Cookie and exit
-                setVisitCookie(core, this);
+                // -- Write Visit Cookie and exit (never for a fingerprint-reused visit)
+                if (SessionFingerprintPolicy.shouldSendSessionCookies(fingerprintReused: fingerprintReused)) {
+                    setVisitCookie(core, this);
+                }
                 return;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -665,6 +715,23 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
             return createPerson(core, PersonTypeEnum.Guest, "Guest", exitWithoutSave);
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// true if the member attached to a fingerprint match may be shared (see SessionFingerprintPolicy.isShareableFingerprintMember).
+        /// Only loads the person; the decision is in the policy. memberId 0 or a missing person returns false (fail closed).
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <returns></returns>
+        private bool isFingerprintMemberShareable(int memberId) {
+            PersonModel person = (memberId > 0) ? DbBaseModel.create<PersonModel>(core.cpParent, memberId) : null;
+            return SessionFingerprintPolicy.isShareableFingerprintMember(
+                personFound: person is not null,
+                memberId: memberId,
+                personTypeId: person?.personTypeId ?? 0,
+                isAdmin: person?.admin ?? false,
+                isDeveloper: person?.developer ?? false);
         }
         //
         //========================================================================
