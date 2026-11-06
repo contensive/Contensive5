@@ -53,12 +53,12 @@ tests/e2e/
   fixtures/                setup and teardown "tests" (auth, seed, cleanup, site lock)
   helpers/                 env, test data, admin record helper, site settings, urls
   pages/                   Page Object Models (POMs), one class per page or component
-    admin/                 POMs for admin screens (settings form, list view, edit view)
+    admin/                 POMs for admin screens (list view, edit view)
   tests/
     smoke/                 @smoke   - is the site up, can I log in
     catalog/ cart/ checkout/ myaccount/ promo/ ...  @regression - workflow packs
     gateway/               @gateway - real sandbox checkouts through hosted pages
-  e2e-results/             results.json + run-info.json (generated, git-ignored)
+  e2e-results/             results.json + run-info.json + site-lock.json (generated, git-ignored)
   playwright-report/       HTML report (generated, git-ignored)
 ```
 
@@ -177,6 +177,8 @@ There is no database restore. The rules below keep runs repeatable and keep ever
    `Account Billing Test Mode Email to-address`, `OrderTestCCNumber`, `AuthorizeNetSandbox`,
    `AuthorizeNetTest`, `Account Billing Housekeep Enabled`. The `@gateway` pack also saves
    `StripeAccessKey`, `StripeWebhookSecret`, `AuthorizeNetLogin` and `AuthorizeNetTransactionKey`.
+   Each property is read and written as its own core **Site Properties** record (`name` / `fieldvalue`),
+   never by re-posting the whole Ecommerce Settings form, so unrelated settings and masked keys are never touched.
 3. **Set** the e2e values: `PaymentProcessMethod=4` (AcceptAll), `Account Billing Test Mode` on,
    `Account Billing Test Mode Date` blank, `Account Billing Test Mode Email to-address` set to the
    redirect address.
@@ -356,6 +358,7 @@ gate as monthly releases. That matters most for a hotfix, because it is the rele
 | HTML report (screenshots, video, traces on failure) | `C:\Deployments\e2e-reports\<repo>\<runId>\playwright-report\index.html`, path in manifest `report:` |
 | Machine-readable results | same folder, `e2e-results\results.json`; counts in manifest `results:` |
 | Run info (lock, manual-job warning, properties restored, cleanup) | same folder, `e2e-results\run-info.json` |
+| Lock phase result (acquire/release) | same folder, `e2e-results\site-lock.json` |
 | Tested artifact | manifest `artifact:` and `artifact_sha256:` |
 
 Open a report with `npx playwright show-report <folder>` or just open `index.html`.
@@ -451,7 +454,7 @@ Out of scope:    tax, shipping
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **1. Pilot (this job)** | Runner `e2e` step, gate, override, hotfix flow, lock. aoEcommerce suite: untrack secrets, new config with setup → smoke → seed → regression → cleanup, the 8 existing specs tagged, guest and individual checkout with AcceptAll, guest promo, `@gateway` skeleton | A monthly release and one hotfix pass through `e2e` with the report path in the manifest |
+| **1. Pilot (this job)** | Runner `e2e` step, gate, override, hotfix flow, lock. aoEcommerce suite: untrack secrets, new config with setup → smoke → seed → regression → cleanup, the 8 existing specs repaired and tagged (12 spec files in all), guest and individual checkout with AcceptAll, guest promo, `@gateway` skeleton | A monthly release and one hotfix pass through `e2e` with the report path in the manifest |
 | **2. aoEcommerce workflow packs** | The "next" cells in section 3: org/member/invoice checkout, tax/shipping, membership purchase, My Account actions, pay invoice, admin invoice/payment/credit, invoice PDF; then the subscription pack after section 6 risks are checked | Each pack merged with its seed additions; the matrix is updated |
 | **3. Other Tier 1 addons and core** | aoDesignBlocks, aoCrm, aoMCP, and Contensive5 `tests/e2e` (core admin/public smoke). Core needs a different deploy (server upgrade, not `/installCollection`) | Each repo has `e2e_path` in `repo-catalog.yml` and a passing suite |
 | **4. GitHub Actions** | Move the step into the workflows from `cicd-pipeline.md`; secrets move to Actions secrets; `concurrency` replaces the local lock | Release runner triggers workflows; e2e is a required job before publish |
