@@ -23,6 +23,46 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+function Find-CollectionZip {
+    <#
+    .SYNOPSIS
+        Returns the FileInfo of the collection zip that a deploy would use.
+    .DESCRIPTION
+        Shared by Invoke-AddonLibraryDeploy (publish) and the release runner e2e step
+        so both pick exactly the same zip: a .zip directly in DeploymentPath, else the
+        newest .zip in the most recently written subfolder.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$DeploymentPath)
+
+    if (-not (Test-Path $DeploymentPath)) {
+        throw "Deployment path not found: $DeploymentPath"
+    }
+
+    $zipFile = $null
+
+    # First look for .zip files directly in DeploymentPath
+    $directZips = @(Get-ChildItem -Path $DeploymentPath -Filter '*.zip' -File -ErrorAction SilentlyContinue)
+    if ($directZips.Count -gt 0) {
+        $zipFile = $directZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    } else {
+        # Look in the most recently written subfolder
+        $subfolders = Get-ChildItem -Path $DeploymentPath -Directory | Sort-Object LastWriteTime -Descending
+        foreach ($sf in $subfolders) {
+            $sfZips = @(Get-ChildItem -Path $sf.FullName -Filter '*.zip' -File -ErrorAction SilentlyContinue)
+            if ($sfZips.Count -gt 0) {
+                $zipFile = $sfZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+                break
+            }
+        }
+    }
+    if (-not $zipFile) {
+        throw "No collection zip found in: $DeploymentPath"
+    }
+
+    return $zipFile
+}
+
 # ===========================================================================
 # Invoke-AddonLibraryDeploy
 # ===========================================================================
@@ -215,34 +255,16 @@ function Invoke-AddonLibraryDeploy {
         throw "Deployment path not found: $DeploymentPath"
     }
 
-    $zipFile = $null
-
-    # First look for .zip files directly in DeploymentPath
-    $directZips = @(Get-ChildItem -Path $DeploymentPath -Filter '*.zip' -File -ErrorAction SilentlyContinue)
-    if ($directZips.Count -gt 0) {
-        $zipFile = $directZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    } else {
-        # Look in the most recently written subfolder
-        $subfolders = Get-ChildItem -Path $DeploymentPath -Directory | Sort-Object LastWriteTime -Descending
-        foreach ($sf in $subfolders) {
-            $sfZips = @(Get-ChildItem -Path $sf.FullName -Filter '*.zip' -File -ErrorAction SilentlyContinue)
-            if ($sfZips.Count -gt 0) {
-                $zipFile = $sfZips | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-                break
-            }
-        }
-    }
-    if (-not $zipFile) {
-        throw "No collection zip found in: $DeploymentPath"
-    }
+    $zipFile = Find-CollectionZip -DeploymentPath $DeploymentPath
     Write-Host "Collection zip: $($zipFile.FullName) ($($zipFile.Length) bytes)"
 
     # -- extract version from the zip's parent folder name (e.g., "26.9.25.28323")
     $collectionVersion = ''
     $zipParent = Split-Path $zipFile.FullName -Parent
     $zipParentName = Split-Path $zipParent -Leaf
-    if ($zipParentName -match '^\d+\.\d+\.\d+\.\d+$') {
-        $collectionVersion = $zipParentName
+    # Accept an optional branch suffix (hotfix builds, e.g. 26.11.6.30150-hotfix-20261106-x); send only the numeric part
+    if ($zipParentName -match '^(\d+\.\d+\.\d+\.\d+)(-[A-Za-z0-9-]+)?$') {
+        $collectionVersion = $Matches[1]
     }
     if ($collectionVersion) {
         Write-Host "Version:        $collectionVersion"
@@ -402,4 +424,4 @@ function Invoke-LibraryUploadRequest {
 # Exports
 # ===========================================================================
 
-Export-ModuleMember -Function Invoke-AddonLibraryDeploy
+Export-ModuleMember -Function Invoke-AddonLibraryDeploy, Find-CollectionZip

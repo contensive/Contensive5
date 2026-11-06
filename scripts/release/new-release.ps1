@@ -62,6 +62,7 @@ function Read-RepoCatalog {
                 tier       = 0
                 produces   = @()
                 depends_on = @()
+                e2e_path   = ''
             }
             continue
         }
@@ -74,6 +75,9 @@ function Read-RepoCatalog {
         }
         elseif ($line -match '^\s{4}tier:\s*(\d+)') {
             $current.tier = [int]$Matches[1]
+        }
+        elseif ($line -match '^\s{4}e2e_path:\s*(.+)$') {
+            $current.e2e_path = $Matches[1].Trim()
         }
         # Inline empty array
         elseif ($line -match '^\s{4}(produces|depends_on):\s*\[\]\s*$') {
@@ -189,14 +193,23 @@ function Write-ReleaseManifest {
 
         [void]$sb.AppendLine("    has_tests: $($features.has_tests.ToString().ToLower())")
         [void]$sb.AppendLine("    has_build_script: $($features.has_build_script.ToString().ToLower())")
+        if ($repo.e2e_path) { [void]$sb.AppendLine("    e2e_path: $($repo.e2e_path)") }
 
         # Steps
         [void]$sb.AppendLine("    steps:")
-        $steps = @('merge', 'nuget', 'build', 'test', 'staging', 'smoke', 'publish')
+        $steps = @('merge', 'nuget', 'build', 'test', 'staging', 'e2e', 'smoke', 'publish')  # keep in sync with release-runner.ps1 $script:stepOrder
+        $hasE2ESuite = $false
+        if ($repo.e2e_path) {
+            $hasE2ESuite = Test-Path (Join-Path (Join-Path $repo.path $repo.e2e_path) 'playwright.config.ts')
+        }
         foreach ($step in $steps) {
             # Tier 3 repos skip build and test
             if ($repo.tier -eq 3 -and ($step -eq 'build' -or $step -eq 'test')) {
                 [void]$sb.AppendLine("      $step`: { status: skipped, timestamp: null, notes: `"`" }")
+            }
+            # Repos without an e2e suite (no e2e_path, or no playwright.config.ts yet) skip the e2e step
+            elseif ($step -eq 'e2e' -and -not $hasE2ESuite) {
+                [void]$sb.AppendLine("      $step`: { status: skipped, timestamp: null, notes: `"no e2e suite`" }")
             }
             # Repos without tests skip the test step
             elseif ($step -eq 'test' -and -not $features.has_tests) {

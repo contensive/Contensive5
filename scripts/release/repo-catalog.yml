@@ -8,6 +8,9 @@
 #   1 - Shared libraries: produces packages consumed by other addons
 #   2 - Leaf addons with C# code: consumes packages but produces none others depend on
 #   3 - Data/UI-only collections: no C# build, just collection XML and assets
+#
+# Optional per-repo field:
+#   e2e_path - optional; folder (relative to path) holding a Playwright suite. When set, the release runs the e2e step for this repo.
 
 repos:
   # ==========================================================================
@@ -59,6 +62,7 @@ repos:
   - name: aoEcommerce
     path: C:\Git\aoEcommerce
     tier: 1
+    e2e_path: tests/e2e
     produces:
       - Contensive.EcommerceApi
     depends_on:
