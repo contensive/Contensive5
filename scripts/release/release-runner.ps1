@@ -1631,21 +1631,21 @@ function Invoke-StepE2E {
             }
             $paths += $zip.FullName
             $hashes += $hash
-            $versions += (Get-E2EExpectedVersion -Zip $zip)
         }
         $stepData.artifact = ($paths -join ';')
         $stepData.artifact_sha256 = ($hashes -join ';')
 
-        # Expected installed version for the suite (E2E_EXPECTED_VERSION). If any zip's version
-        # cannot be determined, say so in the notes and run without it.
+        # The installed version is not read back from the site (Jay, 2026-11-06: rely on the install
+        # result). /installCollection is synchronous and reported success above. The site then
+        # recycles, so wait E2E_SETTLE_SEC (default 30) before the readiness check, so the old app
+        # domain is not mistaken for the new build.
+        [Environment]::SetEnvironmentVariable('E2E_EXPECTED_VERSION', $null, 'Process')
         $versionNote = ''
-        if (@($versions | Where-Object { $_ }).Count -eq $zips.Count) {
-            $env:E2E_EXPECTED_VERSION = (@($versions | Select-Object -Unique) -join ';')
-            Write-Host "  Expected installed version: $($env:E2E_EXPECTED_VERSION)" -ForegroundColor DarkGray
-        } else {
-            [Environment]::SetEnvironmentVariable('E2E_EXPECTED_VERSION', $null, 'Process')
-            $versionNote = 'WARNING: installed version not verified (zip folder name is not a version); '
-            Write-Host "  WARNING: could not derive the expected version from the zip folder name; the installed version is not verified." -ForegroundColor Yellow
+        $settleSec = 30
+        if ($env:E2E_SETTLE_SEC -and $env:E2E_SETTLE_SEC -match '^\d+$') { $settleSec = [int]$env:E2E_SETTLE_SEC }
+        if ($settleSec -gt 0) {
+            Write-Host "  Waiting $settleSec s for the site to recycle after the install..." -ForegroundColor DarkGray
+            Start-Sleep -Seconds $settleSec
         }
 
         # --- Wait for the site to come back after the install ---
