@@ -163,6 +163,11 @@ namespace Contensive.Processor {
         /// if true, user plain text password field to login. If false, has the entered password and compare to passwordHash
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
+        /// <summary>
+        /// if true (default), cookie-less bot requests are grouped into one visitor/visit by an IP+UserAgent fingerprint.
+        /// Set false to disable fingerprint lookup and save entirely.
+        /// </summary>
+        internal const string sitePropertyName_AllowVisitFingerprinting = "Allow Visit Fingerprinting";
         //
         // -- text message (SMS) site properties. Declared on the Text Messages tab of Site Settings in aoBase51.xml
         //
