@@ -197,6 +197,18 @@ function Get-CatalogE2EPath {
     return ''
 }
 
+function Get-RepoE2EPath {
+    <#
+    .SYNOPSIS
+        The e2e suite folder for a manifest repo. "Has a suite" is decided from
+        repo-catalog.yml only (never from what happens to be checked out): the
+        manifest value wins, else the catalog. Empty means the repo has no suite.
+    #>
+    param([hashtable]$Repo)
+    if ($Repo.e2e_path) { return $Repo.e2e_path }
+    return (Get-CatalogE2EPath -RepoName $Repo.name)
+}
+
 function New-StepData {
     param([string]$Status = 'pending', [string]$Notes = '')
     return @{
@@ -325,17 +337,23 @@ function Read-ReleaseManifest {
     # Without it, Test-StepReady would block publish ("step 'e2e' is ") for every repo.
     foreach ($r in $manifest.repos) {
         if (-not $r.steps.ContainsKey('e2e')) {
+            # "Has a suite" comes from the catalog only. A catalog e2e_path with the suite
+            # not checked out yet is still pending (the e2e step then fails loudly), never skipped.
             $catalogE2E = Get-CatalogE2EPath -RepoName $r.name
-            $hasSuite = $false
             if ($catalogE2E) {
-                $configPath = Join-Path (Join-Path $r.path $catalogE2E) 'playwright.config.ts'
-                $hasSuite = Test-Path $configPath
-            }
-            if ($hasSuite) {
                 $r.e2e_path = $catalogE2E
                 $r.steps['e2e'] = New-StepData -Status 'pending' -Notes 'e2e step added after manifest creation'
             } else {
                 $r.steps['e2e'] = New-StepData -Status 'skipped' -Notes 'no e2e suite'
+            }
+        } else {
+            # Repair a manifest written by the first version of the e2e step: it auto-skipped
+            # repos whose suite was not on the checked-out branch.
+            $catalogE2E = Get-CatalogE2EPath -RepoName $r.name
+            $e2eStepData = $r.steps['e2e']
+            if ($catalogE2E -and $e2eStepData.status -eq 'skipped' -and -not $e2eStepData.override_reason -and $r.tier -ne 0) {
+                $r.e2e_path = $catalogE2E
+                $r.steps['e2e'] = New-StepData -Status 'pending' -Notes 'e2e was skipped without a suite; catalog declares one'
             }
         }
         foreach ($sn in $script:stepOrder) {
@@ -572,10 +590,15 @@ function Import-E2EEnvironment {
     .SYNOPSIS
         Loads %LOCALAPPDATA%\contensive\e2e.env (KEY=VALUE lines) into the process
         environment. Real environment variables win: a key is only set when the
-        process variable is empty. Returns the keys it set so the caller can remove
-        them again. Never prints a value.
+        process variable is empty. Never prints a value.
+        CONTENSIVE_TEST_TOKEN is the exception: it is NOT put in the process
+        environment (child processes such as npm and Playwright would inherit it).
+        It is returned so the caller can pass it to the deploy call only.
+    .OUTPUTS
+        Hashtable: setKeys (the keys it set, so the caller can remove them) and token.
     #>
     $setKeys = @()
+    $token = ''
     $envFile = Join-Path $env:LOCALAPPDATA 'contensive\e2e.env'
     if (Test-Path $envFile) {
         foreach ($rawLine in (Get-Content $envFile)) {
@@ -593,6 +616,10 @@ function Import-E2EEnvironment {
                 }
             }
             if (-not $value) { continue }
+            if ($key -eq 'CONTENSIVE_TEST_TOKEN') {
+                $token = $value
+                continue
+            }
             if ([string]::IsNullOrEmpty([Environment]::GetEnvironmentVariable($key, 'Process'))) {
                 [Environment]::SetEnvironmentVariable($key, $value, 'Process')
                 $setKeys += $key
@@ -600,7 +627,7 @@ function Import-E2EEnvironment {
         }
         Write-Host "  Loaded $($setKeys.Count) e2e settings from $envFile" -ForegroundColor DarkGray
     }
-    return $setKeys
+    return @{ setKeys = $setKeys; token = $token }
 }
 
 function Test-E2EEnvironment {
@@ -608,12 +635,16 @@ function Test-E2EEnvironment {
     .SYNOPSIS
         Throws if a required e2e variable is missing or E2E_BASE_URL is not an
         allowed target. Messages carry variable names only, never values.
+        The deploy token is passed in (it is not in the process environment).
     #>
-    $required = @('E2E_BASE_URL', 'E2E_ADMIN_USER', 'E2E_ADMIN_PASSWORD', 'E2E_CUSTOMER_PASSWORD', 'CONTENSIVE_TEST_TOKEN')
+    param([string]$Token)
+
+    $required = @('E2E_BASE_URL', 'E2E_ADMIN_USER', 'E2E_ADMIN_PASSWORD', 'E2E_CUSTOMER_PASSWORD')
     $missing = @()
     foreach ($name in $required) {
         if ([string]::IsNullOrEmpty([Environment]::GetEnvironmentVariable($name, 'Process'))) { $missing += $name }
     }
+    if ([string]::IsNullOrWhiteSpace($Token)) { $missing += 'CONTENSIVE_TEST_TOKEN' }
     if ($missing.Count -gt 0) {
         $envFile = Join-Path $env:LOCALAPPDATA 'contensive\e2e.env'
         throw "Missing e2e setting(s): $($missing -join ', '). Set them as environment variables or in $envFile"
@@ -636,22 +667,132 @@ function Test-E2EEnvironment {
     }
 }
 
+# Variables the e2e step sets, clears or hides for child processes. Their values from before the
+# run are restored afterwards.
+$script:e2eManagedEnvNames = @('E2E_LOCK_ACTION', 'E2E_RUN_ID', 'E2E_RUN_OWNER', 'E2E_EXPECTED_VERSION', 'CI', 'CONTENSIVE_TEST_TOKEN')
+
+function Get-E2EEnvironmentSnapshot {
+    $snapshot = @{}
+    foreach ($n in $script:e2eManagedEnvNames) {
+        $snapshot[$n] = [Environment]::GetEnvironmentVariable($n, 'Process')
+    }
+    return $snapshot
+}
+
 function Remove-E2EEnvironment {
-    param([string[]]$Keys)
-    $names = @('E2E_LOCK_ACTION', 'E2E_RUN_ID', 'E2E_RUN_OWNER', 'CI')
+    param([string[]]$Keys, [hashtable]$Previous)
+    $names = @($script:e2eManagedEnvNames)
     if ($Keys) { $names += $Keys }
     foreach ($n in $names) {
-        [Environment]::SetEnvironmentVariable($n, $null, 'Process')
+        $old = $null
+        if ($Previous -and $Previous.ContainsKey($n)) { $old = $Previous[$n] }
+        if ([string]::IsNullOrEmpty($old)) { $old = $null }
+        [Environment]::SetEnvironmentVariable($n, $old, 'Process')
     }
+}
+
+function Resolve-E2ETool {
+    <#
+    .SYNOPSIS
+        Full path of a Node tool, resolved as npm.cmd / npx.cmd / node.exe so that
+        Windows PowerShell 5.1 never picks the .ps1 shims (blocked by a restricted
+        execution policy).
+    #>
+    param([string]$Name)
+    $cmd = Get-Command $Name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $cmd) {
+        throw "$Name not found on PATH. Install Node.js LTS (18 or later) on the release machine."
+    }
+    return $cmd.Source
+}
+
+function Invoke-E2ELockPhase {
+    <#
+    .SYNOPSIS
+        Runs only the site-lock Playwright project: Action is acquire or release.
+        Returns the process exit code. Must be called with the e2e folder as the
+        current directory.
+    #>
+    param([string]$NpxPath, [ValidateSet('acquire', 'release')][string]$Action)
+    $env:E2E_LOCK_ACTION = $Action
+    try {
+        & $NpxPath playwright test --project=site-lock --reporter=list | Out-Host
+        return $LASTEXITCODE
+    } finally {
+        Remove-Item Env:\E2E_LOCK_ACTION -ErrorAction SilentlyContinue
+    }
+}
+
+function Get-E2EExpectedVersion {
+    <#
+    .SYNOPSIS
+        The collection version a build produced, taken from the name of the folder
+        that holds the zip (build-addon-collection.psm1 writes
+        <DeploymentRoot>\<version>\<Collection>.zip, version e.g. 26.11.6.30150 or
+        26.11.6.30150-branch-name). Returns '' when the folder is not a version.
+    #>
+    param([System.IO.FileInfo]$Zip)
+    $folder = $Zip.Directory.Name
+    if ($folder -match '^\d+\.\d+\.\d+\.\d+(-[A-Za-z0-9-]+)?$') { return $folder }
+    return ''
+}
+
+function Test-InstallResponseSuccess {
+    <#
+    .SYNOPSIS
+        /installCollection answers HTTP 200 with {"success":true|false,"message":...}
+        and installs synchronously. True only when the body says success is true.
+    #>
+    param([string]$Body)
+    if ([string]::IsNullOrWhiteSpace($Body)) { return $false }
+    $parsed = $null
+    try { $parsed = $Body | ConvertFrom-Json } catch { return $false }
+    if (-not $parsed) { return $false }
+    $prop = $parsed.PSObject.Properties['success']
+    if (-not $prop) { return $false }
+    return ($prop.Value -eq $true)
+}
+
+function Get-PlaywrightProjectNames {
+    <#
+    .SYNOPSIS
+        Distinct project names that appear in a Playwright JSON report
+        (suites -> specs -> tests -> projectName, suites nest).
+    #>
+    param($Node)
+    $names = @()
+    if (-not $Node) { return $names }
+    foreach ($spec in @($Node.specs)) {
+        if (-not $spec) { continue }
+        foreach ($t in @($spec.tests)) {
+            if ($t -and $t.projectName) { $names += "$($t.projectName)" }
+        }
+    }
+    foreach ($child in @($Node.suites)) {
+        if ($child) { $names += @(Get-PlaywrightProjectNames -Node $child) }
+    }
+    return @($names | Sort-Object -Unique)
 }
 
 function Read-JsonFileOrNull {
     param([string]$Path)
     if (-not (Test-Path $Path)) { return $null }
+    $text = Get-Content $Path -Raw
+    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
     try {
-        return (Get-Content $Path -Raw | ConvertFrom-Json)
+        return ($text | ConvertFrom-Json)
     } catch {
-        return $null
+        # Windows PowerShell 5.1 ConvertFrom-Json fails on documents over about 2 MB
+        # (a failing run with many attachments). Fall back to a serializer with no limit.
+        try {
+            Add-Type -AssemblyName System.Web.Extensions -ErrorAction Stop
+            $serializer = New-Object System.Web.Script.Serialization.JavaScriptSerializer
+            $serializer.MaxJsonLength = [int]::MaxValue
+            $serializer.RecursionLimit = 200
+            return $serializer.DeserializeObject($text)
+        } catch {
+            return $null
+        }
     }
 }
 
@@ -698,6 +839,11 @@ function Test-PublishGate {
     if ($e2e.status -eq 'skipped') {
         if ($e2e.override_reason) {
             Write-Host "  Publishing $($Repo.name) with e2e skipped by OVERRIDE: $($e2e.override_reason)" -ForegroundColor Yellow
+            return
+        }
+        # A skip is only legitimate for a repo with no catalog e2e_path (or Tier 0)
+        if ($Repo.tier -ne 0 -and (Get-RepoE2EPath -Repo $Repo)) {
+            throw "e2e is skipped for $($Repo.name) but repo-catalog.yml declares an e2e suite. Run the e2e step, or mark it with -Mark skipped -Step e2e -Reason '<why>'."
         }
         return
     }
@@ -705,8 +851,11 @@ function Test-PublishGate {
         Write-Host "  Publishing $($Repo.name) with e2e OVERRIDE: $($e2e.override_reason)" -ForegroundColor Yellow
         return
     }
-    # e2e marked done by hand before the hash was recorded
-    if (-not $e2e.artifact_sha256) { return }
+    # done with no hash and no override has no legitimate path (-Mark done needs -Reason; a
+    # real run always records the hash). It means a hand-edited manifest: refuse.
+    if (-not $e2e.artifact_sha256) {
+        throw "e2e is marked done but has no recorded artifact hash; re-run e2e (.\release-runner.ps1 -Mark pending -Step e2e -Repo $($Repo.name); .\release-runner.ps1 -Step e2e -Repo $($Repo.name)) or mark it with -Reason."
+    }
 
     $hashes = @()
     foreach ($zip in @(Get-RepoCollectionZips -Repo $Repo)) {
@@ -747,11 +896,10 @@ function New-HotfixManifest {
         if ((Test-Path $buildScript) -or (Test-Path $buildCmd) -or (Test-Path $buildCoreCmd)) { $hasBuildScript = $true }
     }
 
+    # Catalog decides whether the repo has a suite. A missing suite on the branch makes the
+    # e2e step fail when it runs; it never turns into a skip.
     $e2ePath = ''
-    if ($CatalogEntry.e2e_path) {
-        $configPath = Join-Path (Join-Path $CatalogEntry.path $CatalogEntry.e2e_path) 'playwright.config.ts'
-        if (Test-Path $configPath) { $e2ePath = $CatalogEntry.e2e_path }
-    }
+    if ($CatalogEntry.e2e_path) { $e2ePath = $CatalogEntry.e2e_path }
 
     $repoEntry = @{
         name             = $RepoName
@@ -1047,14 +1195,10 @@ function Invoke-StepE2E {
 
     $stepData = $Repo.steps['e2e']
 
-    # --- Auto-skip: no suite, or Tier 0 ---
-    if (-not $Repo.e2e_path) {
-        $stepData.notes = 'no e2e suite'
-        Write-Host "  No e2e suite for $($Repo.name) - skipping" -ForegroundColor Yellow
-        return 'skipped'
-    }
-    $e2eDir = Join-Path $Repo.path $Repo.e2e_path
-    if (-not (Test-Path (Join-Path $e2eDir 'playwright.config.ts'))) {
+    # --- Auto-skip: only repos the catalog gives no e2e_path, and Tier 0 ---
+    # "Has a suite" is decided from repo-catalog.yml, not from what is checked out.
+    $e2ePath = Get-RepoE2EPath -Repo $Repo
+    if (-not $e2ePath) {
         $stepData.notes = 'no e2e suite'
         Write-Host "  No e2e suite for $($Repo.name) - skipping" -ForegroundColor Yellow
         return 'skipped'
@@ -1064,24 +1208,42 @@ function Invoke-StepE2E {
         Write-Host "  Core e2e is phase 3 - skipping" -ForegroundColor Yellow
         return 'skipped'
     }
+    $Repo.e2e_path = $e2ePath
+    $e2eDir = Join-Path $Repo.path $e2ePath
+    if (-not (Test-Path (Join-Path $e2eDir 'playwright.config.ts'))) {
+        $currentBranch = (Invoke-GitCommand -Arguments @('-C', $Repo.path, 'rev-parse', '--abbrev-ref', 'HEAD') | Out-String).Trim()
+        throw "e2e suite declared in repo-catalog.yml but $(Join-Path $e2ePath 'playwright.config.ts') not found in $($Repo.path) (suite missing on branch '$currentBranch'). Check out the branch that has the suite, or mark e2e with -Reason."
+    }
 
     # --- Settings: nothing has changed yet, so a failure here is clean ---
-    $setKeys = @(Import-E2EEnvironment)
+    # The deploy token is kept out of the process environment, so npm ci scripts, Playwright and
+    # the test workers never inherit it. It is passed only to Invoke-ContensiveDeploy.
+    $previousEnv = Get-E2EEnvironmentSnapshot
+    $deployToken = [Environment]::GetEnvironmentVariable('CONTENSIVE_TEST_TOKEN', 'Process')
+    [Environment]::SetEnvironmentVariable('CONTENSIVE_TEST_TOKEN', $null, 'Process')
+    $setKeys = @()
     $lockDir = Join-Path $env:LOCALAPPDATA 'contensive'
     $lockFile = Join-Path $lockDir 'e2e-run.lock'
     $lockCreated = $false
-    $lockAcquired = $false
+    $lockAttempted = $false
+    $lockHeldByOther = $false
     $pushed = $false
+    $npxCmd = ''
+    $warnings = @()
 
     try {
-        Test-E2EEnvironment
+        $imported = Import-E2EEnvironment
+        $setKeys = @($imported.setKeys)
+        if ([string]::IsNullOrWhiteSpace($deployToken)) { $deployToken = $imported.token }
+        Test-E2EEnvironment -Token $deployToken
         $baseUrl = $env:E2E_BASE_URL.TrimEnd('/')
         $siteName = ([Uri]$baseUrl).Host.Split('.')[0]
 
-        if (-not (Get-Command npm -ErrorAction SilentlyContinue) -or -not (Get-Command node -ErrorAction SilentlyContinue)) {
-            throw "Node.js (npm) not found on PATH. Install Node.js LTS (18 or later) on the release machine."
-        }
-        $nodeText = (& node --version | Out-String).Trim()
+        # npm.cmd / npx.cmd / node.exe explicitly: the .ps1 shims fail under a restricted execution policy
+        $nodeExe = Resolve-E2ETool -Name 'node.exe'
+        $npmCmd = Resolve-E2ETool -Name 'npm.cmd'
+        $npxCmd = Resolve-E2ETool -Name 'npx.cmd'
+        $nodeText = (& $nodeExe --version | Out-String).Trim()
         if ($nodeText -match '^v(\d+)\.' -and [int]$Matches[1] -lt 18) {
             throw "Node.js $nodeText is too old. Install Node.js 18 or later."
         }
@@ -1122,37 +1284,38 @@ function Invoke-StepE2E {
         Push-Location $e2eDir
         $pushed = $true
         $resultsDir = Join-Path $e2eDir 'e2e-results'
+        $resultsFile = Join-Path $resultsDir 'results.json'
         if (-not (Test-Path $resultsDir)) { New-Item -ItemType Directory -Path $resultsDir -Force | Out-Null }
         # Remove results from earlier runs so stale files are never read as this run's
         foreach ($stale in @('results.json', 'run-info.json', 'site-lock.json')) {
             Remove-Item (Join-Path $resultsDir $stale) -Force -ErrorAction SilentlyContinue
         }
 
-        # --- Install suite dependencies ---
+        # --- Install suite dependencies (no deploy token in the environment here) ---
         Write-Host "  Installing e2e dependencies (npm ci)..."
-        & npm ci --no-audit --no-fund | Out-Host
+        & $npmCmd ci --no-audit --no-fund | Out-Host
         if ($LASTEXITCODE -ne 0) { throw "npm ci failed in $e2eDir" }
-        & npx playwright install chromium | Out-Host
+        & $npxCmd playwright install chromium | Out-Host
         if ($LASTEXITCODE -ne 0) { throw "playwright install chromium failed" }
 
         # --- Site lock on the test site ---
         Write-Host "  Acquiring the e2e lock on $baseUrl..."
-        $env:E2E_LOCK_ACTION = 'acquire'
-        & npx playwright test --project=site-lock --reporter=list | Out-Host
-        $lockExit = $LASTEXITCODE
-        Remove-Item Env:\E2E_LOCK_ACTION -ErrorAction SilentlyContinue
+        $lockAttempted = $true
+        $lockExit = Invoke-E2ELockPhase -NpxPath $npxCmd -Action 'acquire'
         $lockResult = Read-JsonFileOrNull -Path (Join-Path $resultsDir 'site-lock.json')
+        # The lock phase writes the same results.json the main run does: never let the main phase read it
+        Remove-Item $resultsFile -Force -ErrorAction SilentlyContinue
         if ($lockExit -eq 0 -and $lockResult -and $lockResult.ok) {
-            $lockAcquired = $true
+            # held by us from here on (the finally releases it)
         } else {
             $heldBy = 'unknown'
-            if ($lockResult -and $lockResult.heldBy) { $heldBy = "$($lockResult.heldBy)" }
+            if ($lockResult -and $lockResult.heldBy) { $heldBy = "$($lockResult.heldBy)"; $lockHeldByOther = $true }
             throw "Test site is locked: $heldBy"
         }
         $manualJobNote = ''
         if ($lockResult.manualJob) {
-            Write-Host "  WARNING: manual job build on test site: $($lockResult.manualJob)." -ForegroundColor Yellow
-            Write-Host "  The e2e deploy replaces the collection on the test site." -ForegroundColor Yellow
+            Write-Host "  WARNING: manual job build on test site: $($lockResult.manualJob)." -ForegroundColor Red
+            Write-Host "  The e2e deploy replaces the collection on the test site." -ForegroundColor Red
             $manualJobNote = "manual job on site: $($lockResult.manualJob); "
         }
 
@@ -1162,40 +1325,70 @@ function Invoke-StepE2E {
         if ($zips.Count -eq 0) { throw "No collection zip to deploy for $($Repo.name)" }
         $paths = @()
         $hashes = @()
+        $versions = @()
         foreach ($zip in $zips) {
             $hash = (Get-FileHash -Path $zip.FullName -Algorithm SHA256).Hash
             Write-Host "  Deploying $($zip.FullName) to $siteName..."
-            Invoke-ContensiveDeploy -SiteUrl "$baseUrl/installCollection" -CollectionZip $zip.FullName `
-                -SiteName $siteName -BearerToken $env:CONTENSIVE_TEST_TOKEN -NonInteractive | Out-Host
+            # The token goes to the deploy call only, as a parameter
+            $deployResult = @(Invoke-ContensiveDeploy -SiteUrl "$baseUrl/installCollection" -CollectionZip $zip.FullName `
+                -SiteName $siteName -BearerToken $deployToken -NonInteractive -PassThruResult) |
+                Where-Object { $_ -and $_.PSObject.Properties['Body'] } | Select-Object -Last 1
+            # HTTP 200 alone is not enough: the endpoint reports the install result in the body
+            if (-not $deployResult -or -not (Test-InstallResponseSuccess -Body $deployResult.Body)) {
+                $bodyText = ''
+                if ($deployResult) { $bodyText = "$($deployResult.Body)" }
+                if ($bodyText.Length -gt 300) { $bodyText = $bodyText.Substring(0, 300) }
+                throw "Install of $($zip.Name) on $siteName did not report success: $bodyText"
+            }
             $paths += $zip.FullName
             $hashes += $hash
+            $versions += (Get-E2EExpectedVersion -Zip $zip)
         }
         $stepData.artifact = ($paths -join ';')
         $stepData.artifact_sha256 = ($hashes -join ';')
 
+        # Expected installed version for the suite (E2E_EXPECTED_VERSION). If any zip's version
+        # cannot be determined, say so in the notes and run without it.
+        $versionNote = ''
+        if (@($versions | Where-Object { $_ }).Count -eq $zips.Count) {
+            $env:E2E_EXPECTED_VERSION = (@($versions | Select-Object -Unique) -join ';')
+            Write-Host "  Expected installed version: $($env:E2E_EXPECTED_VERSION)" -ForegroundColor DarkGray
+        } else {
+            [Environment]::SetEnvironmentVariable('E2E_EXPECTED_VERSION', $null, 'Process')
+            $versionNote = 'WARNING: installed version not verified (zip folder name is not a version); '
+            Write-Host "  WARNING: could not derive the expected version from the zip folder name; the installed version is not verified." -ForegroundColor Yellow
+        }
+
         # --- Wait for the site to come back after the install ---
+        # The install already reported success. Require two consecutive 200s so a still-serving
+        # old app domain that is about to recycle does not count as ready.
         $timeoutSec = 180
         if ($env:E2E_READY_TIMEOUT_SEC -and $env:E2E_READY_TIMEOUT_SEC -match '^\d+$') { $timeoutSec = [int]$env:E2E_READY_TIMEOUT_SEC }
         $deadline = (Get-Date).AddSeconds($timeoutSec)
+        $okInARow = 0
         $siteReady = $false
         while ((Get-Date) -lt $deadline) {
+            $gotOk = $false
             try {
                 $resp = Invoke-WebRequest -Uri "$baseUrl/" -UseBasicParsing -TimeoutSec 30
-                if ($resp.StatusCode -eq 200) { $siteReady = $true; break }
+                if ($resp.StatusCode -eq 200) { $gotOk = $true }
             } catch {
                 # not up yet
             }
+            if ($gotOk) { $okInARow++ } else { $okInARow = 0 }
+            if ($okInARow -ge 2) { $siteReady = $true; break }
             Start-Sleep -Seconds 5
         }
         if (-not $siteReady) { throw "Test site did not respond after deploy" }
 
         # --- Main run (no --grep on the CLI: it would filter out the setup projects) ---
         Write-Host "  Running Playwright suite..."
-        & npx playwright test | Out-Host
+        Remove-Item $resultsFile -Force -ErrorAction SilentlyContinue
+        & $npxCmd playwright test | Out-Host
         $pwExit = $LASTEXITCODE
 
         # --- Results ---
-        $results = Read-JsonFileOrNull -Path (Join-Path $resultsDir 'results.json')
+        $results = Read-JsonFileOrNull -Path $resultsFile
         $runInfo = Read-JsonFileOrNull -Path (Join-Path $resultsDir 'run-info.json')
 
         # --- Archive the report ---
@@ -1210,7 +1403,7 @@ function Invoke-StepE2E {
         $stepData.report = Join-Path $dest 'playwright-report\index.html'
 
         if (-not $results -or -not $results.stats) {
-            throw "Playwright produced no results (exit $pwExit) - see $dest"
+            throw "Playwright produced no readable results.json (exit $pwExit) - see $dest"
         }
         $passed = [int]$results.stats.expected
         $failedCount = [int]$results.stats.unexpected
@@ -1225,16 +1418,25 @@ function Invoke-StepE2E {
         if ($pwExit -ne 0 -or $failedCount -gt 0) {
             throw "$failedCount e2e test(s) failed - report: $($stepData.report)"
         }
-        $stepData.notes = "$manualJobNote$passed passed, $flaky flaky, $skippedTests skipped"
+        # A green run that ran nothing is not a pass
+        if ($passed -lt 1) {
+            throw "e2e run passed 0 tests (skipped=$skippedTests) - the suite did not run. Report: $($stepData.report)"
+        }
+        $ranProjects = @(Get-PlaywrightProjectNames -Node $results)
+        $missingProjects = @(@('smoke', 'seed', 'regression') | Where-Object { $ranProjects -notcontains $_ })
+        if ($missingProjects.Count -gt 0) {
+            throw "e2e results do not contain project(s): $($missingProjects -join ', ') (found: $($ranProjects -join ', ')) - the suite did not run fully. Report: $($stepData.report)"
+        }
+        $stepData.notes = "$manualJobNote$versionNote$passed passed, $flaky flaky, $skippedTests skipped"
         Write-Host "  E2E passed for $($Repo.name)" -ForegroundColor Green
         if ($flaky -gt 0) { Write-Host "  $flaky flaky test(s) - see report" -ForegroundColor Yellow }
     } finally {
-        # Must not throw: every cleanup action is guarded
-        if ($lockAcquired) {
+        # Must not throw: every cleanup action is guarded.
+        # Release (and settings restore) whenever the acquire phase ran, unless we know another run holds the lock.
+        if ($lockAttempted -and -not $lockHeldByOther -and $npxCmd) {
             try {
-                $env:E2E_LOCK_ACTION = 'release'
-                & npx playwright test --project=site-lock --reporter=list | Out-Host
-                if ($LASTEXITCODE -ne 0) {
+                $releaseExit = Invoke-E2ELockPhase -NpxPath $npxCmd -Action 'release'
+                if ($releaseExit -ne 0) {
                     Write-Host "  WARNING: releasing the e2e lock on the test site failed. Clear 'E2E Lock' in Site Properties." -ForegroundColor Red
                 }
             } catch {
@@ -1242,7 +1444,8 @@ function Invoke-StepE2E {
             }
         }
         if ($pushed) { try { Pop-Location } catch { } }
-        Remove-E2EEnvironment -Keys $setKeys
+        $deployToken = $null
+        Remove-E2EEnvironment -Keys $setKeys -Previous $previousEnv
         if ($lockCreated) { Remove-Item $lockFile -Force -ErrorAction SilentlyContinue }
     }
 }
@@ -1539,66 +1742,114 @@ if ($Hotfix) {
     $repoPath = $catalogEntry.path
     if (-not (Test-Path $repoPath)) { throw "Repo path not found: $repoPath" }
 
+    # Validate the branch name before it reaches any git command
+    if ($Branch -notmatch '^[A-Za-z0-9][A-Za-z0-9._/-]*$' -or $Branch -match '\.\.' -or $Branch.EndsWith('/') -or $Branch.EndsWith('.lock')) {
+        throw "Branch name '$Branch' is not a safe git branch name."
+    }
+    if (@('main', 'master', 'dev') -contains $Branch) {
+        throw "A hotfix runs on its own branch, not '$Branch'."
+    }
+    Invoke-GitCommand -Arguments @('check-ref-format', '--branch', $Branch) | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Branch name '$Branch' is not a valid git branch name." }
+
     Write-Host ""
     Write-Host "Hotfix $Branch for $Repo" -ForegroundColor Cyan
 
-    # Git: clean tree, check out the branch, fast-forward it
+    # Git: clean tree, fetch, the branch must exist on origin
     $dirty = Invoke-GitCommand -Arguments @('-C', $repoPath, 'status', '--porcelain')
     if ($dirty) { throw "Working tree not clean in $repoPath" }
+    $originalBranch = (Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--abbrev-ref', 'HEAD') | Out-String).Trim()
+    if ($originalBranch -eq 'HEAD') {
+        # detached: return to the commit
+        $originalBranch = (Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', 'HEAD') | Out-String).Trim()
+    }
     Invoke-GitCommand -Arguments @('-C', $repoPath, 'fetch', 'origin') | Out-Null
-    Invoke-GitCommand -Arguments @('-C', $repoPath, 'checkout', $Branch) | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "git checkout $Branch failed in $repoPath" }
-    Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--verify', "origin/$Branch") | Out-Null
-    if ($LASTEXITCODE -eq 0) {
+    if ($LASTEXITCODE -ne 0) { throw "git fetch origin failed in $repoPath" }
+    Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--verify', '--quiet', "refs/remotes/origin/$Branch") | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Branch '$Branch' does not exist on origin. Push it first." }
+
+    try {
+        # Check out the branch and fast-forward it. The original branch is restored in the finally.
+        Invoke-GitCommand -Arguments @('-C', $repoPath, 'checkout', $Branch, '--') | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "git checkout $Branch failed in $repoPath (check that the tree is clean and the branch exists)" }
         Invoke-GitCommand -Arguments @('-C', $repoPath, 'pull', '--ff-only', 'origin', $Branch) | Out-Null
         if ($LASTEXITCODE -ne 0) { throw "git pull --ff-only origin $Branch failed in $repoPath" }
-    }
-    Invoke-GitCommand -Arguments @('-C', $repoPath, 'merge-base', '--is-ancestor', 'origin/main', 'HEAD') | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "  WARNING: $Branch does not contain origin/main" -ForegroundColor Yellow
-    }
-    $headSha = Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--short', 'HEAD')
-
-    # Create the manifest after checkout so has_tests / e2e detection sees the hotfix branch
-    if (-not $manifest) {
-        $manifest = New-HotfixManifest -CatalogEntry $catalogEntry -Branch $Branch -RepoName $Repo
-        Write-Host "Created hotfix manifest: $ManifestPath" -ForegroundColor Green
-    }
-    $manifest.commit = "$headSha".Trim()
-    $hotfixRepo = $manifest.repos[0]
-    Write-ReleaseManifest -Manifest $manifest -Path $ManifestPath
-
-    if ($Step) { $hotfixSteps = @($Step) } else { $hotfixSteps = @('build', 'test', 'e2e', 'publish') }
-
-    foreach ($hs in $hotfixSteps) {
-        Write-Host ""
-        Write-Host "--- $Repo / $hs ---" -ForegroundColor White
-        $hsStatus = $hotfixRepo.steps[$hs].status
-        if ($Retry -and $hsStatus -eq 'failed') {
-            $hotfixRepo.steps[$hs] = New-StepData -Status 'pending'
-            Write-Host "  Reset $Repo / $hs from failed to pending" -ForegroundColor Yellow
-            $hsStatus = 'pending'
+        Invoke-GitCommand -Arguments @('-C', $repoPath, 'merge-base', '--is-ancestor', 'origin/main', 'HEAD') | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  WARNING: $Branch does not contain origin/main" -ForegroundColor Yellow
         }
-        if ($hsStatus -eq 'done' -or $hsStatus -eq 'skipped') {
-            Write-Host "  Already $hsStatus" -ForegroundColor DarkGray
-            continue
+        $headSha = (Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', '--short', 'HEAD') | Out-String).Trim()
+        $headFull = (Invoke-GitCommand -Arguments @('-C', $repoPath, 'rev-parse', 'HEAD') | Out-String).Trim()
+
+        # Create the manifest after checkout so has_tests detection sees the hotfix branch
+        if (-not $manifest) {
+            $manifest = New-HotfixManifest -CatalogEntry $catalogEntry -Branch $Branch -RepoName $Repo
+            Write-Host "Created hotfix manifest: $ManifestPath" -ForegroundColor Green
         }
-        Invoke-ReleaseStep -Repo $hotfixRepo -StepName $hs -AllRepos $manifest.repos | Out-Null
+        $hotfixRepo = $manifest.repos[0]
+
+        # The branch moved since the manifest was started: build, test, e2e and publish of the
+        # old commit must not be reused for the new one (an old zip would publish under a new commit).
+        $oldCommit = "$($manifest.commit)".Trim()
+        if ($oldCommit -and -not $headFull.StartsWith($oldCommit)) {
+            Write-Host "  Branch moved from $oldCommit to $headSha since the last run: resetting build, test, e2e and publish to pending" -ForegroundColor Yellow
+            foreach ($resetStep in @('build', 'test', 'e2e', 'publish')) {
+                $old = $hotfixRepo.steps[$resetStep]
+                # a structural skip (no test project, no suite) stays; anything else, including an override, is redone
+                if ($old.status -eq 'skipped' -and -not $old.override_reason) { continue }
+                $hotfixRepo.steps[$resetStep] = New-StepData -Status 'pending'
+            }
+            $manifest.status = 'in-progress'
+        }
+        $manifest.commit = $headSha
         Write-ReleaseManifest -Manifest $manifest -Path $ManifestPath
-        $hsStatus = $hotfixRepo.steps[$hs].status
-        if ($hsStatus -ne 'done' -and $hsStatus -ne 'skipped') {
-            Write-Host "  Hotfix stopped at '$hs' ($hsStatus). Fix it, then re-run with -Retry." -ForegroundColor Red
-            break
+
+        if ($Step) { $hotfixSteps = @($Step) } else { $hotfixSteps = @('build', 'test', 'e2e', 'publish') }
+
+        foreach ($hs in $hotfixSteps) {
+            Write-Host ""
+            Write-Host "--- $Repo / $hs ---" -ForegroundColor White
+            $hsStatus = $hotfixRepo.steps[$hs].status
+            if ($Retry -and $hsStatus -eq 'failed') {
+                $hotfixRepo.steps[$hs] = New-StepData -Status 'pending'
+                Write-Host "  Reset $Repo / $hs from failed to pending" -ForegroundColor Yellow
+                $hsStatus = 'pending'
+            }
+            if ($hsStatus -eq 'done' -or $hsStatus -eq 'skipped') {
+                Write-Host "  Already $hsStatus" -ForegroundColor DarkGray
+                continue
+            }
+            Invoke-ReleaseStep -Repo $hotfixRepo -StepName $hs -AllRepos $manifest.repos | Out-Null
+            Write-ReleaseManifest -Manifest $manifest -Path $ManifestPath
+            $hsStatus = $hotfixRepo.steps[$hs].status
+            if ($hsStatus -ne 'done' -and $hsStatus -ne 'skipped') {
+                Write-Host "  Hotfix stopped at '$hs' ($hsStatus). Fix it, then re-run with -Retry." -ForegroundColor Red
+                break
+            }
+        }
+
+        if ($hotfixRepo.steps['publish'].status -eq 'done') {
+            $manifest.status = 'complete'
+            Write-Host ""
+            Write-Host "Hotfix published. Now merge $Branch into main and dev (PRs)." -ForegroundColor Green
+        }
+        Write-ReleaseManifest -Manifest $manifest -Path $ManifestPath
+        Show-Dashboard -Manifest $manifest
+    } finally {
+        # Leave the repo on the branch it was on, so a later monthly step does not build the hotfix branch
+        if ($originalBranch) {
+            try {
+                Invoke-GitCommand -Arguments @('-C', $repoPath, 'checkout', $originalBranch, '--') | Out-Null
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Host "  WARNING: could not switch $repoPath back to '$originalBranch'. Run: git -C $repoPath checkout $originalBranch" -ForegroundColor Red
+                } else {
+                    Write-Host "  Returned $Repo to '$originalBranch'" -ForegroundColor DarkGray
+                }
+            } catch {
+                Write-Host "  WARNING: could not switch $repoPath back to '$originalBranch'. Run: git -C $repoPath checkout $originalBranch" -ForegroundColor Red
+            }
         }
     }
-
-    if ($hotfixRepo.steps['publish'].status -eq 'done') {
-        $manifest.status = 'complete'
-        Write-Host ""
-        Write-Host "Hotfix published. Now merge $Branch into main and dev (PRs)." -ForegroundColor Green
-    }
-    Write-ReleaseManifest -Manifest $manifest -Path $ManifestPath
-    Show-Dashboard -Manifest $manifest
     return
 }
 
@@ -1639,9 +1890,9 @@ if ($Mark) {
     $isE2EOverride = ($Step -eq 'e2e' -and ($Mark -eq 'done' -or $Mark -eq 'skipped'))
 
     # Marking e2e done/skipped by hand is an override and must say why
-    if ($isE2EOverride -and -not $Reason) {
+    if ($isE2EOverride -and [string]::IsNullOrWhiteSpace($Reason)) {
         foreach ($t in $targets) {
-            if ($t.e2e_path -or $t.steps['e2e'].status -ne 'skipped') {
+            if ((Get-RepoE2EPath -Repo $t) -or $t.steps['e2e'].status -ne 'skipped') {
                 throw "-Reason is required to mark e2e $Mark (it is recorded in the manifest)."
             }
         }

@@ -115,9 +115,14 @@ Verify the local site, then mark smoke and publish:
 
 ## Step 4b: E2E on the test site
 
-The `e2e` step runs after `staging` and before `smoke`. It only does work for repos that have
-`e2e_path` in `repo-catalog.yml` and a `playwright.config.ts` in that folder (today: aoEcommerce,
-`tests/e2e`). For every other repo it records `skipped` ("no e2e suite"). Tier 0 also skips.
+The `e2e` step runs after `staging` and before `smoke`. "Has a suite" is decided by `repo-catalog.yml` only:
+a repo with an `e2e_path` there (today: aoEcommerce, `tests/e2e`) always runs the step. For every repo
+without an `e2e_path` it records `skipped` ("no e2e suite"). Tier 0 also skips.
+
+If the catalog declares an `e2e_path` but `playwright.config.ts` is not in that folder of the checked-out
+branch, the step **fails** ("suite missing on branch X"). It is never skipped: check out the branch that has
+the suite, or override with `-Mark done -Step e2e -Reason`. A manifest that is created or upgraded while the
+suite is not checked out gets `e2e: pending`, not `skipped`.
 
 ```powershell
 .\release-runner.ps1 -Step e2e -Repo aoEcommerce
@@ -127,19 +132,40 @@ What it does, in order:
 1. Loads `%LOCALAPPDATA%\contensive\e2e.env` (real environment variables win) and checks that
    `E2E_BASE_URL` is `https` on an allowed host (`test.sitefpo.com` unless `E2E_ALLOWED_HOSTS` says otherwise).
    A missing setting fails here, before anything is changed. Secret values are never printed or written to the manifest.
+   `CONTENSIVE_TEST_TOKEN` is read into a variable and is **not** put in the process environment (an existing
+   process variable of that name is hidden for the run and restored afterwards), so `npm ci`, Playwright and the
+   test workers never inherit it. It is passed only to the deploy call.
 2. Takes a machine lock (`%LOCALAPPDATA%\contensive\e2e-run.lock`) so two runs cannot overlap on this machine.
-3. Runs `npm ci` and `npx playwright install chromium` in the suite folder.
+3. Runs `npm ci` and `npx playwright install chromium` in the suite folder. It calls `npm.cmd`, `npx.cmd` and
+   `node.exe` explicitly, so Windows PowerShell 5.1 never picks the `.ps1` shims (blocked by a restricted execution policy).
 4. Takes the test-site lock (site property `E2E Lock`). If a manual job's build is installed on the test site
    (`E2E Manual Job`), it prints a warning: the e2e deploy replaces that collection.
 5. Deploys the **same zip that publish would upload** to the test site with `CONTENSIVE_TEST_TOKEN`
-   (no prompts) and records its path and SHA-256 in the manifest.
-6. Waits for the site to answer (up to `E2E_READY_TIMEOUT_SEC`, default 180 s), then runs `npx playwright test`.
+   (no prompts) and records its path and SHA-256 in the manifest. `/installCollection` installs synchronously and
+   answers `{"success":true|false,"message":...}`: HTTP 200 with `success` not `true` fails the step.
+6. Sets `E2E_EXPECTED_VERSION` for the suite, waits for the site to answer 200 twice in a row (up to
+   `E2E_READY_TIMEOUT_SEC`, default 180 s), then runs `npx playwright test`.
+
+   **Installed build = tested build.** The expected version is the name of the folder the build wrote the zip into
+   (`<DeploymentRoot>\<version>\<Collection>.zip`, for example `26.11.6.30150` or `26.11.6.30150-branch-name`).
+   The suite's first setup project must read the installed collection version from the site and fail if it differs
+   (compare the 4-part number; the `-branch` suffix may or may not be part of the installed value). With several zips
+   the variable holds the versions joined by `;`. If the version cannot be derived the step still runs, but its notes
+   carry `WARNING: installed version not verified`. Until a suite asserts it, a green run proves only that the install
+   reported success, not which build the site is serving.
 7. Archives the HTML report and results under `C:\Deployments\e2e-reports\<repo>\<runId>\`
    (override the root with `E2E_REPORT_ROOT`), and records the passed/failed/flaky/skipped counts.
-8. Always (even on failure) restores any leftover site-property snapshot, then releases the test-site lock and the machine lock.
+8. Always (even on failure, unless the run was killed; the next seed restores a leftover snapshot) restores any
+   leftover site-property snapshot, then releases the test-site lock and the machine lock. The restore and lock
+   release also run when `npm` fails after the lock was taken.
 
-The step is `failed` when any test fails, when the suite produced no results, or when the suite reports that
+The step is `failed` when any test fails, when the suite produced no readable `results.json`, when **0 tests passed**,
+when the `smoke`, `seed` or `regression` project is missing from the results, or when the suite reports that
 site properties were **not** restored (restore them from the archived `run-info.json` before anyone tests).
+Old result files are deleted before the main run; the lock phases (which write their own `results.json`) are never read as results.
+
+The archive folder holds Playwright traces, screenshots and videos. Treat it as sensitive: a trace can record typed
+values (logins, settings). Keep it on the release machine and do not share it outside the team.
 
 Reading a failure: `-Status` prints `e2e report: <path>` under the repo. Open that `index.html`. The per-test
 traces, screenshots and videos are inside the archived folder. `-Report` lists every e2e report under "E2E Reports".
@@ -284,7 +310,8 @@ This resets the step from `failed` to `pending` and re-executes it. It works the
 
 ### Publish is blocked by e2e
 
-`publish` refuses until the repo's `e2e` step is `done`, or `skipped` because the repo has no e2e suite.
+`publish` refuses until the repo's `e2e` step is `done`, or `skipped` because the repo has no e2e suite in the catalog.
+A skip without an override for a repo the catalog gives an `e2e_path` is refused, and so is `done` with no recorded zip hash and no override.
 It also re-computes the SHA-256 of the zip it is about to upload. If that differs from the zip e2e tested, it stops with
 `Collection zip changed since e2e tested it`. Re-test:
 
@@ -354,6 +381,10 @@ that the build step made is the newest zip, and it is the one e2e tests and publ
 - Check or override that manifest: add `-ManifestPath <the hotfix file>` to `-Status`, `-Report` or `-Mark`.
 - After `publish`, open PRs to merge the hotfix branch into `main` and `dev`.
 - The e2e override with `-Reason` works the same as in a monthly release.
+- The branch name must be a safe git name, must exist on `origin`, and cannot be `main`, `master` or `dev`.
+- The repo is returned to the branch it was on when the hotfix run ends (success or failure).
+- If the branch tip differs from the manifest's `commit` on a re-run, `build`, `test`, `e2e` and `publish` are reset to
+  pending, so an old zip is never tested or published under a new commit.
 
 ---
 
@@ -371,7 +402,9 @@ that the build step made is the newest zip, and it is the one e2e tests and publ
 | `publish` | Checks the e2e gate and the zip SHA-256, then runs the repo's `scripts/deploy-to-addon-library.cmd` | Yes |
 
 Step order (one list, `$script:stepOrder` in `release-runner.ps1`): `merge, nuget, build, test, staging, e2e, smoke, publish`.
-A manifest written before the `e2e` step existed is upgraded when it is read: `e2e` becomes `pending` for a repo that has a suite, otherwise `skipped`.
+A manifest written before the `e2e` step existed is upgraded when it is read: `e2e` becomes `pending` for a repo whose catalog entry has an `e2e_path`, otherwise `skipped`.
+A repo that already finished `staging` but not `test` (the old order) is blocked at `e2e` until `test` is done.
+An `e2e: skipped` (no override) on a repo that the catalog now gives an `e2e_path` is reset to `pending` when the manifest is read.
 
 ## Step Statuses
 

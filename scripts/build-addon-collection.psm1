@@ -655,13 +655,19 @@ function Invoke-ContensiveDeploy {
 
 .PARAMETER NonInteractive
     Never prompt. Throws if no BearerToken is supplied, and throws on HTTP 401/403.
+
+.PARAMETER PassThruResult
+    Also return an object with HttpCode and Body (the response text), so a caller
+    can check the install result: /installCollection answers HTTP 200 with
+    {"success":true|false,"message":...}. Without the switch nothing is returned.
 #>
     param(
         [Parameter(Mandatory)][string]$SiteUrl,
         [Parameter(Mandatory)][string]$CollectionZip,
         [Parameter(Mandatory)][string]$SiteName,
         [string]$BearerToken = '',
-        [switch]$NonInteractive
+        [switch]$NonInteractive,
+        [switch]$PassThruResult
     )
 
     if (-not (Test-Path $CollectionZip)) {
@@ -713,6 +719,7 @@ function Invoke-ContensiveDeploy {
 
     $responseFile = Join-Path $env:TEMP "$SiteName-deploy-response.txt"
     $httpCodeFile = Join-Path $env:TEMP "$SiteName-http-code.txt"
+    $responseBody = ''
 
     try {
         & curl.exe -s -o $responseFile -w '%{http_code}' -X POST $SiteUrl `
@@ -751,7 +758,8 @@ function Invoke-ContensiveDeploy {
         # Show response and check result
         # --------------------------------------------------------------
         if (Test-Path $responseFile) {
-            Get-Content $responseFile -Raw | Write-Host
+            $responseBody = "$(Get-Content $responseFile -Raw)"
+            Write-Host $responseBody
         }
 
         if ($curlExit -ne 0) {
@@ -767,6 +775,9 @@ function Invoke-ContensiveDeploy {
         Write-Host "========================================"
         Write-Host "Deploy complete: $zipName -> $SiteName"
         Write-Host "========================================"
+        if ($PassThruResult) {
+            [pscustomobject]@{ HttpCode = $httpCodeInt; Body = $responseBody }
+        }
     } finally {
         Remove-Item $responseFile -Force -ErrorAction SilentlyContinue
         Remove-Item $httpCodeFile -Force -ErrorAction SilentlyContinue

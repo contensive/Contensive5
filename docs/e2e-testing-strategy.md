@@ -306,7 +306,7 @@ merge → nuget → build → test → staging → e2e → smoke → publish
   order (`staging` before `test`) is corrected.
 - `e2e` runs after `staging` and before the manual `smoke`. The automated check runs first. When
   e2e passes, smoke is a short look at the local site, or it can be marked skipped.
-- Repos without an e2e suite get `e2e: skipped` automatically.
+- Repos with no `e2e_path` in `repo-catalog.yml` get `e2e: skipped` automatically. A repo whose catalog entry declares a suite that is missing on the checked-out branch fails the step; it is never skipped.
 
 ### What the e2e step does
 

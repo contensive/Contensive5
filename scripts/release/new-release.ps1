@@ -198,16 +198,15 @@ function Write-ReleaseManifest {
         # Steps
         [void]$sb.AppendLine("    steps:")
         $steps = @('merge', 'nuget', 'build', 'test', 'staging', 'e2e', 'smoke', 'publish')  # keep in sync with release-runner.ps1 $script:stepOrder
-        $hasE2ESuite = $false
-        if ($repo.e2e_path) {
-            $hasE2ESuite = Test-Path (Join-Path (Join-Path $repo.path $repo.e2e_path) 'playwright.config.ts')
-        }
+        # "Has a suite" is decided from the catalog e2e_path only, never from what is checked out
+        # right now: a suite missing on this branch must fail the e2e step, not skip it.
+        $hasE2ESuite = [bool]$repo.e2e_path
         foreach ($step in $steps) {
             # Tier 3 repos skip build and test
             if ($repo.tier -eq 3 -and ($step -eq 'build' -or $step -eq 'test')) {
                 [void]$sb.AppendLine("      $step`: { status: skipped, timestamp: null, notes: `"`" }")
             }
-            # Repos without an e2e suite (no e2e_path, or no playwright.config.ts yet) skip the e2e step
+            # Repos with no catalog e2e_path skip the e2e step
             elseif ($step -eq 'e2e' -and -not $hasE2ESuite) {
                 [void]$sb.AppendLine("      $step`: { status: skipped, timestamp: null, notes: `"no e2e suite`" }")
             }
