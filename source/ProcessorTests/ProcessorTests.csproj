@@ -72,4 +72,8 @@
   <ItemGroup>
     <None Update="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Processor is strong-named and this project is not, so InternalsVisibleTo cannot be used. Pure internal helpers are compiled in as linked source. -->
+    <Compile Include="..\Processor\Controllers\SessionFingerprintPolicy.cs" Link="Linked\SessionFingerprintPolicy.cs" />
+  </ItemGroup>
 </Project>
