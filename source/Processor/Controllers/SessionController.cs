@@ -248,6 +248,7 @@ namespace Contensive.Processor.Controllers {
                 PersonModel earlyResolvedUser = null;
                 bool earlyBearerAuth = false;
                 string fingerprintHash = "";
+                bool fingerprintingEnabled = false;
                 isFingerprintedSession = false;
                 if ((visitor == null || visitor.id == 0) && (visit == null || visit.id == 0)) {
                     if (core.webServer?.requestHeaders != null
@@ -277,43 +278,59 @@ namespace Contensive.Processor.Controllers {
                     // -- If no bearer token found, try bot/spider fingerprinting for cookie-less requests.
                     //    This groups bot hits from the same IP+UserAgent into a single visitor/visit,
                     //    preventing database pollution from crawlers and background processes.
+                    //    Only bot visitors are matched, and a match is never reused if it carries an
+                    //    authenticated visit or a real (non guest/bot) person. Site property
+                    //    "Allow Visit Fingerprinting" (default true) turns lookup and save off.
                     //
                     if (earlyResolvedUser == null && (visitor == null || visitor.id == 0) && !string.IsNullOrEmpty(core.webServer.requestRemoteIP)) {
-                        string userAgent = core.webServer.requestBrowser ?? "";
-                        string remoteIP = core.webServer.requestRemoteIP ?? "";
-                        //
-                        // -- Create fingerprint from IP + User-Agent
-                        //    Use hex encoding to ensure safe storage in DB text field
-                        string fingerprint = $"{remoteIP}|{userAgent}";
-                        using (var sha256 = SHA256.Create()) {
-                            byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprint));
-                            fingerprintHash = BitConverter.ToString(hashBytes).Replace("-", "");
-                        }
                         isFingerprintedSession = true;
-                        //
-                        // -- Look for existing visitor with this fingerprint.
-                        //    Use dynamic SQL so the SELECT is only parsed when the column exists.
-                        //    A static IF COL_LENGTH check does not work because SQL Server validates
-                        //    column references in both branches at parse time.
-                        {
-                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors WITH (NOLOCK) where (fingerprint=@fp) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
+                        fingerprintingEnabled = core.siteProperties.getBoolean(sitePropertyName_AllowVisitFingerprinting, true);
+                        if (fingerprintingEnabled) {
+                            string userAgent = core.webServer.requestBrowser ?? "";
+                            string remoteIP = core.webServer.requestRemoteIP ?? "";
+                            //
+                            // -- Create fingerprint from IP + User-Agent
+                            //    Use hex encoding to ensure safe storage in DB text field
+                            string fingerprint = $"{remoteIP}|{userAgent}";
+                            using (var sha256 = SHA256.Create()) {
+                                byte[] hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(fingerprint));
+                                fingerprintHash = BitConverter.ToString(hashBytes).Replace("-", "");
+                            }
+                            //
+                            // -- Look for existing bot visitor with this fingerprint.
+                            //    Use dynamic SQL so the SELECT is only parsed when the column exists.
+                            //    A static IF COL_LENGTH check does not work because SQL Server validates
+                            //    column references in both branches at parse time.
+                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors WITH (NOLOCK) where (fingerprint=@fp)and(bot=1) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
                             using var dt = core.db.executeQuery(fingerprintSql, new Dictionary<string, object> { { "@fingerprintParam", fingerprintHash } });
                             if (dt?.Rows.Count > 0) {
                                 int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
                                 if (existingVisitorId > 0) {
-                                    visitor = new VisitorModel {
+                                    var matchedVisitor = new VisitorModel {
                                         id = existingVisitorId,
                                         memberId = GenericController.getInteger(dt.Rows[0]["memberId"]),
                                         bot = GenericController.getBoolean(dt.Rows[0]["bot"]),
                                         cookieSupport = GenericController.getBoolean(dt.Rows[0]["cookieSupport"])
                                     };
                                     //
-                                    // -- Reuse this visitor's most recent visit if within 1 hour
+                                    // -- candidate visit: this visitor's most recent visit if within 1 hour
                                     string oneHourAgo = DbController.encodeSQLDate(core.doc.profileStartTime.AddHours(-1));
-                                    var visitList = DbBaseModel.createList<VisitModel>(core.cpParent, $"(visitorId={visitor.id})and(lastVisitTime>{oneHourAgo})", "id desc", 1);
-                                    if (visitList.Count > 0) {
-                                        visit = visitList[0];
-                                        trackVisits = true;
+                                    var visitList = DbBaseModel.createList<VisitModel>(core.cpParent, $"(visitorId={matchedVisitor.id})and(lastVisitTime>{oneHourAgo})", "id desc", 1);
+                                    VisitModel matchedVisit = (visitList.Count > 0) ? visitList[0] : null;
+                                    //
+                                    // -- every person attached to the match must be a guest or bot (or none)
+                                    bool matchedVisitAuthenticated = matchedVisit?.visitAuthenticated ?? false;
+                                    bool memberIsGuestOrBot = isFingerprintMemberGuestOrBot(matchedVisitor.memberId) && ((matchedVisit == null) || isFingerprintMemberGuestOrBot(matchedVisit.memberId));
+                                    if (SessionFingerprintPolicy.canReuseFingerprintVisit(fingerprintingEnabled, matchedVisitor.bot, matchedVisitAuthenticated, memberIsGuestOrBot)) {
+                                        visitor = matchedVisitor;
+                                        if (matchedVisit != null) {
+                                            visit = matchedVisit;
+                                            trackVisits = true;
+                                        }
+                                    } else {
+                                        //
+                                        // -- refused, leave visitor and visit empty so a new visitor and visit are created
+                                        logger.Info($"{core.logCommonMessage},SessionController, fingerprint match refused, new visit created. visitorId [{matchedVisitor.id}], visitId [{matchedVisit?.id ?? 0}], visitAuthenticated [{matchedVisitAuthenticated}], memberIsGuestOrBot [{memberIsGuestOrBot}]");
                                     }
                                 }
                             }
@@ -574,7 +591,11 @@ namespace Contensive.Processor.Controllers {
                     //    may not yet exist during the upgrade process (cc -u). Dynamic SQL via
                     //    EXEC ensures the UPDATE is only parsed when the column exists.
                     //
-                    if (isFingerprintedSession && !string.IsNullOrEmpty(fingerprintHash) && visitor.id > 0) {
+                    //    Only bot sessions are saved (visit.bot is resolved above for new visits),
+                    //    never an authenticated visit or a real person.
+                    //
+                    bool userIsGuestOrBot = (user != null) && SessionFingerprintPolicy.isGuestOrBotPerson(user.personTypeId, user.admin, user.developer);
+                    if (SessionFingerprintPolicy.shouldSaveFingerprint(fingerprintingEnabled, isFingerprintedSession, !string.IsNullOrEmpty(fingerprintHash), visitor.id, visit.bot, visitor.bot, visit.visitAuthenticated, userIsGuestOrBot)) {
                         core.db.executeNonQuery($"IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC('update ccvisitors set fingerprint=''{fingerprintHash.Replace("'", "''")}'' where id={visitor.id}')");
                     }
                 }
@@ -665,6 +686,20 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
             return createPerson(core, PersonTypeEnum.Guest, "Guest", exitWithoutSave);
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// true if the member attached to a fingerprint match may be shared: no member (0), or a guest/bot person.
+        /// A memberId whose person record cannot be loaded returns false (fail closed).
+        /// </summary>
+        /// <param name="memberId"></param>
+        /// <returns></returns>
+        private bool isFingerprintMemberGuestOrBot(int memberId) {
+            if (memberId.Equals(0)) { return true; }
+            PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, memberId);
+            if (person is null) { return false; }
+            return SessionFingerprintPolicy.isGuestOrBotPerson(person.personTypeId, person.admin, person.developer);
         }
         //
         //========================================================================
