@@ -52,6 +52,24 @@ namespace Contensive.Processor.Controllers {
         }
         //
         /// <summary>
+        /// Read the assembly version from a DLL without loading it.
+        /// Returns the version string (e.g. "26.11.0.0") or null if not found or on error.
+        /// </summary>
+        public static string GetAssemblyVersion(string dllPath) {
+            try {
+                using var stream = File.OpenRead(dllPath);
+                using var peReader = new PEReader(stream);
+                if (!peReader.HasMetadata) { return null; }
+                var metadataReader = peReader.GetMetadataReader();
+                var assemblyDef = metadataReader.GetAssemblyDefinition();
+                return assemblyDef.Version.ToString();
+            } catch {
+                // -- file is not a valid PE/managed assembly, or I/O error
+            }
+            return null;
+        }
+        //
+        /// <summary>
         /// Returns true if the DLL targets .NETFramework (not .NETStandard or .NETCoreApp).
         /// Returns false if the target framework cannot be determined.
         /// </summary>

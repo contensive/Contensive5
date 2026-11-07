@@ -237,6 +237,8 @@ namespace Contensive.Processor.Controllers {
 #if NET
                 //
                 // -- check for Framework-only DLLs and warn during installation
+                // -- also build a map of assembly versions for non-system DLLs
+                var dllVersionMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 foreach (string dllName in assembliesInZip) {
                     string dllFileName = System.IO.Path.GetFileNameWithoutExtension(dllName);
                     //
@@ -250,8 +252,14 @@ namespace Contensive.Processor.Controllers {
                     if (dllFileName.Equals("ContensiveDbModels", StringComparison.OrdinalIgnoreCase)) { continue; }
                     //
                     string dllAbsPath = core.privateFiles.joinPath(core.privateFiles.localAbsRootPath, CollectionVersionFolder) + dllName;
-                    if (System.IO.File.Exists(dllAbsPath) && AssemblyMetadataHelper.IsFrameworkOnly(dllAbsPath)) {
-                        logger.Warn($"{core.logCommonMessage}, Collection [{collectionGuid}] contains DLL [{dllName}] targeting .NET Framework. This addon may not work in the .NET 9 Core environment. Recompile targeting netstandard2.0.");
+                    if (System.IO.File.Exists(dllAbsPath)) {
+                        if (AssemblyMetadataHelper.IsFrameworkOnly(dllAbsPath)) {
+                            logger.Warn($"{core.logCommonMessage}, Collection [{collectionGuid}] contains DLL [{dllName}] targeting .NET Framework. This addon may not work in the .NET 9 Core environment. Recompile targeting netstandard2.0.");
+                        }
+                        string version = AssemblyMetadataHelper.GetAssemblyVersion(dllAbsPath);
+                        if (!string.IsNullOrEmpty(version)) {
+                            dllVersionMap[dllFileName] = version;
+                        }
                     }
                 }
 #endif
@@ -499,6 +507,20 @@ namespace Contensive.Processor.Controllers {
                                         collection.execFileList = ExecFileList;
                                         collection.wwwFileList = wwwFileList;
                                         collection.layoutFileList = layoutFileList;
+#if NET
+                                        //
+                                        // -- resolve assembly version: prefer DLL matching collection name, fall back to first
+                                        if (dllVersionMap.Count > 0) {
+                                            string collectionNameNormalized = CollectionName.Replace(" ", "").Replace("-", "").Replace("_", "");
+                                            if (dllVersionMap.TryGetValue(collectionNameNormalized, out string matchedVersion)) {
+                                                collection.assemblyVersion = matchedVersion;
+                                            } else {
+                                                collection.assemblyVersion = dllVersionMap.Values.First();
+                                            }
+                                        } else {
+                                            collection.assemblyVersion = "";
+                                        }
+#endif
                                         //
                                         // ----- remove any current navigator nodes installed by the collection previously
                                         //

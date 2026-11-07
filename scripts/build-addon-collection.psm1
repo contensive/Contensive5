@@ -633,7 +633,7 @@ function Invoke-ContensiveDeploy {
 
     Typical caller (build-deploy-sprint11.cmd in an addon repo):
 
-        Import-Module "C:\Git\Contensive5\scripts\contensive-build.psm1" -Force
+        Import-Module "C:\Git\Contensive5\scripts\build-addon-collection.psm1" -Force
         Invoke-ContensiveDeploy `
             -SiteUrl        'https://sprint11.sitefpo.com/installCollection' `
             -CollectionZip  "$PSScriptRoot\..\collections\MyAddon\MyAddon.zip" `
@@ -647,11 +647,27 @@ function Invoke-ContensiveDeploy {
 
 .PARAMETER SiteName
     Short label used for prompts and the cached token filename (e.g. 'sprint11').
+
+.PARAMETER BearerToken
+    Optional bearer token supplied by the caller (for example the release runner's
+    e2e step). When set, the token cache file is neither read nor written and a
+    rejected token (HTTP 401/403) throws instead of prompting.
+
+.PARAMETER NonInteractive
+    Never prompt. Throws if no BearerToken is supplied, and throws on HTTP 401/403.
+
+.PARAMETER PassThruResult
+    Also return an object with HttpCode and Body (the response text), so a caller
+    can check the install result: /installCollection answers HTTP 200 with
+    {"success":true|false,"message":...}. Without the switch nothing is returned.
 #>
     param(
         [Parameter(Mandatory)][string]$SiteUrl,
         [Parameter(Mandatory)][string]$CollectionZip,
-        [Parameter(Mandatory)][string]$SiteName
+        [Parameter(Mandatory)][string]$SiteName,
+        [string]$BearerToken = '',
+        [switch]$NonInteractive,
+        [switch]$PassThruResult
     )
 
     if (-not (Test-Path $CollectionZip)) {
@@ -663,24 +679,34 @@ function Invoke-ContensiveDeploy {
     # -------------------------------------------------------------------
     $tokenFile = Join-Path $env:TEMP "$SiteName-bearer-token.txt"
     $needToken = $true
+    $tokenSuppliedByCaller = -not [string]::IsNullOrWhiteSpace($BearerToken)
 
-    if (Test-Path $tokenFile) {
-        $tokenDate = (Get-Item $tokenFile).LastWriteTime.ToString('yyyy-MM-dd')
-        $today = (Get-Date).ToString('yyyy-MM-dd')
-        if ($tokenDate -eq $today) {
-            $needToken = $false
-        }
-    }
-
-    if ($needToken) {
-        $token = Read-Host "Enter bearer token for $SiteName"
-        if ([string]::IsNullOrWhiteSpace($token)) {
-            throw "No token provided. Aborting deploy."
-        }
-        Set-Content -Path $tokenFile -Value $token -NoNewline
+    if ($tokenSuppliedByCaller) {
+        # Caller-supplied token: never touch the cache file
+        $token = $BearerToken.Trim()
+        $needToken = $false
+        Write-Host "Using bearer token supplied by caller."
+    } elseif ($NonInteractive) {
+        throw "No bearer token supplied and -NonInteractive set"
     } else {
-        $token = (Get-Content $tokenFile -Raw).Trim()
-        Write-Host "Using cached bearer token for $SiteName (from today)."
+        if (Test-Path $tokenFile) {
+            $tokenDate = (Get-Item $tokenFile).LastWriteTime.ToString('yyyy-MM-dd')
+            $today = (Get-Date).ToString('yyyy-MM-dd')
+            if ($tokenDate -eq $today) {
+                $needToken = $false
+            }
+        }
+
+        if ($needToken) {
+            $token = Read-Host "Enter bearer token for $SiteName"
+            if ([string]::IsNullOrWhiteSpace($token)) {
+                throw "No token provided. Aborting deploy."
+            }
+            Set-Content -Path $tokenFile -Value $token -NoNewline
+        } else {
+            $token = (Get-Content $tokenFile -Raw).Trim()
+            Write-Host "Using cached bearer token for $SiteName (from today)."
+        }
     }
 
     # -------------------------------------------------------------------
@@ -693,6 +719,7 @@ function Invoke-ContensiveDeploy {
 
     $responseFile = Join-Path $env:TEMP "$SiteName-deploy-response.txt"
     $httpCodeFile = Join-Path $env:TEMP "$SiteName-http-code.txt"
+    $responseBody = ''
 
     try {
         & curl.exe -s -o $responseFile -w '%{http_code}' -X POST $SiteUrl `
@@ -704,6 +731,9 @@ function Invoke-ContensiveDeploy {
         # --------------------------------------------------------------
         # Auth failure -- prompt for new token and retry once
         # --------------------------------------------------------------
+        if (($httpCode -eq '401' -or $httpCode -eq '403') -and ($tokenSuppliedByCaller -or $NonInteractive)) {
+            throw "Bearer token was rejected by $SiteName (HTTP $httpCode). Update CONTENSIVE_TEST_TOKEN."
+        }
         if ($httpCode -eq '401' -or $httpCode -eq '403') {
             Write-Host ""
             Write-Host "Bearer token was rejected (HTTP $httpCode). Please provide a new token."
@@ -728,7 +758,8 @@ function Invoke-ContensiveDeploy {
         # Show response and check result
         # --------------------------------------------------------------
         if (Test-Path $responseFile) {
-            Get-Content $responseFile -Raw | Write-Host
+            $responseBody = "$(Get-Content $responseFile -Raw)"
+            Write-Host $responseBody
         }
 
         if ($curlExit -ne 0) {
@@ -744,6 +775,9 @@ function Invoke-ContensiveDeploy {
         Write-Host "========================================"
         Write-Host "Deploy complete: $zipName -> $SiteName"
         Write-Host "========================================"
+        if ($PassThruResult) {
+            [pscustomobject]@{ HttpCode = $httpCodeInt; Body = $responseBody }
+        }
     } finally {
         Remove-Item $responseFile -Force -ErrorAction SilentlyContinue
         Remove-Item $httpCodeFile -Force -ErrorAction SilentlyContinue
