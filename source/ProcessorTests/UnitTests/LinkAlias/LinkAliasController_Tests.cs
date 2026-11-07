@@ -13,6 +13,12 @@ namespace Contensive.Processor.Tests.UnitTests.LinkAlias;
 [TestClass()]
 public class LinkAliasController_Tests {
     //
+    // -- Use an alias name that does not collide with the test app name ("test").
+    // -- addLinkAlias rejects aliases that match the app name because they would
+    // -- conflict with the application's virtual directory.
+    //
+    private const string testAlias = "sample-page";
+    //
     //====================================================================================================
     //
     [TestMethod]
@@ -26,12 +32,11 @@ public class LinkAliasController_Tests {
             //
             int pageId = 1;
             string pageQs = "this=that&one=another";
-            string pageName = "test";
-            string pageLink = "https://" + cp.GetAppConfig().domainList[0] + "/" + pageName;
+            string pageLink = $"https://{cp.GetAppConfig().domainList[0]}/{testAlias}";
             //
             // act
-            LinkAliasController.addLinkAlias(core, pageName, pageId, pageQs);
-            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "(name='/test')");
+            LinkAliasController.addLinkAlias(core, testAlias, pageId, pageQs);
+            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, $"(name='/{testAlias}')");
             //
             var resultPageLink = PageManagerController.getPageLink(core, pageId, pageQs);
             //
@@ -49,12 +54,12 @@ public class LinkAliasController_Tests {
             CoreController core = cp.core;
             core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
             // act
-            LinkAliasController.addLinkAlias(core, "test", 1, "");
-            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "(name='/test')");
+            LinkAliasController.addLinkAlias(core, testAlias, 1, "");
+            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, $"(name='/{testAlias}')");
 
             // assert
             Assert.AreEqual(1, linkAliasList.Count);
-            Assert.AreEqual("/test", linkAliasList[0].name);
+            Assert.AreEqual($"/{testAlias}", linkAliasList[0].name);
             Assert.AreEqual(1, linkAliasList[0].pageId);
             Assert.AreEqual("", linkAliasList[0].queryStringSuffix);
 
@@ -72,12 +77,12 @@ public class LinkAliasController_Tests {
             CoreController core = cp.core;
             core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
             // act
-            LinkAliasController.addLinkAlias(core, "test", 1, "");
-            LinkAliasController.addLinkAlias(core, "test", 2, "");
-            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "(name='/test')");
+            LinkAliasController.addLinkAlias(core, testAlias, 1, "");
+            LinkAliasController.addLinkAlias(core, testAlias, 2, "");
+            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, $"(name='/{testAlias}')");
             // assert
             Assert.AreEqual(1, linkAliasList.Count);
-            Assert.AreEqual("/test", linkAliasList[0].name);
+            Assert.AreEqual($"/{testAlias}", linkAliasList[0].name);
             Assert.AreEqual(2, linkAliasList[0].pageId);
             Assert.AreEqual("", linkAliasList[0].queryStringSuffix);
         }
@@ -94,12 +99,12 @@ public class LinkAliasController_Tests {
             CoreController core = cp.core;
             core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
             // act
-            LinkAliasController.addLinkAlias(core, "test", 1, "a=1");
-            LinkAliasController.addLinkAlias(core, "test", 1, "a=2");
-            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "(name='/test')");
+            LinkAliasController.addLinkAlias(core, testAlias, 1, "a=1");
+            LinkAliasController.addLinkAlias(core, testAlias, 1, "a=2");
+            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, $"(name='/{testAlias}')");
             // assert
             Assert.AreEqual(1, linkAliasList.Count);
-            Assert.AreEqual("/test", linkAliasList[0].name);
+            Assert.AreEqual($"/{testAlias}", linkAliasList[0].name);
             Assert.AreEqual(1, linkAliasList[0].pageId);
             Assert.AreEqual("a=2", linkAliasList[0].queryStringSuffix);
         }
