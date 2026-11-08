@@ -304,7 +304,9 @@ namespace Contensive.Processor.Controllers {
                             //    Use dynamic SQL so the SELECT is only parsed when the column exists.
                             //    A static IF COL_LENGTH check does not work because SQL Server validates
                             //    column references in both branches at parse time.
-                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors WITH (NOLOCK) where (fingerprint=@fp)and(bot=1)and(cookieSupport=0) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
+                            //    cookieSupport is NULL on a visitor that never returned a cookie (it is only written
+                            //    when it changes), so NULL must count as 0 or no bot visitor ever matches.
+                            string fingerprintSql = "IF COL_LENGTH('ccvisitors','fingerprint') IS NOT NULL EXEC sp_executesql N'select top 1 id,memberId,bot,cookieSupport from ccvisitors WITH (NOLOCK) where (fingerprint=@fp)and(bot=1)and(isnull(cookieSupport,0)=0) order by id desc', N'@fp nvarchar(500)', @fp=@fingerprintParam";
                             using var dt = core.db.executeQuery(fingerprintSql, new Dictionary<string, object> { { "@fingerprintParam", fingerprintHash } });
                             if (dt?.Rows.Count > 0) {
                                 int existingVisitorId = GenericController.getInteger(dt.Rows[0]["id"]);
