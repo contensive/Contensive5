@@ -295,7 +295,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override void sendUser(int toUserId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, int emailTemplateId, ref string adminErrorMessage) {
+        public override void sendUser(int toUserId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, int emailTemplateId, bool trackOpensAndClicks, ref string adminErrorMessage) {
             try {
                 PersonModel person = DbBaseModel.create<PersonModel>(cp, toUserId);
                 if (person == null) {
@@ -304,7 +304,31 @@ namespace Contensive.Processor {
                 }
                 string template = getEmailTemplateBodyHtml(emailTemplateId);
                 int personalizeAddonId = 0;
-                EmailController.trySendPersonEmail(cp.core, "Ad Hoc Email", person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, 0, template, false, ref adminErrorMessage, personalizeAddonId);
+                if (!trackOpensAndClicks) {
+                    EmailController.trySendPersonEmail(cp.core, "Ad Hoc Email", person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, 0, template, false, ref adminErrorMessage, personalizeAddonId);
+                    return;
+                }
+                //
+                // -- tracked, same as group email (EmailController.sendEmailRecord_nonImmediate): email record + drop, open detect on the body, click detect on every link
+                var email = DbBaseModel.addDefault<EmailModel>(cp);
+                email.name = $"Ad Hoc Email - {subject}";
+                email.subject = subject;
+                email.fromAddress = fromAddress;
+                email.emailTemplateId = emailTemplateId > 0 && !string.IsNullOrEmpty(template) ? emailTemplateId : 0;
+                email.sent = true;
+                email.submitted = true;
+                email.save(cp);
+                var emailDrop = DbBaseModel.addDefault<EmailDropModel>(cp);
+                emailDrop.name = $"Ad Hoc Drop - {subject} - {DateTime.Now}";
+                emailDrop.emailId = email.id;
+                emailDrop.save(cp);
+                if (bodyIsHtml) {
+                    body += EmailController.getEmailClickLink(cp.core, emailDrop.id, person.id);
+                }
+                string queryStringForLinkAppend = $"{Constants.rnEmailClickFlag}={emailDrop.id}&{Constants.rnEmailMemberId}={person.id}";
+                if (EmailController.trySendPersonEmail(cp.core, person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, email.id, template, false, ref adminErrorMessage, queryStringForLinkAppend, "Ad Hoc Email", personalizeAddonId)) {
+                    LogController.addActivityCompleted(cp.core, "Email sent", $"Email sent [{subject}]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{cp.core.logCommonMessage}");
                 adminErrorMessage = "An email could not be sent because of an unexpected error.";
