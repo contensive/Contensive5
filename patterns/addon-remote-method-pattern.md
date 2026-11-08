@@ -4,10 +4,27 @@
 > All patterns and API reference: [Patterns Index](https://raw.githubusercontent.com/contensive/Contensive5/refs/heads/master/patterns/index.md)
 
 ## Overview
-[Detailed explanation, history, why this pattern exists]
-A Remote Method is an addon that can is executed when an endpoint is hit that matches the addon's name. The addon can update the application data and its return is returned as the response to the endpoint.
 
-## Architecture  
+A Remote Method is an addon that is executed when an HTTP request matches the addon's name as a path segment. The addon can update application data and its return value becomes the HTTP response body.
+
+## URL Format
+
+Remote methods are invoked as path segments, not query string parameters. The addon name becomes a route in the URL path.
+
+```
+CORRECT:   /remoteMethodName
+WRONG:     ?remotemethod=remoteMethodName
+```
+
+For example, an addon named `searchResultsRemote` is called at:
+```
+GET  {baseURL}/searchResultsRemote
+POST {baseURL}/searchResultsRemote
+```
+
+State-changing operations (create, update, delete) must use POST — see [POST for State-Changing Remote Methods](security-best-practices.md#post-for-state-changing-remote-methods).
+
+## Architecture
 
 ## The Dotnet Component
 - The addon references a Dotnet+class that includes an Execute method that returns the rendered layout

@@ -19,7 +19,7 @@ Addons that are called from other addons using `cp.Addon.Execute()` or `cp.Addon
 
 ### Remote Methods
 
-Addons configured as HTTP endpoints. When `remoteMethod` is true, the addon name (or alias) is registered as a route. Incoming HTTP requests matching the route invoke the addon, and its return value becomes the HTTP response body.
+Addons configured as HTTP endpoints. When `remoteMethod` is true, the addon name (or alias) is registered as a route. Incoming HTTP requests matching the route as a path segment (e.g., `/myRemoteMethod`, not `?remotemethod=myRemoteMethod`) invoke the addon, and its return value becomes the HTTP response body.
 
 See [Remote Method Pattern](addon-remote-method-pattern.md).
 
