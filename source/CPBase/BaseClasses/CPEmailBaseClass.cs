@@ -377,6 +377,25 @@ namespace Contensive.BaseClasses {
         /// <remarks></remarks>
         public abstract void sendUser(int toUserId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHTML, ref string adminErrorMessage);
         /// <summary>
+        /// Send an email to a user, wrapped in an Email Template, optionally tracked like a system or group email.
+        /// The template's bodyHTML is merged the same way system emails are: content commands such as {% "content box" %} are rendered,
+        /// and the body replaces the content box. If the template has no content box, the body is appended after the template.
+        /// When trackOpensAndClicks is true, core creates an ad-hoc Email record and Email Drop, adds the open-detect image (or stylesheet link,
+        /// per site property GroupEmailOpenTriggerMethod) to the body, appends the click-detect query string to every link in the template and body,
+        /// and adds an "Email sent" Activity Log entry for the user. Core's Email Open and Email Click handlers then write the Email Log and
+        /// "Email opened" / "Email clicked" activity, the same as group email. The send itself is logged in the Email Log by core, tracked or not.
+        /// </summary>
+        /// <param name="toUserId"></param>
+        /// <param name="fromAddress"></param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <param name="sendImmediately"></param>
+        /// <param name="bodyIsHTML"></param>
+        /// <param name="emailTemplateId">The id of a record in Email Templates. If 0, or the record is not found or has no bodyHTML, the body is sent without a template.</param>
+        /// <param name="trackOpensAndClicks">If true, opens and clicks are tracked and the send is logged in the Activity Log. If false, nothing is tracked (use for test sends).</param>
+        /// <param name="adminErrorMessage">If not empty, this is an error message appropriate for an administrator, not a public user.</param>
+        public abstract void sendUser(int toUserId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHTML, int emailTemplateId, bool trackOpensAndClicks, ref string adminErrorMessage);
+        /// <summary>
         /// Send an email a user.
         /// </summary>
         /// <param name="toUserId"></param>
