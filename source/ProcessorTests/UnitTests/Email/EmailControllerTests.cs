@@ -30,6 +30,44 @@ public class EmailControllerTests {
         }
     }
     //
+    /// <summary>
+    /// sendUser with an emailTemplateId merges the template (content box) and the body. Needs the test app (testAppName).
+    /// </summary>
+    [TestMethod]
+    public void sendUser_EmailTemplateId_ContentBox_Test() {
+        using CPClass cp = new(testAppName);
+        cp.core.mockEmail = true;
+        var template = DbBaseModel.addDefault<EmailTemplateModel>(cp);
+        template.name = $"sendUser template test {GenericController.getRandomInteger()}";
+        template.bodyHTML = "<div id=\"tplTop\">header</div>{% \"content box\" %}<div id=\"tplBottom\">footer</div>";
+        template.save(cp);
+        var person = DbBaseModel.addDefault<PersonModel>(cp);
+        person.name = "sendUser template test";
+        person.email = $"{GenericController.getRandomInteger()}@kma.net";
+        person.save(cp);
+        try {
+            string adminErrorMessage = "";
+            cp.Email.sendUser(person.id, "jay@contensive.com", "subject", "<p>BODYMARKER</p>", true, true, template.id, ref adminErrorMessage);
+            Assert.AreEqual("", adminErrorMessage);
+            Assert.AreEqual(1, cp.core.mockEmailList.Count);
+            string html = cp.core.mockEmailList[0].email.htmlBody;
+            Assert.IsTrue(html.Contains("BODYMARKER"));
+            Assert.IsFalse(html.Contains(Constants.fpoContentBox), "content box placeholder must be replaced");
+            Assert.IsTrue(html.IndexOf("tplTop") < html.IndexOf("BODYMARKER"));
+            Assert.IsTrue(html.IndexOf("BODYMARKER") < html.IndexOf("tplBottom"));
+            //
+            // -- template id 0 sends the body alone
+            cp.core.mockEmailList.Clear();
+            cp.Email.sendUser(person.id, "jay@contensive.com", "subject", "<p>BODYMARKER</p>", true, true, 0, ref adminErrorMessage);
+            html = cp.core.mockEmailList[0].email.htmlBody;
+            Assert.IsTrue(html.Contains("BODYMARKER"));
+            Assert.IsFalse(html.Contains("tplTop"));
+        } finally {
+            DbBaseModel.delete<PersonModel>(cp, person.id);
+            DbBaseModel.delete<EmailTemplateModel>(cp, template.id);
+        }
+    }
+    //
     [TestMethod]
     public void groupEmail_Send_Test() {
         using CPClass cp = new(testAppName);

@@ -295,6 +295,36 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override void sendUser(int toUserId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, int emailTemplateId, ref string adminErrorMessage) {
+            try {
+                PersonModel person = DbBaseModel.create<PersonModel>(cp, toUserId);
+                if (person == null) {
+                    adminErrorMessage = "An email could not be sent because the user could not be located.";
+                    return;
+                }
+                string template = getEmailTemplateBodyHtml(emailTemplateId);
+                int personalizeAddonId = 0;
+                EmailController.trySendPersonEmail(cp.core, "Ad Hoc Email", person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, 0, template, false, ref adminErrorMessage, personalizeAddonId);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
+                adminErrorMessage = "An email could not be sent because of an unexpected error.";
+            }
+        }
+        //
+        /// <summary>
+        /// Return the bodyHTML of an Email Template, or empty string if the id is 0, the record is not found, or it has no bodyHTML.
+        /// </summary>
+        /// <param name="emailTemplateId"></param>
+        /// <returns></returns>
+        internal string getEmailTemplateBodyHtml(int emailTemplateId) {
+            if (emailTemplateId <= 0) { return ""; }
+            EmailTemplateModel emailTemplate = DbBaseModel.create<EmailTemplateModel>(cp, emailTemplateId);
+            if (emailTemplate == null || string.IsNullOrWhiteSpace(emailTemplate.bodyHTML)) { return ""; }
+            return emailTemplate.bodyHTML;
+        }
+        //
+        //====================================================================================================
+        //
         public override void sendUser(int toUserId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml) {
             string adminErrorMessage = "";
             sendUser(toUserId, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref adminErrorMessage);
