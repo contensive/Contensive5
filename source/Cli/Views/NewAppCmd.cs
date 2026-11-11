@@ -418,6 +418,11 @@ namespace Contensive.CLI {
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailAdmin, defaultEmailAddress);
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailFromAddress, defaultEmailAddress);
                     //
+                    // -- on non-production servers, set the staging gate passphrase so the site is not publicly accessible
+                    if (!cp.core.serverConfig.productionEnvironment) {
+                        cp.core.siteProperties.stagingGatePassphrase = "contensive";
+                    }
+                    //
                     logger.Info($"{cp.core.logCommonMessage},Upgrade complete.");
                     //
                     // -- display any installation errors that occurred during upgrade
