@@ -1433,6 +1433,22 @@ namespace Contensive.Processor.Controllers {
                     string absPathFilename = convertRelativeToLocalAbsPath(pathFilename);
                     string absPath = "";
                     splitDosPathFilename(absPathFilename, ref absPath, ref filename);
+                    //
+                    // -- check for self-referencing entry (a zip that contains a file with its own name).
+                    // -- FastZip extracts into the same directory as the zip, so an entry matching the zip
+                    // -- filename would attempt to overwrite the zip while it is open for reading, causing
+                    // -- a sharing violation ("being used by another process").
+                    using (var checkStream = new FileStream(absPathFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var checkZip = new ZipFile(checkStream)) {
+                        foreach (ZipEntry entry in checkZip) {
+                            if (entry.IsDirectory) { continue; }
+                            string entryFilename = System.IO.Path.GetFileName(entry.Name);
+                            if (entryFilename.Equals(filename, StringComparison.OrdinalIgnoreCase)) {
+                                throw new InvalidOperationException($"The zip file [{filename}] contains an entry named [{entry.Name}] that matches the zip filename. This causes a file lock conflict during extraction. Remove the self-referencing entry from the zip and reinstall.");
+                            }
+                        }
+                    }
+                    //
                     string fileFilter = null;
                     FastZip fastZip = new FastZip();
                     fastZip.ExtractZip(absPathFilename, absPath, fileFilter);

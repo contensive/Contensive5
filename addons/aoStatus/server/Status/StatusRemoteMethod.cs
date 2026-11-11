@@ -38,6 +38,17 @@ namespace Contensive.Addons.Status {
                         : "ok, diagnostics paused.";
                     return BuildResponse(cp, "ok", pausedMessage, showDetail);
                 }
+                hint = 15;
+                //
+                // -- on non-production servers, skip all tests except performance and security
+                //
+                if (!cp.ServerConfig.productionEnvironment) {
+                    resultList.AppendLine("ok, non-production environment, operational tests skipped.");
+                    string nonProdMessage = showDetail
+                        ? $"ok, non-production, operational tests skipped.{Environment.NewLine}{resultList}"
+                        : "ok, non-production, operational tests skipped.";
+                    return BuildResponse(cp, "ok", nonProdMessage, showDetail, null, warningsList);
+                }
                 hint = 20;
                 //
                 // -- run built-in site diagnostics (database, task service, email, metadata, etc.)
