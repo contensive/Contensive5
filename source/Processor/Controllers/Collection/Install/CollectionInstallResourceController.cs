@@ -281,7 +281,8 @@ namespace Contensive.Processor.Controllers {
                                         layoutRecordName = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
-                                case "layout-guid": {
+                                case "layout-guid":
+                                case "layoutguid": {
                                         layoutRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
@@ -291,7 +292,9 @@ namespace Contensive.Processor.Controllers {
                                         break;
                                     }
                                 case "template-guid":
-                                case "pagetemplate-guid": {
+                                case "templateguid":
+                                case "pagetemplate-guid":
+                                case "pagetemplateguid": {
                                         pageTemplateRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
@@ -299,7 +302,8 @@ namespace Contensive.Processor.Controllers {
                                         emailTemplateRecordName = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
-                                case "emailtemplate-guid": {
+                                case "emailtemplate-guid":
+                                case "emailtemplateguid": {
                                         emailTemplateRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
@@ -307,7 +311,8 @@ namespace Contensive.Processor.Controllers {
                                         emailRecordName = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
-                                case "email-guid": {
+                                case "email-guid":
+                                case "emailguid": {
                                         emailRecordGuid = metadataNode.GetAttributeValue("content", string.Empty);
                                         break;
                                     }
