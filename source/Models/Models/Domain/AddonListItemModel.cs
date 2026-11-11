@@ -55,8 +55,11 @@ namespace Contensive.Processor.Models {
         /// <param name="addonListItem"></param>
         /// <param name="executeContext"></param>
         public static string render(CPBaseClass cp, AddonListItemModel addonListItem, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            if (addonListItem == null) {
+                return string.Empty;
+            }
             cp.Doc.SetProperty("instanceId", addonListItem.instanceGuid);
-            return cp.Addon.Execute(addonListItem.designBlockTypeGuid, executeContext).ToString();
+            return cp.Addon.Execute(addonListItem.designBlockTypeGuid, executeContext) ?? string.Empty;
         }
         //
         //====================================================================================================
