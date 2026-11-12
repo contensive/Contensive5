@@ -34,6 +34,7 @@ public class ActivityLogTests {
             Assert.AreEqual(cp.User.Id, logList.First().memberId);
             Assert.AreEqual(subject, logList.First().name);
             Assert.AreEqual(subject, logList.First().message);
+            Assert.AreEqual(ActivityLogModel.ActivityTypeNames.OnlineVisit, logList.First().activityType);
             //
             Assert.IsNotNull(logList.First().dateScheduled);
             Assert.IsNotNull(logList.First().dateCompleted);
@@ -118,7 +119,7 @@ public class ActivityLogTests {
             int duration = 1;
             PersonModel staffUser = DbBaseModel.addDefault<PersonModel>(cp);
             // act
-            int activityId = cp.Site.AddActivity(subject, details, testUser.id,5, scheduledDate, duration, staffUser.id);
+            int activityId = cp.Site.AddActivity(subject, details, testUser.id, ActivityLogModel.ActivityTypeNames.CallTo, scheduledDate, duration, staffUser.id);
             // assert
             List<ActivityLogModel> logList = DbBaseModel.createList<ActivityLogModel>(cp);
             //
@@ -127,6 +128,7 @@ public class ActivityLogTests {
             Assert.AreEqual(testUser.id, logList.First().memberId);
             Assert.AreEqual(subject, logList.First().name);
             Assert.AreEqual(details, logList.First().message);
+            Assert.AreEqual(ActivityLogModel.ActivityTypeNames.CallTo, logList.First().activityType);
             //
             Assert.AreEqual(cp.Visit.Id, logList.First().visitId);
             Assert.AreEqual(cp.Visitor.Id, logList.First().visitorId);
@@ -136,6 +138,57 @@ public class ActivityLogTests {
             Assert.AreEqual(staffUser.id, logList.First().scheduledStaffId);
             //
             Assert.IsNull(logList.First().dateCompleted);
+        }
+    }
+    //
+    //====================================================================================================
+    //
+    [TestMethod]
+    public void addActivity_completedWithActivityType() {
+        using (CPClass cp = new(testAppName)) {
+            // arrange
+            DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+            string subject = cp.Utils.GetRandomInteger().ToString();
+            string details = cp.Utils.GetRandomInteger().ToString();
+            PersonModel testUser = DbBaseModel.addDefault<PersonModel>(cp);
+            // act
+            int activityId = cp.Site.AddActivity(subject, details, testUser.id, ActivityLogModel.ActivityTypeNames.EmailTo);
+            // assert
+            List<ActivityLogModel> logList = DbBaseModel.createList<ActivityLogModel>(cp);
+            Assert.AreEqual(1, logList.Count);
+            //
+            Assert.AreEqual(activityId, logList.First().id);
+            Assert.AreEqual(testUser.id, logList.First().memberId);
+            Assert.AreEqual(subject, logList.First().name);
+            Assert.AreEqual(details, logList.First().message);
+            Assert.AreEqual(ActivityLogModel.ActivityTypeNames.EmailTo, logList.First().activityType);
+            //
+            Assert.IsNotNull(logList.First().dateScheduled);
+            Assert.IsNotNull(logList.First().dateCompleted);
+            Assert.AreEqual(0, logList.First().scheduledStaffId);
+            //
+            Assert.AreEqual(cp.Visit.Id, logList.First().visitId);
+            Assert.AreEqual(cp.Visitor.Id, logList.First().visitorId);
+        }
+    }
+    //
+    //====================================================================================================
+    //
+    [TestMethod]
+    public void addActivity_completedWithCustomActivityType() {
+        using (CPClass cp = new(testAppName)) {
+            // arrange
+            DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+            string subject = cp.Utils.GetRandomInteger().ToString();
+            string details = cp.Utils.GetRandomInteger().ToString();
+            string customType = "Online Email Form Submitted";
+            PersonModel testUser = DbBaseModel.addDefault<PersonModel>(cp);
+            // act
+            int activityId = cp.Site.AddActivity(subject, details, testUser.id, customType);
+            // assert
+            List<ActivityLogModel> logList = DbBaseModel.createList<ActivityLogModel>(cp);
+            Assert.AreEqual(1, logList.Count);
+            Assert.AreEqual(customType, logList.First().activityType);
         }
     }
 

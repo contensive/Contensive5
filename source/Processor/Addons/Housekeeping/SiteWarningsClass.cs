@@ -68,6 +68,15 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     cp.Site.SetSiteWarning($"html doctype is not html5 doctype html", $"html doctype is not html5 doctype html. This effects how browsers display html and styles. To fix this, make sure all templates are html5 compatible, then set DocType Declaration to '<!DOCTYPE HTML>' in the Templates tab of Site Settings, available from the Settings icon in the admin site.");
                 }
                 //
+                // -- check for duplicate Layout records by name
+                setWarnings_duplicateRecords(cp, "cclayouts", "Layouts");
+                //
+                // -- check for duplicate Page Template records by name
+                setWarnings_duplicateRecords(cp, "cctemplates", "Page Templates", "page templates");
+                //
+                // -- check for duplicate Email Template records by name
+                setWarnings_duplicateRecords(cp, "cctemplates", "Email Templates", "email templates");
+                //
                 // -- check for valid default email from-address
                 testEmailSiteProperty(cp, "EMAILADMIN");
                 testEmailSiteProperty(cp, "EMAILFROMADDRESS");
@@ -115,6 +124,32 @@ namespace Contensive.Processor.Addons.Housekeeping {
             }
         }
 
+        /// <summary>
+        /// Check for duplicate records by name in a table. For shared tables (like cctemplates used by both
+        /// Page Templates and Email Templates), pass the contentName to filter by content type.
+        /// </summary>
+        private static void setWarnings_duplicateRecords(CPClass cp, string tableName, string recordTypeLabel, string contentName = "") {
+            string contentFilter = "";
+            if (!string.IsNullOrEmpty(contentName)) {
+                contentFilter = $" and r.contentControlId in (select id from ccContent where name={DbController.encodeSQLText(contentName)})";
+            }
+            string sql = $"select r.name, count(*) as dupeCount from {tableName} r where r.active>0{contentFilter} group by r.name having count(*)>1";
+            using (System.Data.DataTable dt = cp.Db.ExecuteQuery(sql)) {
+                if (dt?.Rows.Count > 0) {
+                    foreach (System.Data.DataRow row in dt.Rows) {
+                        string name = row["name"]?.ToString() ?? "";
+                        int dupeCount = GenericController.getInteger(row["dupeCount"]);
+                        cp.Site.SetSiteWarning(
+                            $"Duplicate {recordTypeLabel} record",
+                            $"There are [{dupeCount}] active {recordTypeLabel} records with the name [{name}]. Duplicate names can cause collection install conflicts. Remove or rename the duplicates."
+                        );
+                    }
+                }
+            }
+        }
+        //
+        // ====================================================================================================
+        //
         private static string includesBootstrap4(CPClass cp, string testLayout) {
             string errorMsg = "";
             if (string.IsNullOrWhiteSpace(testLayout)) { return errorMsg; }

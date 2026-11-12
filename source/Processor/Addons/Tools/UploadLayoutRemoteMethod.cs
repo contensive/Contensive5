@@ -49,8 +49,8 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // Check if user has uploaded too many files recently
                 int recentUploads = cp.Db.ExecuteScalar(
-                    "SELECT COUNT(*) FROM ccActivityLog WHERE MemberId=@memberId AND TypeId=11 AND DateAdded > DATEADD(minute, -5, GETDATE())",
-                    new Dictionary<string, object> { { "@memberId", cp.User.Id } }
+                    "SELECT COUNT(*) FROM ccActivityLog WHERE MemberId=@memberId AND activityType=@activityType AND DateAdded > DATEADD(minute, -5, GETDATE())",
+                    new Dictionary<string, object> { { "@memberId", cp.User.Id }, { "@activityType", ActivityLogModel.ActivityTypeNames.ContactUpdate } }
                 );
                 if (recentUploads > 10) {
                     cp.TempFiles.DeleteFile(uploadPathFilename);
@@ -59,11 +59,11 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // After successful upload
                 cp.Db.ExecuteNonQuery(
-                    "INSERT INTO ccActivityLog (Name, MemberId, TypeId, Message, DateAdded, ModifiedDate, CreatedBy, ModifiedBy, Active, ccguid) VALUES (@name, @memberId, @typeId, @message, GETDATE(), GETDATE(), @createdBy, @modifiedBy, 1, @ccguid)",
+                    "INSERT INTO ccActivityLog (Name, MemberId, activityType, Message, DateAdded, ModifiedDate, CreatedBy, ModifiedBy, Active, ccguid) VALUES (@name, @memberId, @activityType, @message, GETDATE(), GETDATE(), @createdBy, @modifiedBy, 1, @ccguid)",
                     new Dictionary<string, object> {
                         { "@name", "Layout Upload" },
                         { "@memberId", cp.User.Id },
-                        { "@typeId", 11 },
+                        { "@activityType", ActivityLogModel.ActivityTypeNames.ContactUpdate },
                         { "@message", $"Uploaded: {uploadedFilename}" },
                         { "@createdBy", cp.User.Id },
                         { "@modifiedBy", cp.User.Id },

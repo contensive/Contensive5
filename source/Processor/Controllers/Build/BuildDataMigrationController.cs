@@ -753,6 +753,39 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.siteProperties.dataBuildVersion = "26.9.21.2";
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.11.12.1")) {
+                        //
+                        // -- backfill activityType text field from legacy typeId integer
+                        try {
+                            core.db.executeNonQuery(
+                                "UPDATE ccActivityLog"
+                                + " SET activityType = CASE typeId"
+                                + "   WHEN 1 THEN 'Online Visit'"
+                                + "   WHEN 2 THEN 'Online Purchase'"
+                                + "   WHEN 3 THEN 'Email To'"
+                                + "   WHEN 4 THEN 'Email From'"
+                                + "   WHEN 5 THEN 'Call To'"
+                                + "   WHEN 6 THEN 'Call From'"
+                                + "   WHEN 7 THEN 'Text To'"
+                                + "   WHEN 8 THEN 'Text From'"
+                                + "   WHEN 9 THEN 'Meeting Online'"
+                                + "   WHEN 10 THEN 'Meeting In Person'"
+                                + "   WHEN 11 THEN 'Contact Update'"
+                                + "   WHEN 12 THEN 'Text Delivered'"
+                                + "   WHEN 13 THEN 'Text Failed'"
+                                + "   WHEN 14 THEN 'Text Link Clicked'"
+                                + "   WHEN 15 THEN 'Text Opt Out'"
+                                + "   WHEN 16 THEN 'Online Form Submit'"
+                                + "   ELSE 'Online Visit'"
+                                + " END"
+                                + " WHERE (activityType IS NULL OR activityType = '')"
+                                + " AND (typeId IS NOT NULL AND typeId > 0)"
+                            );
+                        } catch (Exception ex) {
+                            logger.Error($"{core.logCommonMessage}", ex, "activityType backfill migration");
+                        }
+                        core.siteProperties.dataBuildVersion = "26.11.12.1";
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

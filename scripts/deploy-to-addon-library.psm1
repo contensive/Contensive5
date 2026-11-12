@@ -143,7 +143,10 @@ function Invoke-AddonLibraryDeploy {
 
     $collectionGuid = $collectionNode.Guid
     $xmlCollectionName = $collectionNode.name
-    $helpText = if ($collectionNode | Get-Member -Name 'Help' -MemberType Property) { $collectionNode.Help } else { '' }
+    # Help node may be: missing, empty string, plain text (PowerShell returns string),
+    # or CDATA/mixed content (PowerShell returns XmlElement with .InnerText)
+    $helpRaw = if ($collectionNode | Get-Member -Name 'Help' -MemberType Property) { $collectionNode.Help } else { $null }
+    $helpText = if ($helpRaw -is [System.Xml.XmlElement]) { $helpRaw.InnerText } elseif ($helpRaw) { [string]$helpRaw } else { '' }
 
     if ([string]::IsNullOrWhiteSpace($collectionGuid)) {
         throw "No Guid attribute found on <Collection> element in $($xmlFile.Name)"
