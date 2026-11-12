@@ -327,7 +327,7 @@ namespace Contensive.Processor {
                 }
                 string queryStringForLinkAppend = $"{Constants.rnEmailClickFlag}={emailDrop.id}&{Constants.rnEmailMemberId}={person.id}";
                 if (EmailController.trySendPersonEmail(cp.core, person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, email.id, template, false, ref adminErrorMessage, queryStringForLinkAppend, "Ad Hoc Email", personalizeAddonId)) {
-                    LogController.addActivityCompleted(cp.core, "Email sent", $"Email sent [{subject}]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                    LogController.addActivityCompleted(cp.core, "Email sent", $"Email sent [{subject}]", person.id, ActivityLogModel.ActivityTypeNames.EmailTo);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{cp.core.logCommonMessage}");

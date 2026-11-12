@@ -49,7 +49,7 @@ namespace Contensive.Processor.Controllers {
                     log.visitId = core.cpParent.Visit.Id;
                     log.save(core.cpParent);
                     //
-                    LogController.addActivityCompleted(core, "Email unblocked", log.name, recipient.id, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
+                    LogController.addActivityCompleted(core, "Email unblocked", log.name, recipient.id, ActivityLogModel.ActivityTypeNames.ContactUpdate);
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace Contensive.Processor.Controllers {
                         log.visitId = core.cpParent.Visit.Id;
                         log.save(core.cpParent);
                         //
-                        LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
+                        LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, ActivityLogModel.ActivityTypeNames.ContactUpdate);
                         return;
                     }
                 }
@@ -105,7 +105,7 @@ namespace Contensive.Processor.Controllers {
                     log.visitId = core.cpParent.Visit.Id;
                     log.save(core.cpParent);
                     //
-                    LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
+                    LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, ActivityLogModel.ActivityTypeNames.ContactUpdate);
                 }
             }
         }
@@ -857,7 +857,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                             //
-                            LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                            LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, ActivityLogModel.ActivityTypeNames.EmailTo);
                         }
                     }
                 }
@@ -906,7 +906,7 @@ namespace Contensive.Processor.Controllers {
                     trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
                     confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                     //
-                    LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                    LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, ActivityLogModel.ActivityTypeNames.EmailTo);
                 }
                 int emailConfirmationMemberId = email.testMemberId;
                 //
@@ -1735,7 +1735,7 @@ namespace Contensive.Processor.Controllers {
                                         } else {
                                             usedEmails.Add(simpleEmail);
                                             EmailStatusList = EmailStatusList + sendEmailRecord_nonImmediate(core, "Group Email", sendToPersonId, emailId, DateTime.MinValue, EmailDropId, BounceAddress, EmailFrom, EmailTemplate, EmailFrom, EmailSubject, EmailCopy, CSEmail.getBoolean("AllowSpamFooter"), CSEmail.getBoolean("AddLinkEID"), "", personalizeAddonId) + BR;
-                                            LogController.addActivityCompleted(core, "Group email sent", "Group email sent [" + CSEmail.getText("name") + "]", sendToPersonId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                                            LogController.addActivityCompleted(core, "Group email sent", "Group email sent [" + CSEmail.getText("name") + "]", sendToPersonId, ActivityLogModel.ActivityTypeNames.EmailTo);
                                         }
                                     }
                                     csPerson.goNext();
@@ -1799,7 +1799,7 @@ namespace Contensive.Processor.Controllers {
                             string EmailStatus = sendEmailRecord_nonImmediate(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, FromAddress, EmailTemplate, FromAddress, EmailSubject, EmailCopy, csEmail.getBoolean("AllowSpamFooter"), EmailAddLinkEid, "", personalizeAddonId);
                             sendConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", FromAddress, EmailStatus + "<BR>", "Conditional Email", personalizeAddonId);
                             emailsEffected++;
-                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, ActivityLogModel.ActivityTypeNames.EmailTo);
                         }
                         csEmail.close();
                     }
@@ -1852,7 +1852,7 @@ namespace Contensive.Processor.Controllers {
                             // -- send confirmation for this send
                             sendConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", fromAddress, EmailStatus + "<BR>", "Conditional Email", personalizeAddonId);
                             //
-                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, ActivityLogModel.ActivityTypeNames.EmailTo);
                         }
                         csEmail.close();
                     }

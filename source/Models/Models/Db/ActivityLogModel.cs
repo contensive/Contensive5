@@ -70,32 +70,38 @@ namespace Contensive.Models.Db {
         public int memberId { get; set; }
         
         /// <summary>
+        /// Deprecated. Use activityType string field instead.
         /// see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person
         /// </summary>
+        [Obsolete("Use activityType instead.", false)]
+        public int typeId { get; set; }
+        //
+        /// <summary>
+        /// The type of activity as free text. Addons define their own type strings (e.g., "Online Visit", "Email To", "Online Email Form Submitted").
+        /// </summary>
         [ContentField(
-            Name = "TypeId",
+            Name = "activityType",
             Active = true,
             AdminOnly = false,
             Authorable = true,
             Caption = "Activity Type",
             DeveloperOnly = false,
-            EditSortPriority = 1200,
-            FieldType = "Lookup",
+            EditSortPriority = 1010,
+            FieldType = "Text",
             HtmlContent = false,
-            IndexColumn = 3,
+            IndexColumn = 2,
             IndexSortDirection = 0,
-            IndexSortOrder = 3,
+            IndexSortOrder = 0,
             IndexWidth = 20,
-            LookupList = "Online Visit,Online Purchase,Email To,Email From,Call To,Call From,Text To,Text From,Meeting Online,Meeting In Person,Contact Update",
             NotEditable = false,
             Password = false,
             ReadOnly = false,
             Required = false,
             TextBuffered = false,
             UniqueName = false,
-            HelpDefault = "The type of activity: online visit, online purchase, email, call, text, meeting, or contact update"
+            HelpDefault = "The type of activity as free text, e.g. 'Online Visit', 'Email To', 'Contact Update', or any addon-defined type."
         )]
-        public int typeId { get; set; }
+        public string activityType { get; set; }
         
         /// <summary>
         /// plain text. a description of the event
@@ -315,6 +321,30 @@ namespace Contensive.Models.Db {
         )]
         public int duration { get; set; }
         //
+        /// <summary>
+        /// Canonical string names for activity types. Use these constants when calling AddActivity or LogController methods.
+        /// Addons may define their own strings beyond this list.
+        /// </summary>
+        public static class ActivityTypeNames {
+            public const string OnlineVisit = "Online Visit";
+            public const string OnlinePurchase = "Online Purchase";
+            public const string EmailTo = "Email To";
+            public const string EmailFrom = "Email From";
+            public const string CallTo = "Call To";
+            public const string CallFrom = "Call From";
+            public const string TextTo = "Text To";
+            public const string TextFrom = "Text From";
+            public const string MeetingOnline = "Meeting Online";
+            public const string MeetingInPerson = "Meeting In Person";
+            public const string ContactUpdate = "Contact Update";
+            public const string TextDelivered = "Text Delivered";
+            public const string TextFailed = "Text Failed";
+            public const string TextLinkClicked = "Text Link Clicked";
+            public const string TextOptOut = "Text Opt Out";
+            public const string OnlineFormSubmit = "Online Form Submit";
+        }
+        //
+        [Obsolete("Use ActivityTypeNames string constants instead.", false)]
         public enum ActivityLogTypeEnum {
             OnlineVisit = 1,
             OnlinePurchase = 2,
@@ -330,7 +360,8 @@ namespace Contensive.Models.Db {
             TextDelivered = 12,
             TextFailed = 13,
             TextLinkClicked = 14,
-            TextOptOut = 15
+            TextOptOut = 15,
+            OnlineFormSubmit = 16
         }
     }
 }

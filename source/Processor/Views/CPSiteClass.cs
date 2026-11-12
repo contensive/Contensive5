@@ -220,40 +220,43 @@ namespace Contensive.Processor {
         /// <param name="typeId"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
+        [Obsolete("Use AddActivity(subject, detailsText, activityUserId, activityType) with a string activity type instead.", false)]
         public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId) {
+#pragma warning disable CS0612 // Type or member is obsolete
             return LogController.addActivityCompleted(cp.core, subject, detailsText, activityUserId, typeId);
+#pragma warning restore CS0612
         }
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// Add completed activity for the specified string activity type
         /// </summary>
-        /// <param name="subject"></param>
-        /// <param name="detailsText"></param>
-        /// <param name="activityUserID"></param>
-        /// <param name="dateScheduled"></param>
-        /// <param name="duration"></param>
-        /// <param name="scheduledStaffId"></param>
+        public override int AddActivity(string subject, string detailsText, int activityUserId, string activityType) {
+            return LogController.addActivityCompleted(cp.core, subject, detailsText, activityUserId, activityType);
+        }
+        //
+        //====================================================================================================
         [Obsolete("Use overload with activity-type", false)]
         public override int AddActivity(string subject, string detailsText, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
+#pragma warning disable CS0612 // Type or member is obsolete
             return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserID, dateScheduled, duration, scheduledStaffId);
+#pragma warning restore CS0612
+        }
+        //
+        //====================================================================================================
+        [Obsolete("Use AddActivity(subject, detailsText, activityUserId, activityType, dateScheduled, duration, scheduledStaffId) with a string activity type instead.", false)]
+        public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+#pragma warning disable CS0612 // Type or member is obsolete
+            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
+#pragma warning restore CS0612
         }
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// Add a scheduled activity for the specified string activity type
         /// </summary>
-        /// <param name="subject"></param>
-        /// <param name="detailsText"></param>
-        /// <param name="activityUserId"></param>
-        /// <param name="typeId"></param>
-        /// <param name="dateScheduled"></param>
-        /// <param name="duration"></param>
-        /// <param name="scheduledStaffId"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
+        public override int AddActivity(string subject, string detailsText, int activityUserId, string activityType, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserId, activityType, dateScheduled, duration, scheduledStaffId);
         }
 
         //

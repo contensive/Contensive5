@@ -204,7 +204,20 @@ namespace Contensive.BaseClasses {
         /// <param name="detailsText">The details of the activity, non-html plain text.</param>
         /// <param name="activityUserId"></param>
         /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person</param>
+        [Obsolete("Use AddActivity(subject, detailsText, activityUserId, activityType) with a string activity type instead.", false)]
         public abstract int AddActivity(string subject, string detailsText, int activityUserId, int typeId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Add completed activity for the specified activity type, by the selected user.
+        /// The activityType is a free text string. Use ActivityLogModel.ActivityTypeNames constants for standard types,
+        /// or define your own string for addon-specific activity types.
+        /// </summary>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="detailsText">The details of the activity, non-html plain text.</param>
+        /// <param name="activityUserId"></param>
+        /// <param name="activityType">Free text activity type, e.g. "Online Visit", "Email To", "Online Email Form Submitted"</param>
+        public abstract int AddActivity(string subject, string detailsText, int activityUserId, string activityType);
         //
         //====================================================================================================
         /// <summary>
@@ -217,7 +230,23 @@ namespace Contensive.BaseClasses {
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
+        [Obsolete("Use AddActivity(subject, detailsText, activityUserId, activityType, dateScheduled, duration, scheduledStaffId) with a string activity type instead.", false)]
         public abstract int AddActivity(string subject, string detailsText, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Add a scheduled, non-completed activity for the specified activity type, by the selected user.
+        /// The activityType is a free text string. Use ActivityLogModel.ActivityTypeNames constants for standard types,
+        /// or define your own string for addon-specific activity types.
+        /// </summary>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="detailsText">The details of the activity, non-html plain text.</param>
+        /// <param name="activityUserId"></param>
+        /// <param name="activityType">Free text activity type, e.g. "Online Visit", "Email To", "Online Email Form Submitted"</param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        public abstract int AddActivity(string subject, string detailsText, int activityUserId, string activityType, DateTime dateScheduled, int duration, int scheduledStaffId);
         //
         //====================================================================================================
         /// <summary>

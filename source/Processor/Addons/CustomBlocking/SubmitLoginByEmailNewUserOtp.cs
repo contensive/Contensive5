@@ -122,7 +122,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                     "Registered via email verification",
                     $"{firstName} {lastName} ({emailInput}) registered through email OTP verification on a blocked page.",
                     loginUserId,
-                    (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate
+                    ActivityLogModel.ActivityTypeNames.ContactUpdate
                 );
                 //
                 // -- add scheduled activity: contact new registration
@@ -130,7 +130,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                     "Contact new registration",
                     $"New registration: {firstName} {lastName} ({emailInput}). Please follow up with this contact.",
                     loginUserId,
-                    (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate,
+                    ActivityLogModel.ActivityTypeNames.ContactUpdate,
                     DateTime.Now,
                     0,
                     0

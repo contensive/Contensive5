@@ -117,11 +117,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
         /// <param name="activityUserId"></param>
-        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, 11=contact update, 12=text delivered, 13=text failed, 14=text link clicked, 15=text opt-out</param>
+        /// <param name="activityType">Free text activity type string, e.g. "Online Visit", "Email To". Use ActivityLogModel.ActivityTypeNames constants.</param>
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
-        public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+        public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, string activityType, DateTime dateScheduled, int duration, int scheduledStaffId) {
             try {
                 ActivityLogModel log = DbBaseModel.addDefault<ActivityLogModel>(core.cpParent);
                 log.name = (subject == null) ? "" : subject;
@@ -132,18 +132,29 @@ namespace Contensive.Processor.Controllers {
                 log.link = "";
                 log.memberId = activityUserId;
                 log.message = string.IsNullOrEmpty(activityDetails) ? "" : activityDetails;
-                log.typeId = (typeId < 1) ? (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit : typeId;
+                log.activityType = string.IsNullOrEmpty(activityType) ? ActivityLogModel.ActivityTypeNames.OnlineVisit : activityType;
+#pragma warning disable CS0612 // Type or member is obsolete
+                log.typeId = 0;
+#pragma warning restore CS0612
                 log.scheduledStaffId = scheduledStaffId;
                 log.visitId = (core?.session?.visit == null) ? 0 : core.session.visit.id;
                 log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
                 log.save(core.cpParent);
                 return log.id;
             } catch (Exception ex) {
-                log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
-                // do not abort page over logging issues
-                // throw;
+                log(core, $"exception [{ex}]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 return 0;
             }
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
+        /// add activity about a user to the site's activity log for content managers to review.
+        /// This overload accepts a legacy int typeId and converts it to the string activityType.
+        /// </summary>
+        [Obsolete("Use overload with string activityType instead.", false)]
+        public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return addActivityScheduled(core, subject, activityDetails, activityUserId, activityTypeFromId(typeId), dateScheduled, duration, scheduledStaffId);
         }
         //
         //=====================================================================================================
@@ -151,16 +162,9 @@ namespace Contensive.Processor.Controllers {
         /// add online-visit activity about a user to the site's activity log for content managers to review.
         /// This overload is for an activity scheduled for the future
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
-        /// <param name="activityUserId"></param>
-        /// <param name="dateScheduled"></param>
-        /// <param name="duration"></param>
-        /// <param name="scheduledStaffId"></param>
-        [Obsolete("Use overload with activity-type",false)]
+        [Obsolete("Use overload with string activityType instead.", false)]
         public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return addActivityScheduled(core, subject, activityDetails, activityUserId,(int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit, dateScheduled, duration, scheduledStaffId);
+            return addActivityScheduled(core, subject, activityDetails, activityUserId, ActivityLogModel.ActivityTypeNames.OnlineVisit, dateScheduled, duration, scheduledStaffId);
         }
         //
         //=====================================================================================================
@@ -168,13 +172,8 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a completed user record edit to the site.
         /// This overload is for an activity that occured (not one scheduled for the future)
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
-        /// <param name="activityUserId"></param>
-        /// <param name="subjectOrganizationID"></param>
         public static int addActivityCompletedEdit(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivityCompleted(core, subject, activityDetails, activityUserId, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, ActivityLogModel.ActivityTypeNames.ContactUpdate);
         }
         //
         //=====================================================================================================
@@ -182,29 +181,22 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a completed user visit to the site.
         /// This overload is for an activity that occured (not one scheduled for the future)
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
-        /// <param name="activityUserId"></param>
-        /// <param name="subjectOrganizationID"></param>
         public static int addActivityCompletedVisit(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivityCompleted(core, subject, activityDetails, activityUserId, (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit);
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, ActivityLogModel.ActivityTypeNames.OnlineVisit);
         }
         //
         //=====================================================================================================
         /// <summary>
-        /// add activity about a user to the site's activity log. 
+        /// add activity about a user to the site's activity log.
         /// This overload is for an activity that occured (not one scheduled for the future)
         /// </summary>
         /// <param name="core"></param>
         /// <param name="subject">Brief text to expand on the activity type, like "filled out online form". This will be the name field.</param>
         /// <param name="activityDetails">Any details that need to be saved, like if this was an online form filled out, this is what the user submitted.</param>
         /// <param name="activityUserId">The user that this activity was about. Like the user who filled out the online form</param>
-        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, 11=contact update, 12=text delivered, 13=text failed, 14=text link clicked, 15=text opt-out</param>
-        public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
-            // return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0,0);
+        /// <param name="activityType">Free text activity type string, e.g. "Online Visit", "Email To". Use ActivityLogModel.ActivityTypeNames constants.</param>
+        public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId, string activityType) {
             try {
-                //
                 ActivityLogModel log = DbBaseModel.addDefault<ActivityLogModel>(core.cpParent);
                 log.name = (subject == null) ? "" : subject;
                 log.dateCanceled = null;
@@ -214,29 +206,64 @@ namespace Contensive.Processor.Controllers {
                 log.link = "";
                 log.memberId = activityUserId;
                 log.message = string.IsNullOrEmpty(activityDetails) ? "" : activityDetails;
-                log.typeId = (typeId < 1) ? 1 : typeId;
+                log.activityType = string.IsNullOrEmpty(activityType) ? ActivityLogModel.ActivityTypeNames.OnlineVisit : activityType;
+#pragma warning disable CS0612 // Type or member is obsolete
+                log.typeId = 0;
+#pragma warning restore CS0612
                 log.scheduledStaffId = 0;
                 log.visitId = (core?.session?.visit == null) ? 0 : core.session.visit.id;
                 log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
                 log.save(core.cpParent);
                 return log.id;
             } catch (Exception ex) {
-                log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+                log(core, $"exception [{ex}]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 return 0;
             }
-
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
+        /// add activity about a user to the site's activity log.
+        /// This overload accepts a legacy int typeId and converts it to the string activityType.
+        /// </summary>
+        [Obsolete("Use overload with string activityType instead.", false)]
+        public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, activityTypeFromId(typeId));
         }
         //
         //=====================================================================================================
         /// <summary>
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
         public static int addActivityCompletedVisit(CoreController core, string subject, string activityDetails) {
             core.session.verifyUser();
             return addActivityCompletedVisit(core, subject, activityDetails, core.session.user.id);
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
+        /// Convert a legacy integer typeId to its string activityType name
+        /// </summary>
+        private static string activityTypeFromId(int typeId) {
+            return typeId switch {
+                1 => ActivityLogModel.ActivityTypeNames.OnlineVisit,
+                2 => ActivityLogModel.ActivityTypeNames.OnlinePurchase,
+                3 => ActivityLogModel.ActivityTypeNames.EmailTo,
+                4 => ActivityLogModel.ActivityTypeNames.EmailFrom,
+                5 => ActivityLogModel.ActivityTypeNames.CallTo,
+                6 => ActivityLogModel.ActivityTypeNames.CallFrom,
+                7 => ActivityLogModel.ActivityTypeNames.TextTo,
+                8 => ActivityLogModel.ActivityTypeNames.TextFrom,
+                9 => ActivityLogModel.ActivityTypeNames.MeetingOnline,
+                10 => ActivityLogModel.ActivityTypeNames.MeetingInPerson,
+                11 => ActivityLogModel.ActivityTypeNames.ContactUpdate,
+                12 => ActivityLogModel.ActivityTypeNames.TextDelivered,
+                13 => ActivityLogModel.ActivityTypeNames.TextFailed,
+                14 => ActivityLogModel.ActivityTypeNames.TextLinkClicked,
+                15 => ActivityLogModel.ActivityTypeNames.TextOptOut,
+                16 => ActivityLogModel.ActivityTypeNames.OnlineFormSubmit,
+                _ => ActivityLogModel.ActivityTypeNames.OnlineVisit,
+            };
         }
         //
         //================================================================================================
