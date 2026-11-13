@@ -726,6 +726,7 @@ namespace Contensive.Processor.Controllers {
                     ContentMetadataModel workingMetaData = keypairvalue.Value;
                     foreach (var fieldKeyValuePair in workingMetaData.fields) {
                         ContentFieldMetadataModel workingField = fieldKeyValuePair.Value;
+                        if (workingField.deprecated) { continue; }
                         if (workingField.helpChanged) {
                             int fieldId = 0;
                             using (var rs = core.db.executeQuery("select f.id from ccfields f left join cccontent c on c.id=f.contentid where (f.name=@fieldName)and(c.name=@contentName) order by f.id", new Dictionary<string, object> { { "@fieldName", workingField.nameLc }, { "@contentName", workingMetaData.name } })) {
@@ -942,9 +943,10 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (fieldExists) {
                                     //
-                                    // -- field exists: delete the ccFields record entirely
+                                    // -- field exists: delete the ccFields record and its field help
                                     var existingField = existingFieldsByName[fieldMetadata.nameLc.ToLowerInvariant()];
-                                    logger.Info($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] in content [{contentMetadata.name}] is deprecated and exists. Deleting ccFields record (id={existingField.id}).");
+                                    logger.Info($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] in content [{contentMetadata.name}] is deprecated and exists. Deleting ccFields record (id={existingField.id}) and related field help.");
+                                    batchSqlList.Add($"DELETE FROM ccFieldHelp WHERE fieldId={existingField.id};");
                                     batchSqlList.Add($"DELETE FROM ccFields WHERE id={existingField.id};");
                                 } else {
                                     //
