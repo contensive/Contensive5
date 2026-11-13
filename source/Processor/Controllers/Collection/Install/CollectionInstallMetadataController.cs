@@ -690,7 +690,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 foreach (var keypairvalue in Collection.metaData) {
                     if (keypairvalue.Value.name.ToLowerInvariant() == "content") {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, keypairvalue.Value, logMsgContext, isBaseCollection, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                         break;
                     }
                 }
@@ -711,7 +711,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if ((fieldChanged || workingMetaData.dataChanged) && (workingMetaData.name.ToLowerInvariant() != "content")) {
-                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
+                        installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext, isBaseCollection, false, tableCache, sortMethodCacheByName, sortMethodCacheByClause);
                     }
                 }
                 core.cacheRuntime.clear();
@@ -870,6 +870,7 @@ namespace Contensive.Processor.Controllers {
                 CoreController core,
                 ContentMetadataModel contentMetadata,
                 string logMsgContext,
+                bool isBaseCollection,
                 bool invalidateCache = true,
                 Dictionary<string, TableModel> tableCache = null,
                 Dictionary<string, SortMethodModelx> sortMethodCacheByName = null,
@@ -924,8 +925,8 @@ namespace Contensive.Processor.Controllers {
                         ContentFieldMetadataModel fieldMetadata = nameValuePair.Value;
                         if (fieldMetadata.dataChanged) {
                             //
-                            // -- prevent deprecation of base fields
-                            if (fieldMetadata.deprecated && fieldMetadata.isBaseField) {
+                            // -- prevent non-base collections from deprecating base fields (the base collection itself can deprecate its own fields)
+                            if (fieldMetadata.deprecated && fieldMetadata.isBaseField && !isBaseCollection) {
                                 logger.Warn($"{core.logCommonMessage}, Field [{fieldMetadata.nameLc}] in content [{contentMetadata.name}] is marked as deprecated but is a base field. Ignoring deprecated flag.");
                                 fieldMetadata.deprecated = false;
                             }
