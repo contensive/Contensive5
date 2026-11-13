@@ -4,6 +4,7 @@ using Contensive.Models.Db;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 //
 namespace Contensive.Processor.Models {
@@ -78,6 +79,34 @@ namespace Contensive.Processor.Models {
             int addonIndex = 0;
             foreach (var addon in addonList) {
                 var addonHtml = render(cp, addon, executeContext);
+                if (isEditing && string.IsNullOrWhiteSpace(addonHtml)) {
+                    //
+                    // -- in edit mode, widget should always show something visible
+                    // -- check if addon exists to distinguish "not found" from "empty render"
+                    var addonRecord = DbBaseModel.create<AddonModel>(cp, addon.designBlockTypeGuid);
+                    string widgetName = WebUtility.HtmlEncode(string.IsNullOrEmpty(addon.designBlockTypeName) ? "Unknown Widget" : addon.designBlockTypeName);
+                    string widgetGuid = WebUtility.HtmlEncode(addon.designBlockTypeGuid ?? "");
+                    string instanceGuid = WebUtility.HtmlEncode(addon.instanceGuid ?? "");
+                    int pageId = cp.Doc.PageId;
+                    string errorMsg = (addonRecord == null)
+                        ? $"<strong>Widget Not Found:</strong> \"{widgetName}\" &mdash; the addon may have been deleted or its collection uninstalled."
+                        : $"<strong>Widget Rendered Empty:</strong> \"{widgetName}\" &mdash; the addon returned no content. It may have encountered an error.";
+                    string errorStyle = (addonRecord == null)
+                        ? "background-color:#f8d7da;border-color:#f5c6cb;color:#721c24;"
+                        : "background-color:#fff3cd;border-color:#ffc107;color:#856404;";
+                    addonHtml = $"<div style=\"padding:16px;margin:8px 0;{errorStyle}border:1px solid;border-radius:4px;font-family:sans-serif;font-size:14px;\">"
+                        + errorMsg
+                        + $" <span style=\"font-size:0.85em;color:#6c757d;\">({widgetGuid})</span>"
+                        + $"<form method=\"post\" action=\"/saveeditmodal\" style=\"display:inline;margin-left:12px;\">"
+                        + $"<input type=\"hidden\" name=\"button\" value=\"deleteWidget\" />"
+                        + $"<input type=\"hidden\" name=\"contentGuid\" value=\"{{02203F58-0921-4F75-A089-0EAD6E8FEB4F}}\" />"
+                        + $"<input type=\"hidden\" name=\"recordGuid\" value=\"{instanceGuid}\" />"
+                        + $"<input type=\"hidden\" name=\"pageid\" value=\"{pageId}\" />"
+                        + $"<button type=\"submit\" style=\"background:#dc3545;color:white;border:none;padding:4px 12px;border-radius:3px;cursor:pointer;font-size:0.9em;\""
+                        + $" onclick=\"return confirm('Remove this widget from the page?');\">Remove Widget</button>"
+                        + $"</form>"
+                        + $"</div>";
+                }
                 if (addon.columns != null) {
                     int colPtr = 1;
                     foreach (var column in addon.columns) {
@@ -144,6 +173,24 @@ namespace Contensive.Processor.Models {
                 if (!Addon.blockEditTools) {
                     addonListItem.addonEditUrl = "";
                 }
+            } else {
+                //
+                // -- addon not found in database, show error in edit mode
+                string widgetName = WebUtility.HtmlEncode(string.IsNullOrEmpty(addonListItem.designBlockTypeName) ? "Unknown Widget" : addonListItem.designBlockTypeName);
+                string widgetGuid = WebUtility.HtmlEncode(addonListItem.designBlockTypeGuid ?? "");
+                addonListItem.renderedHtml = "<div style=\"padding:16px;margin:8px 0;background-color:#f8d7da;border:1px solid #f5c6cb;border-radius:4px;color:#721c24;font-family:sans-serif;font-size:14px;\">"
+                    + $"<strong>Widget Not Found:</strong> \"{widgetName}\" &mdash; the addon may have been deleted or its collection uninstalled."
+                    + $" <span style=\"font-size:0.85em;color:#6c757d;\">({widgetGuid})</span>"
+                    + "</div>";
+                addonListItem.renderedAssets = new AddonAssetsModel();
+            }
+            //
+            // -- if addon existed but rendered empty, show a warning in edit mode
+            if (Addon != null && string.IsNullOrWhiteSpace(addonListItem.renderedHtml)) {
+                string widgetName = WebUtility.HtmlEncode(string.IsNullOrEmpty(Addon.name) ? "Unknown Widget" : Addon.name);
+                addonListItem.renderedHtml = "<div style=\"padding:16px;margin:8px 0;background-color:#fff3cd;border:1px solid #ffc107;border-radius:4px;color:#856404;font-family:sans-serif;font-size:14px;\">"
+                    + $"<strong>Widget Rendered Empty:</strong> \"{widgetName}\" &mdash; the addon returned no content. It may have encountered an error."
+                    + "</div>";
             }
             foreach (var asset in cp.Doc.HtmlAssetList.Skip(assetSkipCnt)) {
                 string key = ((asset.assetType == CPDocBaseClass.HtmlAssetTypeEnum.script) ? "js" : "css");
