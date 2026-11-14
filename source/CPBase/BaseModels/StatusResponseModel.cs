@@ -55,6 +55,13 @@ namespace Contensive.BaseModels {
         /// </summary>
         public StatusSeoModel seo { get; set; }
         /// <summary>
+        /// Crawl health summary from the site's own aoAnalytics spider. Reports broken links,
+        /// missing images, mixed content, redirect chains, and robots.txt/sitemap status.
+        /// Populated from a site property written after each spider run -- null if aoAnalytics
+        /// hasn't run yet or the collection isn't installed.
+        /// </summary>
+        public StatusCrawlHealthModel crawlHealth { get; set; }
+        /// <summary>
         /// Structured list of non-fatal warning messages extracted from the diagnostic results.
         /// These are issues that don't fail the status check (status remains "ok") but should be
         /// surfaced to monitoring dashboards -- e.g. deprecated Script Code addons, pending Windows
@@ -360,6 +367,23 @@ namespace Contensive.BaseModels {
             /// Total number of SEO issues found across all spidered pages.
             /// </summary>
             public int seoIssueCount { get; set; }
+        }
+        //
+        /// <summary>
+        /// Crawl health summary included in the status response. Written to a site property
+        /// ("CrawlHealthStatus") by aoAnalytics after each spider run. Reports broken links,
+        /// missing images, mixed content, redirect chains, and robots.txt/sitemap status.
+        /// </summary>
+        public class StatusCrawlHealthModel {
+            public int brokenLinkCount { get; set; }
+            public int missingImageCount { get; set; }
+            public int mixedContentCount { get; set; }
+            public int redirectLinkCount { get; set; }
+            public bool robotsTxtReachable { get; set; }
+            public bool robotsTxtBlocksEverything { get; set; }
+            public bool sitemapReachable { get; set; }
+            public int sitemapUrlCount { get; set; }
+            public int crawledPagesNotInSitemapCount { get; set; }
         }
     }
 }

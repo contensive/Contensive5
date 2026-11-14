@@ -423,6 +423,7 @@ namespace Contensive.Addons.Status {
             StatusResponseModel.StatusPerformanceModel performance = null;
             StatusResponseModel.StatusReliabilityModel reliability = null;
             StatusResponseModel.StatusSeoModel seo = null;
+            StatusResponseModel.StatusCrawlHealthModel crawlHealth = null;
             if (showDetail) {
                 //
                 // -- security/update-hygiene info (Site Monitor roadmap Phase 1). Informational only --
@@ -472,6 +473,10 @@ namespace Contensive.Addons.Status {
                 // -- SEO audit summary (Site Monitor roadmap Phase 5a). Written to a site property by
                 // -- aoAnalytics after each spider run -- same pattern as PerformanceMetricsStatus above.
                 seo = GetSeoFromSiteProperty(cp);
+                //
+                // -- Crawl health summary. Written to a site property by aoAnalytics after each
+                // -- spider run -- same pattern as SeoAuditStatus above.
+                crawlHealth = GetCrawlHealthFromSiteProperty(cp);
             }
             var response = new StatusResponseModel {
                 version = version,
@@ -483,6 +488,7 @@ namespace Contensive.Addons.Status {
                 performance = performance,
                 reliability = reliability,
                 seo = seo,
+                crawlHealth = crawlHealth,
                 warnings = (warnings != null && warnings.Count > 0) ? warnings : null
             };
             return JsonConvert.SerializeObject(response);
@@ -513,6 +519,21 @@ namespace Contensive.Addons.Status {
                 string json = cp.Site.GetText("SeoAuditStatus");
                 if (string.IsNullOrEmpty(json)) { return null; }
                 return JsonConvert.DeserializeObject<StatusResponseModel.StatusSeoModel>(json);
+            } catch (Exception) {
+                return null;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Read the crawl health summary from the site property written by aoAnalytics after each spider run.
+        /// Returns null if the property is missing or invalid (collection not installed, spider hasn't run).
+        /// </summary>
+        private static StatusResponseModel.StatusCrawlHealthModel GetCrawlHealthFromSiteProperty(CPBaseClass cp) {
+            try {
+                string json = cp.Site.GetText("CrawlHealthStatus");
+                if (string.IsNullOrEmpty(json)) { return null; }
+                return JsonConvert.DeserializeObject<StatusResponseModel.StatusCrawlHealthModel>(json);
             } catch (Exception) {
                 return null;
             }
