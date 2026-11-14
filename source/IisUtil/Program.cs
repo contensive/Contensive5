@@ -397,6 +397,7 @@ namespace Contensive.IisUtil {
             List<string> ipAddresses = GetAllArgs(args, "--ip")
                 .Where(ip => !string.IsNullOrWhiteSpace(ip))
                 .Select(ip => ip.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
             // Clear existing ipSecurity collection by removing allowUnlisted attribute and clearing the collection
             // This removes all existing deny/allow entries

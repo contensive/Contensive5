@@ -44,9 +44,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Contensive.CPBaseClass" Version="26.11.13.20872-dev" />
-    <PackageReference Include="Contensive.DbModels" Version="26.11.13.20872-dev" />
-    <PackageReference Include="Contensive.Processor" Version="26.11.13.20872-dev" />
+    <PackageReference Include="Contensive.CPBaseClass" Version="26.11.13.38528-dev" />
+    <PackageReference Include="Contensive.DbModels" Version="26.11.13.38528-dev" />
+    <PackageReference Include="Contensive.Processor" Version="26.11.13.38528-dev" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
   </ItemGroup>
   <ItemGroup>

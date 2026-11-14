@@ -1181,7 +1181,7 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage},syncIpBlocksToIIS skipped, not running on Windows");
                     return;
                 }
-                string ipArgs = string.Join(" ", blockedIpAddresses.Where(ip => !string.IsNullOrWhiteSpace(ip)).Select(ip => $"--ip \"{ip.Trim()}\""));
+                string ipArgs = string.Join(" ", blockedIpAddresses.Where(ip => !string.IsNullOrWhiteSpace(ip)).Select(ip => ip.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Select(ip => $"--ip \"{ip}\""));
                 string arguments = $"sync-ip-blocks --name \"{siteName}\" {ipArgs}";
                 string iisUtilPath = getIisUtilPath();
                 using var process = new System.Diagnostics.Process();
