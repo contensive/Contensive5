@@ -301,14 +301,18 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override bool getFilterBoolean(string filterHtmlName, string viewName) {
+            return getFilterBoolean(filterHtmlName, viewName, false);
+        }
+        //
+        public override bool getFilterBoolean(string filterHtmlName, string viewName, bool defaultValue) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
                 cp.Visit.SetProperty(propertyName, false);
                 return false;
             }
-            bool visitResult = cp.Visit.GetBoolean(propertyName);
-            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
-                return visitResult; 
+            bool visitResult = cp.Visit.GetBoolean(propertyName, defaultValue);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) {
+                return visitResult;
             }
             bool result = cp.Doc.GetBoolean(filterHtmlName);
             cp.Visit.SetProperty(propertyName, result);
@@ -318,14 +322,18 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override string getFilterText(string filterHtmlName, string viewName) {
+            return getFilterText(filterHtmlName, viewName, "");
+        }
+        //
+        public override string getFilterText(string filterHtmlName, string viewName, string defaultValue) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
                 cp.Visit.SetProperty(propertyName, "");
                 return "";
             }
-            string visitResult = cp.Visit.GetText(propertyName);
-            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
-                return visitResult; 
+            string visitResult = cp.Visit.GetText(propertyName, defaultValue);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) {
+                return visitResult;
             }
             string result = cp.Doc.GetText(filterHtmlName);
             cp.Visit.SetProperty(propertyName, result);
@@ -335,14 +343,18 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override int getFilterInteger(string filterHtmlName, string viewName) {
+            return getFilterInteger(filterHtmlName, viewName, 0);
+        }
+        //
+        public override int getFilterInteger(string filterHtmlName, string viewName, int defaultValue) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
                 cp.Visit.SetProperty(propertyName, 0);
                 return 0;
             }
-            int visitResult = cp.Visit.GetInteger(propertyName);
-            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
-                return visitResult; 
+            int visitResult = cp.Visit.GetInteger(propertyName, defaultValue);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) {
+                return visitResult;
             }
             int result = cp.Doc.GetInteger(filterHtmlName);
             cp.Visit.SetProperty(propertyName, result);
@@ -352,14 +364,20 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override DateTime? getFilterDate(string filterHtmlName, string viewName) {
+            return getFilterDate(filterHtmlName, viewName, null);
+        }
+        //
+        public override DateTime? getFilterDate(string filterHtmlName, string viewName, DateTime? defaultValue) {
             string propertyName = $"{viewName}-{filterHtmlName}";
             if (cp.Doc.GetText("removeFilter") == filterHtmlName) {
                 cp.Visit.SetProperty(propertyName, null);
                 return null;
             }
-            DateTime? visitResult = cp.Visit.GetDate(propertyName);
-            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) { 
-                return visitResult == DateTime.MinValue ? null : visitResult; 
+            DateTime? visitResult = defaultValue.HasValue
+                ? cp.Visit.GetDate(propertyName, defaultValue.Value)
+                : cp.Visit.GetDate(propertyName);
+            if (!cp.Doc.IsProperty(filterHtmlName) && !cp.Doc.IsProperty($"{filterHtmlName}-checkbox")) {
+                return visitResult == DateTime.MinValue ? null : visitResult;
             }
             DateTime? result = cp.Doc.GetDate(filterHtmlName);
             cp.Visit.SetProperty(propertyName, result ?? DateTime.MinValue);

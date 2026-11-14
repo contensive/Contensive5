@@ -58,13 +58,25 @@ namespace Contensive.Processor.LayoutBuilder {
         public override bool getFilterBoolean(string filterHtmlName, string viewName) {
             throw new NotImplementedException();
         }
+        public override bool getFilterBoolean(string filterHtmlName, string viewName, bool defaultValue) {
+            throw new NotImplementedException();
+        }
         public override int getFilterInteger(string filterHtmlName, string viewName) {
+            throw new NotImplementedException();
+        }
+        public override int getFilterInteger(string filterHtmlName, string viewName, int defaultValue) {
             throw new NotImplementedException();
         }
         public override string getFilterText(string filterHtmlName, string viewName) {
             throw new NotImplementedException();
         }
+        public override string getFilterText(string filterHtmlName, string viewName, string defaultValue) {
+            throw new NotImplementedException();
+        }
         public override DateTime? getFilterDate(string filterHtmlName, string viewName) {
+            throw new NotImplementedException();
+        }
+        public override DateTime? getFilterDate(string filterHtmlName, string viewName, DateTime? defaultValue) {
             throw new NotImplementedException();
         }
         public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {

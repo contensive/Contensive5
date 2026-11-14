@@ -210,14 +210,26 @@ namespace Contensive.Processor.LayoutBuilder {
         public override bool getFilterBoolean(string filterHtmlName, string viewName) {
             return layoutBuilderBase.getFilterBoolean(filterHtmlName, viewName);
         }
+        public override bool getFilterBoolean(string filterHtmlName, string viewName, bool defaultValue) {
+            return layoutBuilderBase.getFilterBoolean(filterHtmlName, viewName, defaultValue);
+        }
         public override int getFilterInteger(string filterHtmlName, string viewName) {
             return layoutBuilderBase.getFilterInteger(filterHtmlName, viewName);
+        }
+        public override int getFilterInteger(string filterHtmlName, string viewName, int defaultValue) {
+            return layoutBuilderBase.getFilterInteger(filterHtmlName, viewName, defaultValue);
         }
         public override string getFilterText(string filterHtmlName, string viewName) {
             return layoutBuilderBase.getFilterText(filterHtmlName, viewName);
         }
+        public override string getFilterText(string filterHtmlName, string viewName, string defaultValue) {
+            return layoutBuilderBase.getFilterText(filterHtmlName, viewName, defaultValue);
+        }
         public override DateTime? getFilterDate(string filterHtmlName, string viewName) {
             return layoutBuilderBase.getFilterDate(filterHtmlName, viewName);
+        }
+        public override DateTime? getFilterDate(string filterHtmlName, string viewName, DateTime? defaultValue) {
+            return layoutBuilderBase.getFilterDate(filterHtmlName, viewName, defaultValue);
         }
         //
         // ----------------------------------------------------------------------------------------------------

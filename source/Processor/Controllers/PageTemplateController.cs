@@ -43,6 +43,7 @@ namespace Contensive.Processor.Controllers {
                 template.bodyHTML = bodyHtml;
                 template.modifiedDate = DateTime.Now;
                 template.save(cp);
+                CollectionInstallDuplicateController.deleteDuplicatesByName<PageTemplateModel>(cp, template);
                 //
                 // -- flush caches after insert
                 DbBaseModel.invalidateCacheOfTable<PageTemplateModel>(cp);

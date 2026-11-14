@@ -116,6 +116,7 @@ namespace Contensive.Processor.Controllers {
                 layout.layoutPlatform5.content = layout5;
                 layout.modifiedDate = DateTime.Now;
                 layout.save(cp);
+                CollectionInstallDuplicateController.deleteDuplicatesByName<LayoutModel>(cp, layout);
                 //
                 if(layoutContentId != 0) {
                     cp.Db.ExecuteNonQuery($"update cclayouts set contentcontrolid={layoutContentId} where ccguid={cp.Db.EncodeSQLText(layoutGuid)}");

@@ -344,8 +344,8 @@ namespace Contensive.Processor.Controllers {
                                 layout.name = layoutRecordName;
                             } else {
                                 //
-                                // -- no guid, fall back to name-based lookup
-                                layout = DbBaseModel.createByUniqueName<LayoutModel>(core.cpParent, layoutRecordName);
+                                // -- no guid, fall back to name-based lookup (newest first)
+                                layout = CollectionInstallDuplicateController.findNewestByName<LayoutModel>(core.cpParent, layoutRecordName);
                                 if (layout == null) {
                                     layout = DbBaseModel.addDefault<LayoutModel>(core.cpParent);
                                     layout.name = layoutRecordName;
@@ -358,6 +358,7 @@ namespace Contensive.Processor.Controllers {
                             }
                             layout.modifiedDate = DateTime.Now;
                             layout.save(core.cpParent);
+                            CollectionInstallDuplicateController.deleteDuplicatesByName<LayoutModel>(core.cpParent, layout);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported layout [{layoutRecordName}] from layout file [{htmlFilename}]");
                         }
                     }
@@ -375,8 +376,8 @@ namespace Contensive.Processor.Controllers {
                                 pageTemplate.name = pageTemplateRecordName;
                             } else {
                                 //
-                                // -- no guid, fall back to name-based lookup
-                                pageTemplate = DbBaseModel.createByUniqueName<PageTemplateModel>(core.cpParent, pageTemplateRecordName);
+                                // -- no guid, fall back to name-based lookup (newest first)
+                                pageTemplate = CollectionInstallDuplicateController.findNewestByName<PageTemplateModel>(core.cpParent, pageTemplateRecordName);
                                 if (pageTemplate == null) {
                                     pageTemplate = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
                                     pageTemplate.name = pageTemplateRecordName;
@@ -385,6 +386,7 @@ namespace Contensive.Processor.Controllers {
                             pageTemplate.bodyHTML = processedHtml;
                             pageTemplate.modifiedDate = DateTime.Now;
                             pageTemplate.save(core.cpParent);
+                            CollectionInstallDuplicateController.deleteDuplicatesByName<PageTemplateModel>(core.cpParent, pageTemplate);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported page template [{pageTemplateRecordName}] from layout file [{htmlFilename}]");
                         }
                     }
@@ -402,8 +404,8 @@ namespace Contensive.Processor.Controllers {
                                 emailTemplate.name = emailTemplateRecordName;
                             } else {
                                 //
-                                // -- no guid, fall back to name-based lookup
-                                emailTemplate = DbBaseModel.createByUniqueName<EmailTemplateModel>(core.cpParent, emailTemplateRecordName);
+                                // -- no guid, fall back to name-based lookup (newest first)
+                                emailTemplate = CollectionInstallDuplicateController.findNewestByName<EmailTemplateModel>(core.cpParent, emailTemplateRecordName);
                                 if (emailTemplate == null) {
                                     emailTemplate = DbBaseModel.addDefault<EmailTemplateModel>(core.cpParent);
                                     emailTemplate.name = emailTemplateRecordName;
@@ -412,6 +414,7 @@ namespace Contensive.Processor.Controllers {
                             emailTemplate.bodyHTML = processedHtml;
                             emailTemplate.modifiedDate = DateTime.Now;
                             emailTemplate.save(core.cpParent);
+                            CollectionInstallDuplicateController.deleteDuplicatesByName<EmailTemplateModel>(core.cpParent, emailTemplate);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported email template [{emailTemplateRecordName}] from layout file [{htmlFilename}]");
                         }
                     }
@@ -429,8 +432,8 @@ namespace Contensive.Processor.Controllers {
                                 email.name = emailRecordName;
                             } else {
                                 //
-                                // -- no guid, fall back to name-based lookup
-                                email = DbBaseModel.createByUniqueName<EmailModel>(core.cpParent, emailRecordName);
+                                // -- no guid, fall back to name-based lookup (newest first)
+                                email = CollectionInstallDuplicateController.findNewestByName<EmailModel>(core.cpParent, emailRecordName);
                                 if (email == null) {
                                     email = DbBaseModel.addDefault<EmailModel>(core.cpParent);
                                     email.name = emailRecordName;
@@ -439,6 +442,7 @@ namespace Contensive.Processor.Controllers {
                             email.copyFilename.content = processedHtml;
                             email.modifiedDate = DateTime.Now;
                             email.save(core.cpParent);
+                            CollectionInstallDuplicateController.deleteDuplicatesByName<EmailModel>(core.cpParent, email);
                             logger.Info($"{core.logCommonMessage}, CollectionName [{collectionName}], imported email [{emailRecordName}] from layout file [{htmlFilename}]");
                         }
                     }

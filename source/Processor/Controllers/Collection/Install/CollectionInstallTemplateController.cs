@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     var template = DbBaseModel.create<PageTemplateModel>(core.cpParent, recordGuid);
                     if (template == null) {
-                        template = DbBaseModel.createByUniqueName<PageTemplateModel>(core.cpParent, templateName);
+                        template = CollectionInstallDuplicateController.findNewestByName<PageTemplateModel>(core.cpParent, templateName);
                     }
                     if (template == null) {
                         template = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
@@ -66,6 +66,7 @@ namespace Contensive.Processor.Controllers {
                     template.collectionId = collectionId;
                     template.modifiedDate = DateTime.Now;
                     template.save(core.cpParent);
+                    CollectionInstallDuplicateController.deleteDuplicatesByName<PageTemplateModel>(core.cpParent, template);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

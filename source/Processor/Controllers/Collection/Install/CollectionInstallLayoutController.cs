@@ -29,7 +29,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     var layout = DbBaseModel.create<LayoutModel>(core.cpParent, layoutGuid);
                     if (layout == null) {
-                        layout = DbBaseModel.createByUniqueName<LayoutModel>(core.cpParent, layoutName);
+                        layout = CollectionInstallDuplicateController.findNewestByName<LayoutModel>(core.cpParent, layoutName);
                     }
                     if (layout == null) {
                         //
@@ -42,6 +42,7 @@ namespace Contensive.Processor.Controllers {
                     layout.installedByCollectionId = collectionId;
                     layout.modifiedDate = DateTime.Now;
                     layout.save(core.cpParent);
+                    CollectionInstallDuplicateController.deleteDuplicatesByName<LayoutModel>(core.cpParent, layout);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

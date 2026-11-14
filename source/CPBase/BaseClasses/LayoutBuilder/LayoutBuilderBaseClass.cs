@@ -44,6 +44,21 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </param>
         /// <returns></returns>
         public abstract bool getFilterBoolean(string filterHtmlName, string viewName);
+        /// <summary>
+        /// Get a boolean filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterCheckbox().
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// If the filter has not been set during this visit, the defaultValue is returned.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="viewName">
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
+        /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
+        /// name on another page is cleared, it will only clear the filter on that page.
+        /// </param>
+        /// <param name="defaultValue">The value returned when the filter has not been set during this visit.</param>
+        /// <returns></returns>
+        public abstract bool getFilterBoolean(string filterHtmlName, string viewName, bool defaultValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -53,12 +68,27 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         /// <param name="filterHtmlName"></param>
         /// <param name="viewName">
-        /// The name of the view, or form that uses the filter. For example 'attendee list'. 
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
         /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
         /// name on another page is cleared, it will only clear the filter on that page.
         /// </param>
         /// <returns></returns>
         public abstract string getFilterText(string filterHtmlName, string viewName);
+        /// <summary>
+        /// Get a string filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterTextInput(), addFilterRadio()
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// If the filter has not been set during this visit, the defaultValue is returned.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="viewName">
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
+        /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
+        /// name on another page is cleared, it will only clear the filter on that page.
+        /// </param>
+        /// <param name="defaultValue">The value returned when the filter has not been set during this visit.</param>
+        /// <returns></returns>
+        public abstract string getFilterText(string filterHtmlName, string viewName, string defaultValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -68,12 +98,27 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         /// <param name="filterHtmlName">The name attribute of the html input element for this filter.</param>
         /// <param name="viewName">
-        /// The name of the view, or form that uses the filter. For example 'attendee list'. 
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
         /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
         /// name on another page is cleared, it will only clear the filter on that page.
         /// </param>
         /// <returns></returns>
         public abstract int getFilterInteger(string filterHtmlName, string viewName);
+        /// <summary>
+        /// Get an integer filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterInteger(), addFilterSelect(), addFilterSelectContent().
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// If the filter has not been set during this visit, the defaultValue is returned.
+        /// </summary>
+        /// <param name="filterHtmlName">The name attribute of the html input element for this filter.</param>
+        /// <param name="viewName">
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
+        /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
+        /// name on another page is cleared, it will only clear the filter on that page.
+        /// </param>
+        /// <param name="defaultValue">The value returned when the filter has not been set during this visit.</param>
+        /// <returns></returns>
+        public abstract int getFilterInteger(string filterHtmlName, string viewName, int defaultValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -83,12 +128,27 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         /// <param name="filterHtmlName"></param>
         /// <param name="viewName">
-        /// The name of the view, or form that uses the filter. For example 'attendee list'. 
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
         /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
         /// name on another page is cleared, it will only clear the filter on that page.
         /// </param>
         /// <returns></returns>
         public abstract DateTime? getFilterDate(string filterHtmlName, string viewName);
+        /// <summary>
+        /// Get a date filter value from the request and/or visit.
+        /// Use this method to read the value of a filter create with addFilterDate().
+        /// This method incorporates both the request object and visit object, so a filter stays set through the visit.
+        /// If the filter has not been set during this visit, the defaultValue is returned.
+        /// </summary>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="viewName">
+        /// The name of the view, or form that uses the filter. For example 'attendee list'.
+        /// This name is used when the filter value is saved so a user returning the page will retain thier fields, and if a filter with the same
+        /// name on another page is cleared, it will only clear the filter on that page.
+        /// </param>
+        /// <param name="defaultValue">The value returned when the filter has not been set during this visit.</param>
+        /// <returns></returns>
+        public abstract DateTime? getFilterDate(string filterHtmlName, string viewName, DateTime? defaultValue);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
