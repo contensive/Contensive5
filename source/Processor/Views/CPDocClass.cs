@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
 
@@ -119,7 +120,22 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// returns the docType, set by the page manager settings 
+        /// Set the page context for this document. Used when rendering addons outside the normal
+        /// page rendering pipeline (e.g., edit-mode widget previews via remote methods like /GetAddonList).
+        /// </summary>
+        public override void SetPageContext(int pageId, string pageName, int templateId) {
+            if (cp.core.doc == null || cp.core.doc.pageController == null) { return; }
+            if (pageId > 0) {
+                cp.core.doc.pageController.page = new PageContentModel { id = pageId, name = pageName ?? "" };
+            }
+            if (templateId > 0) {
+                cp.core.doc.pageController.template = new PageTemplateModel { id = templateId };
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// returns the docType, set by the page manager settings
         /// </summary>
         /// <returns></returns>
         public override string Type {

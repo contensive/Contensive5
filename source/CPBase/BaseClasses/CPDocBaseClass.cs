@@ -113,6 +113,19 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Set the page context for this document. Used when rendering addons outside the normal
+        /// page rendering pipeline (e.g., edit-mode widget previews via remote methods like /GetAddonList)
+        /// where PageId, PageName, and TemplateId would otherwise be 0/empty.
+        /// </summary>
+        /// <param name="pageId">The page id to set</param>
+        /// <param name="pageName">The page name to set</param>
+        /// <param name="templateId">The template id to set</param>
+        public virtual void SetPageContext(int pageId, string pageName, int templateId) {
+            // -- default implementation does nothing; overridden in CPDocClass
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Get the html DOCTYPE declaration for this document
         /// </summary>
         public abstract string Type { get; }
