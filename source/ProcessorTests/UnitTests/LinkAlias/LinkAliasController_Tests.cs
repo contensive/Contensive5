@@ -169,7 +169,7 @@ public class LinkAliasController_Tests {
     //
     //====================================================================================================
     /// <summary>
-    /// Re-adding a link moves it to the highest id order
+    /// Re-adding a link that already matches pageId and QS is a no-op (no delete/reinsert)
     /// </summary>
     [TestMethod]
     public void test_AddLinkAlias_ReAddLink_SamePageAndQS() {
@@ -184,15 +184,15 @@ public class LinkAliasController_Tests {
             LinkAliasController.addLinkAlias(core, "test1", 1, "a=1");
             LinkAliasController.addLinkAlias(core, "test2", 1, "a=1");
             LinkAliasController.addLinkAlias(core, "test1", 1, "a=1");
-            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "");
-            // assert
+            var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "", "id");
+            // assert -- re-adding test1 is a no-op, original order preserved
             Assert.AreEqual(2, linkAliasList.Count);
             //
-            Assert.AreEqual("/test2", linkAliasList[0].name);
+            Assert.AreEqual("/test1", linkAliasList[0].name);
             Assert.AreEqual(1, linkAliasList[0].pageId);
             Assert.AreEqual("a=1", linkAliasList[0].queryStringSuffix);
             //
-            Assert.AreEqual("/test1", linkAliasList[1].name);
+            Assert.AreEqual("/test2", linkAliasList[1].name);
             Assert.AreEqual(1, linkAliasList[1].pageId);
             Assert.AreEqual("a=1", linkAliasList[1].queryStringSuffix);
         }

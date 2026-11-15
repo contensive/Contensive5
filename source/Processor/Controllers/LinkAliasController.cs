@@ -78,7 +78,12 @@ namespace Contensive.Processor.Controllers {
             string hint = "";
             try {
                 //
-                logger.Trace($"{core.logCommonMessage},addLinkAlias, enter, linkAliasPhrase [" + linkAliasPhrase + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
+                logger.Trace($"{core.logCommonMessage},addLinkAlias, enter, linkAliasPhrase [{linkAliasPhrase}], pageID [{pageId}], queryStringSuffix [{queryStringSuffix}], overRideDuplicate [{overRideDuplicate}], dupCausesWarning [{dupCausesWarning}]");
+                //
+                if (pageId <= 0) {
+                    logger.Warn($"{core.logCommonMessage},addLinkAlias, ignored because pageId is 0, linkAliasPhrase [{linkAliasPhrase}], queryStringSuffix [{queryStringSuffix}], stackTrace [{Environment.StackTrace}]");
+                    return "";
+                }
                 //
                 string normalizedLinkAlias = LinkAliasModel.normalizeLinkAlias(core.cpParent, linkAliasPhrase);
                 if (string.IsNullOrEmpty(normalizedLinkAlias)) {
@@ -142,38 +147,11 @@ namespace Contensive.Processor.Controllers {
                             //
                             // Alias found, verify the pageid & QueryStringSuffix
                             //
-                            int CurrentLinkAliasId = 0;
-                            bool resaveLinkAlias = false;
                             if ((recordQss == queryStringSuffix.ToLowerInvariant()) && (pageId == recordPageId)) {
-                                CurrentLinkAliasId = csData.getInteger("id");
                                 //
-                                logger.Trace($"{core.logCommonMessage},addLinkAlias, linkalias matches name, pageid, and querystring of linkalias [" + CurrentLinkAliasId + "]");
+                                // -- exact match on name, pageid, and querystring - no update needed
+                                logger.Trace($"{core.logCommonMessage},addLinkAlias, linkalias matches name, pageid, and querystring, no update needed");
                                 //
-                                // it maches a current entry for this link alias, if the current entry is not the highest number id,
-                                //   remove it and add this one
-                                //
-                                string sql = string.IsNullOrEmpty(queryStringSuffix) ? "QueryStringSuffix is null" : $"QueryStringSuffix={DbController.encodeSQLText(queryStringSuffix)}";
-                                sql = $"select top 1 id from ccLinkAliases where (pageid={recordPageId})and({sql}) order by id desc";
-                                using (var CS3 = new CsModel(core)) {
-                                    CS3.openSql(sql);
-                                    if (CS3.ok()) {
-                                        resaveLinkAlias = (CurrentLinkAliasId != CS3.getInteger("id"));
-                                    }
-                                }
-                                if (resaveLinkAlias) {
-                                    //
-                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, another Page URL matches this pageId and QS. Move this to the top position");
-                                    //
-                                    core.db.executeNonQuery("delete from ccLinkAliases where id=@id", new Dictionary<string, object> { { "@id", CurrentLinkAliasId } });
-                                    using (var CS3 = new CsModel(core)) {
-                                        CS3.insert("Link Aliases");
-                                        if (CS3.ok()) {
-                                            CS3.set("Name", normalizedLinkAlias);
-                                            CS3.set("Pageid", pageId);
-                                            CS3.set("QueryStringSuffix", queryStringSuffix);
-                                        }
-                                    }
-                                }
                             } else {
                                 //
                                 logger.Trace($"{core.logCommonMessage},addLinkAlias, linkalias matches name, but pageid and querystring are different. Add this a newest linkalias");
