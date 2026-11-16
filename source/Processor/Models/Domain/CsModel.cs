@@ -213,40 +213,9 @@ namespace Contensive.Processor {
                 if (contentMeta == null) { throw new ArgumentException("Cannot delete because meta data is not valid."); }
                 if (string.IsNullOrEmpty(contentMeta.name)) { throw new ArgumentException("Cannot delete because meta data name is blank."); }
                 //
-                // -- delete any files (if filename is part of select)
-                foreach (var selectedFieldName in contentMeta.selectList) {
-                    if (contentMeta.fields.ContainsKey(selectedFieldName.ToLowerInvariant())) {
-                        var field = contentMeta.fields[selectedFieldName.ToLowerInvariant()];
-                        switch (field.fieldTypeId) {
-                            case CPContentBaseClass.FieldTypeIdEnum.File:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileImage:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
-                                    //
-                                    // cdn file
-                                    string Filename = getValueStoredInDbField(field.nameLc);
-                                    if (!string.IsNullOrEmpty(Filename)) { core.cdnFiles.deleteFile(Filename); }
-                                    break;
-                                }
-                            case CPContentBaseClass.FieldTypeIdEnum.FileText:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
-                                    //
-                                    // private file
-                                    string Filename = getValueStoredInDbField(field.nameLc);
-                                    if (!string.IsNullOrEmpty(Filename)) { core.privateFiles.deleteFile(Filename); }
-                                    break;
-                                }
-                            default: {
-                                    // do nothing
-                                    break;
-                                }
-                        }
-                    }
-                }
-                //
+                // -- delete any files associated with file-type fields
                 int recordId = getInteger("ID");
+                MetadataController.deleteRecordFiles(core, contentMeta, recordId);
                 using (var db = new DbController(core, contentMeta.dataSourceName)) {
                     db.delete(recordId, contentMeta.tableName);
                 }

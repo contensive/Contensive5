@@ -76,6 +76,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                             if (dt?.Rows != null && dt.Rows.Count > 0) {
                                                 string contentName = cp.Content.GetName(getInteger(dt.Rows[0][0]));
                                                 cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
+                                                MetadataController.deleteRecordFiles(cp.core, adminContent, deleteRecordId);
                                                 cp.Db.ExecuteNonQuery($"delete from {adminContent.tableName} where id=@id", deleteParams);
                                                 cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
                                                 ContentController.processAfterSave(cp.core, true, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId);
@@ -334,6 +335,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                         if (dt?.Rows != null && dt.Rows.Count > 0) {
                                                             string contentName = cp.Content.GetName(getInteger(dt.Rows[0][0]));
                                                             cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
+                                                            MetadataController.deleteRecordFiles(cp.core, adminContent, deleteRecordId);
                                                             cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
                                                             cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
                                                             ContentController.processAfterSave(cp.core, true, contentName, deleteRecordId, "", 0);

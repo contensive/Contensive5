@@ -117,7 +117,27 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// get the connection string for the default device 
+        /// Delete files associated with file-type fields for a single record.
+        /// Must be called BEFORE the database row is deleted.
+        /// Virtual with no-op default to preserve binary compatibility with existing addons.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="recordId"></param>
+        public virtual void DeleteRecordFiles(string tableName, int recordId) { }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Delete files associated with file-type fields for all records matching sqlCriteria.
+        /// Must be called BEFORE the database rows are deleted.
+        /// Virtual with no-op default to preserve binary compatibility with existing addons.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="sqlCriteria"></param>
+        public virtual void DeleteRowFiles(string tableName, string sqlCriteria) { }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// get the connection string for the default device
         /// </summary>
         /// <returns></returns>
         public abstract string GetConnectionString();

@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
 using System.Data;
@@ -165,6 +166,121 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
+        /// Delete all files referenced by file-type fields for a single record.
+        /// Must be called BEFORE the database row is deleted.
+        /// </summary>
+        public static void deleteRecordFiles(CoreController core, ContentMetadataModel meta, int recordId) {
+            try {
+                if (meta == null) { return; }
+                if (recordId <= 0) { return; }
+                //
+                // -- build list of file-type fields and their storage targets
+                var fileFields = new List<(string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType)>();
+                foreach (var kvp in meta.fields) {
+                    switch (kvp.Value.fieldTypeId) {
+                        case CPContentBaseClass.FieldTypeIdEnum.File:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileImage:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileXML:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
+                                fileFields.Add((kvp.Value.nameLc, kvp.Value.fieldTypeId));
+                                break;
+                            }
+                    }
+                }
+                if (fileFields.Count == 0) { return; }
+                //
+                // -- query the record for file field values
+                string selectList = string.Join(",", fileFields.ConvertAll(f => f.fieldName));
+                using (var dt = core.db.executeQuery($"select {selectList} from {meta.tableName} where id={recordId}")) {
+                    if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
+                    deleteFilesFromRow(core, dt.Rows[0], fileFields);
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},deleteRecordFiles");
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Delete all files referenced by file-type fields for all records matching sqlCriteria.
+        /// Must be called BEFORE the database rows are deleted.
+        /// </summary>
+        public static void deleteRecordFiles(CoreController core, ContentMetadataModel meta, string sqlCriteria) {
+            try {
+                if (meta == null) { return; }
+                if (string.IsNullOrEmpty(sqlCriteria)) { return; }
+                //
+                // -- build list of file-type fields
+                var fileFields = new List<(string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType)>();
+                foreach (var kvp in meta.fields) {
+                    switch (kvp.Value.fieldTypeId) {
+                        case CPContentBaseClass.FieldTypeIdEnum.File:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileImage:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileXML:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
+                                fileFields.Add((kvp.Value.nameLc, kvp.Value.fieldTypeId));
+                                break;
+                            }
+                    }
+                }
+                if (fileFields.Count == 0) { return; }
+                //
+                // -- query matching records for file field values
+                string selectList = string.Join(",", fileFields.ConvertAll(f => f.fieldName));
+                using (var dt = core.db.executeQuery($"select {selectList} from {meta.tableName} where {sqlCriteria}")) {
+                    if (dt?.Rows == null) { return; }
+                    foreach (DataRow row in dt.Rows) {
+                        deleteFilesFromRow(core, row, fileFields);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},deleteRecordFiles bulk");
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// Delete files for a single data row based on file-type field definitions
+        /// </summary>
+        private static void deleteFilesFromRow(CoreController core, DataRow row, List<(string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType)> fileFields) {
+            foreach (var (fieldName, fieldType) in fileFields) {
+                string filename = row[fieldName]?.ToString() ?? "";
+                if (string.IsNullOrEmpty(filename)) { continue; }
+                try {
+                    switch (fieldType) {
+                        case CPContentBaseClass.FieldTypeIdEnum.File:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileImage:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
+                                core.cdnFiles.deleteFile(filename);
+                                break;
+                            }
+                        case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
+                                core.privateFiles.deleteFile(filename);
+                                break;
+                            }
+                    }
+                } catch (Exception ex) {
+                    logger.Warn(ex, $"{core.logCommonMessage},deleteFilesFromRow, error deleting file [{filename}] for field [{fieldName}]");
+                }
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
         /// Delete Content Record
         /// </summary>
         /// <param name="contentName"></param>
@@ -186,6 +302,7 @@ namespace Contensive.Processor.Controllers {
                     if (hasParentId) { parentId = GenericController.getInteger(dt.Rows[0]["parentid"]); }
                 }
             }
+            deleteRecordFiles(core, meta, recordId);
             using var db = new DbController(core, meta.dataSourceName);
             core.db.delete(recordId, meta.tableName);
             ContentController.processAfterSave(core, true, contentName, recordId, recordName, parentId);
@@ -207,6 +324,7 @@ namespace Contensive.Processor.Controllers {
             bool hasParentId = meta.fields.ContainsKey("parentid");
             string selectFields = hasParentId ? "id, name, parentid" : "id, name";
             DataTable dt = core.db.executeQuery($"select {selectFields} from {meta.tableName} where {sqlCriteria}");
+            deleteRecordFiles(core, meta, sqlCriteria);
             using (var db = new DbController(core, meta.dataSourceName)) {
                 core.db.deleteRows(meta.tableName, sqlCriteria);
             }

@@ -353,6 +353,43 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        //
+        public override void DeleteRecordFiles(string tableName, int recordId) {
+            if (string.IsNullOrEmpty(tableName) || recordId <= 0) { return; }
+            var meta = getContentMetaForTable(tableName);
+            if (meta == null) { return; }
+            MetadataController.deleteRecordFiles(cp.core, meta, recordId);
+        }
+        //
+        //====================================================================================================
+        //
+        public override void DeleteRowFiles(string tableName, string sqlCriteria) {
+            if (string.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(sqlCriteria)) { return; }
+            var meta = getContentMetaForTable(tableName);
+            if (meta == null) { return; }
+            MetadataController.deleteRecordFiles(cp.core, meta, sqlCriteria);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Look up the ContentMetadataModel for a given SQL table name.
+        /// Returns null if no content definition uses this table.
+        /// </summary>
+        private Models.Domain.ContentMetadataModel getContentMetaForTable(string tableName) {
+            try {
+                using (var dt = cp.core.db.executeQuery($"select c.id from cccontent c inner join cctables t on t.id=c.contenttableid where t.name={DbController.encodeSQLText(tableName)}")) {
+                    if (dt?.Rows == null || dt.Rows.Count == 0) { return null; }
+                    int contentId = GenericController.getInteger(dt.Rows[0]["id"]);
+                    if (contentId <= 0) { return null; }
+                    return Models.Domain.ContentMetadataModel.create(cp.core, contentId);
+                }
+            } catch (Exception ex) {
+                logger.Warn(ex, $"{cp.core.logCommonMessage},getContentMetaForTable, tableName [{tableName}]");
+                return null;
+            }
+        }
+        //
+        //====================================================================================================
         // deprecated
         //
         [Obsolete("Deprecated. Convert to datatables and use executeQuery(), executeNonQuery(), or executeNonQueryAsync()", false)]

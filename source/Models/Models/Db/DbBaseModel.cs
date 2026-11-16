@@ -1502,6 +1502,7 @@ namespace Contensive.Models.Db {
                 if (recordId <= 0) { return; }
                 string dataSourceName = derivedDataSourceName(typeof(T));
                 string tableName = derivedTableName(typeof(T));
+                cp.Db.DeleteRecordFiles(tableName, recordId);
                 cp.Db.Delete(tableName, recordId);
                 cp.Cache.Invalidate(cp.Cache.CreateRecordKey(recordId, tableName, dataSourceName));
                 cp.Cache.Invalidate(cp.Cache.CreateTableDependencyKey(tableName, dataSourceName));
@@ -1855,7 +1856,9 @@ namespace Contensive.Models.Db {
                 if (string.IsNullOrEmpty(sqlCriteria)) {
                     throw new ArgumentException("deleteRows cannot be called with a blank sqlCriteria.");
                 }
-                cp.Db.DeleteRows(derivedTableName(typeof(T)), sqlCriteria);
+                string tableName = derivedTableName(typeof(T));
+                cp.Db.DeleteRowFiles(tableName, sqlCriteria);
+                cp.Db.DeleteRows(tableName, sqlCriteria);
                 invalidateCacheOfTable<T>(cp);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
