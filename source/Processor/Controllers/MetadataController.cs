@@ -171,8 +171,15 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public static void deleteRecordFiles(CoreController core, ContentMetadataModel meta, int recordId) {
             try {
-                if (meta == null) { return; }
-                if (recordId <= 0) { return; }
+                if (meta == null) {
+                    logger.Trace($"{core.logCommonMessage},deleteRecordFiles, meta is null, skipping");
+                    return;
+                }
+                if (recordId <= 0) {
+                    logger.Trace($"{core.logCommonMessage},deleteRecordFiles, recordId [{recordId}] invalid, skipping");
+                    return;
+                }
+                logger.Trace($"{core.logCommonMessage},deleteRecordFiles, enter, content [{meta.name}], table [{meta.tableName}], recordId [{recordId}], field count [{meta.fields.Count}]");
                 //
                 // -- build list of file-type fields and their storage targets
                 var fileFields = new List<(string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType)>();
@@ -191,13 +198,20 @@ namespace Contensive.Processor.Controllers {
                             }
                     }
                 }
-                if (fileFields.Count == 0) { return; }
+                if (fileFields.Count == 0) {
+                    logger.Trace($"{core.logCommonMessage},deleteRecordFiles, no file-type fields found for content [{meta.name}], skipping");
+                    return;
+                }
+                logger.Trace($"{core.logCommonMessage},deleteRecordFiles, found [{fileFields.Count}] file-type fields for content [{meta.name}]");
                 //
                 // -- query the record for file field values
                 string selectList = string.Join(",", fileFields.ConvertAll(f => f.fieldName));
                 using (var dt = core.db.executeQuery($"select {selectList} from {meta.tableName} where id={recordId}")) {
-                    if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
-                    deleteFilesFromRow(core, dt.Rows[0], fileFields);
+                    if (dt?.Rows == null || dt.Rows.Count == 0) {
+                        logger.Trace($"{core.logCommonMessage},deleteRecordFiles, no rows found for recordId [{recordId}] in table [{meta.tableName}]");
+                        return;
+                    }
+                    deleteFilesFromRow(core, meta.tableName, dt.Rows[0], fileFields);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},deleteRecordFiles");
@@ -239,7 +253,7 @@ namespace Contensive.Processor.Controllers {
                 using (var dt = core.db.executeQuery($"select {selectList} from {meta.tableName} where {sqlCriteria}")) {
                     if (dt?.Rows == null) { return; }
                     foreach (DataRow row in dt.Rows) {
-                        deleteFilesFromRow(core, row, fileFields);
+                        deleteFilesFromRow(core, meta.tableName, row, fileFields);
                     }
                 }
             } catch (Exception ex) {
@@ -252,11 +266,15 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Delete files for a single data row based on file-type field definitions
         /// </summary>
-        private static void deleteFilesFromRow(CoreController core, DataRow row, List<(string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType)> fileFields) {
+        private static void deleteFilesFromRow(CoreController core, string tableName, DataRow row, List<(string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldType)> fileFields) {
             foreach (var (fieldName, fieldType) in fileFields) {
                 string filename = row[fieldName]?.ToString() ?? "";
-                if (string.IsNullOrEmpty(filename)) { continue; }
+                if (string.IsNullOrEmpty(filename)) {
+                    logger.Trace($"{core.logCommonMessage},deleteFilesFromRow, field [{fieldName}] is empty, skipping");
+                    continue;
+                }
                 try {
+                    logger.Trace($"{core.logCommonMessage},deleteFilesFromRow, deleting file [{filename}] for field [{fieldName}], type [{fieldType}]");
                     switch (fieldType) {
                         case CPContentBaseClass.FieldTypeIdEnum.File:
                         case CPContentBaseClass.FieldTypeIdEnum.FileImage:
@@ -264,12 +282,14 @@ namespace Contensive.Processor.Controllers {
                         case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                         case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                 core.cdnFiles.deleteFile(filename);
+                                deleteRecordFolderIfAutoManaged(core.cdnFiles, tableName, fieldName, filename);
                                 break;
                             }
                         case CPContentBaseClass.FieldTypeIdEnum.FileText:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
                                 core.privateFiles.deleteFile(filename);
+                                deleteRecordFolderIfAutoManaged(core.privateFiles, tableName, fieldName, filename);
                                 break;
                             }
                     }
@@ -277,6 +297,25 @@ namespace Contensive.Processor.Controllers {
                     logger.Warn(ex, $"{core.logCommonMessage},deleteFilesFromRow, error deleting file [{filename}] for field [{fieldName}]");
                 }
             }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// If the file is in an auto-managed folder (tablename/fieldname/recordnumber/),
+        /// delete the entire folder so resized images and other generated files are removed.
+        /// </summary>
+        private static void deleteRecordFolderIfAutoManaged(FileController fileSystem, string tableName, string fieldName, string filename) {
+            //
+            // -- the expected prefix is tablename/fieldname/ (lowercase, spaces and dots replaced with underscores)
+            string expectedPrefix = FileController.getVirtualTableFieldUnixPath(tableName, fieldName);
+            string filenameLower = filename.Replace("\\", "/").ToLowerInvariant();
+            if (!filenameLower.StartsWith(expectedPrefix)) { return; }
+            //
+            // -- extract the folder path (everything up to and including the last slash)
+            int lastSlash = filename.Replace("\\", "/").LastIndexOf('/');
+            if (lastSlash <= 0) { return; }
+            string folderPath = filename.Substring(0, lastSlash + 1);
+            fileSystem.deleteFolder(folderPath);
         }
         //
         //========================================================================
