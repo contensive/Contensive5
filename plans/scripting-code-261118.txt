@@ -1,26 +1,4 @@
-aoAnalytics\.claude\worktrees\nervous-brahmagupta-d81171\collections\aoAnalytics\aoAnalytics.xml:			<Code><![CDATA[
-aoArticleLibrary\collections\aoArticleLibrary\aoArticleLibrary.xml:			<Code><![CDATA[function getContent()
-aoCodeMirrorEditor\etc\old\Code Mirror Editors.xml:			<Code><![CDATA[
-aoNewsStories\collections\aoNewsStories\aoNewsStories.xml:			<Code><![CDATA[function m
-aoReCAPTCHA\collections\Legacy\xReCaptcha V2\ReCaptcha V2.xml:			<Code><![CDATA[function getContent()
-aoRSS\etc\collection\RSS Clients\RSS Clients.xml:			<Code><![CDATA[function m
-aoRSS\etc\files-from-old-collection\Webcast and Podcast.xml:		<Code><![CDATA[function m
-Contensive5\etc\EditModalTest.xml:			<Code><![CDATA[
-Contensive5\source\Cli\bin\Release\net9.0-windows\win-x64\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\ModelsTests\bin\Debug\net48\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\ModelsTests\bin\Debug\net9.0-windows\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\ModelsTests\bin\Release\net48\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\ModelsTests\bin\Release\net9.0-windows\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\Processor\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\Processor\bin\Debug\net48\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\Processor\bin\Debug\net9.0-windows\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\Processor\bin\Release\net9.0-windows\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\ProcessorTests\bin\Debug\net9.0-windows\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\ProcessorTests\bin\Release\net48\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[ ]]></Code></Scripting>
-Contensive5\source\ProcessorTests\bin\Release\net9.0-windows\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\TaskService\bin\Release\net9.0-windows\win-x64\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-Contensive5\source\WebApi\bin\Release\net9.0-windows\win-x64\aoBase51.xml:		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
-pheonixComputers\etc\Phoenix Computers\Phoenix Computers.xml:			<Code><![CDATA[function getContent()
-pheonixComputers\etc\Phoenix Computers\Phoenix Computers.xml:			<Code><![CDATA[function getContent()
-pheonixComputers\etc\Phoenix Computers1\Phoenix Computers.xml:			<Code><![CDATA[function getContent()
-pheonixComputers\etc\Phoenix Computers1\Phoenix Computers.xml:			<Code><![CDATA[function getContent()
+aeAMS\collections\Weave4\Weave4.xml:			<Code><![CDATA[
+aeAMS\server\packages\Google.Apis.1.49.0\lib\net45\Google.Apis.xml:            <code><![CDATA[
+aeAMS\server\packages\Google.Apis.1.49.0\lib\netstandard1.3\Google.Apis.xml:            <code><![CDATA[
+aeAMS\server\packages\Google.Apis.1.49.0\lib\netstandard2.0\Google.Apis.xml:            <code><![CDATA[
