@@ -3451,7 +3451,7 @@
 		<DotNetClass>Contensive.Processor.Addons.PageManager.OpenGraphEndOfBodyClass</DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 		<OnBodyEnd>Yes</OnBodyEnd>
-		<Scripting Language="" EntryPoint="" Timeout="5000"><Code><![CDATA[]]></Code></Scripting>
+		<Scripting Language="" EntryPoint="" Timeout="5000"/>
 	</Addon>
 
 	<Addon Name="LayoutBuilderCallback" Guid="{99F9CD56-4C99-4E47-9A28-C3350B54285F}" Type="Add-on">
