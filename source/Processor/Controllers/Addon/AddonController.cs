@@ -608,24 +608,11 @@ namespace Contensive.Processor.Controllers {
                         // -- Scripting code
                         hint = 14;
                         if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
-                            if (core.siteProperties.getBoolean("deprecate active scripting")) {
-                                //
-                                // -- active scripting deprecated for this site, block execution and log error
-                                string scriptLanguage = (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) ? "JScript" : "VBScript";
-                                logger.Error($"{core.logCommonMessage}, Active scripting execution blocked for addon [{getAddonDescription(core, addon)}]. This addon contains {scriptLanguage} scripting code that must be converted to a .NET addon. Disable the 'Deprecate Active Scripting' site property to allow legacy scripting temporarily.");
-                            } else {
-                                try {
-                                    if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
-                                        result.Append(AddonScriptController.execute_Script_JScript(core, ref addon));
-                                    } else {
-                                        result.Append(AddonScriptController.execute_Script_VBScript(core, ref addon));
-                                    }
-                                } catch (Exception ex) {
-                                    //
-                                    // -- exeption in outside code
-                                    logger.Error(ex, $"{core.logCommonMessage}, Exception in script component of addon [{getAddonDescription(core, addon)}]");
-                                }
-                            }
+                            //
+                            // -- active scripting (VBScript/JScript) is no longer supported.
+                            // -- Convert scripting addons to .NET assemblies implementing AddonBaseClass.
+                            string scriptLanguage = (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) ? "JScript" : "VBScript";
+                            logger.Error($"{core.logCommonMessage}, Scripting addon not executed [{getAddonDescription(core, addon)}]. {scriptLanguage} scripting is no longer supported. Convert this addon to a .NET assembly implementing AddonBaseClass.");
                         }
                         //
                         // -- DotNet

@@ -48,63 +48,15 @@ These items from the earlier plans have been completed:
 
 ---
 
-## Phase 1: Remove Windows-Only Dependencies from Processor
+## ~~Phase 1: Remove Windows-Only Dependencies from Processor~~ **DONE**
 
-These changes make the Processor library buildable as a cross-platform target. No behavior changes for end users.
+### Completed
 
-### 1.1 Remove Dead Imports
-
-Remove unused `using` statements that reference Windows-only namespaces:
-
-| File | Remove |
-|------|--------|
-| `source/Processor/Controllers/Authentication/AuthWorkflowController.cs` | `using System.Windows.Input;` |
-| `source/Processor/Controllers/Authentication/LoginWorkflowController.cs` | `using System.Windows.Input;` |
-| `source/Processor/Addons/PageManager/OpenGraphEndOfBodyClass.cs` | `using System.Windows.Input;` |
-| `source/Processor/Models/Domain/DashboardUserConfigModel.cs` | `using Microsoft.Web.Administration;` |
-| `source/Processor/Addons/WidgetDashboard/WidgetDashboardCmdRemote.cs` | `using Microsoft.ClearScript.JavaScript;` |
-
-### 1.2 Complete Nustache → Stubble Migration
-
-Stubble is already integrated with a feature toggle. Make Stubble the sole renderer:
-
-1. In `MustacheController.cs`, remove the Nustache code path and the site-property toggle. Keep only the Stubble renderer with `SetIgnoreCaseOnKeyLookup(true)` to maintain Nustache's case-insensitive behavior.
-2. Remove from `Processor.csproj`:
-   - The `<Reference Include="Nustache.Core">` block
-   - The `<None Include="Libs\Nustache.Core.dll" Pack="true" ...>` item
-3. Delete `Libs/Nustache.Core.dll`
-4. Run existing mustache unit tests to verify compatibility
-
-### 1.3 Convert VBScript/JScript Addons to C# Assemblies
-
-Convert all addons with `scriptingCode` to equivalent C# `AddonBaseClass` DLLs:
-
-**Known addons in base collections:**
-- Open Graph (addon #41, collection Base5)
-- AddonListEndOfBody (addon #117, collection Page Builder)
-- Tool Panel (addon #154, collection Tool Panel)
-
-**Known addons in external collection repos** (from active-scripting-delete-list.txt):
-- aoArticleLibrary, aoJQuery, aoLoginLightbox, aoNewsStories, aoReCAPTCHA, aoRedactorEditor, aoRSS, aoSocialMedia, aoAnalytics, aoCodeMirrorEditor, aoGoogleAnalytics, aoMemberBoss, ContensiveSite/Demo
-
-**For each addon:**
-1. Analyze the VBScript/JScript code and the `cp` object model it uses
-2. Generate an equivalent C# class implementing `AddonBaseClass`
-3. Build as a `netstandard2.0` DLL (compatible with both Framework and Core)
-4. Test that output matches the original scripting behavior
-5. Update the addon collection XML: remove `<ScriptingCode>` and `<ScriptingLanguage>`, add `<DotNetClass>` and include the assembly in collection resources
-
-### 1.4 Remove ClearScript
-
-After all scripting addons are converted:
-
-1. Remove `<PackageReference Include="Microsoft.ClearScript" .../>` from `Processor.csproj`
-2. In `AddonController.cs` (lines 607/609), replace VBScript/JScript execution calls with a log warning: `"Scripting addons are no longer supported. Convert to a .NET assembly. See documentation."`
-3. Delete `source/Processor/Controllers/Addon/AddonScriptController.cs`
-
-### 1.5 Remove Nustache DLL Reference from Processor.csproj
-
-(If not already done in 1.2 — remove the `<Reference>` and `<None>` pack items for `Nustache.Core.dll`)
+- **1.1 Dead imports** — All Windows-only `using` statements removed (System.Windows.Input, Microsoft.Web.Administration, Microsoft.ClearScript.JavaScript)
+- **1.2 Nustache → Stubble** — Stubble is now the sole Mustache renderer. Nustache code path, site-property toggle, and `Libs/Nustache.Core.dll` removed. `SetIgnoreCaseOnKeyLookup(true)` preserves backward compatibility.
+- **1.3 VBScript/JScript addons converted** — All scripting addons across base and external collection repos converted to C# `AddonBaseClass` assemblies
+- **1.4 ClearScript removed** — `Microsoft.ClearScript` package removed from Processor.csproj. `AddonScriptController.cs` and `MainCsvScriptCompatibilityClass` deleted. `AddonController.cs` now logs an error for any remaining scripting addons instead of executing them.
+- **1.5 Nustache DLL removed** — `<Reference>` and `<None>` pack items removed from Processor.csproj
 
 ---
 
