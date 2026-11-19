@@ -367,63 +367,64 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // display the column if it is not in use
                             if (gridConfig.columns.Find(x => x.Name == field.nameLc) == null) {
+                                string fieldCaption = string.IsNullOrWhiteSpace(field.editTabName) ? field.caption : $"{field.caption} ({field.editTabName})";
                                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.File) {
                                     //
                                     // file can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileText) {
                                     //
                                     // filename can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (text file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (text file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileHTML) {
                                     //
                                     // filename can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (html file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode) {
                                     //
                                     // filename can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html code file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (html code file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileCSS) {
                                     //
                                     // css filename can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (css file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (css file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileXML) {
                                     //
                                     // xml filename can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (xml file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (xml file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavaScript) {
                                     //
                                     // javascript filename can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (javascript file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (javascript file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.LongText) {
                                     //
                                     // can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (long text field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (long text field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.HTML) {
                                     //
                                     // can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (html field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileImage) {
                                     //
                                     // can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (image field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (image field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
                                     //
                                     // can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (redirect field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (redirect field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
                                     //
                                     // many to many can not be search
-                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (many-to-many field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption + " (many-to-many field)"));
                                 } else if (!field.authorable && !fieldsThatAllowNotAuthorable.Contains(field.nameLc, StringComparer.OrdinalIgnoreCase)) {
                                     //
                                     // many to many can not be search
-                                    notAuthorable.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption));
+                                    notAuthorable.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + fieldCaption));
                                 } else {
                                     //
                                     // can be used as column header
                                     string link = "?" + core.doc.refreshQueryString + "&fi=" + field.id + "&dta=" + ToolsActionAddField + "&" + RequestNameAddFieldId + "=" + field.id;
-                                    validFields.Append(HtmlController.div(AdminUIController.getPlusLink(link, "&nbsp;" + field.caption)));
+                                    validFields.Append(HtmlController.div(AdminUIController.getPlusLink(link, "&nbsp;" + fieldCaption)));
                                 }
                             }
                         }
