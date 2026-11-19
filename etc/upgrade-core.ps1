@@ -1,7 +1,7 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Upgrade Contensive .NET 9.0 server components (CLI, TaskService, WebApi package).
+    Upgrade Contensive .NET 10.0 server components (CLI, TaskService, WebApi package).
 
 .DESCRIPTION
     This script upgrades the server-level Contensive components by running the
@@ -41,7 +41,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host "============================================================"
-Write-Host "Contensive .NET 9.0 Upgrade"
+Write-Host "Contensive .NET 10.0 Upgrade"
 Write-Host "============================================================"
 Write-Host "Source:  $SourcePath"
 Write-Host "Target:  $InstallPath"

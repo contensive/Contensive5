@@ -61,7 +61,7 @@ namespace Contensive.CLI {
                             Console.WriteLine($"    Collection: {issue.CollectionName}");
                             Console.WriteLine($"    DLL:        {issue.DllFileName} ({issue.TargetFramework})");
                             Console.WriteLine($"    References: {string.Join(", ", issue.UnsupportedReferences)}");
-                            Console.WriteLine($"    Action:     Recompile targeting netstandard2.0 or net9.0, replacing unsupported APIs.");
+                            Console.WriteLine($"    Action:     Recompile targeting netstandard2.0 or net10.0, replacing unsupported APIs.");
                             Console.WriteLine();
                         }
                     }
@@ -77,7 +77,7 @@ namespace Contensive.CLI {
                         }
                     }
                     //
-                    Console.WriteLine("  To resolve all issues, recompile addons targeting netstandard2.0 or net9.0.");
+                    Console.WriteLine("  To resolve all issues, recompile addons targeting netstandard2.0 or net10.0.");
                 }
             } catch (Exception ex) {
                 Console.WriteLine($"Error scanning addon compatibility: {ex.Message}");

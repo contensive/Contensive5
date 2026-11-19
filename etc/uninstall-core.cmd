@@ -1,6 +1,6 @@
 @echo off
 rem ============================================================
-rem Uninstall Contensive .NET 9.0 Core components
+rem Uninstall Contensive .NET 10.0 Core components
 rem This script must be run as Administrator
 rem ============================================================
 

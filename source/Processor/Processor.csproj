@@ -3,7 +3,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-	<TargetFrameworks>net48;net9.0-windows</TargetFrameworks>
+	<TargetFrameworks>net48;net10.0</TargetFrameworks>
 	<RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -159,7 +159,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\IisUtil\IisUtil.csproj" Condition="'$(TargetFramework)' == 'net9.0-windows'" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -209,9 +208,9 @@
   </ItemGroup>
 
 
-  <!-- Include iisutil.dll (managed assembly) in output. The project reference with ReferenceOutputAssembly=false copies the exe, deps.json, and runtimeconfig.json but not the managed dll needed at runtime. -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows'">
-    <Content Include="$(MSBuildProjectDirectory)\..\IisUtil\bin\$(Configuration)\net9.0-windows\iisutil.dll" Link="iisutil.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  <!-- Include iisutil.dll in output on Windows builds. IisUtil is a Windows-only project (net10.0-windows) built separately. On Linux this item is skipped. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0' And Exists('$(MSBuildProjectDirectory)\..\IisUtil\bin\$(Configuration)\net10.0-windows\iisutil.dll')">
+    <Content Include="$(MSBuildProjectDirectory)\..\IisUtil\bin\$(Configuration)\net10.0-windows\iisutil.dll" Link="iisutil.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Download fresh bot detection data before build. On failure (offline/timeout), the committed fallback copies are used. -->

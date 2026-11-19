@@ -17,8 +17,8 @@ PREREQUISITES
 
 1. Windows Server 2019 or later (or Windows 10/11 for development)
 
-2. .NET 9.0 Hosting Bundle
-   Download: https://dotnet.microsoft.com/download/dotnet/9.0
+2. .NET 10.0 Hosting Bundle
+   Download: https://dotnet.microsoft.com/download/dotnet/10.0
    Get the "Hosting Bundle" under the Windows section.
    After installing, restart IIS: iisreset
 
@@ -150,7 +150,7 @@ TROUBLESHOOTING
 ============================================================
 
 - "ASP.NET Core Module not found":
-    Install the .NET 9.0 Hosting Bundle and run iisreset.
+    Install the .NET 10.0 Hosting Bundle and run iisreset.
 
 - "Access denied":
     Run install/uninstall scripts as Administrator.

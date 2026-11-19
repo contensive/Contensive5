@@ -60,47 +60,15 @@ These items from the earlier plans have been completed:
 
 ---
 
-## Phase 2: Change Target Frameworks
+## ~~Phase 2: Change Target Frameworks~~ **DONE**
 
-With all Windows-only dependencies removed, change the target frameworks.
+### Completed
 
-### 2.1 Libraries
-
-| Project | Current | New |
-|---------|---------|-----|
-| `source/Processor/Processor.csproj` | `net48;net9.0-windows` | `net48;net10.0` |
-
-Libraries that are already cross-platform (no changes needed):
-- `CPBase.csproj` — `netstandard2.0`
-- `Models.csproj` — `netstandard2.0`
-- `DashboardWidgets.csproj` — `netstandard2.0`
-- `aoMcp.csproj` — `netstandard2.0`
-
-### 2.2 Applications
-
-| Project | Current | New |
-|---------|---------|-----|
-| `source/WebApi/WebApi.csproj` | `net9.0-windows` | `net10.0` |
-| `source/Cli/Cli.csproj` | `net48;net9.0-windows` | `net48;net10.0` |
-| `source/TaskService/TaskService.csproj` | `net9.0-windows` | `net10.0` |
-
-### 2.3 Test Projects
-
-| Project | Current | New |
-|---------|---------|-----|
-| `source/ProcessorTests/ProcessorTests.csproj` | `net9.0-windows` | `net10.0` |
-| `source/ModelsTests/ModelsTests.csproj` | `net48;net9.0-windows` | `net48;net10.0` |
-
-Also remove the `<Reference Include="System.ServiceProcess" />` from `ProcessorTests.csproj`.
-
-### 2.4 Build and Fix
-
-```bash
-dotnet build -f net10.0
-dotnet test -f net10.0
-```
-
-Fix any remaining build errors from Windows-only references.
+- **2.1 Libraries** — Processor changed from `net48;net9.0-windows` to `net48;net10.0`. IisUtil ProjectReference decoupled (now built separately; DLL copied via conditional Content item that skips on Linux).
+- **2.2 Applications** — WebApi, Cli, TaskService all changed to `net10.0` (no `-windows` suffix). IisUtil stays `net10.0-windows` (Windows-only by design).
+- **2.3 Test projects** — ProcessorTests and ModelsTests changed to `net10.0`. `System.ServiceProcess` reference removed from ProcessorTests.
+- **2.4 Build script** — `scripts/build-core.cmd` updated: all `net9.0-windows` references changed to `net10.0` / `net10.0-windows` as appropriate.
+- **2.5 Build verification** — All projects build with 0 errors on `net10.0`. CLI shows expected CA1416 warnings for Windows-only APIs (`WindowsIdentity`, `SecurityIdentifier`) that will need platform guards in a future pass.
 
 ---
 

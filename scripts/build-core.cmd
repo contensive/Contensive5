@@ -1,6 +1,6 @@
 rem ==============================================================
 rem
-rem Build and publish all .NET 9.0 projects (WebApi, CLI, TaskService)
+rem Build and publish all .NET 10.0 projects (WebApi, CLI, TaskService)
 rem Must be run from the project's git\project\scripts folder
 rem run >build-core [/nopause] [/version YY.M.D.S]
 rem
@@ -34,7 +34,7 @@ goto parse_args
 :args_done
 
 @echo +++++++++++++++++++++++++++++
-@echo .NET 9.0 Core Build and Publish
+@echo .NET 10.0 Core Build and Publish
 @echo +++++++++++++++++++++++++++++
 
 c:
@@ -166,7 +166,7 @@ rem ==============================================================
 rem
 rem build and pack NuGet packages (CPBase + Models + Processor)
 rem CPBase and Models target netstandard2.0 for framework + core compatibility
-rem Processor targets net48 (for framework NuGet consumers) and net9.0-windows (for core)
+rem Processor targets net48 (for framework NuGet consumers) and net10.0 (for core)
 rem
 
 set NuGetLocalPackagesFolder=C:\NuGetLocalPackages\
@@ -209,10 +209,10 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net9.0-windows
+dotnet build Processor/Processor.csproj --no-incremental --no-dependencies /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net10.0
 if errorlevel 1 (
    echo.
-   echo FAILURE building Processor net9.0-windows
+   echo FAILURE building Processor net10.0
    if %PAUSE_ON_ERROR%==1 pause
    exit /b %errorlevel%
 )
@@ -387,16 +387,16 @@ cd ..\scripts
 
 rem ==============================================================
 rem
-rem publish CLI for .NET 9.0
+rem publish CLI for .NET 10.0
 rem
 
 @echo.
-@echo Publishing CLI (net9.0-windows)...
+@echo Publishing CLI (net10.0)...
 @echo.
 
 cd ..\source
 
-dotnet publish Cli/Cli.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\Cli" --runtime win-x64 --self-contained false /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net9.0-windows
+dotnet publish Cli/Cli.csproj --configuration Release --output "%deploymentFolderRoot%%versionNumber%\Cli" --runtime win-x64 --self-contained false /property:Version=%versionNumber% /property:FileVersion=%numericVersion% -p:TargetFramework=net10.0
 if errorlevel 1 (
    echo.
    echo FAILURE publishing CLI
@@ -408,11 +408,11 @@ cd ..\scripts
 
 rem ==============================================================
 rem
-rem publish IisUtil for .NET 9.0 (into Cli folder alongside cc.exe)
+rem publish IisUtil for .NET 10.0 (into Cli folder alongside cc.exe)
 rem
 
 @echo.
-@echo Publishing IisUtil (net9.0-windows)...
+@echo Publishing IisUtil (net10.0-windows)...
 @echo.
 
 cd ..\source
@@ -429,11 +429,11 @@ cd ..\scripts
 
 rem ==============================================================
 rem
-rem publish TaskService for .NET 9.0
+rem publish TaskService for .NET 10.0
 rem
 
 @echo.
-@echo Publishing TaskService (net9.0-windows)...
+@echo Publishing TaskService (net10.0)...
 @echo.
 
 cd ..\source

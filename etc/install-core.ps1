@@ -1,7 +1,7 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Install Contensive .NET 9.0 server components (CLI, TaskService, WebApi package).
+    Install Contensive .NET 10.0 server components (CLI, TaskService, WebApi package).
 
 .DESCRIPTION
     This script installs the server-level Contensive components to Program Files:
@@ -60,14 +60,14 @@ function Write-Step($message) {
 function Test-DotNetRuntime {
     $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
     if (-not $dotnet) {
-        Write-Host "ERROR: .NET runtime not found. Install the .NET 9.0 Hosting Bundle first." -ForegroundColor Red
-        Write-Host "  https://dotnet.microsoft.com/download/dotnet/9.0" -ForegroundColor Yellow
+        Write-Host "ERROR: .NET runtime not found. Install the .NET 10.0 Hosting Bundle first." -ForegroundColor Red
+        Write-Host "  https://dotnet.microsoft.com/download/dotnet/10.0" -ForegroundColor Yellow
         exit 1
     }
     $runtimes = dotnet --list-runtimes 2>&1
-    if (-not ($runtimes | Where-Object { $_ -match "Microsoft\.AspNetCore\.App 9\." })) {
-        Write-Host "WARNING: ASP.NET Core 9.0 runtime not found. WebApi IIS hosting requires the .NET 9.0 Hosting Bundle." -ForegroundColor Yellow
-        Write-Host "  https://dotnet.microsoft.com/download/dotnet/9.0" -ForegroundColor Yellow
+    if (-not ($runtimes | Where-Object { $_ -match "Microsoft\.AspNetCore\.App 10\." })) {
+        Write-Host "WARNING: ASP.NET Core 10.0 runtime not found. WebApi hosting requires the .NET 10.0 Hosting Bundle." -ForegroundColor Yellow
+        Write-Host "  https://dotnet.microsoft.com/download/dotnet/10.0" -ForegroundColor Yellow
     }
 }
 
@@ -271,7 +271,7 @@ function Install-ScheduledTask {
 # ============================================================
 
 Write-Host "============================================================"
-Write-Host "Contensive .NET 9.0 Installer"
+Write-Host "Contensive .NET 10.0 Installer"
 Write-Host "============================================================"
 Write-Host "Source:  $SourcePath"
 Write-Host "Target:  $InstallPath"

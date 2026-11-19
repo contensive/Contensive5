@@ -17,26 +17,21 @@ PREREQUISITES
 
 1. Windows Server 2019 or later (or Windows 10/11 for development)
 
-2. .NET 9.0 Hosting Bundle (provides ASP.NET Core runtime + IIS module)
-   Download: https://dotnet.microsoft.com/download/dotnet/9.0
+2. .NET 10.0 Hosting Bundle (provides ASP.NET Core runtime + IIS module)
+   Download: https://dotnet.microsoft.com/download/dotnet/10.0
    Get the "Hosting Bundle" under the Windows section.
    After installing, restart IIS: iisreset
 
-3. .NET 9.0 Desktop Runtime (provides WindowsBase for VBScript support)
-   Download: https://dotnet.microsoft.com/download/dotnet/9.0
-   Get the ".NET Desktop Runtime" (x64) under the Windows section.
-   This is required for addons that use VBScript via ClearScript.
-
-4. IIS with ASP.NET Core Module (for core WebApi apps)
+3. IIS with ASP.NET Core Module (for core WebApi apps)
    Verify: %windir%\system32\inetsrv\appcmd list modules | findstr AspNetCoreModuleV2
 
-5. IIS Application Pool settings for core WebApi apps:
+4. IIS Application Pool settings for core WebApi apps:
    - Open IIS Manager → Application Pools → select the app pool
    - Click "Advanced Settings" on the right panel
    - Set ".NET CLR Version" to "No Managed Code"
    - Set "Enable 32-Bit Applications" to "False"
 
-6. SQL Server (local or remote) for application databases
+5. SQL Server (local or remote) for application databases
 
 ============================================================
 NEW INSTALL
@@ -201,7 +196,7 @@ TROUBLESHOOTING
 ============================================================
 
 - "ASP.NET Core Module not found":
-    Install the .NET 9.0 Hosting Bundle and run iisreset.
+    Install the .NET 10.0 Hosting Bundle and run iisreset.
 
 - "Access denied":
     Run install/uninstall scripts as Administrator.

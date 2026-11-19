@@ -1,7 +1,7 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Uninstall Contensive .NET 9.0 server components (CLI, TaskService, WebApi package).
+    Uninstall Contensive .NET 10.0 server components (CLI, TaskService, WebApi package).
 
 .DESCRIPTION
     Removes server-level Contensive components. Individual application IIS sites,
@@ -140,7 +140,7 @@ function Uninstall-ScheduledTask {
 # ============================================================
 
 Write-Host "============================================================"
-Write-Host "Contensive .NET 9.0 Uninstaller"
+Write-Host "Contensive .NET 10.0 Uninstaller"
 Write-Host "============================================================"
 Write-Host "Install path: $InstallPath"
 Write-Host ""

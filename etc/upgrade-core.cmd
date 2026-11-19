@@ -1,6 +1,6 @@
 @echo off
 rem ============================================================
-rem Upgrade Contensive .NET 9.0 Core components
+rem Upgrade Contensive .NET 10.0 Core components
 rem This script must be run as Administrator
 rem ============================================================
 

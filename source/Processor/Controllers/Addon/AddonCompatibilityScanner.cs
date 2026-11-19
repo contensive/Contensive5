@@ -9,7 +9,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Scans installed addon collection folders for DLLs that target .NET Framework only.
     /// These DLLs may not work in the .NET 9 Core environment and need to be recompiled
-    /// targeting netstandard2.0 or net9.0.
+    /// targeting netstandard2.0 or net10.0.
     /// </summary>
     public static class AddonCompatibilityScanner {
         //
