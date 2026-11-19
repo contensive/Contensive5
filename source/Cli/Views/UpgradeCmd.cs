@@ -51,6 +51,7 @@ namespace Contensive.CLI {
                         }
                     }
                     upgradeApp.Cache.InvalidateAll();
+                    recycleApp(upgradeApp);
                 }
             } else {
                 //
@@ -65,6 +66,7 @@ namespace Contensive.CLI {
                             }
                         }
                         upgradeApp.Cache.InvalidateAll();
+                        recycleApp(upgradeApp);
                     }
                 }
             }
@@ -170,6 +172,23 @@ namespace Contensive.CLI {
                 foreach (var kvp in cp.core.serverConfig.apps) {
                     checkApp(kvp.Key);
                 }
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Recycle the IIS app pool for an application so the web process drops its in-memory
+        /// caches (addonCache, routeMap, etc.) and rebuilds them from the freshly-invalidated
+        /// distributed cache.  Without this, the worker process may serve stale cached data
+        /// until the next manual app pool recycle or iisreset.
+        /// </summary>
+        private static void recycleApp(CPClass upgradeApp) {
+            try {
+                upgradeApp.core.webServer.recycle();
+                Console.WriteLine($"  IIS app pool recycled for [{upgradeApp.GetAppConfig().name}]");
+            } catch (Exception ex) {
+                Console.WriteLine($"  NOTE: Could not recycle IIS app pool for [{upgradeApp.GetAppConfig().name}]: {ex.Message}");
+                Console.WriteLine("  You may need to manually recycle the app pool or run iisreset.");
             }
         }
         //
