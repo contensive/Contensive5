@@ -9,15 +9,45 @@ A Dashboard Widget is a Contensive addon that can be added to the control panel 
 ## Architecture
 [In-depth architecture discussion]
 A dashboard widget is an addon that
-- returns a json string serialized from a class in then namespace Contensive.Processor.Models
-- this json string is used by the Widget dashboard to render the widget using layouts in the \ui\widgetdashboard folder
+- **MUST return a model object** from namespace `Contensive.Processor.Models` (available in nuget package Contensive.DbModels)
+- **NEVER return plain HTML strings** - the dashboard framework requires model objects to properly render widgets with IDs, filters, and refresh functionality
+- this model object is JSON-serialized and used by the Widget dashboard to render the widget using Mustache layouts in the \ui\widgetdashboard folder
 - there are 5 types of dashboard widgets
-  1) Bar Chart Widget
-  2) html widget - returning DashboardWidgetHtmlModel
-  3) line chart widget - returning SampleLineChartWidget
-  4) pie chart widget - returning SamplePieChartWidget
-  5) number widget - UsersOnlineNumberWidget
-- has the <DashboardWidget> node true in the <addon> node of the collection xml file
+  1) Bar Chart Widget - returns `DashboardWidgetBarChartModel`
+  2) HTML Widget - returns `DashboardWidgetHtmlModel`
+  3) Line Chart Widget - returns `DashboardWidgetLineChartModel`
+  4) Pie Chart Widget - returns `DashboardWidgetPieChartModel`
+  5) Number Widget - returns `DashboardWidgetNumberModel`
+- has the `<DashboardWidget>Yes</DashboardWidget>` element in the `<Addon>` node of the collection xml file
+
+### Critical: Return Model Objects, Not HTML Strings
+
+**Dashboard widget addons MUST return a model object (e.g., `DashboardWidgetHtmlModel`), never a plain HTML string.**
+
+The dashboard framework:
+1. JSON-serializes the model object
+2. Passes it to a Mustache template that wraps your content with the proper widget structure (including `id="{{widgetHtmlId}}"`)
+3. Uses JavaScript to dynamically update widgets without page refresh
+4. Relies on the widget ID to find and replace widget content in the DOM
+
+If you return a plain HTML string instead of a model object, the widget will fail when users try to add it to the dashboard because the JavaScript cannot find the widget element by ID.
+
+**Wrong:**
+```csharp
+public override object Execute(CPBaseClass cp) {
+    return "<div>My Widget Content</div>"; // ERROR: Will break when adding to dashboard
+}
+```
+
+**Correct:**
+```csharp
+public override object Execute(CPBaseClass cp) {
+    return new DashboardWidgetHtmlModel() {
+        widgetName = "My Widget",
+        htmlContent = "<div>My Widget Content</div>"
+    };
+}
+```
 
 ### features common to all dashboard widget types
 - executed only from within the WidgetDashboard code
