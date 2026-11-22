@@ -156,6 +156,9 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
                 //
+                // -- build landing page dictionary (maps pageId to canonical domain root, or empty string if config error)
+                Dictionary<int, string> landingPageDict = buildLandingPageDictionary(core);
+                //
                 // -- add link aliases
                 // 221119 - each destination (pageid+qsSuffix) may have mulitple urls (name). if not primary (highest id) link alias for this page/qs, forward to the first
                 Dictionary<string, string> usedPages = [];
@@ -179,6 +182,23 @@ namespace Contensive.Processor.Models.Domain {
                     string mapRoute = localRoute;
                     if (!localRoute.Contains("{*")) {
                         mapRoute += (localRoute.Substring(localRoute.Length - 1, 1).Equals("/") ? "" : "/") + "{*routeSuffix}";
+                    }
+                    //
+                    // -- check if this page is a domain landing page (and has no query string)
+                    // -- landing pages should always redirect to domain root, not to their link alias
+                    bool isLandingPage = landingPageDict.ContainsKey(linkAlias.pageId) && string.IsNullOrEmpty(linkAlias.queryStringSuffix);
+                    if (isLandingPage) {
+                        // Landing page link alias: always redirect to domain root
+                        result.routeDictionary.Add(localRoute, new RouteClass {
+                            physicalRoute = physicalFile,
+                            virtualRoute = mapRoute,
+                            routeType = RouteTypeEnum.linkAlias,
+                            linkAliasId = linkAlias.id,
+                            linkAliasPageId = linkAlias.pageId,
+                            linkAliasRedirect = "/"
+                        });
+                        logger.Debug($"{core.logCommonMessage}, Link alias [{localRoute}] for landing page {linkAlias.pageId} redirects to domain root");
+                        continue;
                     }
                     //
                     // -- if this is not the first linkalias for a destination, save it as a redirect to the first
@@ -265,6 +285,47 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         private static RouteMapModel getCache(CoreController core) {
             return core.cache.getObject<RouteMapModel>(cacheNameRouteMap);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Build a dictionary of pages that are domain landing pages.
+        /// Key: pageId
+        /// Value: empty string (meaning this is the canonical domain for this page)
+        /// If multiple domains use the same landing page (configuration error), use the highest domain ID.
+        /// Returns empty dictionary if query fails (fallback to current behavior).
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        private static Dictionary<int, string> buildLandingPageDictionary(CoreController core) {
+            var result = new Dictionary<int, string>();
+            try {
+                // Query all active domains with landing pages
+                using (var csData = new CsModel(core)) {
+                    csData.open("Domains", "(rootPageId>0)and(active>0)", "rootPageId,id desc", false, 0, "rootPageId,id,name");
+                    while (csData.ok()) {
+                        int pageId = csData.getInteger("rootPageId");
+                        int domainId = csData.getInteger("id");
+                        string domainName = csData.getText("name");
+                        if (pageId > 0) {
+                            if (!result.ContainsKey(pageId)) {
+                                // First occurrence (highest ID due to sort order) - this is the canonical domain
+                                result.Add(pageId, "");
+                                logger.Debug($"{core.logCommonMessage}, Landing page {pageId} canonical domain: {domainName} (id:{domainId})");
+                            } else {
+                                // Duplicate landing page - configuration error, but already logged by status endpoint
+                                logger.Debug($"{core.logCommonMessage}, Landing page {pageId} duplicate domain: {domainName} (id:{domainId})");
+                            }
+                        }
+                        csData.goNext();
+                    }
+                }
+                logger.Debug($"{core.logCommonMessage}, Built landing page dictionary with {result.Count} entries");
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}, Error building landing page dictionary, returning empty dictionary");
+                return new Dictionary<int, string>();
+            }
+            return result;
         }
     }
 }
