@@ -316,18 +316,21 @@ namespace Contensive.Addons.Status {
                         }
                     }
                     if (!blocksMethod) {
-                        resultList.AppendLine("warning, robots.txt does not contain a Disallow rule for method= URLs. Add 'Disallow: /*?*method=' to prevent bots from indexing authentication pages.");
+                        string robotsWarning = "robots.txt does not contain a Disallow rule for method= URLs. Add 'Disallow: /*?*method=' to prevent bots from indexing authentication pages.";
+                        resultList.AppendLine($"warning, {robotsWarning}");
+                        warningsList.Add(robotsWarning);
                     } else {
                         resultList.AppendLine("ok, robots.txt blocks method= URLs.");
                     }
                 }
                 //
-                // -- check for pages used as landing page by multiple domains (configuration error, warning only)
+                // -- check for pages used as landing page by multiple normal domains (configuration error, warning only)
+                // -- only check normal domains (typeId 0 or 1), exclude forwarding domains (typeId 2 or 3)
                 {
                     using (DataTable dt = cp.Db.ExecuteQuery(
                         "select rootPageId, count(*) as domainCount " +
                         "from ccdomains " +
-                        "where (rootPageId > 0) and (active > 0) " +
+                        "where (rootPageId > 0) and (active > 0) and ((typeId is null) or (typeId <= 1)) " +
                         "group by rootPageId " +
                         "having count(*) > 1"
                     )) {
@@ -335,12 +338,12 @@ namespace Contensive.Addons.Status {
                             foreach (DataRow row in dt.Rows) {
                                 int pageId = Convert.ToInt32(row["rootPageId"]);
                                 int domainCount = Convert.ToInt32(row["domainCount"]);
-                                string pageWarning = $"Page ID {pageId} is configured as the landing page for {domainCount} different domains. This creates canonical URL conflicts. Each domain should have a unique landing page.";
+                                string pageWarning = $"Page ID {pageId} is configured as the landing page for {domainCount} different normal domains. This creates canonical URL conflicts. Each domain should have a unique landing page.";
                                 resultList.AppendLine($"warning, {pageWarning}");
                                 warningsList.Add(pageWarning);
                             }
                         } else {
-                            resultList.AppendLine("ok, no duplicate landing pages across domains.");
+                            resultList.AppendLine("ok, no duplicate landing pages across normal domains.");
                         }
                     }
                 }

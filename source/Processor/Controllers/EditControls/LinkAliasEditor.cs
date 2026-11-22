@@ -57,27 +57,60 @@ namespace Contensive.Processor.Controllers.EditControls {
                         int LinkCnt = 0;
                         string currentUrl = "";
                         string previousUrlList = "";
+                        //
+                        // -- check if this page is a domain landing page (canonical is domain root "/")
+                        // -- only check normal domains (typeId 0 or 1), exclude forwarding domains (typeId 2 or 3)
+                        bool isLandingPage = false;
+                        string landingDomainName = "";
+                        using (var csDomain = new CsModel(core)) {
+                            csDomain.open("Domains", $"(rootPageId={adminData.editRecord.id})and(active>0)and((typeId is null)or(typeId<=1))", "id desc", true, 0, "id,name");
+                            if (csDomain.ok()) {
+                                // Page is a landing page for a normal domain - highest ID domain is canonical
+                                isLandingPage = true;
+                                landingDomainName = csDomain.getText("name");
+                            }
+                        }
+                        //
+                        // -- if landing page, domain root is the canonical URL
+                        if (isLandingPage) {
+                            string protocol = core.webServer.requestProtocol;
+                            string domainRoot = $"{protocol}{landingDomainName}";
+                            string domainRootAnchor = $"<div style=\"margin-left:4px;margin-bottom:4px;\"><a href=\"{domainRoot}\" target=\"_blank\">/</a> (domain landing page)</div>";
+                            currentUrl = domainRootAnchor;
+                        }
+                        //
+                        // -- add link aliases (canonical if not landing page, non-canonical if landing page)
                         using (var csData = new CsModel(core)) {
                             csData.open("Link Aliases", $"(pageid={adminData.editRecord.id})and((queryStringSuffix is null)or(queryStringSuffix=''))", "ID Desc", true, 0, "name");
                             while (csData.ok()) {
                                 string name = HtmlController.encodeHtml(csData.getText("name"));
                                 string urlAnchor = $"<div style=\"margin-left:4px;margin-bottom:4px;\"><a href=\"{name}\" target=\"_blank\">{name}</a></div>";
-                                if (string.IsNullOrEmpty(currentUrl)) {
-                                    currentUrl += urlAnchor;
-                                } else {
+                                if (isLandingPage) {
+                                    // Landing page: all link aliases are non-canonical (redirect to domain root)
                                     previousUrlList += urlAnchor;
+                                } else {
+                                    // Not landing page: first link alias is canonical, rest are non-canonical
+                                    if (string.IsNullOrEmpty(currentUrl)) {
+                                        currentUrl += urlAnchor;
+                                    } else {
+                                        previousUrlList += urlAnchor;
+                                    }
                                 }
                                 LinkCnt += 1;
                                 csData.goNext();
                             }
                         }
                         {
-                            string helpDefault = "This is the current URL. Site navigation uses this url..";
+                            string helpDefault = isLandingPage
+                                ? "This is the current canonical URL. This page is set as the domain landing page, so the canonical URL is the domain root. Site navigation uses this url."
+                                : "This is the current canonical URL. Site navigation uses this url.";
                             string editorRow = AdminUIController.getEditRow(core, currentUrl, "Current Page Url", helpDefault, false, false, "", "", false, "ml-5 ms-5 border p-2 bg-white");
                             form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                         }
                         {
-                            string helpDefault = "This list includes all the urls previously assigned to this page. If someone uses these urls, this page will display.";
+                            string helpDefault = isLandingPage
+                                ? "This list includes all the page URLs assigned to this page. Because this page is a domain landing page, these URLs will redirect to the domain root (/) to avoid canonical URL conflicts."
+                                : "This list includes all the URLs previously assigned to this page. If someone uses these URLs, they will redirect to the current page URL above.";
                             string editorRow = AdminUIController.getEditRow(core, previousUrlList, "Previous Page Urls", helpDefault, false, false, "", "", false, "ml-5 ms-5 border p-2 bg-white");
                             form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                         }

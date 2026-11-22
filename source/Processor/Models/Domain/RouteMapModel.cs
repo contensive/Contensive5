@@ -300,9 +300,9 @@ namespace Contensive.Processor.Models.Domain {
         private static Dictionary<int, string> buildLandingPageDictionary(CoreController core) {
             var result = new Dictionary<int, string>();
             try {
-                // Query all active domains with landing pages
+                // Query all active normal domains with landing pages (typeId 0 or 1, exclude forwarding domains 2 and 3)
                 using (var csData = new CsModel(core)) {
-                    csData.open("Domains", "(rootPageId>0)and(active>0)", "rootPageId,id desc", false, 0, "rootPageId,id,name");
+                    csData.open("Domains", "(rootPageId>0)and(active>0)and((typeId is null)or(typeId<=1))", "rootPageId,id desc", false, 0, "rootPageId,id,name");
                     while (csData.ok()) {
                         int pageId = csData.getInteger("rootPageId");
                         int domainId = csData.getInteger("id");
