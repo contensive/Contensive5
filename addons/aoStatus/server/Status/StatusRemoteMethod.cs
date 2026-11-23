@@ -303,8 +303,15 @@ namespace Contensive.Addons.Status {
                 }
                 //
                 // -- check robots.txt blocks method= URLs (warning only, does not fail status)
+                // -- check both site property and addon-contributed rules (same as actual robots.txt endpoint)
                 {
                     string robotsTxt = cp.Site.GetText("robotsTxt");
+                    // Add addon-contributed robots.txt rules (all addons, not just active - matches cache behavior)
+                    foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "")) {
+                        if (!string.IsNullOrWhiteSpace(addon.robotsTxt)) {
+                            robotsTxt += Environment.NewLine + addon.robotsTxt;
+                        }
+                    }
                     bool blocksMethod = false;
                     if (!string.IsNullOrEmpty(robotsTxt)) {
                         foreach (string line in robotsTxt.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {

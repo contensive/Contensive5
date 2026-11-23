@@ -1469,6 +1469,7 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph Description", core.doc.pageController.page.metaDescription);
                 string imageFilename = core.doc.pageController.page.imageFilename.filename;
                 core.docProperties.setProperty("Open Graph Image", string.IsNullOrEmpty(imageFilename) ? string.Empty : HttpController.getCdnFilePathPrefixAbsolute(core) + imageFilename);
+                core.docProperties.setProperty("Open Graph Image Alt", core.doc.pageController.page.metaImageAltText ?? "");
                 return "";
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
