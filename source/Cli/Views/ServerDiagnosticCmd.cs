@@ -32,15 +32,41 @@ namespace Contensive.CLI {
         /// Run server diagnostics for all applications.
         /// Checks server-level metrics and saves JSON results to each app's site property.
         /// </summary>
+        /// <summary>
+        /// Log file path under ProgramData so scheduled-task runs (no console) leave a trace.
+        /// </summary>
+        private static readonly string logFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+            "Contensive", "Logs", "ServerDiagnostic.log");
+        //
+        /// <summary>
+        /// Write a line to both the console and the diagnostic log file.
+        /// </summary>
+        private static void log(StreamWriter logWriter, string message) {
+            Console.WriteLine(message);
+            logWriter?.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}  {message}");
+        }
+        //
         public static void execute(CPClass cpServer) {
+            StreamWriter logWriter = null;
             try {
-                Console.WriteLine("Running server diagnostics for all applications...");
-                Console.WriteLine("");
+                //
+                // -- open log file (overwrite each run so it stays small)
+                try {
+                    Directory.CreateDirectory(Path.GetDirectoryName(logFilePath));
+                    logWriter = new StreamWriter(logFilePath, false) { AutoFlush = true };
+                } catch (Exception exLog) {
+                    Console.WriteLine($"WARNING: Could not open diagnostic log file [{logFilePath}]: {exLog.Message}");
+                }
+                //
+                log(logWriter, "Running server diagnostics for all applications...");
+                log(logWriter, $"Running as: {Environment.UserDomainName}\\{Environment.UserName}");
+                log(logWriter, "");
                 //
                 // ===== Step 1: Check Windows Updates (once for the entire server) =====
                 var windowsUpdateResult = checkWindowsUpdates();
-                Console.WriteLine($"Windows Updates: {windowsUpdateResult.message}");
-                Console.WriteLine("");
+                log(logWriter, $"Windows Updates: {windowsUpdateResult.message}");
+                log(logWriter, "");
                 //
                 // ===== Step 2: Iterate through all applications =====
                 int appCount = 0;
@@ -50,107 +76,162 @@ namespace Contensive.CLI {
                     AppConfigModel app = (AppConfigModel)kvp.Value;
                     appCount++;
                     if (!app.enabled) {
-                        Console.WriteLine($"[{appCount}/{cpServer.core.serverConfig.apps.Count}] Skipping disabled application: {app.name}");
-                        Console.WriteLine("");
+                        log(logWriter, $"[{appCount}/{cpServer.core.serverConfig.apps.Count}] Skipping disabled application: {app.name}");
+                        log(logWriter, "");
                         continue;
                     }
-                    Console.WriteLine($"[{appCount}/{cpServer.core.serverConfig.apps.Count}] Processing application: {app.name}");
+                    log(logWriter, $"[{appCount}/{cpServer.core.serverConfig.apps.Count}] Processing application: {app.name}");
+                    //
+                    // -- each app is wrapped so one failure does not stop the others
+                    CPClass cp = null;
+                    CoreController core = null;
                     try {
-                        using (CPClass cp = new CPClass(app.name)) {
-                            var core = cp.core;
-                            //
-                            // -- create status model
-                            var status = new ServerDiagnosticsStatusModel {
-                                lastCheckDate = DateTime.Now,
-                                windowsUpdateTitles = windowsUpdateResult.updateTitles,
-                                windowsUpdateCount = windowsUpdateResult.updateCount,
-                                windowsUpdateCheckSuccessful = windowsUpdateResult.checkSuccessful,
-                                windowsUpdateErrorMessage = windowsUpdateResult.errorMessage,
-                                domainBindingsValid = true,
-                                domainBindingsErrorMessage = "",
-                                driveSpaceValid = true,
-                                driveSpaceErrorMessage = "",
-                                logFilesValid = true,
-                                logFilesErrorMessage = "",
-                                alarmsValid = true,
-                                alarmsErrorMessage = "",
-                                tlsValid = true,
-                                tlsErrorMessage = "",
-                                allChecksSuccessful = false
-                            };
-                            //
-                            // -- check drive space (10% free on C: and D:)
+                        cp = new CPClass(app.name);
+                        core = cp.core;
+                    } catch (Exception exApp) {
+                        log(logWriter, $"  ERROR: Could not open application [{app.name}]: {exApp.Message}");
+                        log(logWriter, $"  Stack: {exApp.StackTrace}");
+                        errorCount++;
+                        log(logWriter, "");
+                        cp?.Dispose();
+                        continue;
+                    }
+                    try {
+                        //
+                        // -- create status model with defaults (each check is independent)
+                        var status = new ServerDiagnosticsStatusModel {
+                            lastCheckDate = DateTime.Now,
+                            windowsUpdateTitles = windowsUpdateResult.updateTitles,
+                            windowsUpdateCount = windowsUpdateResult.updateCount,
+                            windowsUpdateCheckSuccessful = windowsUpdateResult.checkSuccessful,
+                            windowsUpdateErrorMessage = windowsUpdateResult.errorMessage,
+                            domainBindingsValid = true,
+                            domainBindingsErrorMessage = "",
+                            driveSpaceValid = true,
+                            driveSpaceErrorMessage = "",
+                            logFilesValid = true,
+                            logFilesErrorMessage = "",
+                            alarmsValid = true,
+                            alarmsErrorMessage = "",
+                            tlsValid = true,
+                            tlsErrorMessage = "",
+                            allChecksSuccessful = false
+                        };
+                        //
+                        // -- each check is wrapped individually so a failure in one does not skip the rest
+                        //
+                        // -- check drive space (10% free on C: and D:)
+                        try {
                             checkDriveSpace(status);
-                            //
-                            // -- check log file sizes
+                        } catch (Exception ex) {
+                            status.driveSpaceValid = false;
+                            status.driveSpaceErrorMessage = $"Unhandled exception: {ex.Message}";
+                            log(logWriter, $"  ERROR in driveSpace check: {ex.Message}");
+                        }
+                        //
+                        // -- check log file sizes
+                        try {
                             checkLogFiles(core, status);
-                            //
-                            // -- check alarm folder
+                        } catch (Exception ex) {
+                            status.logFilesValid = false;
+                            status.logFilesErrorMessage = $"Unhandled exception: {ex.Message}";
+                            log(logWriter, $"  ERROR in logFiles check: {ex.Message}");
+                        }
+                        //
+                        // -- check alarm folder
+                        try {
                             checkAlarms(core, status);
-                            //
-                            // -- check domain bindings for this app
+                        } catch (Exception ex) {
+                            status.alarmsValid = false;
+                            status.alarmsErrorMessage = $"Unhandled exception: {ex.Message}";
+                            log(logWriter, $"  ERROR in alarms check: {ex.Message}");
+                        }
+                        //
+                        // -- check domain bindings for this app
+                        try {
                             status.domainBindingsValid = testDomainBindings(cp, out string domainBindingError);
                             status.domainBindingsErrorMessage = domainBindingError;
-                            //
-                            // -- check TLS configuration
+                        } catch (Exception ex) {
+                            status.domainBindingsValid = false;
+                            status.domainBindingsErrorMessage = $"Unhandled exception: {ex.Message}";
+                            log(logWriter, $"  ERROR in domainBindings check: {ex.Message}");
+                        }
+                        //
+                        // -- check TLS configuration
+                        try {
                             checkTls(status);
-                            //
-                            // -- set overall status
-                            status.allChecksSuccessful = status.windowsUpdateCheckSuccessful
-                                && status.domainBindingsValid
-                                && status.driveSpaceValid
-                                && status.logFilesValid
-                                && status.alarmsValid
-                                && status.tlsValid;
-                            //
-                            // -- save to site property
+                        } catch (Exception ex) {
+                            status.tlsValid = false;
+                            status.tlsErrorMessage = $"Unhandled exception: {ex.Message}";
+                            log(logWriter, $"  ERROR in TLS check: {ex.Message}");
+                        }
+                        //
+                        // -- set overall status
+                        status.allChecksSuccessful = status.windowsUpdateCheckSuccessful
+                            && status.domainBindingsValid
+                            && status.driveSpaceValid
+                            && status.logFilesValid
+                            && status.alarmsValid
+                            && status.tlsValid;
+                        //
+                        // -- save to site property (even partial results are useful)
+                        try {
                             string jsonStatus = JsonConvert.SerializeObject(status);
                             cp.Site.SetProperty("ServerDiagnosticsStatus", jsonStatus);
-                            //
-                            // -- report results
-                            if (status.allChecksSuccessful) {
-                                Console.WriteLine($"  All checks passed");
-                                successCount++;
-                            } else {
-                                Console.WriteLine($"  Issues found:");
-                                if (!status.driveSpaceValid) {
-                                    Console.WriteLine($"    - Drive space: {status.driveSpaceErrorMessage}");
-                                }
-                                if (!status.logFilesValid) {
-                                    Console.WriteLine($"    - Log files: {status.logFilesErrorMessage}");
-                                }
-                                if (!status.alarmsValid) {
-                                    Console.WriteLine($"    - Alarms: {status.alarmsErrorMessage}");
-                                }
-                                if (!status.windowsUpdateCheckSuccessful) {
-                                    Console.WriteLine($"    - Windows updates: {status.windowsUpdateErrorMessage}");
-                                }
-                                if (!status.domainBindingsValid) {
-                                    Console.WriteLine($"    - Domain bindings: {status.domainBindingsErrorMessage}");
-                                }
-                                if (!status.tlsValid) {
-                                    Console.WriteLine($"    - TLS: {status.tlsErrorMessage}");
-                                }
-                                errorCount++;
+                        } catch (Exception ex) {
+                            log(logWriter, $"  ERROR: Could not save diagnostics to site property: {ex.Message}");
+                        }
+                        //
+                        // -- report results
+                        if (status.allChecksSuccessful) {
+                            log(logWriter, "  All checks passed");
+                            successCount++;
+                        } else {
+                            log(logWriter, "  Issues found:");
+                            if (!status.driveSpaceValid) {
+                                log(logWriter, $"    - Drive space: {status.driveSpaceErrorMessage}");
                             }
+                            if (!status.logFilesValid) {
+                                log(logWriter, $"    - Log files: {status.logFilesErrorMessage}");
+                            }
+                            if (!status.alarmsValid) {
+                                log(logWriter, $"    - Alarms: {status.alarmsErrorMessage}");
+                            }
+                            if (!status.windowsUpdateCheckSuccessful) {
+                                log(logWriter, $"    - Windows updates: {status.windowsUpdateErrorMessage}");
+                            }
+                            if (!status.domainBindingsValid) {
+                                log(logWriter, $"    - Domain bindings: {status.domainBindingsErrorMessage}");
+                            }
+                            if (!status.tlsValid) {
+                                log(logWriter, $"    - TLS: {status.tlsErrorMessage}");
+                            }
+                            errorCount++;
                         }
                     } catch (Exception ex) {
-                        Console.WriteLine($"  Error processing app: {ex.Message}");
+                        log(logWriter, $"  ERROR processing app [{app.name}]: {ex.Message}");
+                        log(logWriter, $"  Stack: {ex.StackTrace}");
                         errorCount++;
+                    } finally {
+                        cp?.Dispose();
                     }
-                    Console.WriteLine("");
+                    log(logWriter, "");
                 }
                 //
                 // ===== Summary =====
-                Console.WriteLine("================================================================================");
-                Console.WriteLine($"Server Diagnostics Complete");
-                Console.WriteLine($"  Total applications: {appCount}");
-                Console.WriteLine($"  Successful: {successCount}");
-                Console.WriteLine($"  Errors: {errorCount}");
-                Console.WriteLine($"  Windows updates pending: {windowsUpdateResult.updateCount}");
-                Console.WriteLine("================================================================================");
+                log(logWriter, "================================================================================");
+                log(logWriter, "Server Diagnostics Complete");
+                log(logWriter, $"  Total applications: {appCount}");
+                log(logWriter, $"  Successful: {successCount}");
+                log(logWriter, $"  Errors: {errorCount}");
+                log(logWriter, $"  Windows updates pending: {windowsUpdateResult.updateCount}");
+                log(logWriter, "================================================================================");
             } catch (Exception ex) {
-                Console.WriteLine($"ERROR: Unexpected error during server diagnostics: {ex.Message}");
+                string msg = $"ERROR: Unexpected error during server diagnostics: {ex.Message}\n  Stack: {ex.StackTrace}";
+                Console.WriteLine(msg);
+                logWriter?.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}  {msg}");
+            } finally {
+                logWriter?.Dispose();
             }
         }
         //
