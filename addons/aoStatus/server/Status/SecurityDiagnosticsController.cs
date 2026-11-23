@@ -102,9 +102,17 @@ namespace Contensive.Addons.Status {
         //====================================================================================================
         /// <summary>
         /// Check if the site's robots.txt contains a Disallow rule that covers method= URLs.
+        /// Checks both the site property and addon-contributed rules (same as the actual robots.txt endpoint).
         /// </summary>
         private static bool CheckRobotsTxtBlocksMethod(CPBaseClass cp) {
+            // Get site property robots.txt
             string robotsTxt = cp.Site.GetText("robotsTxt");
+            // Add addon-contributed robots.txt rules (all addons, not just active - matches cache behavior)
+            foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "")) {
+                if (!string.IsNullOrWhiteSpace(addon.robotsTxt)) {
+                    robotsTxt += Environment.NewLine + addon.robotsTxt;
+                }
+            }
             if (string.IsNullOrEmpty(robotsTxt)) { return false; }
             foreach (string line in robotsTxt.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
                 string trimmed = line.Trim();

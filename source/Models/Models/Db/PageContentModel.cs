@@ -53,6 +53,7 @@ namespace Contensive.Models.Db {
         public DateTime? dateReviewed { get; set; }
         public string headline { get; set; }
         public FieldTypeFile imageFilename { get; set; }
+        public string metaImageAltText { get; set; }
         /// <summary>
         /// deprecated. https vs http should be controlled by the webserver software.
         /// </summary>

@@ -46,16 +46,16 @@ namespace Contensive.Processor.Addons.PageManager {
                 if (!string.IsNullOrWhiteSpace(ogImage)) {
                     cp.Doc.AddHeadTag($"<meta property=\"og:image\" content=\"{ogImage}\"/>");
                 }
+                AddTag(cp, "og:image:alt", "Open Graph Image Alt");
 
-                // Add Twitter Card meta tags
-                cp.Doc.AddHeadTag("<meta property=\"twitter:card\" content=\"summary\"/>");
-                AddTag(cp, "twitter:description", "Open Graph Description");
-                AddTag(cp, "twitter:title", "Open Graph Title");
-                AddTag(cp, "twitter:url", "Open Graph URL");
+                // Add Twitter Card meta tags (name= is the correct attribute for twitter tags)
+                cp.Doc.AddHeadTag("<meta name=\"twitter:card\" content=\"summary_large_image\"/>");
+                AddTag(cp, "twitter:title", "Open Graph Title", useName: true);
+                AddTag(cp, "twitter:description", "Open Graph Description", useName: true);
 
                 // Add Twitter image tag (reusing the Open Graph image)
                 if (!string.IsNullOrWhiteSpace(ogImage)) {
-                    cp.Doc.AddHeadTag($"<meta property=\"twitter:image\" content=\"{ogImage}\"/>");
+                    cp.Doc.AddHeadTag($"<meta name=\"twitter:image\" content=\"{ogImage}\"/>");
                 }
                 return "";
             } catch (Exception ex) {
@@ -70,7 +70,7 @@ namespace Contensive.Processor.Addons.PageManager {
         /// <param name="cp">The CPBaseClass instance</param>
         /// <param name="ogName">The Open Graph property name (e.g., "og:title", "twitter:description")</param>
         /// <param name="key">The property key to retrieve the value from document or site properties</param>
-        private void AddTag(CPBaseClass cp, string ogName, string key) {
+        private void AddTag(CPBaseClass cp, string ogName, string key, bool useName = false) {
 
             // Try to get value from document properties first, If not found in document, try site properties
             string ogValue = cp.Doc.GetText(key, "");
@@ -83,7 +83,8 @@ namespace Contensive.Processor.Addons.PageManager {
                 return;
             }
             string encodedValue = cp.Utils.EncodeHTML(ogValue);
-            cp.Doc.AddHeadTag($"<meta property=\"{ogName}\" content=\"{encodedValue}\"/>");
+            string attr = useName ? "name" : "property";
+            cp.Doc.AddHeadTag($"<meta {attr}=\"{ogName}\" content=\"{encodedValue}\"/>");
         }
     }
 }

@@ -82,6 +82,14 @@ namespace Contensive.Processor.Controllers {
             string canonicalPath;
             if (!string.IsNullOrEmpty(overrideCanonicalPath)) {
                 canonicalPath = overrideCanonicalPath;
+                //
+                // -- defensive check: if override path is "/" and this is a landing page, ensure we use domain root
+                // -- (this should already be handled by the landing page check above, but provides extra safety)
+                if (canonicalPath.Equals("/") && pageId == core.domain.rootPageId && pageId != 0) {
+                    string domainRoot = $"{core.webServer.requestProtocol}{core.webServer.requestDomain}";
+                    core.html.addHeadTag($"<link rel=\"canonical\" href=\"{domainRoot}\">", "canonical tag");
+                    return;
+                }
             } else {
                 canonicalPath = LinkAliasController.getLinkAlias(core, pageId, queryStringSuffix, "");
             }
