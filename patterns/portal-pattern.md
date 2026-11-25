@@ -39,20 +39,63 @@ Within each portal there can be one or more Portal Features. Each Portal Feature
 - an Addon Feature has the addon node populated with the Addon to be executed.
 - A feature should populate both addonid and datacontentid. If it does, it is an Addon Feature.
 
-An Addon Feature should include
-- An authorization test requiring the admin role
-- a verification that the addon is running within the port. If not it should redirect
-- this is a typical example of these tests:
+### Portal Feature Addon Required Gates
 
-	// 
-	// -- authenticate/authorize
-	if (!CP.User.IsAdmin)
-		return "<p class=\">You are not authorized to use this application.</p>";
-	// 
-	// -- validate portal environment
-	if (!CP.AdminUI.EndpointContainsPortal())
-		return CP.AdminUI.RedirectToPortalFeature( (guid of portal), ( guid of portal feature ), "");
-	// 
+Every addon that runs as a portal feature **must** include two gates at the top of its `Execute` method, before any other logic. These gates ensure the addon runs only in its intended context. A portal feature addon is designed to run within the portal and nowhere else — if invoked outside the portal (e.g., via a direct URL or misrouted request), it must redirect back to the portal.
+
+**Gate 1 — Authorization check (defense in depth)**
+
+Even though portal access is controlled by role-based permissions on the portal and portal feature records, the addon must independently verify the user is authorized. This provides defense in depth — if a portal permission is misconfigured, the addon still blocks unauthorized access.
+
+```csharp
+if (!cp.User.IsAdmin) {
+    return "<p>You are not authorized to use this application.</p>";
+}
+```
+
+`cp.User.IsAdmin` returns true only if the user is both authenticated and has the admin role, so a separate `IsAuthenticated` check is not needed.
+
+**Gate 2 — Validate portal environment**
+
+A portal feature addon is designed to run within its portal. If the addon is executed outside the portal context (the current endpoint does not contain the portal), it must redirect to the correct portal and feature. This ensures the portal navigation, breadcrumbs, and feature context are present.
+
+```csharp
+if (!cp.AdminUI.EndpointContainsPortal()) {
+    return cp.AdminUI.RedirectToPortalFeature(portalGuid, portalFeatureGuid, "");
+}
+```
+
+- `cp.AdminUI.EndpointContainsPortal()` returns `true` when the addon is running inside any portal environment.
+- `cp.AdminUI.RedirectToPortalFeature(portalGuid, portalFeatureGuid, qs)` returns a redirect response that sends the user to the specified portal and feature, with an optional query string.
+- `portalGuid` is the GUID of the portal this feature belongs to.
+- `portalFeatureGuid` is the GUID of the portal feature record for this addon.
+
+**Combined pattern — required at the top of every portal feature addon:**
+
+```csharp
+public override object Execute(CPBaseClass cp) {
+    try {
+        //
+        // -- authenticate/authorize
+        if (!cp.User.IsAdmin) {
+            return "<p>You are not authorized to use this application.</p>";
+        }
+        //
+        // -- validate portal environment
+        if (!cp.AdminUI.EndpointContainsPortal()) {
+            return cp.AdminUI.RedirectToPortalFeature(portalGuid, thisPortalFeatureGuid, "");
+        }
+        //
+        // -- addon logic starts here
+        // ...
+    } catch (Exception ex) {
+        cp.Site.ErrorReport(ex);
+        throw;
+    }
+}
+```
+
+These two gates must appear in this order, before any button handling, data queries, or UI rendering. Omitting either gate is a defect.
 
 The Portal creates a navigation element at the top of the portal and executes the current portal feature under the navigation.
 

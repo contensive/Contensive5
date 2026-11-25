@@ -225,29 +225,15 @@ function Install-Cli {
 }
 
 function Install-ScheduledTask {
-    Write-Step "Creating scheduled task: Contensive Server Diagnostics"
+    Write-Step "Configuring scheduled task: Contensive Server Diagnostics"
 
     $taskName = "Contensive Server Diagnostics"
     $ccExePath = Join-Path $InstallPath "Cli\cc.exe"
-
-    # Remove existing task if present (clean install)
-    try {
-        $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-        if ($existing) {
-            Write-Host "  Removing existing scheduled task"
-            Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-        }
-    }
-    catch {
-        Write-Host "  Could not query scheduled tasks (CIM unavailable), continuing: $_" -ForegroundColor Yellow
-    }
 
     $action = New-ScheduledTaskAction -Execute $ccExePath -Argument "--serverdiagnostic"
 
     # Trigger every 15 minutes, repeating indefinitely (25 years ≈ forever, avoids TimeSpan.MaxValue XML overflow)
     $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days 9131)
-
-    $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 
     $settings = New-ScheduledTaskSettingsSet `
         -AllowStartIfOnBatteries `
@@ -255,15 +241,36 @@ function Install-ScheduledTask {
         -StartWhenAvailable `
         -ExecutionTimeLimit (New-TimeSpan -Minutes 10)
 
-    Register-ScheduledTask `
-        -TaskName $taskName `
-        -Action $action `
-        -Trigger $trigger `
-        -Principal $principal `
-        -Settings $settings `
-        -Description "Runs cc.exe --serverdiagnostic every 15 minutes for all Contensive applications" | Out-Null
+    # If the task already exists, update action/trigger/settings but preserve the principal (run-as user).
+    # This prevents upgrades from resetting a manually configured service account back to SYSTEM.
+    try {
+        $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    }
+    catch {
+        Write-Host "  Could not query scheduled tasks (CIM unavailable), continuing: $_" -ForegroundColor Yellow
+        $existing = $null
+    }
 
-    Write-Host "  Scheduled task '$taskName' created (runs every 15 minutes)" -ForegroundColor Green
+    if ($existing) {
+        Write-Host "  Updating existing scheduled task (preserving run-as account)"
+        Set-ScheduledTask `
+            -TaskName $taskName `
+            -Action $action `
+            -Trigger $trigger `
+            -Settings $settings | Out-Null
+        Write-Host "  Scheduled task '$taskName' updated (runs every 15 minutes)" -ForegroundColor Green
+    } else {
+        Write-Host "  Creating new scheduled task"
+        $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+        Register-ScheduledTask `
+            -TaskName $taskName `
+            -Action $action `
+            -Trigger $trigger `
+            -Principal $principal `
+            -Settings $settings `
+            -Description "Runs cc.exe --serverdiagnostic every 15 minutes for all Contensive applications" | Out-Null
+        Write-Host "  Scheduled task '$taskName' created as SYSTEM (runs every 15 minutes)" -ForegroundColor Green
+    }
 }
 
 # ============================================================

@@ -800,7 +800,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (contentMetadata != null) { sqlWhere.Append("AND(" + contentMetadata.legacyContentControlCriteria + ")"); }
                 }
                 //
-                // Return_sqlFrom and Where Clause for Groups filter
+                // Where Clause for Groups filter (uses EXISTS subquery to avoid duplicate rows)
                 int Ptr = 0;
                 if (adminData.adminContent.tableName.ToLowerInvariant() == "ccmembers") {
                     if (gridConfig.groupListCnt > 0) {
@@ -812,8 +812,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     GroupID = GenericController.getInteger(GroupName);
                                 }
                                 string groupTableAlias = "GroupFilter" + Ptr;
-                                sqlWhere.Append($"AND({groupTableAlias}.GroupID={GroupID})and({groupTableAlias}.active>0)and(({groupTableAlias}.dateExpires is null)or({groupTableAlias}.dateExpires>{core.sqlDateTimeMockable}))");
-                                return_sqlFrom = "(" + return_sqlFrom + " INNER JOIN ccMemberRules AS GroupFilter" + Ptr + " ON GroupFilter" + Ptr + ".memberId=ccMembers.ID)";
+                                sqlWhere.Append($"AND EXISTS(select 1 from ccMemberRules {groupTableAlias} where {groupTableAlias}.memberId=ccMembers.ID and {groupTableAlias}.GroupID={GroupID} and {groupTableAlias}.active>0 and ({groupTableAlias}.dateExpires is null or {groupTableAlias}.dateExpires>{core.sqlDateTimeMockable}))");
                             }
                         }
                     }

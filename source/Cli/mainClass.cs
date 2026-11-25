@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using Contensive.Processor;
 using Contensive.Processor.Models.Domain;
-using System.Security.Principal;
 using Contensive.CLI.Controllers;
 
 namespace Contensive.CLI {
@@ -50,7 +49,7 @@ namespace Contensive.CLI {
                             case "--domain":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("The --domain command requires elevated permissions (run as administrator).");
                                     return;
                                 }
@@ -64,7 +63,7 @@ namespace Contensive.CLI {
                             case "--iisrecycle":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("The --iisrecycle command requires elevated permissions (run as administrator).");
                                     return;
                                 }
@@ -81,7 +80,7 @@ namespace Contensive.CLI {
                             case "--serverdiagnostics": {
                                     //
                                     // -- require elevated permissions
-                                    if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                    if (!Controllers.GenericController.isElevated()) {
                                         Console.WriteLine("The --serverdiagnostic command requires elevated permissions (run as administrator).");
                                         return;
                                     }                                    
@@ -221,7 +220,7 @@ namespace Contensive.CLI {
                             case "-n":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("The --newapp (-n) command requires elevated permissions (run as administrator).");
                                     return;
                                 }
@@ -236,7 +235,7 @@ namespace Contensive.CLI {
                             case "-nf":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("The --newappframework (-nf) command requires elevated permissions (run as administrator).");
                                     return;
                                 }
@@ -324,7 +323,7 @@ namespace Contensive.CLI {
                             case "--delete":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("This command requires elevated permissions (run as administrator).");
                                     return;
                                 }
@@ -382,7 +381,7 @@ namespace Contensive.CLI {
                             case "--verifybasicwebsite":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("The command requires elevated Administrator permissions.");
                                     return;
                                 }
@@ -412,7 +411,7 @@ namespace Contensive.CLI {
                             case "--migratewebroot":
                                 //
                                 // -- require elevated permissions
-                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                if (!Controllers.GenericController.isElevated()) {
                                     Console.WriteLine("The --migratewebroot command requires elevated permissions (run as administrator).");
                                     return;
                                 }

@@ -7218,10 +7218,11 @@
     ]
   },
   {
-    "pattern": "Expanse",
+    "pattern": "[Xx]panse",
     "addition_date": "2024/02/01",
     "instances": [
-      "Expanse, a Palo Alto Networks company, searches across the global IPv4 space multiple times per day to identify customers&#39; presences on the Internet. If you would like to be excluded from our scans, please send IP addresses/domains to: scaninfo@paloaltonetworks.com"
+      "Expanse, a Palo Alto Networks company, searches across the global IPv4 space multiple times per day to identify customers&#39; presences on the Internet. If you would like to be excluded from our scans, please send IP addresses/domains to: scaninfo@paloaltonetworks.com",
+      "Hello from Palo Alto Networks, find out more about our scans in https://docs-cortex.paloaltonetworks.com/r/1/Cortex-Xpanse/Scanning-activity"
     ],
     "url": "https://www.paloaltonetworks.com/cortex/cortex-xpanse",
     "description": "Palo Alto Networks Expanse bot for internet asset discovery",
@@ -8346,18 +8347,6 @@
     "description": "Direqt's AI search indexer",
     "tags": [
       "ai-crawler"
-    ]
-  },
-  {
-    "pattern": "AP3A\\.240617\\.008",
-    "url": "https://knownagents.com/agents/008",
-    "instances": [
-      "Mozilla/5.0 (Linux; Android 15; CPH2557 Build/AP3A.240617.008; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/142.0.7444.142 Mobile Safari/537.36 Instagram 406.0.0.58.159 Android (35/15; 480dpi; 1080x2400; OPPO; CPH2557; OP573DL1; mt6833; en_MY; 822918295; IABMV/1) NV/1"
-    ],
-    "addition_date": "2026/04/26",
-    "description": "80legs web scraping service",
-    "tags": [
-      "scanner"
     ]
   },
   {
@@ -18246,18 +18235,6 @@
     ]
   },
   {
-    "pattern": "Zapier",
-    "url": "https://zapier.com/",
-    "instances": [
-      "Zapier"
-    ],
-    "description": "Automation client fetching web pages metadata and content for workflow integration",
-    "addition_date": "2026/04/17",
-    "tags": [
-      "seo"
-    ]
-  },
-  {
     "pattern": "Zendesk Webhook",
     "url": "https://support.zendesk.com/",
     "instances": [
@@ -18550,6 +18527,55 @@
     "description": "SeltzSitemapFetcher reads sitemaps for the Seltz web search index, which is built for AI agents and apps.",
     "tags": [
       "ai-crawler"
+    ]
+  },
+  {
+    "pattern": "NVIDIABOT",
+    "url": "https://www.nvidia.com/en-us/security/",
+    "instances": [
+      "[NVIDIA]-[PSIRT@nvidia.com]-[NSPECT-I05S-FIEU]-[NVIDIABOT]"
+    ],
+    "addition_date": "2026/11/19",
+    "description": "Self-identifying scanner of the NVIDIA Product Security team; the User-Agent carries its contact address psirt@nvidia.com and the scan identifier NSPECT-I05S-FIEU.",
+    "tags": [
+      "scanner"
+    ]
+  },
+  {
+    "pattern": "EnfiladeBot",
+    "addition_date": "2026/11/07",
+    "url": "https://enfilade.guide/en/about-our-crawler",
+    "instances": [
+      "EnfiladeBot/1.0 (+https://enfilade.guide/en/about-our-crawler)"
+    ],
+    "description": "EnfiladeBot is the crawler of the Enfilade museum catalogue. It reads the pages of museum websites listed in the catalogue for opening hours, prices, tickets and exhibitions, at most one request per host every 2 seconds. It obeys robots.txt (RFC 9309) and signs its requests with HTTP Message Signatures (Web Bot Auth).",
+    "tags": [
+      "monitoring"
+    ]
+  },
+  {
+    "pattern": "HatchFeed",
+    "url": "https://agent.meta.ai",
+    "instances": [
+      "HatchFeed/1.0 (+https://agent.meta.ai; link preview)"
+    ],
+    "addition_date": "2026/11/16",
+    "description": "Link-preview fetcher of Meta's Muse AI agent (agent.meta.ai redirects to muse.ai). It fetches pages and their Open Graph images shortly after a signed meta-webindexer request from the same Cloudflare IPv6 range, and does not request robots.txt.",
+    "tags": [
+      "social-preview"
+    ]
+  },
+  {
+    "pattern": "AIManagedAgents-Agent",
+    "url": "https://agents.needmomentum.com/",
+    "instances": [
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36 AIManagedAgents-Agent/1.0 (+https://agents.needmomentum.com/)",
+      "AIManagedAgents-Agent/1.0 (+https://agents.needmomentum.com/)"
+    ],
+    "addition_date": "2026/11/15",
+    "description": "Website monitoring and operations agent operated by AI Managed Agents. It reads robots.txt first, makes read-only requests to public pages and signs its requests with Web Bot Auth.",
+    "tags": [
+      "monitoring"
     ]
   }
 ]
