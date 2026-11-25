@@ -308,13 +308,25 @@ namespace Contensive.Processor.Controllers {
             //
             // -- the expected prefix is tablename/fieldname/ (lowercase, spaces and dots replaced with underscores)
             string expectedPrefix = FileController.getVirtualTableFieldUnixPath(tableName, fieldName);
-            string filenameLower = filename.Replace("\\", "/").ToLowerInvariant();
+            string normalizedFilename = filename.Replace("\\", "/");
+            string filenameLower = normalizedFilename.ToLowerInvariant();
             if (!filenameLower.StartsWith(expectedPrefix)) { return; }
             //
-            // -- extract the folder path (everything up to and including the last slash)
-            int lastSlash = filename.Replace("\\", "/").LastIndexOf('/');
-            if (lastSlash <= 0) { return; }
-            string folderPath = filename.Substring(0, lastSlash + 1);
+            // -- only delete the folder if the file is inside a record-specific subfolder
+            // -- auto-managed paths: tablename/fieldname/recordnumber/filename (upload files with thumbnails)
+            // -- flat paths: tablename/fieldname/recordid.js (CSS, JS, XML — no subfolder)
+            // -- the folder after the prefix must be a subfolder, not the file itself
+            string afterPrefix = normalizedFilename.Substring(expectedPrefix.Length);
+            int slashInRemainder = afterPrefix.IndexOf('/');
+            if (slashInRemainder <= 0) {
+                //
+                // -- no subfolder after tablename/fieldname/, this is a flat file (e.g. .js, .css)
+                // -- do NOT delete the shared tablename/fieldname/ folder
+                return;
+            }
+            //
+            // -- extract the record-specific folder (tablename/fieldname/recordnumber/)
+            string folderPath = $"{expectedPrefix}{afterPrefix.Substring(0, slashInRemainder + 1)}";
             fileSystem.deleteFolder(folderPath);
         }
         //
