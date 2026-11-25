@@ -102,33 +102,9 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- assign domain
-            // -- find match in domain table, else check for match in app.domains and verify domain table record, else verify wildcard match "*" domain record
-            DomainModel testDomain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, requestDomain.ToLowerInvariant());
-            if (testDomain == null) {
-                //
-                // -- domain not found, if a match is in app.config list, add the record
-                if (core.appConfig.domainList.Count > 0) {
-                    //
-                    // -- find match to an app-config domain
-                    foreach (var appDomain in core.appConfig.domainList) {
-                        if (appDomain.ToLowerInvariant() == requestDomain.ToLowerInvariant()) {
-                            //
-                            // -- matching domain found, add it to the domains table and go with it
-                            testDomain = DbBaseModel.addDefault<DomainModel>(core.cpParent);
-                            testDomain.name = appDomain;
-                            testDomain.save(core.cpParent);
-                            break;
-                        }
-                    }
-                }
-            }
-            if (testDomain == null) {
-                //
-                // -- request domain not in domains table  and not in app.config - use the wildcard domain
-                testDomain = DomainModel.getWildcardDomain(core.cpParent);
-                logger.Warn($"{core.logCommonMessage}, domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
-            }
-            core.domain = testDomain;
+            // -- uses a cached dictionary of all domains keyed by name, invalidated when ccdomains table changes
+            // -- if requested domain not found, falls back to wildcard "*" domain
+            core.domain = DomainModel.getDomainForRequest(core.cpParent, requestDomain);
             //
             // -- act on domain
             if (!core.domain.visited) {

@@ -1,5 +1,6 @@
 ﻿
 using Contensive.BaseClasses;
+using System;
 using System.Collections.Generic;
 using System.Data;
 
@@ -50,6 +51,57 @@ namespace Contensive.Models.Db {
         /// the default code to execute for this domain
         /// </summary>
         public int defaultRouteId { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Cache key for the domain-name-to-DomainModel dictionary
+        /// </summary>
+        private const string domainDictCacheKey = "domainDictByName";
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Look up a domain by request domain name using a cached dictionary of all domains.
+        /// The cache is invalidated when any record in ccdomains changes.
+        /// If the requested domain is not found, the wildcard "*" domain is returned.
+        /// If no wildcard exists, it is created.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="requestDomainName">The domain name from the incoming request</param>
+        /// <returns></returns>
+        public static DomainModel getDomainForRequest(CPBaseClass cp, string requestDomainName) {
+            //
+            // -- try cache first
+            var domainDict = cp.Cache.GetObject<Dictionary<string, DomainModel>>(domainDictCacheKey);
+            if (domainDict == null) {
+                //
+                // -- cache miss, load all domains and build dictionary keyed by lowercase name
+                domainDict = new Dictionary<string, DomainModel>(StringComparer.OrdinalIgnoreCase);
+                List<DomainModel> allDomains = createList<DomainModel>(cp);
+                foreach (var domain in allDomains) {
+                    if (!string.IsNullOrWhiteSpace(domain.name)) {
+                        domainDict[domain.name.ToLowerInvariant()] = domain;
+                    }
+                }
+                //
+                // -- store with dependency on ccdomains table so it invalidates on any domain record change
+                string tableDependencyKey = cp.Cache.CreateTableDependencyKey(tableMetadata.tableNameLower);
+                cp.Cache.Store(domainDictCacheKey, domainDict, new List<string> { tableDependencyKey });
+            }
+            //
+            // -- look up the requested domain
+            string lookupKey = (requestDomainName ?? "").ToLowerInvariant();
+            if (domainDict.TryGetValue(lookupKey, out DomainModel result)) {
+                return result;
+            }
+            //
+            // -- not found, use wildcard
+            if (domainDict.TryGetValue("*", out DomainModel wildcard)) {
+                return wildcard;
+            }
+            //
+            // -- no wildcard in cache, create one (this also adds it to the db which will invalidate the cache for next request)
+            return getWildcardDomain(cp);
+        }
         //
         //====================================================================================================
         /// <summary>
