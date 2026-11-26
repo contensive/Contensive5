@@ -101,9 +101,15 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         // ----- objects constructed that must be disposed
         /// <summary>
-        /// AWS client. Dispose on close
+        /// Redis connection. When redisConnectionIsShared it belongs to SharedRedisConnectionPool and must never be closed or disposed here.
+        /// Otherwise (enableSharedRedisConnection=false) it was created by this instance: dispose on close.
         /// </summary>
         private readonly ConnectionMultiplexer redisConnectionGroup;
+        //
+        /// <summary>
+        /// true if redisConnectionGroup is the process-wide shared multiplexer (do not dispose)
+        /// </summary>
+        private readonly bool redisConnectionIsShared;
         //
         private readonly IDatabase redisDb;
         //
@@ -151,6 +157,28 @@ namespace Contensive.Processor.Controllers {
         public int requestScopedCacheCount => l1?.count ?? 0;
         //
         // ====================================================================================================
+        // ----- shared redis connection (job 20261126-contensive-render-speed, amendment A1)
+        /// <summary>
+        /// Diagnostic and test hook. The Redis multiplexer used by this controller, or null. Never close or dispose it.
+        /// </summary>
+        public ConnectionMultiplexer redisConnection => redisConnectionGroup;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. True if this controller uses the process-wide shared Redis multiplexer.
+        /// </summary>
+        public bool redisConnectionShared => redisConnectionIsShared;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. Number of times the shared pool registered its connection handlers (one per shared multiplexer created in this process).
+        /// </summary>
+        public static int sharedRedisHandlerRegistrations => SharedRedisConnectionPool.shared.handlerRegistrations;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. Number of endpoints with a shared multiplexer in this process.
+        /// </summary>
+        public static int sharedRedisConnectionCount => SharedRedisConnectionPool.shared.count;
+        //
+        // ====================================================================================================
         /// <summary>
         /// return true if the current config cache server is valid
         /// </summary>
@@ -185,7 +213,24 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Redis implementation
                 string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
-                if (!string.IsNullOrEmpty(cacheEndpoint)) {
+                if (!string.IsNullOrEmpty(cacheEndpoint) && core.serverConfig.enableSharedRedisConnection) {
+                    //
+                    // -- shared multiplexer per process and endpoint. Handlers are registered once by the pool. Connect time is only paid by the first request.
+                    long redisConnectStart = core.profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
+                    redisConnectionGroup = SharedRedisConnectionPool.shared.get(cacheEndpoint);
+                    if (redisConnectStart != 0) { core.profiler?.recordRedisConnect(System.Diagnostics.Stopwatch.GetTimestamp() - redisConnectStart); }
+                    if (redisConnectionGroup == null) {
+                        //
+                        // -- a recent connect failed, the endpoint is in back-off. Continue without remote cache, as after a failed connect
+                        logger.Debug($"{core.logCommonMessage},Redis connect is in back-off after a failed attempt, will continue with remote cache disabled for this request.");
+                        return;
+                    }
+                    redisConnectionIsShared = true;
+                    redisDb = redisConnectionGroup.GetDatabase();
+                    remoteCacheInitialized = true;
+                } else if (!string.IsNullOrEmpty(cacheEndpoint)) {
+                    //
+                    // -- enableSharedRedisConnection=false: one connection per CacheController, disposed with it (behaviour before A1)
                     var options = ConfigurationOptions.Parse(cacheEndpoint);
                     options.AbortOnConnectFail = false;
                     options.ConnectTimeout = 5000;
@@ -1088,7 +1133,9 @@ namespace Contensive.Processor.Controllers {
                 if (disposing) {
                     l1?.clear();
                     l1 = null;
-                    if (redisConnectionGroup != null) {
+                    //
+                    // -- never close the shared multiplexer, other requests use it
+                    if ((redisConnectionGroup != null) && !redisConnectionIsShared) {
                         redisConnectionGroup.Close();
                         redisConnectionGroup.Dispose();
                     }

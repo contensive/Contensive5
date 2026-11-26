@@ -244,6 +244,12 @@ namespace Contensive.Processor.Models.Domain {
         /// and in memory-only mode. Default true. Job 20261126-contensive-render-speed.
         /// </summary>
         public bool enableRequestScopedCache { get; set; }
+        //
+        /// <summary>
+        /// If true, all cores in the process share one Redis connection (ConnectionMultiplexer) per endpoint, created on first use and kept open.
+        /// If false, each core opens its own connection and closes it at the end (behaviour before job 20261126-contensive-render-speed). Only affects Redis mode. Default true.
+        /// </summary>
+        public bool enableSharedRedisConnection { get; set; }
 
         //
         //====================================================================================================
@@ -269,6 +275,7 @@ namespace Contensive.Processor.Models.Domain {
             enableRenderProfiler = false;
             disableAddonRulesCache = false;
             enableRequestScopedCache = true;
+            enableSharedRedisConnection = true;
             //
             // -- secrets from secret manager
             defaultDataSourceAddress = "";
