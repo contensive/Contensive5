@@ -767,8 +767,15 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- render profile comment, admin only. Appended after minify so it is not stripped. Never emitted for anonymous users or non-admins.
-                        if (core.profiler != null && core.session.isAuthenticatedAdmin()) {
-                            result.Append(core.profiler.getHtmlComment(core));
+                        // -- profiler output must never fail the render, so any exception is logged and swallowed
+                        if (core.profiler != null) {
+                            try {
+                                if (core.session?.isAuthenticatedAdmin() ?? false) {
+                                    result.Append(core.profiler.getHtmlComment(core));
+                                }
+                            } catch (Exception ex) {
+                                logger.Warn(ex, $"{RenderProfilerController.getSafeLogCommonMessage(core)},render profiler output failed");
+                            }
                         }
                     }
                 }

@@ -436,7 +436,14 @@ namespace Contensive.Processor.Controllers {
                     long l1Start = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     bool l1Hit = l1Read.tryGet(keyHash.hash, out CacheDocumentClass l1Doc, out l1Miss);
                     if (l1Miss) { typeMessage = "request-l1-negative"; }
-                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.L1, l1Hit, System.Diagnostics.Stopwatch.GetTimestamp() - l1Start); }
+                    if (profiler != null) {
+                        long l1Ticks = System.Diagnostics.Stopwatch.GetTimestamp() - l1Start;
+                        if (l1Miss) {
+                            profiler.recordL1Negative(l1Ticks);
+                        } else {
+                            profiler.recordCacheRead(RenderProfilerController.CacheTier.L1, l1Hit, l1Ticks);
+                        }
+                    }
                     if (l1Hit && !l1Miss) {
                         if (l1Doc.dependentKeyHashList == null) { l1Doc.dependentKeyHashList = new List<CacheKeyHashClass>(); }
                         logger.Trace($"{core.logCommonMessage},cache hit, cacheType [request-l1], key [{keyHash.key}], saveDate [{l1Doc.saveDate}]");

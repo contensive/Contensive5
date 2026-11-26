@@ -157,9 +157,108 @@ public class RenderProfilerTests {
         Assert.IsTrue(comment.EndsWith("-->"));
         Assert.IsTrue(comment.Contains("sql=1/"));
         Assert.IsTrue(comment.Contains("cold=true(metadata)"));
-        Assert.IsTrue(comment.Contains("bad- -name"), "double dash in addon name is escaped");
+        Assert.IsTrue(comment.Contains("bad-name"), "a run of hyphens in an addon name becomes one hyphen");
+        Assert.IsTrue(comment.Contains("l1neg=0"));
         // only one "-->" and it is the last
         Assert.AreEqual(comment.Length - 3, comment.IndexOf("-->"));
+    }
+    //
+    //====================================================================================================
+    // -- review m1: addon names are allow-listed, so nothing in a name can close the comment
+    [TestMethod]
+    public void profiler_htmlComment_hostileNames_unit() {
+        var p = new RenderProfilerController();
+        string[] names = ["x--->y", "x--!>y", "x-->y", "a->b", "<script>alert(1)</script>", "--", "---", "-", "x- ->y", "\u2014\u2014>z", "ok name (v1.2)_a-b"];
+        int id = 1;
+        foreach (string name in names) {
+            p.addonEnter(id, name);
+            p.addonExit(id);
+            id++;
+        }
+        string comment = p.getHtmlComment(null);
+        Assert.IsTrue(comment.StartsWith("<!--"));
+        // the text between the opening "<!--" and the closing "-->"
+        string body = comment.Substring(4, comment.Length - 7);
+        Assert.IsFalse(body.Contains("--", StringComparison.Ordinal), $"no double hyphen inside the comment: {comment}");
+        Assert.IsFalse(body.Contains('>'), $"no > inside the comment: {comment}");
+        Assert.IsFalse(body.Contains('<'), $"no < inside the comment: {comment}");
+        Assert.IsTrue(comment.Contains("ok name (v1.2)_a-b"), "allowed characters are kept");
+        Assert.AreEqual(comment.Length - 3, comment.IndexOf("-->"));
+    }
+    //
+    [TestMethod]
+    public void profiler_safeCommentText_unit() {
+        Assert.AreEqual("", RenderProfilerController.getSafeCommentText(null));
+        Assert.AreEqual("", RenderProfilerController.getSafeCommentText(""));
+        Assert.AreEqual("x-_y", RenderProfilerController.getSafeCommentText("x--->y"));
+        Assert.AreEqual("x-__y", RenderProfilerController.getSafeCommentText("x--!>y"));
+        Assert.AreEqual("_script_", RenderProfilerController.getSafeCommentText("<script>"));
+        Assert.AreEqual("Page Manager (v2.0)_x-y.z", RenderProfilerController.getSafeCommentText("Page Manager (v2.0)_x-y.z"));
+        Assert.AreEqual(100, RenderProfilerController.getSafeCommentText(new string('a', 500)).Length);
+    }
+    //
+    //====================================================================================================
+    // -- review n1: an L1 negative entry is counted apart from L1 hits and misses
+    [TestMethod]
+    public void profiler_l1Negative_separate_unit() {
+        var p = new RenderProfilerController();
+        p.recordCacheRead(RenderProfilerController.CacheTier.L1, true, 3);
+        p.recordL1Negative(4);
+        p.recordL1Negative(5);
+        Assert.AreEqual(1, p.cacheHits(RenderProfilerController.CacheTier.L1));
+        Assert.AreEqual(0, p.cacheMisses(RenderProfilerController.CacheTier.L1));
+        Assert.AreEqual(2, p.l1Negative);
+        Assert.AreEqual(12, p.cacheTicks(RenderProfilerController.CacheTier.L1), "negative-entry time is part of the L1 tier time");
+        var parsed = Newtonsoft.Json.Linq.JObject.Parse(p.getLogJson(null));
+        Assert.AreEqual(2, (long)parsed["cache"]["l1Negative"]);
+        Assert.AreEqual(1, (long)parsed["cache"]["l1"]["hit"]);
+    }
+    //
+    //====================================================================================================
+    // -- review M1: the log json is null-safe and writeLog closes the profiler
+    [TestMethod]
+    public void profiler_logJson_nullCore_unit() {
+        var p = new RenderProfilerController();
+        p.recordSql(10);
+        var parsed = Newtonsoft.Json.Linq.JObject.Parse(p.getLogJson(null));
+        Assert.IsTrue((bool)parsed["anon"]);
+        Assert.AreEqual("", (string)parsed["path"]);
+        Assert.AreEqual(0, (int)parsed["pageId"]);
+        Assert.AreEqual("none", (string)parsed["cacheMode"]);
+        Assert.AreEqual("", RenderProfilerController.getSafeLogCommonMessage(null));
+        p.writeLog(null);
+        Assert.IsTrue(p.closed);
+    }
+    //
+    //====================================================================================================
+    // -- review M1: a core whose session has no visit (isAuthenticated would throw) still writes the line and disposes cleanly
+    [TestMethod]
+    public void profiler_dispose_visitNull_noThrow() {
+        var target = new NLog.Targets.MemoryTarget("renderProfileVisitNullTest") { Layout = "${message}" };
+        var config = NLog.LogManager.Configuration ?? new NLog.Config.LoggingConfiguration();
+        config.AddTarget(target);
+        var rule = new NLog.Config.LoggingRule("Contensive.RenderProfile", NLog.LogLevel.Info, target);
+        config.LoggingRules.Insert(0, rule);
+        NLog.LogManager.Configuration = config;
+        try {
+            CPClass cp = new(testAppName, TestHttpContext.createForRoute("/profilerVisitNull"));
+            CoreController core = cp.core;
+            var profiler = new RenderProfilerController();
+            core.profiler = profiler;
+            Assert.IsNotNull(core.session);
+            core.session.visit = null;
+            // act: must not throw
+            cp.Dispose();
+            // assert
+            Assert.IsTrue(profiler.closed, "writeLog ran");
+            Assert.AreEqual(1, target.Logs.Count);
+            string line = target.Logs[0];
+            var parsed = Newtonsoft.Json.Linq.JObject.Parse(line.Substring(line.IndexOf("renderProfile,") + "renderProfile,".Length));
+            Assert.IsTrue((bool)parsed["anon"], "no visit means anonymous");
+        } finally {
+            config.LoggingRules.Remove(rule);
+            NLog.LogManager.Configuration = config;
+        }
     }
     //
     //====================================================================================================
@@ -238,7 +337,7 @@ public class RenderProfilerTests {
         string route = $"/{pageName}";
         TestPageInfo info;
         using (CPClass cp = new(testAppName, TestHttpContext.createForRoute(route))) {
-            if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache && !cp.ServerConfig.enableRemoteCache) { return; }
+            if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache && !cp.ServerConfig.enableRemoteCache) { Assert.Inconclusive("cache not enabled"); }
             info = createTestPage(cp, pageName);
             cp.core.cache.invalidateAll();
             var cold = new RenderProfilerController();

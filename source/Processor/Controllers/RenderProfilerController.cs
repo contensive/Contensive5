@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 //
 namespace Contensive.Processor.Controllers {
@@ -61,6 +62,7 @@ namespace Contensive.Processor.Controllers {
         private long _l1Entries;
         private long _l1Clears;
         private long _l1Skips;
+        private long _l1Negative;
         private long _renderTicks;
         private long _totalTicks;
         private int _closed;
@@ -88,6 +90,10 @@ namespace Contensive.Processor.Controllers {
         public long l1Entries { get => Interlocked.Read(ref _l1Entries); set => Interlocked.Exchange(ref _l1Entries, value); }
         public long l1Clears => Interlocked.Read(ref _l1Clears);
         public long l1Skips => Interlocked.Read(ref _l1Skips);
+        /// <summary>
+        /// L1 negative entries read (Redis said null earlier in this request). Not counted as L1 hits or misses.
+        /// </summary>
+        public long l1Negative => Interlocked.Read(ref _l1Negative);
         public long renderTicks => Interlocked.Read(ref _renderTicks);
         public long totalTicks => Interlocked.Read(ref _totalTicks);
         public bool closed => Interlocked.CompareExchange(ref _closed, 0, 0) != 0;
@@ -146,6 +152,15 @@ namespace Contensive.Processor.Controllers {
         public void recordRedisConnect(long ticks) { if (!closed) { Interlocked.Add(ref _redisConnectTicks, ticks); } }
         public void recordL1Clear() { if (!closed) { Interlocked.Increment(ref _l1Clears); } }
         public void recordL1Skip() { if (!closed) { Interlocked.Increment(ref _l1Skips); } }
+        //
+        /// <summary>
+        /// record an L1 negative entry read. Kept apart from l1.hit/l1.miss so the hit count only shows documents served from L1. The time is added to the L1 tier.
+        /// </summary>
+        public void recordL1Negative(long ticks) {
+            if (closed) { return; }
+            Interlocked.Increment(ref _l1Negative);
+            Interlocked.Add(ref _cacheTicks[(int)CacheTier.L1], ticks);
+        }
         //
         /// <summary>
         /// record that a cache structure was rebuilt (cold). Repeated names are kept, and shown as "name xN"
@@ -209,6 +224,30 @@ namespace Contensive.Processor.Controllers {
             return $"{p.cacheHits(tier)}/{p.cacheMisses(tier)}/{ticksToMs(p.cacheTicks(tier)):0.0}";
         }
         //
+        private static readonly Regex unsafeCommentChars = new("[^A-Za-z0-9 ._()\\-]", RegexOptions.Compiled);
+        private static readonly Regex hyphenRun = new("-{2,}", RegexOptions.Compiled);
+        //
+        /// <summary>
+        /// Make text safe inside an HTML comment. Allow-list: ASCII letters, digits, space and ._-() ; every other character becomes "_".
+        /// Runs of hyphens become one hyphen, so "--" (and with it "-->" and "--!>") can never appear. The result is at most 100 characters.
+        /// </summary>
+        public static string getSafeCommentText(string text) {
+            if (string.IsNullOrEmpty(text)) { return ""; }
+            string result = hyphenRun.Replace(unsafeCommentChars.Replace(text, "_"), "-");
+            return result.Length > 100 ? result.Substring(0, 100) : result;
+        }
+        //
+        /// <summary>
+        /// logCommonMessage that never throws, for use in profiler output and its error handling
+        /// </summary>
+        public static string getSafeLogCommonMessage(CoreController core) {
+            try {
+                return core?.logCommonMessage ?? "";
+            } catch (Exception) {
+                return "";
+            }
+        }
+        //
         /// <summary>
         /// Build the admin-only HTML comment. The caller must check the user is an admin. Ends with "-->".
         /// </summary>
@@ -220,9 +259,9 @@ namespace Contensive.Processor.Controllers {
             string coldText = cold ? $"true({getRebuildsText()})" : "false";
             sb.Append($"<!-- renderProfile renderMs={ticksToMs(render):0.0} sql={sqlCount}/{ticksToMs(sqlTicks):0.0}");
             sb.Append($" cache l1={tierText(CacheTier.L1, this)} remote={tierText(CacheTier.Remote, this)} memory={tierText(CacheTier.LocalMemory, this)} file={tierText(CacheTier.LocalFile, this)}");
-            sb.Append($" deps={dependencyChecks} redisConnectMs={ticksToMs(redisConnectTicks):0.0} cold={coldText}");
+            sb.Append($" l1neg={l1Negative} deps={dependencyChecks} redisConnectMs={ticksToMs(redisConnectTicks):0.0} cold={coldText}");
             foreach (AddonStat a in addonStats.OrderByDescending(x => x.exclusiveTicks).Take(15)) {
-                string safeName = (a.name ?? "").Replace("--", "- -");
+                string safeName = getSafeCommentText(a.name);
                 sb.Append($"\n addon {a.id} {safeName} n={a.count} incl={ticksToMs(a.inclusiveTicks):0.0}ms excl={ticksToMs(a.exclusiveTicks):0.0}ms");
             }
             sb.Append("\n-->");
@@ -260,6 +299,7 @@ namespace Contensive.Processor.Controllers {
             public long l1Entries { get; set; }
             public long l1Clears { get; set; }
             public long l1Skips { get; set; }
+            public long l1Negative { get; set; }
         }
         private class LogDto {
             public int v { get; set; } = 1;
@@ -278,7 +318,7 @@ namespace Contensive.Processor.Controllers {
         private TierDto tierDto(CacheTier t) { return new TierDto { hit = cacheHits(t), miss = cacheMisses(t), ms = Math.Round(ticksToMs(cacheTicks(t)), 2) }; }
         //
         /// <summary>
-        /// Build the json for the log line. Does not close the profiler.
+        /// Build the json for the log line. Does not close the profiler. Null-safe for a core without session, visit, doc or webServer.
         /// </summary>
         public string getLogJson(CoreController core) {
             long total = Interlocked.Read(ref _totalTicks);
@@ -286,7 +326,7 @@ namespace Contensive.Processor.Controllers {
             var dto = new LogDto {
                 path = core?.webServer?.requestPathPage ?? "",
                 pageId = core?.doc?.pageController?.page?.id ?? 0,
-                anon = core?.session == null || !core.session.isAuthenticated,
+                anon = !(core?.session?.visit?.visitAuthenticated ?? false),
                 cacheMode = getCacheMode(core),
                 cold = cold,
                 rebuilds = rebuilds.GroupBy(x => x).Select(g => g.Count() > 1 ? $"{g.Key} x{g.Count()}" : g.Key).ToList(),
@@ -305,7 +345,8 @@ namespace Contensive.Processor.Controllers {
                     redisConnectMs = Math.Round(ticksToMs(redisConnectTicks), 2),
                     l1Entries = l1Entries,
                     l1Clears = l1Clears,
-                    l1Skips = l1Skips
+                    l1Skips = l1Skips,
+                    l1Negative = l1Negative
                 },
                 addons = addonStats.OrderByDescending(x => x.exclusiveTicks).Take(25).Select(a => new AddonDto {
                     id = a.id, name = a.name, n = a.count,
@@ -319,13 +360,20 @@ namespace Contensive.Processor.Controllers {
         //
         /// <summary>
         /// Write one Info line to the Contensive.RenderProfile logger, then close the profiler so late records are ignored.
+        /// Callers must still guard this call (try/catch): profiler output must never break the request or Dispose.
         /// </summary>
         public void writeLog(CoreController core) {
             if (closed) { return; }
-            Interlocked.Exchange(ref _totalTicks, Stopwatch.GetTimestamp() - _startTimestamp);
-            string json = getLogJson(core);
-            Interlocked.Exchange(ref _closed, 1);
-            profileLogger.Info($"{core?.logCommonMessage},renderProfile,{json}");
+            string json;
+            try {
+                Interlocked.Exchange(ref _totalTicks, Stopwatch.GetTimestamp() - _startTimestamp);
+                json = getLogJson(core);
+            } finally {
+                //
+                // -- close even if the json fails, so a later call does not try again
+                Interlocked.Exchange(ref _closed, 1);
+            }
+            profileLogger.Info($"{getSafeLogCommonMessage(core)},renderProfile,{json}");
         }
     }
 }

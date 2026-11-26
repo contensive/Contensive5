@@ -882,7 +882,15 @@ namespace Contensive.Processor.Controllers {
                             PerformanceMetricsController.Record(appConfig.name, doc.appStopWatch.ElapsedMilliseconds);
                             PerformanceMetricsController.PersistMetrics(cpParent, appConfig.name);
                         }
-                        profiler?.writeLog(this);
+                        //
+                        // -- render profile log line. Must never throw out of Dispose, or the objects below are not released
+                        if (profiler != null) {
+                            try {
+                                profiler.writeLog(this);
+                            } catch (Exception ex) {
+                                logger.Warn(ex, $"{RenderProfilerController.getSafeLogCommonMessage(this)},render profiler output failed");
+                            }
+                        }
                         hint = "60";
                         //
                         // ----- dispose objects created here
@@ -897,6 +905,9 @@ namespace Contensive.Processor.Controllers {
                             _db = null;
                         }
                         //
+                        // -- after Dispose this core no longer serves the request. A later core.cache (for example a background task that kept this cp)
+                        //    gets a new CacheController; with isWebRequest false its request-scoped L1 stays off, so it cannot become a long-lived snapshot cache.
+                        isWebRequest = false;
                         if (_cache != null) {
                             _cache.Dispose();
                             _cache = null;
