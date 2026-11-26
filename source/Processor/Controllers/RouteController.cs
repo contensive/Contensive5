@@ -64,6 +64,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="overrideCanonicalPath">Optional: the canonical path to use (e.g., from a replacement URL). If null, looks up the page's primary link alias.</param>
         private static void addCanonicalTag(CoreController core, int pageId, string queryStringSuffix, string overrideCanonicalPath = null) {
             //
+            // -- skip if pageId is not valid
+            if (pageId <= 0) { return; }
+            //
             // -- skip if a canonical tag has already been added
             if (core.doc.htmlMetaContent_OtherTags.Any(t => t.content.Contains("rel=\"canonical\""))) { return; }
             //
@@ -203,7 +206,9 @@ namespace Contensive.Processor.Controllers {
                         pageId = core.domain.rootPageId;
                     }
                     string urlQueryString = core.cpParent.Request.QueryString;
-                    addCanonicalTag(core, pageId, urlQueryString);
+                    if (pageId > 0) {
+                        addCanonicalTag(core, pageId, urlQueryString);
+                    }
                 }
                 //
                 // -- default route, try domain default route first, then site default route, then just use page manager

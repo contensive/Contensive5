@@ -130,6 +130,17 @@ namespace Contensive.Processor.Controllers {
             }
             core.domain = testDomain;
             //
+            // -- verify domain has a root page, create one if missing
+            if (core.domain.rootPageId == 0) {
+                var landingPage = DbBaseModel.addDefault<PageContentModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, PageContentModel.tableMetadata.contentName));
+                landingPage.name = $"{defaultLandingPageName} ({core.domain.name})";
+                landingPage.copyfilename.content = landingPageDefaultHtml;
+                landingPage.save(core.cpParent);
+                core.domain.rootPageId = landingPage.id;
+                core.domain.save(core.cpParent);
+                logger.Warn($"{core.logCommonMessage}, domain [{core.domain.name}] had no root page, created page [{landingPage.id}] [{landingPage.name}]");
+            }
+            //
             // -- act on domain
             if (!core.domain.visited) {
                 //
