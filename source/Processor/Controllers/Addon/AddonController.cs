@@ -274,6 +274,7 @@ namespace Contensive.Processor.Controllers {
                 // -- save the addon details in a fifo stack to popoff during exit.
                 // -- Used to track the current addon being executed
                 core.doc.addonExecutionStack.Push(addon);
+                core.profiler?.addonEnter(addon.id, addon.name);
                 executeContext.dependencyRecursionTestStack.Push(addon.id);
                 // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
                 hint = 2;
@@ -764,6 +765,11 @@ namespace Contensive.Processor.Controllers {
                         if ((!core.doc.visitPropertyAllowDebugging) && (core.siteProperties.getBoolean("Allow Html Minify", true))) {
                             result = new StringBuilder(NUglify.Uglify.Html(result.ToString()).Code);
                         }
+                        //
+                        // -- render profile comment, admin only. Appended after minify so it is not stripped. Never emitted for anonymous users or non-admins.
+                        if (core.profiler != null && core.session.isAuthenticatedAdmin()) {
+                            result.Append(core.profiler.getHtmlComment(core));
+                        }
                     }
                 }
                 //
@@ -779,6 +785,7 @@ namespace Contensive.Processor.Controllers {
                 executeContext.dependencyRecursionTestStack.Pop();
                 //
                 // -- pop modelstack and test point message
+                core.profiler?.addonExit(addon.id);
                 core.doc.addonExecutionStack.Pop();
             }
             return result.ToString();

@@ -222,11 +222,13 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public int executeScalar(string sql) {
             int returnValue = 0;
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return 0; }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
                 if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
                 //
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -254,6 +256,8 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
+            } finally {
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
             return returnValue;
         }
@@ -306,6 +310,7 @@ namespace Contensive.Processor.Controllers {
                         System.Threading.Thread.Sleep(1000);
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     string logMsg = $", duration [{sw.ElapsedMilliseconds}ms], recordsAffected [{recordsAffected}], sql [{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -356,6 +361,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
                         Logger.Warn($"{core.logCommonMessage},Slow SQL NonQuery batch, duration[{sw.ElapsedMilliseconds}ms], statements[{sqlStatements.Count}]");
@@ -403,6 +409,7 @@ namespace Contensive.Processor.Controllers {
                         System.Threading.Thread.Sleep(1000);
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     string logMsg = $",duration[{sw.ElapsedMilliseconds}ms],recordsAffected[{recordsAffected}],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -453,6 +460,7 @@ namespace Contensive.Processor.Controllers {
                         await Task.Delay(1000);
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     string logMsg = $", duration[{sw.ElapsedMilliseconds}ms],recordsAffected[n/a],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -539,6 +547,7 @@ namespace Contensive.Processor.Controllers {
                         System.Threading.Thread.Sleep(1000);
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     string logMsg = $", duration [{sw.ElapsedMilliseconds}ms], recordsAffected [{recordsAffected}], sql [{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -562,11 +571,13 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public int executeScalar(string sql, Dictionary<string, object> parameters) {
             int returnValue = 0;
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return 0; }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
                 if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
                 //
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -595,6 +606,8 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
+            } finally {
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
             return returnValue;
         }
@@ -641,6 +654,7 @@ namespace Contensive.Processor.Controllers {
                         System.Threading.Thread.Sleep(1000);
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     string logMsg = $",duration[{sw.ElapsedMilliseconds}ms],recordsAffected[{recordsAffected}],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -691,6 +705,7 @@ namespace Contensive.Processor.Controllers {
                         await Task.Delay(1000);
                     }
                 }
+                core.profiler?.recordSql(sw.ElapsedTicks);
                 try {
                     string logMsg = $", duration[{sw.ElapsedMilliseconds}ms],recordsAffected[n/a],sql[{sql.Replace("\r", " ").Replace("\n", " ")}]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {

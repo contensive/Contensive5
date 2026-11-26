@@ -97,6 +97,7 @@ namespace Contensive.Processor.Controllers {
                 if(_addonCache != null && !_addonCache.isEmpty) { return _addonCache; }
                 //
                 // -- rebuild cache
+                core.profiler?.markRebuild("addonCache");
                 _addonCache = new CacheStore_AddonModel(core);
                 List<CacheKeyHashClass> dependencyList = [
                     core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
@@ -232,6 +233,7 @@ namespace Contensive.Processor.Controllers {
             if (layoutDict != null) { return layoutDict; }
             //
             // -- load from db
+            core.profiler?.markRebuild("layoutDict");
             layoutDict = new LayoutDict();
             foreach (LayoutModel record in DbBaseModel.createList<LayoutModel>(core.cpParent)) {
                 if (!layoutDict.layoutIdDict.ContainsKey(record.id)) {
@@ -334,6 +336,7 @@ namespace Contensive.Processor.Controllers {
             PageContentModel.verifyPageUrl(core.cpParent);
             //
             // -- load from db
+            core.profiler?.markRebuild("linkAliasStore");
             linkAliasStore = new LinkAliasStoreModel();
             foreach (LinkAliasModel linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent,"","id desc")) {
                 if (!linkAliasStore.linkAliasIdDict.ContainsKey(linkAlias.id)) {
@@ -451,6 +454,7 @@ namespace Contensive.Processor.Controllers {
             if (ContentStore != null) { return ContentStore; }
             //
             // -- load from db
+            core.profiler?.markRebuild("contentStore");
             ContentStore = new ContentStoreModel();
             foreach (ContentModel Content in DbBaseModel.createList<ContentModel>(core.cpParent)) {
                 if (!ContentStore.ContentIdDict.ContainsKey(Content.id)) {

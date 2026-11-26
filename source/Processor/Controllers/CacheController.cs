@@ -161,7 +161,9 @@ namespace Contensive.Processor.Controllers {
                     var options = ConfigurationOptions.Parse(cacheEndpoint);
                     options.AbortOnConnectFail = false;
                     options.ConnectTimeout = 5000;
+                    long redisConnectStart = core.profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     redisConnectionGroup = ConnectionMultiplexer.Connect(options);
+                    if (redisConnectStart != 0) { core.profiler?.recordRedisConnect(System.Diagnostics.Stopwatch.GetTimestamp() - redisConnectStart); }
                     if (redisConnectionGroup != null) {
                         redisConnectionGroup.ConnectionFailed += (sender, e) => {
                             logger.Warn($"{core.logCommonMessage},Redis connection failed: {e.Exception?.Message}");
@@ -227,6 +229,7 @@ namespace Contensive.Processor.Controllers {
                 // -- test all dependent objects for invalidation (if they have changed since this object changed, it is invalid)
                 bool cacheHit = true;
                 foreach (CacheKeyHashClass dependentKeyHash in cacheDocument.dependentKeyHashList) {
+                    core.profiler?.recordDependencyCheck();
                     CacheDocumentClass dependantCacheDocument = getCacheDocument(dependentKeyHash);
                     if (dependantCacheDocument == null) {
                         // create dummy cache to validate future cache requests, fake saveDate as last globalinvalidationdate
@@ -350,10 +353,12 @@ namespace Contensive.Processor.Controllers {
                 if (!allowCache) { return default; }
                 CacheDocumentClass result = null;
                 string typeMessage = "";
+                RenderProfilerController profiler = core.profiler;
                 if (remoteCacheInitialized) {
                     //
                     // -- use remote cache
                     typeMessage = "remote";
+                    long remoteStart = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     try {
                         RedisKey redisKey = new RedisKey(keyHash.hash);
                         RedisValue redisValue = redisDb.StringGet(redisKey);
@@ -365,17 +370,21 @@ namespace Contensive.Processor.Controllers {
                         // -- remote cache read failed, fall through to local memory/file cache
                         logger.Error(ex, $"{core.logCommonMessage},remote cache read failed, falling back to local");
                     }
+                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.Remote, result != null, System.Diagnostics.Stopwatch.GetTimestamp() - remoteStart); }
                 }
                 if ((result == null) && core.serverConfig.enableLocalMemoryCache) {
                     //
                     // -- local memory cache
                     typeMessage = "local-memory";
+                    long memoryStart = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     result = (CacheDocumentClass)MemoryCache.Default[keyHash.hash];
+                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.LocalMemory, result != null, System.Diagnostics.Stopwatch.GetTimestamp() - memoryStart); }
                 }
                 if ((result == null) && core.serverConfig.enableLocalFileCache) {
                     //
                     // -- local file cache
                     typeMessage = "local-file";
+                    long fileStart = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     string serializedDataObject = null;
                     using (System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash)) {
                         mutex.WaitOne();
@@ -386,6 +395,7 @@ namespace Contensive.Processor.Controllers {
                         result = DeserializeObject<CacheDocumentClass>(serializedDataObject);
                         storeCacheDocument_MemoryCache(keyHash, result);
                     }
+                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.LocalFile, result != null, System.Diagnostics.Stopwatch.GetTimestamp() - fileStart); }
                 }
                 //
                 // -- log result
@@ -811,6 +821,7 @@ namespace Contensive.Processor.Controllers {
                 bool setDefault = false;
                 CacheKeyHashClass globalInvalidationDateKeyHash = createKeyHash(cacheNameGlobalInvalidationDate);
                 if (_globalInvalidationDate == null) {
+                    core.profiler?.recordGlobalInvalidationRead();
                     CacheDocumentClass dataObject = getCacheDocument(globalInvalidationDateKeyHash);
                     if (dataObject != null) {
                         _globalInvalidationDate = dataObject.saveDate;
@@ -855,6 +866,7 @@ namespace Contensive.Processor.Controllers {
                     return;
                 }
                 string cacheTypeMsg = "";
+                long writeStart = core.profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                 if (core.serverConfig.enableRemoteCache) {
                     //
                     // -- save remote cache first (shared source of truth for multi-instance)
@@ -892,6 +904,7 @@ namespace Contensive.Processor.Controllers {
                     core.privateFiles.saveFile("appCache\\" + FileController.sanitizePathFilename(keyHash + ".txt", BaseModels.ServerConfigBaseModel.FilenameSanitizationLevelEnum.Permissive), serializedData);
                     mutex.ReleaseMutex();
                 }
+                if (writeStart != 0) { core.profiler?.recordCacheWrite(System.Diagnostics.Stopwatch.GetTimestamp() - writeStart); }
                 string depKey = cacheDocument.keyPtrHash?.key ?? "";
                 string dependentKeyHashList = cacheDocument.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count == 0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
                 logger.Trace($"{core.logCommonMessage},cacheType [{cacheTypeMsg}], key [{keyHash.key}], invalidationDate [{cacheDocument.invalidationDate}], depends on [{dependentKeyHashList}], points to key [{depKey}]");

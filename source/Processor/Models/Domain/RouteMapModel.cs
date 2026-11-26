@@ -87,6 +87,7 @@ namespace Contensive.Processor.Models.Domain {
                 if (result != null) { return result; }
                 //
                 // -- create route map and add records from each contributor
+                core.profiler?.markRebuild("routeMap");
                 result = new RouteMapModel {
                     dateCreated = core.dateTimeNowMockable,
                     routeDictionary = new Dictionary<string, RouteClass>()
