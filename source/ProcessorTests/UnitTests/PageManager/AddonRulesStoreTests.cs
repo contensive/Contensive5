@@ -95,7 +95,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_template_parity() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 using (CPClass cp2 = new(testAppName)) {
@@ -112,7 +112,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_page_parity() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 using (CPClass cp2 = new(testAppName)) {
@@ -129,7 +129,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_inactiveAddonExcluded() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 data.y.active = false;
@@ -149,7 +149,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_inactiveRuleIncluded() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 AddonModel w = createAddon(cp, "rulesW");
@@ -170,7 +170,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_invalidate_onModelSave() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 // -- core 1 builds and caches the store
@@ -193,7 +193,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_invalidate_onDelete() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 AddonModel w = createAddon(cp, "rulesW");
@@ -217,7 +217,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_invalidate_onCheckList() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             Data data = createData(cp);
             try {
                 AddonModel w = createAddon(cp, "rulesW");
@@ -243,7 +243,7 @@ public class AddonRulesStoreTests {
     [TestMethod]
     public void rules_emptyStore_cached() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             using (CPClass cp1 = new(testAppName)) {
                 Assert.AreEqual(0, cp1.core.cacheRuntime.addonRulesCache.getPageAddonList(cp1.core, -12345).Count);
             }
@@ -265,7 +265,7 @@ public class AddonRulesStoreTests {
         PageContentModel testPage = null;
         string marker;
         using (CPClass cp = new(testAppName, TestHttpContext.createForRoute(route))) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             cp.Site.SetProperty("ALLOW HTML MINIFY", false);
             cp.core.siteProperties.anonymousUserResponseID = 0;
             marker = cp.Utils.GetRandomInteger().ToString();

@@ -24,13 +24,28 @@ namespace Contensive.Processor.Controllers {
     /// - If the endpoint string in config.json changes, the new string gets its own multiplexer. The old one is left open in the dictionary until the process
     ///   ends (it may still be in use by requests that started before the change). That is one idle connection per old endpoint, which is acceptable.
     /// - The endpoint string can contain a password. Never log it.
+    /// - The shared pool closes its multiplexers when the AppDomain unloads (net48 IIS: web.config touch or bin deploy without a process recycle)
+    ///   and when the process exits. The handlers are registered once, in the static constructor. After closeAll, get() returns null.
     /// </remarks>
     internal sealed class SharedRedisConnectionPool {
         //
         /// <summary>
         /// The process-wide pool used by CacheController.
         /// </summary>
-        public static readonly SharedRedisConnectionPool shared = new(TimeSpan.FromSeconds(10));
+        public static readonly SharedRedisConnectionPool shared;
+        //
+        /// <summary>
+        /// Create the shared pool and register, once, the handlers that close its multiplexers when the AppDomain unloads or the process exits.
+        /// </summary>
+        static SharedRedisConnectionPool() {
+            shared = new(TimeSpan.FromSeconds(10));
+            AppDomain.CurrentDomain.DomainUnload += onDomainShutdown;
+            AppDomain.CurrentDomain.ProcessExit += onDomainShutdown;
+        }
+        //
+        private static void onDomainShutdown(object sender, EventArgs e) {
+            shared.closeAll();
+        }
         //
         private readonly ConcurrentDictionary<string, Lazy<ConnectionMultiplexer>> connections = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<string, long> retryAfterTimestamp = new(StringComparer.Ordinal);
@@ -38,6 +53,7 @@ namespace Contensive.Processor.Controllers {
         private readonly Func<string, ConnectionMultiplexer> connect;
         private int _handlerRegistrations;
         private int _connectAttempts;
+        private int _closed;
         //
         // ====================================================================================================
         /// <summary>
@@ -77,6 +93,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public int count => connections.Count;
         //
+        /// <summary>
+        /// true after closeAll. get() then returns null.
+        /// </summary>
+        public bool closed => Volatile.Read(ref _closed) != 0;
+        //
         // ====================================================================================================
         /// <summary>
         /// Return the shared multiplexer for the endpoint, creating it on first use. Concurrent first calls wait for one connect.
@@ -85,6 +106,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public ConnectionMultiplexer get(string endpoint) {
             if (string.IsNullOrEmpty(endpoint)) { return null; }
+            if (closed) { return null; }
             if (retryAfterTimestamp.TryGetValue(endpoint, out long retryAfter) && (Stopwatch.GetTimestamp() < retryAfter)) { return null; }
             Lazy<ConnectionMultiplexer> lazy = connections.GetOrAdd(endpoint, ep => new Lazy<ConnectionMultiplexer>(() => create(ep), LazyThreadSafetyMode.ExecutionAndPublication));
             try {
@@ -93,10 +115,35 @@ namespace Contensive.Processor.Controllers {
                 return result;
             } catch {
                 //
-                // -- do not keep a failed Lazy (it would rethrow forever). Remove only this Lazy, in case another thread already added a new one.
-                ((ICollection<KeyValuePair<string, Lazy<ConnectionMultiplexer>>>)connections).Remove(new KeyValuePair<string, Lazy<ConnectionMultiplexer>>(endpoint, lazy));
+                // -- do not keep a failed Lazy (it would rethrow forever). Set the back-off first, so a thread that arrives after the Lazy is removed
+                //    sees the back-off and does not connect again at once. Remove only this Lazy, in case another thread already added a new one.
                 retryAfterTimestamp[endpoint] = Stopwatch.GetTimestamp() + retryBackoffTicks;
+                ((ICollection<KeyValuePair<string, Lazy<ConnectionMultiplexer>>>)connections).Remove(new KeyValuePair<string, Lazy<ConnectionMultiplexer>>(endpoint, lazy));
                 throw;
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Close and dispose every multiplexer this pool created, and stop handing out connections (get returns null afterwards).
+        /// Called for the shared pool on AppDomain unload and process exit. Safe to call more than once. Never throws.
+        /// </summary>
+        public void closeAll() {
+            Interlocked.Exchange(ref _closed, 1);
+            foreach (KeyValuePair<string, Lazy<ConnectionMultiplexer>> pair in connections) {
+                try {
+                    if (connections.TryRemove(pair.Key, out Lazy<ConnectionMultiplexer> lazy) && lazy.IsValueCreated) {
+                        ConnectionMultiplexer multiplexer = lazy.Value;
+                        multiplexer.ConnectionFailed -= onConnectionFailed;
+                        multiplexer.ConnectionRestored -= onConnectionRestored;
+                        multiplexer.Close(allowCommandsToComplete: false);
+                        multiplexer.Dispose();
+                    }
+                } catch (Exception ex) {
+                    //
+                    // -- shutting down, log and continue with the next one
+                    try { logger.Warn(ex, "Redis shared connection close failed"); } catch (Exception) { }
+                }
             }
         }
         //

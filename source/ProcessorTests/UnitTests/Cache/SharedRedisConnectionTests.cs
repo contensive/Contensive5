@@ -124,6 +124,33 @@ public class SharedRedisConnectionTests {
     }
     //
     //====================================================================================================
+    // -- review m5: closeAll closes every multiplexer the pool created and get() returns null afterwards
+    [TestMethod]
+    public void pool_closeAll_closesAndStops_unit() {
+        var pool = new SharedRedisConnectionPool(TimeSpan.FromSeconds(10), fastConnect);
+        ConnectionMultiplexer a = pool.get("127.0.0.1:6379");
+        ConnectionMultiplexer b = pool.get("127.0.0.1:6379,connectRetry=2");
+        try {
+            Assert.IsNotNull(a);
+            Assert.IsNotNull(b);
+            Assert.AreEqual(2, pool.count);
+            Assert.IsFalse(pool.closed);
+            pool.closeAll();
+            Assert.IsTrue(pool.closed);
+            Assert.AreEqual(0, pool.count);
+            Assert.IsFalse(a.IsConnected);
+            Assert.IsFalse(b.IsConnected);
+            Assert.IsNull(pool.get("127.0.0.1:6379"), "no new connection after closeAll");
+            Assert.AreEqual(2, pool.connectAttempts);
+            // a second call is harmless
+            pool.closeAll();
+        } finally {
+            a?.Dispose();
+            b?.Dispose();
+        }
+    }
+    //
+    //====================================================================================================
     // -- concurrent first requests share one connect
     [TestMethod]
     public void pool_concurrentGet_singleConnect_unit() {
