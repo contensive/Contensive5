@@ -796,6 +796,34 @@ namespace Contensive.Processor.Controllers.Build {
                         }
                         core.siteProperties.dataBuildVersion = "26.11.26.1";
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.11.26.2")) {
+                        //
+                        // -- ensure robots.txt contains a Disallow rule for method= URLs
+                        //    to prevent bots from indexing authentication pages
+                        try {
+                            string robotsTxt = core.siteProperties.robotsTxt;
+                            if (!string.IsNullOrEmpty(robotsTxt)) {
+                                bool hasMethodDisallow = false;
+                                foreach (string line in robotsTxt.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                                    string trimmed = line.Trim();
+                                    if (trimmed.StartsWith("Disallow:", StringComparison.OrdinalIgnoreCase)) {
+                                        string path = trimmed.Substring("Disallow:".Length).Trim();
+                                        if (path.IndexOf("method=", StringComparison.OrdinalIgnoreCase) >= 0) {
+                                            hasMethodDisallow = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!hasMethodDisallow) {
+                                    robotsTxt += "\r\nDisallow: /*?*method=";
+                                    core.privateFiles.saveFile(core.siteProperties.robotsTxtFilename, robotsTxt);
+                                }
+                            }
+                        } catch (Exception ex) {
+                            logger.Error($"{core.logCommonMessage}", ex, "robots.txt method= disallow migration");
+                        }
+                        core.siteProperties.dataBuildVersion = "26.11.26.2";
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();
