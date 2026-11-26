@@ -400,6 +400,154 @@ public class RequestScopedCacheTests {
     }
     //
     //====================================================================================================
+    // -- review m9 (1): the production path, no profiler attached. Same values, L1 used
+    [TestMethod]
+    public void l1_noProfiler_productionPath() {
+        using CPClass cp = new(testAppName, TestHttpContext.createForRoute($"/l1test{GenericController.getRandomInteger()}"));
+        cp.core.serverConfig.enableRequestScopedCache = true;
+        requireRedis(cp);
+        Assert.IsNull(cp.core.profiler, "this test needs enableRenderProfiler=false in config.json");
+        Assert.IsTrue(cp.core.cache.requestScopedCacheActive);
+        string key = $"l1test-{GenericController.getRandomInteger()}";
+        string table = $"l1testtable{GenericController.getRandomInteger()}";
+        cp.core.cache.storeObject(key, "v1", new List<string> { cp.core.cache.createTableDependencyKey(table) });
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(key));
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(key));
+        Assert.IsTrue(cp.core.cache.requestScopedCacheCount > 0);
+        cp.core.cache.storeObject(key, "v2", new List<string> { cp.core.cache.createTableDependencyKey(table) });
+        Assert.AreEqual("v2", cp.core.cache.getObject<string>(key));
+        System.Threading.Thread.Sleep(30);
+        cp.core.cache.invalidateTableDependencyKey(table);
+        Assert.IsNull(cp.core.cache.getObject<string>(key));
+        cp.core.cache.storeObject(key, "v3");
+        cp.core.cache.invalidate(key);
+        Assert.IsNull(cp.core.cache.getObject<string>(key));
+    }
+    //
+    //====================================================================================================
+    // -- review m9 (2): dependency validation through L1. Negative entry for the dependency key, then the dummy dependency store
+    //    replaces it (write-through), then a later read validates against the dummy from L1
+    [TestMethod]
+    public void l1_dependency_negativeThenDummyStore() {
+        using CPClass cp = createWebCp(true);
+        requireRedis(cp);
+        RenderProfilerController profiler = cp.core.profiler;
+        string table = $"l1testtable{GenericController.getRandomInteger()}";
+        string dependencyKey = cp.core.cache.createTableDependencyKey(table);
+        string key = $"l1test-{GenericController.getRandomInteger()}";
+        cp.core.cache.storeObject(key, "v1", new List<string> { dependencyKey });
+        // -- the dependency key does not exist: the first read stores a negative entry, the second read is served by it
+        Assert.IsNull(cp.core.cache.getObject<string>(dependencyKey));
+        Assert.IsNull(cp.core.cache.getObject<string>(dependencyKey));
+        Assert.AreEqual(1, profiler.l1Negative, "second read of a missing key uses the negative entry");
+        // -- reading the object checks the dependency: negative entry again, then the dummy dependency document is stored through to L1
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(key));
+        Assert.AreEqual(2, profiler.l1Negative);
+        long hitsBefore = l1Hits(cp);
+        long remoteBefore = profiler.cacheHits(RenderProfilerController.CacheTier.Remote) + profiler.cacheMisses(RenderProfilerController.CacheTier.Remote);
+        // -- a later read: object and dummy dependency both come from L1, still valid, no new negative entry, no remote read
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(key));
+        Assert.AreEqual(2, profiler.l1Negative, "the dummy store replaced the negative entry");
+        Assert.IsTrue(l1Hits(cp) >= hitsBefore + 2, "object and dependency read from L1");
+        Assert.AreEqual(remoteBefore, profiler.cacheHits(RenderProfilerController.CacheTier.Remote) + profiler.cacheMisses(RenderProfilerController.CacheTier.Remote));
+        // -- invalidating the table after the object was saved still invalidates it in the same request
+        System.Threading.Thread.Sleep(30);
+        cp.core.cache.invalidateTableDependencyKey(table);
+        Assert.IsNull(cp.core.cache.getObject<string>(key));
+    }
+    //
+    //====================================================================================================
+    // -- review m9 (3): pointer keys. storePtr, read through the pointer, invalidate through the pointer
+    [TestMethod]
+    public void l1_pointerKey_sameRequest() {
+        using CPClass cp = createWebCp(true);
+        requireRedis(cp);
+        string key = $"l1test-{GenericController.getRandomInteger()}";
+        string ptr = $"l1testptr-{GenericController.getRandomInteger()}";
+        cp.core.cache.storeObject(key, "v1");
+        cp.core.cache.storePtr(ptr, key);
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(ptr));
+        long hitsBefore = l1Hits(cp);
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(ptr));
+        Assert.IsTrue(l1Hits(cp) >= hitsBefore + 2, "pointer and primary read from L1");
+        cp.core.cache.storeObject(key, "v2");
+        Assert.AreEqual("v2", cp.core.cache.getObject<string>(ptr), "the pointer resolves to the new primary value");
+        System.Threading.Thread.Sleep(30);
+        cp.core.cache.invalidate(ptr);
+        Assert.IsNull(cp.core.cache.getObject<string>(key), "invalidate through the pointer invalidates the primary");
+        Assert.IsNull(cp.core.cache.getObject<string>(ptr));
+    }
+    //
+    //====================================================================================================
+    // -- review m9 (4): an entry first put in L1 by a remote read (not by this core's write), then overwritten by this core
+    [TestMethod]
+    public void l1_remoteRead_thenOverwrite() {
+        string key = $"l1test-{GenericController.getRandomInteger()}";
+        using (CPClass writer = createWebCp(true)) {
+            requireRedis(writer);
+            writer.core.cache.storeObject(key, "v1");
+        }
+        using CPClass cp = createWebCp(true);
+        RenderProfilerController profiler = cp.core.profiler;
+        Assert.AreEqual(0, cp.core.cache.requestScopedCacheCount);
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(key));
+        Assert.IsTrue(profiler.cacheHits(RenderProfilerController.CacheTier.Remote) > 0, "first read came from Redis");
+        long remoteBefore = profiler.cacheHits(RenderProfilerController.CacheTier.Remote) + profiler.cacheMisses(RenderProfilerController.CacheTier.Remote);
+        long hitsBefore = l1Hits(cp);
+        Assert.AreEqual("v1", cp.core.cache.getObject<string>(key));
+        Assert.IsTrue(l1Hits(cp) > hitsBefore, "second read is an L1 hit of the remote-read entry");
+        Assert.AreEqual(remoteBefore, profiler.cacheHits(RenderProfilerController.CacheTier.Remote) + profiler.cacheMisses(RenderProfilerController.CacheTier.Remote));
+        cp.core.cache.storeObject(key, "v2");
+        Assert.AreEqual("v2", cp.core.cache.getObject<string>(key));
+    }
+    //
+    //====================================================================================================
+    // -- review m9 (5): model level. save then create in the same web request, with L1 on
+    [TestMethod]
+    public void l1_model_saveThenCreate_sameRequest() {
+        using CPClass cp = createWebCp(true);
+        requireRedis(cp);
+        Contensive.Models.Db.PersonModel person = Contensive.Models.Db.DbBaseModel.addDefault<Contensive.Models.Db.PersonModel>(cp);
+        try {
+            person.name = $"l1model{GenericController.getRandomInteger()}";
+            person.save(cp);
+            Assert.AreEqual(person.name, Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, person.id).name);
+            Assert.AreEqual(person.name, Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, person.id).name);
+            System.Threading.Thread.Sleep(30);
+            string newName = $"l1model{GenericController.getRandomInteger()}";
+            var edit = Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, person.id);
+            edit.name = newName;
+            edit.save(cp);
+            Assert.AreEqual(newName, Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, person.id).name, "the request sees its own save");
+            Assert.AreEqual(newName, Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, person.ccguid).name, "also through the guid pointer");
+            Assert.IsTrue(l1Hits(cp) > 0);
+        } finally {
+            if (person.id > 0) { Contensive.Models.Db.DbBaseModel.delete<Contensive.Models.Db.PersonModel>(cp, person.id); }
+        }
+    }
+    //
+    //====================================================================================================
+    // -- review m6: after the core is disposed, a later core.cache (a background task that kept the cp) never gets an active L1
+    [TestMethod]
+    public void l1_afterDispose_off() {
+        CPClass cp = new(testAppName, TestHttpContext.createForRoute($"/l1test{GenericController.getRandomInteger()}"));
+        CoreController core = cp.core;
+        core.serverConfig.enableRequestScopedCache = true;
+        Assert.IsTrue(core.isWebRequest);
+        bool redis = core.cache.remoteCacheInitialized;
+        cp.Dispose();
+        Assert.IsFalse(core.isWebRequest, "Dispose clears isWebRequest");
+        if (!redis) { Assert.Inconclusive("redis not configured, the L1 part of this test needs Redis"); }
+        CacheController late = core.cache;
+        Assert.IsFalse(late.requestScopedCacheActive);
+        string key = $"l1test-{GenericController.getRandomInteger()}";
+        late.storeObject(key, "v1");
+        Assert.AreEqual("v1", late.getObject<string>(key));
+        Assert.AreEqual(0, late.requestScopedCacheCount);
+        late.Dispose();
+    }
+    //
+    //====================================================================================================
     // -- the default is on (Jay, 2026-11-26), and memory-only mode never activates L1
     [TestMethod]
     public void l1_defaultOn_unit() {

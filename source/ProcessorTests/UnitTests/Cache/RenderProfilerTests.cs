@@ -312,6 +312,36 @@ public class RenderProfilerTests {
     }
     //
     //====================================================================================================
+    // -- review m9 (6), design 2.5/R7: an authenticated member who is not an admin never gets the comment
+    [TestMethod]
+    public void profiler_authenticatedNonAdmin_noComment() {
+        string pageName = new Random().Next().ToString();
+        using (CPClass cp = new(testAppName, TestHttpContext.createForRoute($"/{pageName}"))) {
+            PersonModel testUser = null;
+            TestPageInfo info = null;
+            try {
+                info = createTestPage(cp, pageName);
+                testUser = DbBaseModel.addDefault<PersonModel>(cp);
+                testUser.name = "RenderProfilerTestMember";
+                testUser.admin = false;
+                testUser.developer = false;
+                testUser.save(cp);
+                Assert.IsTrue(cp.User.LoginByID(testUser.id));
+                Assert.IsTrue(cp.User.IsAuthenticated);
+                Assert.IsFalse(cp.User.IsAdmin);
+                cp.core.profiler = new RenderProfilerController();
+                // act
+                string doc = cp.executeRoute($"/{pageName}");
+                // assert
+                Assert.IsFalse(doc.Contains("<!-- renderProfile"), "a non-admin member must not get the profile comment");
+            } finally {
+                if (info != null) { deleteTestPage(cp, info); }
+                if (testUser != null && testUser.id > 0) { DbBaseModel.delete<PersonModel>(cp, testUser.id); }
+            }
+        }
+    }
+    //
+    //====================================================================================================
     // -- 10.1-5
     [TestMethod]
     public void profiler_sqlAndAddonCounted() {
