@@ -386,8 +386,18 @@ namespace Contensive.Models.Db {
             Type cpType = cp.GetType();
             if (callingAssembly != cpType.Assembly) { return false; }
             if (!string.Equals(cpType.FullName, hostCpTypeFullName, StringComparison.Ordinal)) { return false; }
-            return string.Equals(callingAssembly.GetName().Name, hostAssemblyName, StringComparison.OrdinalIgnoreCase);
+            //
+            // -- GetName() allocates; remember the host assembly once it has been verified
+            if (ReferenceEquals(callingAssembly, verifiedHostAssembly)) { return true; }
+            if (!string.Equals(callingAssembly.GetName().Name, hostAssemblyName, StringComparison.OrdinalIgnoreCase)) { return false; }
+            verifiedHostAssembly = callingAssembly;
+            return true;
         }
+        //
+        /// <summary>
+        /// The Processor assembly, set the first time isHostCall verifies it by name.
+        /// </summary>
+        private static volatile Assembly verifiedHostAssembly;
         //
         private static bool isIgnoredCompilerGeneratedType(Type type) {
             foreach (string prefix in ignoredCompilerGeneratedPrefixes) {

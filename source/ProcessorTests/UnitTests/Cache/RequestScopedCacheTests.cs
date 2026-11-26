@@ -406,7 +406,7 @@ public class RequestScopedCacheTests {
         using CPClass cp = new(testAppName, TestHttpContext.createForRoute($"/l1test{GenericController.getRandomInteger()}"));
         cp.core.serverConfig.enableRequestScopedCache = true;
         requireRedis(cp);
-        Assert.IsNull(cp.core.profiler, "this test needs enableRenderProfiler=false in config.json");
+        if (cp.core.profiler != null) { Assert.Inconclusive("this test needs enableRenderProfiler=false in config.json"); }
         Assert.IsTrue(cp.core.cache.requestScopedCacheActive);
         string key = $"l1test-{GenericController.getRandomInteger()}";
         string table = $"l1testtable{GenericController.getRandomInteger()}";

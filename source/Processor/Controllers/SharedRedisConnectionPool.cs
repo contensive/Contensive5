@@ -35,12 +35,12 @@ namespace Contensive.Processor.Controllers {
         public static readonly SharedRedisConnectionPool shared;
         //
         /// <summary>
-        /// Create the shared pool and register, once, the handlers that close its multiplexers when the AppDomain unloads or the process exits.
+        /// Create the shared pool and register, once, the handler that closes its multiplexers when the AppDomain unloads (net48 IIS domain restart without a process recycle).
+        /// ProcessExit is deliberately not handled: the OS frees the sockets at process end, and closing early would make work still running at shutdown skip its Redis writes and invalidations.
         /// </summary>
         static SharedRedisConnectionPool() {
             shared = new(TimeSpan.FromSeconds(10));
             AppDomain.CurrentDomain.DomainUnload += onDomainShutdown;
-            AppDomain.CurrentDomain.ProcessExit += onDomainShutdown;
         }
         //
         private static void onDomainShutdown(object sender, EventArgs e) {
