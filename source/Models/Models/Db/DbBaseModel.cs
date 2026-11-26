@@ -324,6 +324,15 @@ namespace Contensive.Models.Db {
         // The decision is now made once per call from the calling assembly (Assembly.GetCallingAssembly captured in the public entry points)
         // and memoized per assembly and per type. Only when the assembly alone cannot decide does it fall back to the original stack walk.
         // The results match the original rule, see allowRecordCaching_walkStack.
+        // Known limits (all fall back to the walk or match it):
+        // - The host shortcut trusts only the real Processor assembly (assembly name Processor that defines Contensive.Processor.CPClass, and cp is that CPClass).
+        //   Any other CPBaseClass implementation (an addon-side wrapper or a test mock) is classified like any other assembly.
+        // - Dynamic assemblies are never classified or memoized (types can be added later); they always walk.
+        // - Top-level types in the global namespace whose names start with "<" are only ignored for known compiler-generated families
+        //   (<PrivateImplementationDetails>, <Module>, anonymous types, collection-expression and inline-array helpers). Any other one (for example
+        //   a C# 9 top-level-statement <Program>$ or a global file-local type) makes the assembly walk.
+        // - A DynamicMethod (LCG) caller is reported by GetCallingAssembly as the module it is attached to, while the old StackTrace skipped LCG frames.
+        //   No caller of this kind exists in core; it is a theoretical difference only.
         //
         private enum CallerTrust { Allow, Deny, Walk }
         private static readonly Assembly modelsAssembly = typeof(DbBaseModel).Assembly;
@@ -331,6 +340,17 @@ namespace Contensive.Models.Db {
         private static readonly ConditionalWeakTable<Assembly, object> callerTrustMemo = new ConditionalWeakTable<Assembly, object>();
         private static readonly object boxedTrue = true;
         private static readonly object boxedFalse = false;
+        //
+        /// <summary>
+        /// The host CPBaseClass implementation trusted by the host shortcut. Models cannot reference Processor, so it is matched by name.
+        /// </summary>
+        private const string hostCpTypeFullName = "Contensive.Processor.CPClass";
+        private const string hostAssemblyName = "Processor";
+        //
+        /// <summary>
+        /// Top-level global-namespace compiler-generated type name prefixes that never contain user code, so they are ignored when an assembly is classified.
+        /// </summary>
+        private static readonly string[] ignoredCompilerGeneratedPrefixes = ["<PrivateImplementationDetails>", "<Module>", "<>f__AnonymousType", "<>z__ReadOnly", "<>y__InlineArray"];
         //
         /// <summary>
         /// true if the model type is in the Contensive.Models.Db namespace. Derived types outside this namespace are never cached. Memoized per type.
@@ -349,9 +369,31 @@ namespace Contensive.Models.Db {
             // -- the call came from a models helper, the original walk must look further up the stack
             if (callingAssembly == modelsAssembly) { return CallerTrust.Walk; }
             //
-            // -- the host assembly that implements CPBaseClass (Processor)
-            if (cp != null && callingAssembly == cp.GetType().Assembly) { return CallerTrust.Allow; }
+            // -- the host assembly (Processor), only when cp is the real Contensive.Processor.CPClass and the call comes from its assembly
+            if (isHostCall(cp, callingAssembly)) { return CallerTrust.Allow; }
+            //
+            // -- a dynamic assembly can gain types after it is classified, never memoize it
+            if (callingAssembly.IsDynamic) { return CallerTrust.Walk; }
             return (CallerTrust)callerTrustMemo.GetValue(callingAssembly, a => classifyAssembly(a));
+        }
+        //
+        /// <summary>
+        /// true if the caller is the Processor assembly that defines cp's type, and cp is Contensive.Processor.CPClass.
+        /// An addon CPBaseClass wrapper or a test mock in another assembly is not the host, even if it passes its own cp.
+        /// </summary>
+        private static bool isHostCall(CPBaseClass cp, Assembly callingAssembly) {
+            if (cp == null || callingAssembly == null) { return false; }
+            Type cpType = cp.GetType();
+            if (callingAssembly != cpType.Assembly) { return false; }
+            if (!string.Equals(cpType.FullName, hostCpTypeFullName, StringComparison.Ordinal)) { return false; }
+            return string.Equals(callingAssembly.GetName().Name, hostAssemblyName, StringComparison.OrdinalIgnoreCase);
+        }
+        //
+        private static bool isIgnoredCompilerGeneratedType(Type type) {
+            foreach (string prefix in ignoredCompilerGeneratedPrefixes) {
+                if (type.Name.StartsWith(prefix, StringComparison.Ordinal)) { return true; }
+            }
+            return false;
         }
         //
         private static object classifyAssembly(Assembly assembly) {
@@ -363,8 +405,15 @@ namespace Contensive.Models.Db {
                 bool anyType = false;
                 foreach (Type type in types) {
                     //
-                    // -- ignore top-level compiler-generated types, like <PrivateImplementationDetails>
-                    if (type.Namespace == null && type.Name.StartsWith("<", StringComparison.Ordinal)) { continue; }
+                    // -- top-level global-namespace types named "<...": ignore the known compiler-generated families, any other one (user code the
+                    //    old walk would have judged by its null namespace, e.g. <Program>$) means the assembly alone cannot decide
+                    //    Nested types are judged by their outermost declaring type.
+                    Type outerType = type;
+                    while (outerType.DeclaringType != null) { outerType = outerType.DeclaringType; }
+                    if (outerType.Namespace == null && outerType.Name.StartsWith("<", StringComparison.Ordinal)) {
+                        if (isIgnoredCompilerGeneratedType(outerType)) { continue; }
+                        return CallerTrust.Walk;
+                    }
                     anyType = true;
                     string ns = type.Namespace?.ToLowerInvariant();
                     bool trusted = ns != null && (ns.StartsWith("contensive.processor", StringComparison.Ordinal) || ns.StartsWith("tests", StringComparison.Ordinal));

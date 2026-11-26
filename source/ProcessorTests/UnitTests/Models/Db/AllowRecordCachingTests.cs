@@ -135,7 +135,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_a_testMethod_isCached() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             using var probe = new Probe(cp);
             Assert.IsTrue(probe.isStale(DbBaseModel.create<PersonModel>(cp, probe.person.id)));
             // h. second call, memo path
@@ -149,7 +149,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_b_addonAssembly_notCached() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             var callers = buildCallers(
                 new CallerDef { typeNamespace = "Acme.Addon", typeName = "Caller", kind = "id" },
                 new CallerDef { typeNamespace = "Acme.Addon", typeName = "GuidCaller", kind = "guid" });
@@ -166,7 +166,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_c_processorNamespaceAssembly_isCached() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             var callers = buildCallers(new CallerDef { typeNamespace = "Contensive.Processor.Fake", typeName = "Caller", kind = "id" });
             var byId = (Func<CPBaseClass, int, PersonModel>)callers["Contensive.Processor.Fake.Caller.id"];
             using var probe = new Probe(cp);
@@ -179,7 +179,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_d_mixedAssembly_followsImmediateCaller() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             var callers = buildCallers(
                 new CallerDef { typeNamespace = "Acme", typeName = "X", kind = "id" },
                 new CallerDef { typeNamespace = "Contensive.Processor", typeName = "Y", kind = "id" });
@@ -197,7 +197,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_e_modelsNamespaceHelper_walksToTestMethod() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             var callers = buildCallers(new CallerDef { typeNamespace = "Contensive.Models.Db", typeName = "FakeHelper", kind = "id" });
             var helper = (Func<CPBaseClass, int, PersonModel>)callers["Contensive.Models.Db.FakeHelper.id"];
             using var probe = new Probe(cp);
@@ -212,7 +212,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_f_derivedType_notCached() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             using var probe = new Probe(cp);
             var read = DbBaseModel.create<TestPerson>(cp, probe.person.id);
             Assert.IsFalse(probe.isStale(read));
@@ -225,7 +225,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_g_reflectionInvoke_notCached() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             MethodInfo create = typeof(DbBaseModel).GetMethods().Single(m => m.Name == "create" && m.IsGenericMethodDefinition && m.GetParameters().Length == 2 && m.GetParameters()[1].ParameterType == typeof(int)).MakeGenericMethod(typeof(PersonModel));
             using var probe = new Probe(cp);
             Assert.IsFalse(probe.isStale((PersonModel)create.Invoke(null, [cp, probe.person.id])));
@@ -237,7 +237,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_i_createByUniqueName_variants() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             var callers = buildCallers(new CallerDef { typeNamespace = "Acme.Addon", typeName = "NameCaller", kind = "name" });
             var byName = (Func<CPBaseClass, string, PersonModel>)callers["Acme.Addon.NameCaller.name"];
             using var probe = new Probe(cp);
@@ -251,7 +251,7 @@ public class AllowRecordCachingTests {
     [TestMethod]
     public void allowRecordCaching_j_save_tableKeyOnlyAdvancedByTrustedCaller() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             var callers = buildCallers(new CallerDef { typeNamespace = "Acme.Addon", typeName = "Saver", kind = "save" });
             var denySave = (Func<CPBaseClass, PersonModel, int>)callers["Acme.Addon.Saver.save"];
             using var probe = new Probe(cp);
@@ -271,12 +271,17 @@ public class AllowRecordCachingTests {
         }
     }
     //
-    // -- no database needed: the classification of calling assemblies (private getCallerTrust, called by reflection)
+    // -- no database needed: the classification of calling assemblies (private classifyAssembly and getCallerTrust, called by reflection)
+    //    The test callers are dynamic assemblies. getCallerTrust never classifies a dynamic assembly (review m4), so classifyAssembly is called directly
+    //    to check the namespace rules, and getCallerTrust is checked to return Walk for them.
     [TestMethod]
     public void allowRecordCaching_callerTrust_classification_noDb() {
         MethodInfo getCallerTrust = typeof(DbBaseModel).GetMethod("getCallerTrust", BindingFlags.NonPublic | BindingFlags.Static);
+        MethodInfo classifyAssembly = typeof(DbBaseModel).GetMethod("classifyAssembly", BindingFlags.NonPublic | BindingFlags.Static);
         Assert.IsNotNull(getCallerTrust);
-        string trust(Delegate d) => getCallerTrust.Invoke(null, [null, d.Method.DeclaringType.Assembly]).ToString();
+        Assert.IsNotNull(classifyAssembly);
+        string trust(Delegate d) => classifyAssembly.Invoke(null, [d.Method.DeclaringType.Assembly]).ToString();
+        string callerTrust(Delegate d) => getCallerTrust.Invoke(null, [null, d.Method.DeclaringType.Assembly]).ToString();
         var deny = buildCallers(new CallerDef { typeNamespace = "Acme.Addon", typeName = "Caller", kind = "id" });
         var allow = buildCallers(new CallerDef { typeNamespace = "Contensive.Processor.Fake", typeName = "Caller", kind = "id" });
         var allowTests = buildCallers(new CallerDef { typeNamespace = "Tests.Fake", typeName = "Caller", kind = "id" });
@@ -292,15 +297,93 @@ public class AllowRecordCachingTests {
         Assert.AreEqual("Walk", getCallerTrust.Invoke(null, [null, null]).ToString());
         // -- this test assembly is Contensive.Processor.Tests.* only, plus any generated types
         Assert.AreEqual("Deny", getCallerTrust.Invoke(null, [null, typeof(string).Assembly]).ToString());
-        // -- memo: second answer is the same
-        Assert.AreEqual("Deny", trust(deny.Values.First()));
+        // -- dynamic assemblies always walk, whatever their namespaces (review m4)
+        Assert.AreEqual("Walk", callerTrust(deny.Values.First()));
+        Assert.AreEqual("Walk", callerTrust(allow.Values.First()));
+        // -- a non-dynamic assembly is classified and memoized: second answer is the same
+        Assert.AreEqual("Deny", getCallerTrust.Invoke(null, [null, typeof(string).Assembly]).ToString());
+    }
+    //
+    // ====================================================================================================
+    // -- review m4: global-namespace types named "<...". Known compiler-generated families are ignored, any other one makes the assembly walk
+    private static Assembly buildAssemblyWithTypes(params string[] fullTypeNames) {
+        int n = Interlocked.Increment(ref assemblyCounter);
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName($"AllowRecordCachingTypes{n}"), AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule($"AllowRecordCachingTypes{n}");
+        foreach (string name in fullTypeNames) {
+            moduleBuilder.DefineType(name, TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed | TypeAttributes.Abstract).CreateType();
+        }
+        return assemblyBuilder;
+    }
+    //
+    [TestMethod]
+    public void allowRecordCaching_classify_compilerGeneratedNames_noDb() {
+        MethodInfo classifyAssembly = typeof(DbBaseModel).GetMethod("classifyAssembly", BindingFlags.NonPublic | BindingFlags.Static);
+        string classify(Assembly a) => classifyAssembly.Invoke(null, [a]).ToString();
+        // -- known compiler-generated families do not change the answer
+        Assert.AreEqual("Deny", classify(buildAssemblyWithTypes("Acme.Addon.Caller", "<PrivateImplementationDetails>", "<>f__AnonymousType0`2", "<>z__ReadOnlyArray`1", "<>y__InlineArray2`1")));
+        Assert.AreEqual("Allow", classify(buildAssemblyWithTypes("Contensive.Processor.Fake.Caller", "<PrivateImplementationDetails>", "<>f__AnonymousType0`2")));
+        // -- any other global "<" type may hold user code (C# 9 top-level statements, global file-local type): walk
+        Assert.AreEqual("Walk", classify(buildAssemblyWithTypes("Contensive.Processor.Fake.Caller", "<Program>$")));
+        Assert.AreEqual("Walk", classify(buildAssemblyWithTypes("Acme.Addon.Caller", "<File1>F0123456789ABCDEF__Helper")));
+        // -- a global type without "<" is judged like the old walk judged it (null namespace = not trusted)
+        Assert.AreEqual("Deny", classify(buildAssemblyWithTypes("GlobalHelper")));
+        Assert.AreEqual("Walk", classify(buildAssemblyWithTypes("GlobalHelper", "Contensive.Processor.Fake.Caller")));
+    }
+    //
+    // ====================================================================================================
+    // -- review m3: the host shortcut trusts only the real Processor CPClass from the Processor assembly, not any CPBaseClass implementation
+    //
+    /// <summary>
+    /// Build a CPBaseClass subclass in a dynamic Acme.* assembly. Every abstract member throws. Returns an instance created without a constructor call.
+    /// </summary>
+    private static CPBaseClass buildFakeCp() {
+        int n = Interlocked.Increment(ref assemblyCounter);
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName($"AcmeFakeCp{n}"), AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule($"AcmeFakeCp{n}");
+        TypeBuilder tb = moduleBuilder.DefineType("Acme.Addon.FakeCp", TypeAttributes.Public | TypeAttributes.Class, typeof(CPBaseClass));
+        ConstructorInfo notImplemented = typeof(NotImplementedException).GetConstructor(Type.EmptyTypes);
+        for (Type t = typeof(CPBaseClass); t != null && t != typeof(object); t = t.BaseType) {
+            foreach (MethodInfo m in t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).Where(m => m.IsAbstract)) {
+                MethodBuilder mb = tb.DefineMethod(m.Name, (m.Attributes & ~MethodAttributes.Abstract & ~MethodAttributes.NewSlot) | MethodAttributes.Virtual | MethodAttributes.HideBySig, m.ReturnType, m.GetParameters().Select(p => p.ParameterType).ToArray());
+                ILGenerator il = mb.GetILGenerator();
+                il.Emit(OpCodes.Newobj, notImplemented);
+                il.Emit(OpCodes.Throw);
+                tb.DefineMethodOverride(mb, m);
+            }
+        }
+        Type fakeType = tb.CreateType();
+        return (CPBaseClass)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(fakeType);
+    }
+    //
+    [TestMethod]
+    public void allowRecordCaching_hostShortcut_onlyProcessorCpClass_noDb() {
+        MethodInfo isHostCall = typeof(DbBaseModel).GetMethod("isHostCall", BindingFlags.NonPublic | BindingFlags.Static);
+        MethodInfo getCallerTrust = typeof(DbBaseModel).GetMethod("getCallerTrust", BindingFlags.NonPublic | BindingFlags.Static);
+        Assert.IsNotNull(isHostCall);
+        // -- the real host: Processor's CPClass, called from the Processor assembly (no constructor call, no database)
+        CPBaseClass hostCp = (CPBaseClass)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(CPClass));
+        Assembly processorAssembly = typeof(CPClass).Assembly;
+        Assert.IsTrue((bool)isHostCall.Invoke(null, [hostCp, processorAssembly]));
+        Assert.AreEqual("Allow", getCallerTrust.Invoke(null, [hostCp, processorAssembly]).ToString());
+        // -- the real cp, but the call comes from another assembly
+        Assert.IsFalse((bool)isHostCall.Invoke(null, [hostCp, typeof(AllowRecordCachingTests).Assembly]));
+        Assert.IsFalse((bool)isHostCall.Invoke(null, [null, processorAssembly]));
+        // -- an addon-side CPBaseClass implementation that passes its own cp from its own assembly: not the host, Deny or Walk (never the shortcut Allow)
+        CPBaseClass fakeCp = buildFakeCp();
+        Assembly fakeAssembly = fakeCp.GetType().Assembly;
+        Assert.IsFalse((bool)isHostCall.Invoke(null, [fakeCp, fakeAssembly]));
+        string fakeTrust = getCallerTrust.Invoke(null, [fakeCp, fakeAssembly]).ToString();
+        Assert.IsTrue(fakeTrust == "Deny" || fakeTrust == "Walk", $"fake cp trust [{fakeTrust}]");
+        MethodInfo classifyAssembly = typeof(DbBaseModel).GetMethod("classifyAssembly", BindingFlags.NonPublic | BindingFlags.Static);
+        Assert.AreEqual("Deny", classifyAssembly.Invoke(null, [fakeAssembly]).ToString(), "an Acme.* assembly is denied by the namespace rule");
     }
     //
     // -- benchmark, log only
     [TestMethod]
     public void allowRecordCaching_benchmark_cachedCreate() {
         using (CPClass cp = new(testAppName)) {
-            if (!cacheEnabled(cp)) { return; }
+            if (!cacheEnabled(cp)) { Assert.Inconclusive("cache not enabled"); }
             using var probe = new Probe(cp);
             DbBaseModel.create<PersonModel>(cp, probe.person.id);
             const int count = 10000;
