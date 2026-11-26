@@ -237,6 +237,13 @@ namespace Contensive.Processor.Models.Domain {
         /// Kill switch. If true, page and template addon dependencies are read with the original per-render sql subselects instead of the cached addon rules store. Default false (store on).
         /// </summary>
         public bool disableAddonRulesCache { get; set; }
+        //
+        /// <summary>
+        /// If true, a web request keeps a request-scoped L1 copy of every remote (Redis) cache read and of its own cache writes, so repeat reads
+        /// in the same request skip the Redis round trip. Engages only when Redis is connected and the core serves a web request; off for background/task cores
+        /// and in memory-only mode. Default true. Job 20261126-contensive-render-speed.
+        /// </summary>
+        public bool enableRequestScopedCache { get; set; }
 
         //
         //====================================================================================================
@@ -261,6 +268,7 @@ namespace Contensive.Processor.Models.Domain {
             apps = new Dictionary<string, AppConfigModel>(StringComparer.OrdinalIgnoreCase);
             enableRenderProfiler = false;
             disableAddonRulesCache = false;
+            enableRequestScopedCache = true;
             //
             // -- secrets from secret manager
             defaultDataSourceAddress = "";
