@@ -1043,7 +1043,7 @@ namespace Contensive.Processor.Controllers {
                     profiler?.recordL1Clear();
                     if (!l1CapClearLogged) {
                         l1CapClearLogged = true;
-                        logger.Debug($"{core.logCommonMessage},request-scoped cache reached {RequestScopedCache.maxEntries} entries and was cleared");
+                        logger.Debug($"{core.logCommonMessage},request-scoped cache reached its limit ({RequestScopedCache.maxEntries} entries or {RequestScopedCache.maxTotalChars} chars) and was cleared");
                     }
                     break;
                 case RequestScopedCache.SetResult.Skipped:

@@ -129,6 +129,74 @@ public class RequestScopedCacheTests {
     }
     //
     //====================================================================================================
+    // -- review m2: total size budget. An add that would pass maxTotalChars clears all entries first
+    [TestMethod]
+    public void l1_sizeBudget_clears_unit() {
+        var l1 = new RequestScopedCache();
+        // documents just under the per-entry limit
+        string json = jsonDocument(new string('x', RequestScopedCache.maxEntryChars - 200));
+        int fit = (int)(RequestScopedCache.maxTotalChars / json.Length);
+        Assert.IsTrue(fit > 1 && fit < RequestScopedCache.maxEntries, "the budget, not the entry cap, is what is tested");
+        for (int i = 0; i < fit; i++) {
+            Assert.AreEqual(RequestScopedCache.SetResult.Stored, l1.setFromWrite($"h{i}", json));
+        }
+        Assert.AreEqual((long)fit * json.Length, l1.totalChars);
+        Assert.IsTrue(l1.totalChars <= RequestScopedCache.maxTotalChars);
+        // overwriting a key replaces its size, it does not add to it
+        Assert.AreEqual(RequestScopedCache.SetResult.Stored, l1.setFromWrite("h0", json));
+        Assert.AreEqual((long)fit * json.Length, l1.totalChars);
+        Assert.AreEqual(0, l1.capClears);
+        // the next new key passes the budget
+        Assert.AreEqual(RequestScopedCache.SetResult.StoredAfterClear, l1.setFromWrite("hNew", json));
+        Assert.AreEqual(1, l1.count);
+        Assert.AreEqual(json.Length, l1.totalChars);
+        Assert.AreEqual(1, l1.capClears);
+        Assert.IsTrue(l1.tryGet("hNew", out _, out _));
+        Assert.IsFalse(l1.tryGet("h1", out _, out _));
+    }
+    //
+    //====================================================================================================
+    // -- review m2: totalChars follows remove, clear, negative entries and oversize skips
+    [TestMethod]
+    public void l1_sizeBudget_accounting_unit() {
+        var l1 = new RequestScopedCache();
+        string a = jsonDocument("aaaa");
+        string b = jsonDocument("bbbbbbbbbbbb");
+        l1.setFromWrite("a", a);
+        l1.setFromRemoteRead("b", b, Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(b));
+        l1.setMiss("m");
+        Assert.AreEqual(a.Length + b.Length, l1.totalChars, "a negative entry has no size");
+        l1.remove("a");
+        Assert.AreEqual(b.Length, l1.totalChars);
+        l1.setFromWrite("b", jsonDocument(new string('x', RequestScopedCache.maxEntryChars + 1)));
+        Assert.AreEqual(0, l1.totalChars, "an oversize write removes the older entry and its size");
+        l1.setFromWrite("a", a);
+        l1.clear();
+        Assert.AreEqual(0, l1.totalChars);
+        Assert.AreEqual(0, l1.count);
+    }
+    //
+    //====================================================================================================
+    // -- review m2: an entry keeps one form only. A remote read keeps the document; a write keeps the JSON until the first read
+    [TestMethod]
+    public void l1_singleForm_unit() {
+        var l1 = new RequestScopedCache();
+        string jsonV1 = jsonDocument("v1");
+        l1.setFromRemoteRead("r", jsonV1, Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(jsonV1));
+        Assert.AreEqual(0, l1.jsonEntryCount, "a remote-read entry holds only the document");
+        l1.setFromWrite("w", jsonDocument("v2"));
+        Assert.AreEqual(1, l1.jsonEntryCount, "a written entry holds the json until it is read");
+        Assert.IsTrue(l1.tryGet("w", out CacheDocumentClass first, out _));
+        Assert.AreEqual(0, l1.jsonEntryCount, "after the first read only the document is kept");
+        Assert.IsTrue(l1.tryGet("w", out CacheDocumentClass second, out _));
+        Assert.AreSame(first, second);
+        Assert.AreEqual("v2", second.content);
+        // a remote read with no document is not stored and removes the older entry
+        Assert.AreEqual(RequestScopedCache.SetResult.Skipped, l1.setFromRemoteRead("w", jsonV1, null));
+        Assert.IsFalse(l1.tryGet("w", out _, out _));
+    }
+    //
+    //====================================================================================================
     //
     [TestMethod]
     public void l1_clear_remove_unit() {
