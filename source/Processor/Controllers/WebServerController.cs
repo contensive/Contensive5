@@ -1129,8 +1129,7 @@ namespace Contensive.Processor.Controllers {
                 string safePath = core.appConfig.localFilesPath.TrimEnd('\\');
                 runIisUtil($"verify-cdn-vdir --name \"{core.appConfig.name}\" --cdn-prefix \"{cdnFilesPrefix}\" --physical-path \"{safePath}\"");
             } catch (Exception ex) {
-                logger.Error($"{core.logCommonMessage}", ex, "verifyCdnVirtualDirectory");
-                throw;
+                logger.Warn($"{core.logCommonMessage},verifyCdnVirtualDirectory failed, IIS site may not exist or is misconfigured. Upgrade will continue. Error: {ex.Message}");
             }
         }
         //

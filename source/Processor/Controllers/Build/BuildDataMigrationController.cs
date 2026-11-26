@@ -787,6 +787,16 @@ namespace Contensive.Processor.Controllers.Build {
                         core.siteProperties.dataBuildVersion = "26.11.12.1";
                     }
                     //
+                    if (GenericController.versionIsOlder(DataBuildVersion, "26.11.26.1")) {
+                        //
+                        // -- persist cookiePrefix for apps that never had it set in config.json
+                        if (string.IsNullOrEmpty(core.appConfig.cookiePrefix)) {
+                            core.appConfig.cookiePrefix = core.appConfig.name;
+                            core.appConfig.save(core);
+                        }
+                        core.siteProperties.dataBuildVersion = "26.11.26.1";
+                    }
+                    //
                     // -- Reload
                     core.cache.invalidateAll();
                     core.cacheRuntime.clear();

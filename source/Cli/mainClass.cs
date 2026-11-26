@@ -260,6 +260,12 @@ namespace Contensive.CLI {
                             case "--repair":
                             case "-r":
                                 //
+                                // -- require elevated permissions
+                                if (!Controllers.GenericController.isElevated()) {
+                                    Console.WriteLine("The --repair (-r) command requires elevated permissions (run as administrator).");
+                                    return;
+                                }
+                                //
                                 // -- repair one or more apps
                                 writeCommandLine("--repair", appName);
                                 RepairCmd.execute(cpServer, appName);
@@ -273,6 +279,12 @@ namespace Contensive.CLI {
                                 break;
                             case "--upgrade":
                             case "-u":
+                                //
+                                // -- require elevated permissions
+                                if (!Controllers.GenericController.isElevated()) {
+                                    Console.WriteLine("The --upgrade (-u) command requires elevated permissions (run as administrator).");
+                                    return;
+                                }
                                 //
                                 // -- upgrade one or more apps
                                 writeCommandLine("--upgrade", appName);

@@ -668,12 +668,10 @@ namespace Contensive.Processor.Controllers {
         public string cookiePrefix {
             get {
                 string cookiePrefixWorking = core.appConfig.cookiePrefix;
-                if(string.IsNullOrEmpty(cookiePrefixWorking)) { 
+                if (string.IsNullOrEmpty(cookiePrefixWorking)) {
                     //
-                    // -- unset, default to legacy appName
+                    // -- unset, default to legacy appName (in-memory only, migration persists via upgrade)
                     cookiePrefixWorking = core.appConfig.name;
-                    core.appConfig.cookiePrefix = cookiePrefixWorking;
-                    core.appConfig.save(core);
                 }
                 return encodeCookieName(cookiePrefixWorking);
             }
