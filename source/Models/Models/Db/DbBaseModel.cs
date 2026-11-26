@@ -8,6 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Contensive.Models.Db {
@@ -318,6 +319,86 @@ namespace Contensive.Models.Db {
         }
         //
         //====================================================================================================
+        // -- allowRecordCaching: memoized caller trust (job 20261126-contensive-render-speed, item 3)
+        // The original test built a StackTrace on every cached create and save, up to three times per cached create.
+        // The decision is now made once per call from the calling assembly (Assembly.GetCallingAssembly captured in the public entry points)
+        // and memoized per assembly and per type. Only when the assembly alone cannot decide does it fall back to the original stack walk.
+        // The results match the original rule, see allowRecordCaching_walkStack.
+        //
+        private enum CallerTrust { Allow, Deny, Walk }
+        private static readonly Assembly modelsAssembly = typeof(DbBaseModel).Assembly;
+        private static readonly ConditionalWeakTable<Type, object> typeAllowedMemo = new ConditionalWeakTable<Type, object>();
+        private static readonly ConditionalWeakTable<Assembly, object> callerTrustMemo = new ConditionalWeakTable<Assembly, object>();
+        private static readonly object boxedTrue = true;
+        private static readonly object boxedFalse = false;
+        //
+        /// <summary>
+        /// true if the model type is in the Contensive.Models.Db namespace. Derived types outside this namespace are never cached. Memoized per type.
+        /// </summary>
+        private static bool isCacheableModelType(Type sourceType) {
+            if (sourceType?.Namespace == null) { return false; }
+            return (bool)typeAllowedMemo.GetValue(sourceType, t => t.Namespace.ToLowerInvariant().Equals("contensive.models.db", StringComparison.Ordinal) ? boxedTrue : boxedFalse);
+        }
+        //
+        /// <summary>
+        /// Decide from the calling assembly. Allow and Deny are returned only when every namespace in the assembly gives the same answer under the original stack rule.
+        /// </summary>
+        private static CallerTrust getCallerTrust(CPBaseClass cp, Assembly callingAssembly) {
+            if (callingAssembly == null) { return CallerTrust.Walk; }
+            //
+            // -- the call came from a models helper, the original walk must look further up the stack
+            if (callingAssembly == modelsAssembly) { return CallerTrust.Walk; }
+            //
+            // -- the host assembly that implements CPBaseClass (Processor)
+            if (cp != null && callingAssembly == cp.GetType().Assembly) { return CallerTrust.Allow; }
+            return (CallerTrust)callerTrustMemo.GetValue(callingAssembly, a => classifyAssembly(a));
+        }
+        //
+        private static object classifyAssembly(Assembly assembly) {
+            try {
+                Type[] types = assembly.GetTypes();
+                bool anyTrusted = false;
+                bool anyModels = false;
+                bool allTrusted = true;
+                bool anyType = false;
+                foreach (Type type in types) {
+                    //
+                    // -- ignore top-level compiler-generated types, like <PrivateImplementationDetails>
+                    if (type.Namespace == null && type.Name.StartsWith("<", StringComparison.Ordinal)) { continue; }
+                    anyType = true;
+                    string ns = type.Namespace?.ToLowerInvariant();
+                    bool trusted = ns != null && (ns.StartsWith("contensive.processor", StringComparison.Ordinal) || ns.StartsWith("tests", StringComparison.Ordinal));
+                    bool models = ns != null && ns.StartsWith("contensive.models.db", StringComparison.Ordinal);
+                    if (trusted) { anyTrusted = true; } else { allTrusted = false; }
+                    if (models) { anyModels = true; }
+                }
+                if (anyType && allTrusted) { return CallerTrust.Allow; }
+                if (!anyTrusted && !anyModels) { return CallerTrust.Deny; }
+                return CallerTrust.Walk;
+            } catch (Exception) {
+                //
+                // -- ReflectionTypeLoadException or any other failure, use the original walk
+                return CallerTrust.Walk;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Determine if the record can be cached. See allowRecordCaching_walkStack for the rule.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="sourceType"></param>
+        /// <param name="callingAssembly">The assembly that called the public model method (create, save, ...). Null forces the original stack walk.</param>
+        private static bool allowRecordCaching(CPBaseClass cp, Type sourceType, Assembly callingAssembly) {
+            if (!isCacheableModelType(sourceType)) { return false; }
+            switch (getCallerTrust(cp, callingAssembly)) {
+                case CallerTrust.Allow: return true;
+                case CallerTrust.Deny: return false;
+                default: return allowRecordCaching_walkStack(cp, sourceType);
+            }
+        }
+        //
+        //====================================================================================================
         /// <summary>
         /// Determine if the record can be cached.
         /// If the call comes from within Contensive.DbModels or Contensive.Processor, allow record caching. Otherwise block record caching.
@@ -326,22 +407,22 @@ namespace Contensive.Models.Db {
         /// Used to block cache reads and writes for derived classes because those objects are corrupting the cache (failing deserialization into base types).
         /// Need a better fix -- maybe cache the base objects in one key and the derived class's properties in an 'extended' (or 'derived' cache).
         /// </summary>
+        /// <param name="cp"></param>
         /// <param name="sourceType"></param>
         /// <returns></returns>
-        private static bool allowRecordCaching(CPBaseClass cp, Type sourceType) {
+        private static bool allowRecordCaching_walkStack(CPBaseClass cp, Type sourceType) {
             int hint = 0;
             try {
                 if (sourceType?.Namespace == null) { return false; }
                 hint = 2;
                 //
-                var stackTrace = new StackTrace();
-                if (stackTrace == null) { return false; }
-                hint = 4;
-                //
-                // -- return false if the type is a subsclass outside of this project.
+                // -- return false if the type is a subsclass outside of this project. (test before the stack trace is built, derived types do not need it)
                 bool isModelLocal = sourceType.Namespace.ToLower().Equals("contensive.models.db");
                 hint = 10;
                 if (!isModelLocal) { return false; }
+                var stackTrace = new StackTrace();
+                if (stackTrace == null) { return false; }
+                hint = 4;
                 for (int stackPtr = 2; stackPtr <= stackTrace.FrameCount - 1; stackPtr++) {
                     hint = 20;
                     var stackFrame = stackTrace.GetFrame(stackPtr);
@@ -765,9 +846,10 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="recordId"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T create<T>(CPBaseClass cp, int recordId) where T : DbBaseModel {
             var tempVar = new List<string>();
-            return create<T>(cp, recordId, ref tempVar);
+            return createById<T>(cp, recordId, ref tempVar, Assembly.GetCallingAssembly());
         }
         //
         //====================================================================================================
@@ -780,10 +862,15 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="recordId">The id of the record to be read into the new object</param>
         /// <param name="callersCacheNameList">Any cachenames effected by this record will be added to this list. If the method consumer creates a cache object, add these cachenames to its dependent cachename list.</param>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T create<T>(CPBaseClass cp, int recordId, ref List<string> callersCacheNameList) where T : DbBaseModel {
+            return createById<T>(cp, recordId, ref callersCacheNameList, Assembly.GetCallingAssembly());
+        }
+        //
+        private static T createById<T>(CPBaseClass cp, int recordId, ref List<string> callersCacheNameList, Assembly callingAssembly) where T : DbBaseModel {
             try {
                 if (recordId <= 0) { return default; }
-                T result = allowRecordCaching(cp, typeof(T)) ? readRecordCache<T>(cp, recordId) : null;
+                T result = allowRecordCaching(cp, typeof(T), callingAssembly) ? readRecordCache<T>(cp, recordId) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(id=" + recordId + ")", "id"));
                 if (dt?.Rows == null) { return default; }
@@ -807,9 +894,10 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="recordGuid"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T create<T>(CPBaseClass cp, string recordGuid) where T : DbBaseModel {
             var cacheNameList = new List<string>();
-            return create<T>(cp, recordGuid, ref cacheNameList);
+            return createByGuid<T>(cp, recordGuid, ref cacheNameList, Assembly.GetCallingAssembly());
         }
         //
         //====================================================================================================
@@ -822,10 +910,15 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="recordGuid"></param>
         /// <param name="callersCacheNameList">A list of cache keys whose invalidation will invalidate this data</param>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T create<T>(CPBaseClass cp, string recordGuid, ref List<string> callersCacheNameList) where T : DbBaseModel {
+            return createByGuid<T>(cp, recordGuid, ref callersCacheNameList, Assembly.GetCallingAssembly());
+        }
+        //
+        private static T createByGuid<T>(CPBaseClass cp, string recordGuid, ref List<string> callersCacheNameList, Assembly callingAssembly) where T : DbBaseModel {
             try {
                 if (string.IsNullOrEmpty(recordGuid)) { return default; }
-                T result = allowRecordCaching(cp, typeof(T)) ? readRecordCacheByGuidPtr<T>(cp, recordGuid) : null;
+                T result = allowRecordCaching(cp, typeof(T), callingAssembly) ? readRecordCacheByGuidPtr<T>(cp, recordGuid) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(ccGuid=" + cp.Db.EncodeSQLText(recordGuid) + ")", "id"));
                 if (dt?.Rows == null) { return default; }
@@ -848,9 +941,10 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="recordName"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName) where T : DbBaseModel {
             var cacheNameList = new List<string>();
-            T result = createByUniqueName<T>(cp, recordName, ref cacheNameList);
+            T result = createByName<T>(cp, recordName, ref cacheNameList, Assembly.GetCallingAssembly());
             return result;
         }
         //
@@ -864,12 +958,17 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="recordName"></param>
         /// <param name="callersCacheNameList">method will add the cache name to this list.</param>
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName, ref List<string> callersCacheNameList) where T : DbBaseModel {
+            return createByName<T>(cp, recordName, ref callersCacheNameList, Assembly.GetCallingAssembly());
+        }
+        //
+        private static T createByName<T>(CPBaseClass cp, string recordName, ref List<string> callersCacheNameList, Assembly callingAssembly) where T : DbBaseModel {
             try {
                 if (string.IsNullOrEmpty(recordName)) { return null; }
                 //
                 // -- attempt cache read
-                T result = (allowRecordCaching(cp, typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
+                T result = (allowRecordCaching(cp, typeof(T), callingAssembly) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
                 if (result != null) { return result; }
                 //
                 // -- attempt sql read
@@ -1057,7 +1156,7 @@ namespace Contensive.Models.Db {
                 // -- test remove
                 //
                 if (false) {
-                    if (allowRecordCaching(cp, instanceType) && (this != null)) {
+                    if (allowRecordCaching(cp, instanceType, null) && (this != null)) {
                         //
                         // -- set primary cache to the object created
                         // -- set secondary caches to the primary cache
@@ -1170,7 +1269,8 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public int save(CPBaseClass cp) => save(cp, 0, false);
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public int save(CPBaseClass cp) => saveInternal(cp, 0, false, Assembly.GetCallingAssembly());
         //
         //====================================================================================================
         /// <summary>
@@ -1180,7 +1280,8 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public int save(CPBaseClass cp, int userId) => save(cp, userId, false);
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public int save(CPBaseClass cp, int userId) => saveInternal(cp, userId, false, Assembly.GetCallingAssembly());
         //
         //====================================================================================================
         /// <summary>
@@ -1190,7 +1291,10 @@ namespace Contensive.Models.Db {
         /// <param name="userId"></param>
         /// <param name="asyncSave">Not implemented</param>
         /// <returns></returns>
-        public int save(CPBaseClass cp, int userId, bool asyncSave) {
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public int save(CPBaseClass cp, int userId, bool asyncSave) => saveInternal(cp, userId, asyncSave, Assembly.GetCallingAssembly());
+        //
+        private int saveInternal(CPBaseClass cp, int userId, bool asyncSave, Assembly callingAssembly) {
             try {
                 //
                 // -- get derived class tablename and data ssource
@@ -1413,7 +1517,7 @@ namespace Contensive.Models.Db {
                 // -- recapture snapshot after save so subsequent saves track from this point
                 captureSnapshot();
                 string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
-                if (!allowRecordCaching(cp, this.GetType())) {
+                if (!allowRecordCaching(cp, this.GetType(), callingAssembly)) {
                     //
                     // -- the object being saved is a derived type and cannot be saved to the base object's cache. Clear the cache
                     cp.Cache.Invalidate(cacheKey);
@@ -2018,7 +2122,7 @@ namespace Contensive.Models.Db {
         /// <param name="recordId"></param>
         /// <returns></returns>
         private static T readRecordCache<T>(CPBaseClass cp, int recordId) where T : DbBaseModel {
-            if (!allowRecordCaching(cp, typeof(T))) { return null; }
+            // -- the caller has already decided allowRecordCaching is true
             T result = cp.Cache.GetObject<T>(cp.Cache.CreateRecordKey(recordId, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -2033,7 +2137,7 @@ namespace Contensive.Models.Db {
         /// <param name="ccGuid"></param>
         /// <returns></returns>
         private static T readRecordCacheByGuidPtr<T>(CPBaseClass cp, string ccGuid) where T : DbBaseModel {
-            if (!allowRecordCaching(cp, typeof(T))) { return null; }
+            // -- the caller has already decided allowRecordCaching is true
             T result = cp.Cache.GetObject<T>(cp.Cache.CreatePtrKeyforDbRecordGuid(ccGuid, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -2048,7 +2152,7 @@ namespace Contensive.Models.Db {
         /// <param name="uniqueName"></param>
         /// <returns></returns>
         private static T readRecordCacheByUniqueNamePtr<T>(CPBaseClass cp, string uniqueName) where T : DbBaseModel {
-            if (!allowRecordCaching(cp, typeof(T))) { return null; }
+            // -- the caller has already decided allowRecordCaching is true
             T result = cp.Cache.GetObject<T>(cp.Cache.CreatePtrKeyforDbRecordUniqueName(uniqueName, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -2060,7 +2164,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         private static void restoreCacheDataObjects<T>(CPBaseClass cp, T restoredInstance) {
             if (restoredInstance == null) { return; }
-            if (!allowRecordCaching(cp, typeof(T))) { return; }
+            // -- only called after a cache read, which is only done when allowRecordCaching is true
             foreach (PropertyInfo instanceProperty in restoredInstance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 // todo change test to is-subsclass-of-fieldCdnFile
                 switch (instanceProperty.PropertyType.Name) {
