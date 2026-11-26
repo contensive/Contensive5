@@ -42,6 +42,11 @@ namespace Contensive.Processor.Controllers {
                         clearLayout();
                         break;
                     }
+                case "ccaddonpagerules":
+                case "ccaddontemplaterules": {
+                        clearAddonRules();
+                        break;
+                    }
             }
         }
         //
@@ -56,6 +61,7 @@ namespace Contensive.Processor.Controllers {
             clearLinkAlias();
             clearLayout();
             clearAddon();
+            clearAddonRules();
             //
             if (_dataSourceDictionary != null) { _dataSourceDictionary = null; }
             metaDataDictionary.Clear();
@@ -111,6 +117,47 @@ namespace Contensive.Processor.Controllers {
         }
         private CacheStore_AddonModel _addonCache;
         internal const string cacheName_addonCache = "addonCache";
+        //
+        //===================================================================================================
+        /// <summary>
+        /// The page and template addon dependencies (add-on page rules, add-on template rules), lazy populated from cache.
+        /// An empty store (a site with no rules) is a valid cached value, so it is not rebuilt on every request.
+        /// Resolution to addons goes through addonCache, so addon changes are covered by its dependencies.
+        /// </summary>
+        public CacheStore_AddonRulesModel addonRulesCache {
+            get {
+                if (_addonRulesCache != null) { return _addonRulesCache; }
+                //
+                logger.Trace($"{core.logCommonMessage},CacheRuntime.addonRulesCache constuctor");
+                //
+                // -- populate local version from cache. No isEmpty test: a site with zero rules must not rebuild on every request
+                _addonRulesCache = core.cache.getObject<CacheStore_AddonRulesModel>(cacheName_addonRulesCache);
+                if (_addonRulesCache != null) { return _addonRulesCache; }
+                //
+                // -- rebuild cache
+                core.profiler?.markRebuild("addonRules");
+                _addonRulesCache = new CacheStore_AddonRulesModel(core);
+                List<CacheKeyHashClass> dependencyList = [
+                    core.cache.createTableDependencyKeyHash(AddonTemplateRuleModel.tableMetadata.tableNameLower),
+                    core.cache.createTableDependencyKeyHash(AddonPageRuleModel.tableMetadata.tableNameLower)
+                ];
+                core.cache.storeObject(cacheName_addonRulesCache, _addonRulesCache, dependencyList);
+                return _addonRulesCache;
+            }
+        }
+        private CacheStore_AddonRulesModel _addonRulesCache;
+        internal const string cacheName_addonRulesCache = "addonRulesCache";
+        //
+        /// <summary>
+        /// method to clear the core instance of the addon rules store and invalidate its cache entry
+        /// </summary>
+        public void clearAddonRules() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.clearAddonRules");
+            //
+            core.cache.invalidate(cacheName_addonRulesCache);
+            _addonRulesCache = null;
+        }
         //
         /// <summary>
         /// method to clear the core instance of routeMap. Explained in routeMap.
