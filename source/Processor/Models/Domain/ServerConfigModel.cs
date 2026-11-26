@@ -226,6 +226,17 @@ namespace Contensive.Processor.Models.Domain {
         /// List of all apps on this server
         /// </summary>
         public Dictionary<string, AppConfigModel> apps { get; set; }
+        //
+        /// <summary>
+        /// Diagnostic. If true, web requests collect a render profile (sql, cache tiers, addon timing), write one Info line to the Contensive.RenderProfile logger,
+        /// and add an HTML comment for authenticated admins only. Applies to all apps on the server. Default false. Job 20261126-contensive-render-speed.
+        /// </summary>
+        public bool enableRenderProfiler { get; set; }
+        //
+        /// <summary>
+        /// Kill switch. If true, page and template addon dependencies are read with the original per-render sql subselects instead of the cached addon rules store. Default false (store on).
+        /// </summary>
+        public bool disableAddonRulesCache { get; set; }
 
         //
         //====================================================================================================
@@ -248,6 +259,8 @@ namespace Contensive.Processor.Models.Domain {
             awsCloudWatchLogGroup = "";
             awsSecretName = "";
             apps = new Dictionary<string, AppConfigModel>(StringComparer.OrdinalIgnoreCase);
+            enableRenderProfiler = false;
+            disableAddonRulesCache = false;
             //
             // -- secrets from secret manager
             defaultDataSourceAddress = "";
