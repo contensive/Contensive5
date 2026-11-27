@@ -366,6 +366,27 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
+        /// Returns true if the deserialized config contains only the three bootstrap properties
+        /// (useSecretManager, awsRegionName, awsSecretName) and all other meaningful properties
+        /// are at their default/empty values. This indicates the config was previously using
+        /// secret manager and the full configuration still lives in AWS.
+        /// </summary>
+        private static bool isBootstrapOnly(ServerConfigModel config) {
+            if (string.IsNullOrEmpty(config.awsRegionName) || string.IsNullOrEmpty(config.awsSecretName)) {
+                return false;
+            }
+            return (string.IsNullOrEmpty(config.name))
+                && string.IsNullOrEmpty(config.defaultDataSourceAddress)
+                && string.IsNullOrEmpty(config.defaultDataSourceUsername)
+                && string.IsNullOrEmpty(config.defaultDataSourcePassword)
+                && string.IsNullOrEmpty(config.awsAccessKey)
+                && string.IsNullOrEmpty(config.awsSecretAccessKey)
+                && string.IsNullOrEmpty(config.awsBucketName)
+                && (config.apps == null || config.apps.Count == 0);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// get ServerConfig, returning only the server data section without specific serverConfig.app
         /// </summary>
         /// <param name="cp"></param>
@@ -403,6 +424,26 @@ namespace Contensive.Processor.Models.Domain {
                 // -- deserialize bootstrap config from file
                 var bootstrapConfig = DeserializeObject<ServerConfigModel>(JSONTemp);
                 if (!bootstrapConfig.useSecretManager) {
+                    //
+                    // -- useSecretManager is false. Check if config.json contains only bootstrap
+                    // -- properties, indicating secret manager was just turned off and the full
+                    // -- config needs to be restored from AWS Secret Manager back to config.json
+                    if (isBootstrapOnly(bootstrapConfig)) {
+                        var restoreRegion = bootstrapConfig.getAwsRegion();
+                        if (restoreRegion != null) {
+                            string restoreSecretName = bootstrapConfig.awsSecretName;
+                            string restoreJson = AwsSecretManagerController.tryGetSecret(core, restoreRegion, restoreSecretName);
+                            if (!string.IsNullOrEmpty(restoreJson)) {
+                                logger.Info($"{core.logCommonMessage},ServerConfigModel.create, restoring config.json from secret [{restoreSecretName}] because useSecretManager was set to false");
+                                var restoredConfig = DeserializeObject<ServerConfigModel>(restoreJson);
+                                restoredConfig.useSecretManager = false;
+                                restoredConfig.core = core;
+                                restoredConfig.save(core);
+                                return restoredConfig;
+                            }
+                            logger.Warn($"{core.logCommonMessage},ServerConfigModel.create, useSecretManager is false and config.json has only bootstrap properties, but secret [{restoreSecretName}] was empty or not found");
+                        }
+                    }
                     //
                     // -- file-based config (current behavior), return as-is
                     bootstrapConfig.core = core;
