@@ -101,9 +101,15 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         // ----- objects constructed that must be disposed
         /// <summary>
-        /// AWS client. Dispose on close
+        /// Redis connection. When redisConnectionIsShared it belongs to SharedRedisConnectionPool and must never be closed or disposed here.
+        /// Otherwise (enableSharedRedisConnection=false) it was created by this instance: dispose on close.
         /// </summary>
         private readonly ConnectionMultiplexer redisConnectionGroup;
+        //
+        /// <summary>
+        /// true if redisConnectionGroup is the process-wide shared multiplexer (do not dispose)
+        /// </summary>
+        private readonly bool redisConnectionIsShared;
         //
         private readonly IDatabase redisDb;
         //
@@ -121,6 +127,56 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private bool? _allowCache = null;
+        //
+        // ====================================================================================================
+        // ----- request-scoped L1 (job 20261126-contensive-render-speed, item 2)
+        /// <summary>
+        /// Request-scoped L1 in front of the remote tier. Created on first use while L1 is active, cleared on invalidateAll and Dispose.
+        /// Once created it is kept coherent with every write made through this controller, even if the flag is turned off later.
+        /// </summary>
+        private RequestScopedCache l1;
+        /// <summary>
+        /// true after the first cap clear was logged, so the Debug line is written once per core
+        /// </summary>
+        private bool l1CapClearLogged;
+        //
+        /// <summary>
+        /// L1 is active only when the flag is on, Redis is connected and this core serves a web request. Checked on each access so tests can flip the flag on a live core.
+        /// Off for background/task cores (long-lived, would become a stale cache) and for memory-only or file-only modes (nothing to save).
+        /// </summary>
+        private bool l1Active => remoteCacheInitialized && core.isWebRequest && core.serverConfig.enableRequestScopedCache;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. True if the request-scoped L1 cache is used for reads by this controller right now.
+        /// </summary>
+        public bool requestScopedCacheActive => l1Active;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. The number of entries in the request-scoped L1 cache (0 if it was never used).
+        /// </summary>
+        public int requestScopedCacheCount => l1?.count ?? 0;
+        //
+        // ====================================================================================================
+        // ----- shared redis connection (job 20261126-contensive-render-speed, amendment A1)
+        /// <summary>
+        /// Diagnostic and test hook. The Redis multiplexer used by this controller, or null. Never close or dispose it.
+        /// </summary>
+        public ConnectionMultiplexer redisConnection => redisConnectionGroup;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. True if this controller uses the process-wide shared Redis multiplexer.
+        /// </summary>
+        public bool redisConnectionShared => redisConnectionIsShared;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. Number of times the shared pool registered its connection handlers (one per shared multiplexer created in this process).
+        /// </summary>
+        public static int sharedRedisHandlerRegistrations => SharedRedisConnectionPool.shared.handlerRegistrations;
+        //
+        /// <summary>
+        /// Diagnostic and test hook. Number of endpoints with a shared multiplexer in this process.
+        /// </summary>
+        public static int sharedRedisConnectionCount => SharedRedisConnectionPool.shared.count;
         //
         // ====================================================================================================
         /// <summary>
@@ -157,11 +213,30 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Redis implementation
                 string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
-                if (!string.IsNullOrEmpty(cacheEndpoint)) {
+                if (!string.IsNullOrEmpty(cacheEndpoint) && core.serverConfig.enableSharedRedisConnection) {
+                    //
+                    // -- shared multiplexer per process and endpoint. Handlers are registered once by the pool. Connect time is only paid by the first request.
+                    long redisConnectStart = core.profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
+                    redisConnectionGroup = SharedRedisConnectionPool.shared.get(cacheEndpoint);
+                    if (redisConnectStart != 0) { core.profiler?.recordRedisConnect(System.Diagnostics.Stopwatch.GetTimestamp() - redisConnectStart); }
+                    if (redisConnectionGroup == null) {
+                        //
+                        // -- a recent connect failed, the endpoint is in back-off. Continue without remote cache, as after a failed connect
+                        logger.Debug($"{core.logCommonMessage},Redis connect is in back-off after a failed attempt, will continue with remote cache disabled for this request.");
+                        return;
+                    }
+                    redisConnectionIsShared = true;
+                    redisDb = redisConnectionGroup.GetDatabase();
+                    remoteCacheInitialized = true;
+                } else if (!string.IsNullOrEmpty(cacheEndpoint)) {
+                    //
+                    // -- enableSharedRedisConnection=false: one connection per CacheController, disposed with it (behaviour before A1)
                     var options = ConfigurationOptions.Parse(cacheEndpoint);
                     options.AbortOnConnectFail = false;
                     options.ConnectTimeout = 5000;
+                    long redisConnectStart = core.profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     redisConnectionGroup = ConnectionMultiplexer.Connect(options);
+                    if (redisConnectStart != 0) { core.profiler?.recordRedisConnect(System.Diagnostics.Stopwatch.GetTimestamp() - redisConnectStart); }
                     if (redisConnectionGroup != null) {
                         redisConnectionGroup.ConnectionFailed += (sender, e) => {
                             logger.Warn($"{core.logCommonMessage},Redis connection failed: {e.Exception?.Message}");
@@ -227,6 +302,7 @@ namespace Contensive.Processor.Controllers {
                 // -- test all dependent objects for invalidation (if they have changed since this object changed, it is invalid)
                 bool cacheHit = true;
                 foreach (CacheKeyHashClass dependentKeyHash in cacheDocument.dependentKeyHashList) {
+                    core.profiler?.recordDependencyCheck();
                     CacheDocumentClass dependantCacheDocument = getCacheDocument(dependentKeyHash);
                     if (dependantCacheDocument == null) {
                         // create dummy cache to validate future cache requests, fake saveDate as last globalinvalidationdate
@@ -350,32 +426,71 @@ namespace Contensive.Processor.Controllers {
                 if (!allowCache) { return default; }
                 CacheDocumentClass result = null;
                 string typeMessage = "";
-                if (remoteCacheInitialized) {
+                RenderProfilerController profiler = core.profiler;
+                //
+                // -- request-scoped L1: a hit returns the document; a negative entry skips the remote read and continues to the local tiers
+                RequestScopedCache l1Read = null;
+                bool l1Miss = false;
+                if (l1Active) {
+                    l1Read = System.Threading.LazyInitializer.EnsureInitialized(ref l1);
+                    long l1Start = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
+                    bool l1Hit = l1Read.tryGet(keyHash.hash, out CacheDocumentClass l1Doc, out l1Miss);
+                    if (l1Miss) { typeMessage = "request-l1-negative"; }
+                    if (profiler != null) {
+                        long l1Ticks = System.Diagnostics.Stopwatch.GetTimestamp() - l1Start;
+                        if (l1Miss) {
+                            profiler.recordL1Negative(l1Ticks);
+                        } else {
+                            profiler.recordCacheRead(RenderProfilerController.CacheTier.L1, l1Hit, l1Ticks);
+                        }
+                    }
+                    if (l1Hit && !l1Miss) {
+                        if (l1Doc.dependentKeyHashList == null) { l1Doc.dependentKeyHashList = new List<CacheKeyHashClass>(); }
+                        logger.Trace($"{core.logCommonMessage},cache hit, cacheType [request-l1], key [{keyHash.key}], saveDate [{l1Doc.saveDate}]");
+                        return l1Doc;
+                    }
+                }
+                if (remoteCacheInitialized && !l1Miss) {
                     //
                     // -- use remote cache
                     typeMessage = "remote";
+                    long remoteStart = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     try {
                         RedisKey redisKey = new RedisKey(keyHash.hash);
                         RedisValue redisValue = redisDb.StringGet(redisKey);
                         if (!redisValue.IsNull) {
-                            result = Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(redisValue);
+                            string redisJson = redisValue;
+                            result = Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(redisJson);
+                            if (l1Read != null) {
+                                if (result == null) {
+                                    l1Read.remove(keyHash.hash);
+                                } else {
+                                    recordL1Set(l1Read.setFromRemoteRead(keyHash.hash, redisJson, result), profiler);
+                                }
+                            }
+                        } else if (l1Read != null) {
+                            recordL1Set(l1Read.setMiss(keyHash.hash), profiler);
                         }
                     } catch (Exception ex) {
                         //
                         // -- remote cache read failed, fall through to local memory/file cache
                         logger.Error(ex, $"{core.logCommonMessage},remote cache read failed, falling back to local");
                     }
+                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.Remote, result != null, System.Diagnostics.Stopwatch.GetTimestamp() - remoteStart); }
                 }
                 if ((result == null) && core.serverConfig.enableLocalMemoryCache) {
                     //
                     // -- local memory cache
                     typeMessage = "local-memory";
+                    long memoryStart = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     result = (CacheDocumentClass)MemoryCache.Default[keyHash.hash];
+                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.LocalMemory, result != null, System.Diagnostics.Stopwatch.GetTimestamp() - memoryStart); }
                 }
                 if ((result == null) && core.serverConfig.enableLocalFileCache) {
                     //
                     // -- local file cache
                     typeMessage = "local-file";
+                    long fileStart = profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                     string serializedDataObject = null;
                     using (System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash)) {
                         mutex.WaitOne();
@@ -386,6 +501,7 @@ namespace Contensive.Processor.Controllers {
                         result = DeserializeObject<CacheDocumentClass>(serializedDataObject);
                         storeCacheDocument_MemoryCache(keyHash, result);
                     }
+                    if (profiler != null) { profiler.recordCacheRead(RenderProfilerController.CacheTier.LocalFile, result != null, System.Diagnostics.Stopwatch.GetTimestamp() - fileStart); }
                 }
                 //
                 // -- log result
@@ -616,6 +732,10 @@ namespace Contensive.Processor.Controllers {
         public void invalidateAll() {
             try {
                 if (!allowCache) { return; }
+                if (l1 != null) {
+                    l1.clear();
+                    if (core.profiler != null) { core.profiler.l1Entries = 0; }
+                }
                 CacheKeyHashClass keyHash = createKeyHash(cacheNameGlobalInvalidationDate);
                 storeCacheDocument(keyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = core.dateTimeNowMockable });
                 _globalInvalidationDate = null;
@@ -811,6 +931,7 @@ namespace Contensive.Processor.Controllers {
                 bool setDefault = false;
                 CacheKeyHashClass globalInvalidationDateKeyHash = createKeyHash(cacheNameGlobalInvalidationDate);
                 if (_globalInvalidationDate == null) {
+                    core.profiler?.recordGlobalInvalidationRead();
                     CacheDocumentClass dataObject = getCacheDocument(globalInvalidationDateKeyHash);
                     if (dataObject != null) {
                         _globalInvalidationDate = dataObject.saveDate;
@@ -855,14 +976,20 @@ namespace Contensive.Processor.Controllers {
                     return;
                 }
                 string cacheTypeMsg = "";
+                long writeStart = core.profiler == null ? 0 : System.Diagnostics.Stopwatch.GetTimestamp();
                 if (core.serverConfig.enableRemoteCache) {
                     //
                     // -- save remote cache first (shared source of truth for multi-instance)
                     cacheTypeMsg = "remote";
                     if (remoteCacheInitialized) {
+                        //
+                        // -- keep the request-scoped L1 coherent with this write, even if the Redis write below fails, so this request sees its own write
+                        RequestScopedCache l1Write = l1Active ? System.Threading.LazyInitializer.EnsureInitialized(ref l1) : l1;
+                        string jsonCacheDocument = null;
                         try {
                             var redisKey = new RedisKey(keyHash.hash);
-                            string jsonCacheDocument = SerializeObject(cacheDocument);
+                            jsonCacheDocument = SerializeObject(cacheDocument);
+                            if (l1Write != null) { recordL1Set(l1Write.setFromWrite(keyHash.hash, jsonCacheDocument), core.profiler); }
                             var redisValue = new RedisValue(jsonCacheDocument);
                             TimeSpan redisTimeSpan = cacheDocument.invalidationDate.Subtract(core.dateTimeNowMockable);
                             if (redisTimeSpan <= TimeSpan.Zero) {
@@ -871,6 +998,9 @@ namespace Contensive.Processor.Controllers {
                                 redisDb.StringSet(redisKey, redisValue, redisTimeSpan, flags: CommandFlags.FireAndForget);
                             }
                         } catch (Exception ex) {
+                            //
+                            // -- if the document could not be serialized, L1 was not updated; drop the old entry so it cannot be returned
+                            if ((l1Write != null) && (jsonCacheDocument == null)) { l1Write.remove(keyHash.hash); }
                             //
                             // -- remote cache write failed, continue with local caches
                             logger.Error(ex, $"{core.logCommonMessage},remote cache write failed, continuing with local caches");
@@ -892,6 +1022,7 @@ namespace Contensive.Processor.Controllers {
                     core.privateFiles.saveFile("appCache\\" + FileController.sanitizePathFilename(keyHash + ".txt", BaseModels.ServerConfigBaseModel.FilenameSanitizationLevelEnum.Permissive), serializedData);
                     mutex.ReleaseMutex();
                 }
+                if (writeStart != 0) { core.profiler?.recordCacheWrite(System.Diagnostics.Stopwatch.GetTimestamp() - writeStart); }
                 string depKey = cacheDocument.keyPtrHash?.key ?? "";
                 string dependentKeyHashList = cacheDocument.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count == 0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
                 logger.Trace($"{core.logCommonMessage},cacheType [{cacheTypeMsg}], key [{keyHash.key}], invalidationDate [{cacheDocument.invalidationDate}], depends on [{dependentKeyHashList}], points to key [{depKey}]");
@@ -900,6 +1031,26 @@ namespace Contensive.Processor.Controllers {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// update profiler counters after an L1 add, and log the first cap clear for this core
+        /// </summary>
+        private void recordL1Set(RequestScopedCache.SetResult setResult, RenderProfilerController profiler) {
+            switch (setResult) {
+                case RequestScopedCache.SetResult.StoredAfterClear:
+                    profiler?.recordL1Clear();
+                    if (!l1CapClearLogged) {
+                        l1CapClearLogged = true;
+                        logger.Debug($"{core.logCommonMessage},request-scoped cache reached its limit ({RequestScopedCache.maxEntries} entries or {RequestScopedCache.maxTotalChars} chars) and was cleared");
+                    }
+                    break;
+                case RequestScopedCache.SetResult.Skipped:
+                    profiler?.recordL1Skip();
+                    break;
+            }
+            if (profiler != null) { profiler.l1Entries = l1?.count ?? 0; }
         }
         //
         //====================================================================================================
@@ -987,7 +1138,11 @@ namespace Contensive.Processor.Controllers {
             if (!this.disposed) {
                 this.disposed = true;
                 if (disposing) {
-                    if (redisConnectionGroup != null) {
+                    l1?.clear();
+                    l1 = null;
+                    //
+                    // -- never close the shared multiplexer, other requests use it
+                    if ((redisConnectionGroup != null) && !redisConnectionIsShared) {
                         redisConnectionGroup.Close();
                         redisConnectionGroup.Dispose();
                     }

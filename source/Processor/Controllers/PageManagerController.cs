@@ -142,7 +142,11 @@ namespace Contensive.Processor.Controllers {
                 };
                 //
                 // -- execute template Dependencies
-                List<AddonModel> templateAddonList = AddonModel.createList_templateDependencies(core.cpParent, core.doc.pageController.template.id);
+                // -- the cached rules store replaces two sql subselects per render. disableAddonRulesCache is the kill switch back to the sql path.
+                bool useRulesStore = !core.serverConfig.disableAddonRulesCache;
+                List<AddonModel> templateAddonList = useRulesStore
+                    ? core.cacheRuntime.addonRulesCache.getTemplateAddonList(core, core.doc.pageController.template.id)
+                    : AddonModel.createList_templateDependencies(core.cpParent, core.doc.pageController.template.id);
                 if (templateAddonList.Count > 0) {
                     string addonContextMessage = executeContext.errorContextMessage;
                     foreach (AddonModel addon in templateAddonList) {
@@ -153,7 +157,9 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- execute page Dependencies
-                List<AddonModel> pageAddonList = AddonModel.createList_pageDependencies(core.cpParent, page.id);
+                List<AddonModel> pageAddonList = useRulesStore
+                    ? core.cacheRuntime.addonRulesCache.getPageAddonList(core, page.id)
+                    : AddonModel.createList_pageDependencies(core.cpParent, page.id);
                 if (pageAddonList.Count > 0) {
                     string addonContextMessage = executeContext.errorContextMessage;
                     foreach (AddonModel addon in pageAddonList) {

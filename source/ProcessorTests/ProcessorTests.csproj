@@ -74,5 +74,7 @@
   <ItemGroup>
     <!-- Processor is strong-named and this project is not, so InternalsVisibleTo cannot be used. Pure internal helpers are compiled in as linked source. -->
     <Compile Include="..\Processor\Controllers\SessionFingerprintPolicy.cs" Link="Linked\SessionFingerprintPolicy.cs" />
+    <Compile Include="..\Processor\Controllers\RequestScopedCache.cs" Link="Linked\RequestScopedCache.cs" />
+    <Compile Include="..\Processor\Controllers\SharedRedisConnectionPool.cs" Link="Linked\SharedRedisConnectionPool.cs" />
   </ItemGroup>
 </Project>

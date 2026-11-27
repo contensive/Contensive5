@@ -631,6 +631,17 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// true if this core was constructed for a web request (a non-null httpContext). False for tasks, cli and other non-web cores.
+        /// </summary>
+        public bool isWebRequest { get; private set; }
+        //
+        /// <summary>
+        /// The render profiler. Null unless serverConfig.enableRenderProfiler is true and this is a web request. Tests may attach one. Every use must null-check.
+        /// </summary>
+        public RenderProfilerController profiler { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// coreClass constructor for app, non-Internet use. coreClass is the primary object internally, created by cp.
         /// Sessions are disabled, so user, visit and visitor are empty objects. To create a session.user, call session.verifyUser()
         /// </summary>
@@ -667,6 +678,7 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp, string appName, HttpContextModel httpContext, bool allowVisit) {
             try {
                 //
+                isWebRequest = (httpContext != null);
                 cpParent = cp;
                 cpParent.core = this;
                 cacheRuntime.metaDataDictionary = [];
@@ -680,6 +692,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 serverConfig = ServerConfigModel.create(this);
                 serverConfig.defaultDataSourceType = ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
+                if (serverConfig.enableRenderProfiler && isWebRequest) { profiler = new RenderProfilerController(); }
                 doc.continueProcessing = true;
                 appConfig = null;
                 if (!string.IsNullOrEmpty(appName)) {
@@ -869,6 +882,15 @@ namespace Contensive.Processor.Controllers {
                             PerformanceMetricsController.Record(appConfig.name, doc.appStopWatch.ElapsedMilliseconds);
                             PerformanceMetricsController.PersistMetrics(cpParent, appConfig.name);
                         }
+                        //
+                        // -- render profile log line. Must never throw out of Dispose, or the objects below are not released
+                        if (profiler != null) {
+                            try {
+                                profiler.writeLog(this);
+                            } catch (Exception ex) {
+                                logger.Warn(ex, $"{RenderProfilerController.getSafeLogCommonMessage(this)},render profiler output failed");
+                            }
+                        }
                         hint = "60";
                         //
                         // ----- dispose objects created here
@@ -883,6 +905,9 @@ namespace Contensive.Processor.Controllers {
                             _db = null;
                         }
                         //
+                        // -- after Dispose this core no longer serves the request. A later core.cache (for example a background task that kept this cp)
+                        //    gets a new CacheController; with isWebRequest false its request-scoped L1 stays off, so it cannot become a long-lived snapshot cache.
+                        isWebRequest = false;
                         if (_cache != null) {
                             _cache.Dispose();
                             _cache = null;

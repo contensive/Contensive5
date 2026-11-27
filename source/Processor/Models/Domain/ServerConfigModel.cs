@@ -226,6 +226,30 @@ namespace Contensive.Processor.Models.Domain {
         /// List of all apps on this server
         /// </summary>
         public Dictionary<string, AppConfigModel> apps { get; set; }
+        //
+        /// <summary>
+        /// Diagnostic. If true, web requests collect a render profile (sql, cache tiers, addon timing), write one Info line to the Contensive.RenderProfile logger,
+        /// and add an HTML comment for authenticated admins only. Applies to all apps on the server. Default false. Job 20261126-contensive-render-speed.
+        /// </summary>
+        public bool enableRenderProfiler { get; set; }
+        //
+        /// <summary>
+        /// Kill switch. If true, page and template addon dependencies are read with the original per-render sql subselects instead of the cached addon rules store. Default false (store on).
+        /// </summary>
+        public bool disableAddonRulesCache { get; set; }
+        //
+        /// <summary>
+        /// If true, a web request keeps a request-scoped L1 copy of every remote (Redis) cache read and of its own cache writes, so repeat reads
+        /// in the same request skip the Redis round trip. Engages only when Redis is connected and the core serves a web request; off for background/task cores
+        /// and in memory-only mode. Default true. Job 20261126-contensive-render-speed.
+        /// </summary>
+        public bool enableRequestScopedCache { get; set; }
+        //
+        /// <summary>
+        /// If true, all cores in the process share one Redis connection (ConnectionMultiplexer) per endpoint, created on first use and kept open.
+        /// If false, each core opens its own connection and closes it at the end (behaviour before job 20261126-contensive-render-speed). Only affects Redis mode. Default true.
+        /// </summary>
+        public bool enableSharedRedisConnection { get; set; }
 
         //
         //====================================================================================================
@@ -248,6 +272,10 @@ namespace Contensive.Processor.Models.Domain {
             awsCloudWatchLogGroup = "";
             awsSecretName = "";
             apps = new Dictionary<string, AppConfigModel>(StringComparer.OrdinalIgnoreCase);
+            enableRenderProfiler = false;
+            disableAddonRulesCache = false;
+            enableRequestScopedCache = true;
+            enableSharedRedisConnection = true;
             //
             // -- secrets from secret manager
             defaultDataSourceAddress = "";

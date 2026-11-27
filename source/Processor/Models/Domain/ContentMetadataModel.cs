@@ -326,6 +326,7 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     // load Db version
                     //
+                    core.profiler?.markRebuild("metadata");
                     HashSet<string> ccFieldsColumns = core.db.getTableColumnNames("ccFields");
                     string editGroupFieldSelect = $",{(ccFieldsColumns.Contains("EditGroup") ? "f.EditGroup" : "''")} as EditGroup";
                     string textLengthFieldSelect = $",{(ccFieldsColumns.Contains("TextLength") ? "f.TextLength" : "0")} as TextLength";

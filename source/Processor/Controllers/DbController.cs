@@ -222,11 +222,13 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public int executeScalar(string sql) {
             int returnValue = 0;
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return 0; }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
                 if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
                 //
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -254,6 +256,8 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
+            } finally {
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
             return returnValue;
         }
@@ -269,6 +273,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public DataTable executeQuery(string sql, int startRecord, int maxRecords, ref int recordsAffected) {
             DataTable returnData = new();
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return new DataTable(); }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
@@ -279,6 +284,7 @@ namespace Contensive.Processor.Controllers {
                 // https://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqldatareader.aspx
                 //
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -319,6 +325,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
             return returnData;
         }
@@ -341,8 +350,10 @@ namespace Contensive.Processor.Controllers {
         public void executeNonQueryBatch(List<string> sqlStatements) {
             if (sqlStatements == null || sqlStatements.Count == 0) { return; }
             if (!dbEnabled) { return; }
+            long profileStart = 0;
             try {
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
                     connSQL.Open();
                     foreach (string sql in sqlStatements) {
@@ -366,6 +377,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql batch, datasource[{dataSourceName}], statements[{sqlStatements.Count}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
         }
         //
@@ -376,9 +390,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sql"></param>
         /// <param name="recordsAffected"></param>
         public void executeNonQuery(string sql, ref int recordsAffected) {
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return; }
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -416,6 +432,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
         }
         //
@@ -425,10 +444,12 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="sql"></param>
         public async Task<int> executeNonQueryAsync(string sql) {
+            long profileStart = 0;
             try {
                 int result = 0;
                 if (!dbEnabled) { return result; }
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -467,6 +488,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
         }
         //
@@ -505,12 +529,14 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public DataTable executeQuery(string sql, Dictionary<string, object> parameters, int startRecord, int maxRecords, ref int recordsAffected) {
             DataTable returnData = new();
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return new DataTable(); }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
                 if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
                 //
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -552,6 +578,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},Exception [{ex.Message}] executing sql [{sql}], datasource [{dataSourceName}], startRecord [{startRecord}], maxRecords [{maxRecords}], recordsReturned [{recordsAffected}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
             return returnData;
         }
@@ -562,11 +591,13 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public int executeScalar(string sql, Dictionary<string, object> parameters) {
             int returnValue = 0;
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return 0; }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
                 if (core.appConfig == null) { throw new GenericException("Cannot execute Sql in dbController, appconfig is null"); }
                 //
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -595,6 +626,8 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
+            } finally {
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
             return returnValue;
         }
@@ -613,9 +646,11 @@ namespace Contensive.Processor.Controllers {
         /// Execute a parameterized non-query command and return records affected.
         /// </summary>
         public void executeNonQuery(string sql, Dictionary<string, object> parameters, ref int recordsAffected) {
+            long profileStart = 0;
             try {
                 if (!dbEnabled) { return; }
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -654,6 +689,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}],recordsAffected[{recordsAffected}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
         }
         //
@@ -662,10 +700,12 @@ namespace Contensive.Processor.Controllers {
         /// Execute a parameterized non-query command asynchronously.
         /// </summary>
         public async Task<int> executeNonQueryAsync(string sql, Dictionary<string, object> parameters) {
+            long profileStart = 0;
             try {
                 int result = 0;
                 if (!dbEnabled) { return result; }
                 Stopwatch sw = Stopwatch.StartNew();
+                profileStart = core.profiler == null ? 0 : Stopwatch.GetTimestamp();
                 int retryCount = 1;
                 while (true) {
                     try {
@@ -705,6 +745,9 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage},exception[{ex.Message}] executing sql[{sql}],datasource[{dataSourceName}]");
                 throw;
+            } finally {
+                // -- in finally so a statement that fails after its retries is counted too (same as executeScalar)
+                if (profileStart != 0) { core.profiler?.recordSql(Stopwatch.GetTimestamp() - profileStart); }
             }
         }
         //
