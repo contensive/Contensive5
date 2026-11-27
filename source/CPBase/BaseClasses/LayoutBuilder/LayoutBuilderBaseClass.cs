@@ -162,6 +162,17 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Add a filter to the current filter group. If isDefault is true and this option is selected, no chip will be displayed.
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="filterHtmlName"></param>
+        /// <param name="htmlValue"></param>
+        /// <param name="selected"></param>
+        /// <param name="isDefault">If true, no chip will be displayed when this option is selected</param>
+        public abstract void addFilterCheckbox(string caption, string filterHtmlName, string htmlValue, bool selected, bool isDefault);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// Add a filter to the current filter group.
         /// </summary>
         /// <param name="caption"></param>
@@ -169,6 +180,17 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="filterValue"></param>
         /// <param name="filterSelected"></param>
         public abstract void addFilterRadio(string caption, string filterHtmlName, string filterValue, bool filterSelected);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter to the current filter group. If isDefault is true and this option is selected, no chip will be displayed.
+        /// </summary>
+        /// <param name="caption"></param>
+        /// <param name="filterHtmlName">The name attribute of the html radio element.</param>
+        /// <param name="filterValue"></param>
+        /// <param name="filterSelected"></param>
+        /// <param name="isDefault">If true, no chip will be displayed when this option is selected</param>
+        public abstract void addFilterRadio(string caption, string filterHtmlName, string filterValue, bool filterSelected, bool isDefault);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
