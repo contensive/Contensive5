@@ -18585,6 +18585,18 @@
     ]
   },
   {
+    "pattern": "Azure Traffic Manager",
+    "url": "https://learn.microsoft.com/en-us/azure/traffic-manager/traffic-manager-monitoring",
+    "instances": [
+      "Azure Traffic Manager Endpoint Monitor"
+    ],
+    "addition_date": "2026/11/19",
+    "description": "Azure Traffic Manager probes a monitored endpoint from multiple regions to decide whether traffic should be routed to it.",
+    "tags": [
+      "monitoring"
+    ]
+  },
+  {
     "pattern": "Anubis-OGTag-Fetcher",
     "url": "https://github.com/TecharoHQ/anubis",
     "instances": [
@@ -18669,6 +18681,24 @@
     "description": "InstaWP's uptime monitor checks its customers' WordPress sites and alerts the owner when one goes down.",
     "tags": [
       "monitoring"
+    ]
+  },
+  {
+    "pattern": "EchelonGraphBot",
+    "url": "https://echelongraph.io/bot",
+    "instances": [
+      "EchelonGraphBot/1.0 (+https://echelongraph.io/bot)"
+    ],
+    "addition_date": "2026/11/27",
+    "description": "EchelonGraph's Radar prober checks the public reachability, HTTP status, TLS configuration and response time of popular websites. It honours robots.txt, sends no credentials and tests nothing for weaknesses. Opt-out and documentation: https://echelongraph.io/bot. Contact: support@echelongraph.io.",
+    "tags": [
+      "monitoring"
+    ],
+    "verification": [
+      {
+        "type": "web-bot-auth",
+        "directory": "https://echelongraph.io/.well-known/http-message-signatures-directory"
+      }
     ]
   }
 ]

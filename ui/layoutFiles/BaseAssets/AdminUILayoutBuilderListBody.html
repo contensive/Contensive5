@@ -60,25 +60,45 @@
 		{{/allowSearch}}
 		{{^allowPagination}}
 			<div class="js-afwListReportPaginationCon col-md-6 my-auto">
-				<div class="text-end">{{rowsFoundMessage}}</div>
-			</div>   
+				<div class="text-end">{{rowsFoundMessage}} <a href="#" class="ms-2 text-secondary" data-bs-toggle="modal" data-bs-target="#listSettingsModal" title="List Settings"><i class="fas fa-cog"></i></a></div>
+			</div>
 		{{/allowPagination}}
 		{{#allowPagination}}
 		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
-			<div class="text-end ccJumpCon"> 
+			<div class="text-end ccJumpCon">
 				<ul>
 					{{#links}}
 						<li class="{{css}}">{{{content}}}</li>
 					{{/links}}
 				</ul>
+				<a href="#" class="ms-2 text-secondary" data-bs-toggle="modal" data-bs-target="#listSettingsModal" title="List Settings"><i class="fas fa-cog"></i></a>
 			</div>
 			<input type="hidden" name="paginationPageNumber" id="paginationPageNumber" value="{{paginationPageNumber}}">
 			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">
-		</div>   
+			<input type="hidden" name="rowsPerPage" id="rowsPerPage" value="{{paginationPageSize}}">
+		</div>
 		{{/allowPagination}}
 	</div>
 </div>
 <div class="js-afwListReportGridCon">{{{grid}}}</div>
+<div class="modal fade" id="listSettingsModal" tabindex="-1" aria-labelledby="listSettingsModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="listSettingsModalLabel">List Settings</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<label for="rowsPerPageInput" class="form-label">Rows Per Page</label>
+				<input type="number" class="form-control" id="rowsPerPageInput" value="{{paginationPageSize}}" min="1" max="1000">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-primary" id="applyRowsPerPage">Apply</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
 	document.addEventListener('DOMContentLoaded', function(event) {
 		console.log("AdminUILayoutBuilderList, binding");
@@ -137,6 +157,17 @@
 			toggleSearchClear();
 			let pageNumber = document.getElementsByName('setPaginationPageNumber');
 			if(pageNumber.length>0) {pageNumber[0].value='1';}
+			submitAfwAjaxListForm();
+		});
+		// -- apply rows per page from settings modal
+		$('.afw').on('click','#applyRowsPerPage', function() {
+			let val = parseInt($('#rowsPerPageInput').val(), 10);
+			if (isNaN(val) || val < 1) { val = 50; }
+			$('#rowsPerPage').val(val);
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if (pageNumber.length > 0) { pageNumber[0].value = '1'; }
+			let modal = bootstrap.Modal.getInstance(document.getElementById('listSettingsModal'));
+			if (modal) { modal.hide(); }
 			submitAfwAjaxListForm();
 		});
 	});

@@ -88,7 +88,13 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
             throw new NotImplementedException();
         }
+        public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected, bool isDefault) {
+            throw new NotImplementedException();
+        }
         public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected) {
+            throw new NotImplementedException();
+        }
+        public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected, bool isDefault) {
             throw new NotImplementedException();
         }
         public override void addFilterTextInput(string caption, string htmlName, string htmlValue) {

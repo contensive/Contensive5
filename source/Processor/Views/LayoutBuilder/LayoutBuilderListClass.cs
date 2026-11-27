@@ -237,8 +237,14 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
             layoutBuilderBase.addFilterCheckbox(caption, htmlName, htmlValue, selected);
         }
+        public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected, bool isDefault) {
+            layoutBuilderBase.addFilterCheckbox(caption, htmlName, htmlValue, selected, isDefault);
+        }
         public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected) {
             layoutBuilderBase.addFilterRadio(caption, htmlName, htmlValue, selected);
+        }
+        public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected, bool isDefault) {
+            layoutBuilderBase.addFilterRadio(caption, htmlName, htmlValue, selected, isDefault);
         }
         public override void addFilterTextInput(string caption, string htmlName, string htmlValue) {
             layoutBuilderBase.addFilterTextInput(caption, htmlName, htmlValue);
@@ -450,6 +456,24 @@ namespace Contensive.Processor.LayoutBuilder {
                     _paginationPageSize = 9999999;
                     return (int)_paginationPageSize;
                 }
+                //
+                // -- check for user-submitted rows-per-page, persist per-addon in visit property
+                if (!string.IsNullOrEmpty(callbackAddonGuid)) {
+                    string propertyKey = $"AdminUIListPageSize_{callbackAddonGuid}";
+                    if (cp.Doc.IsProperty("rowsPerPage")) {
+                        int requestedSize = cp.Request.GetInteger("rowsPerPage");
+                        if (requestedSize > 0) {
+                            cp.Visit.SetProperty(propertyKey, requestedSize.ToString());
+                            _paginationPageSize = requestedSize;
+                            return (int)_paginationPageSize;
+                        }
+                    }
+                    int savedSize = cp.Visit.GetInteger(propertyKey);
+                    if (savedSize > 0) {
+                        _paginationPageSize = savedSize;
+                        return (int)_paginationPageSize;
+                    }
+                }
                 _paginationPageSize = paginationPageSizeDefault;
                 if (_paginationPageSize == 0) { _paginationPageSize = 9999999; }
                 return (int)_paginationPageSize;
@@ -550,7 +574,8 @@ namespace Contensive.Processor.LayoutBuilder {
                     allowSearch = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid),
                     allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid) && (recordCount > paginationPageSize),
                     rowsFoundMessage = $"{recordCount} {paginationRecordAlias} found",
-                    searchTerm = sqlSearchTerm
+                    searchTerm = sqlSearchTerm,
+                    paginationPageSize = paginationPageSize
                 };
                 //
                 // -- prepend navigation to before-table
@@ -1674,6 +1699,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public bool allowSearch { set; get; }
         public bool allowPagination { set; get; }
         public string rowsFoundMessage { set; get; }
+        public int paginationPageSize { get; set; }
 
     }
     public class RenderData_Link {
