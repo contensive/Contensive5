@@ -445,6 +445,23 @@ namespace Contensive.Processor.Models.Domain {
                 returnModel.awsRegionName = bootstrapConfig.awsRegionName;
                 returnModel.awsSecretName = secretName;
                 returnModel.core = core;
+                //
+                // -- normalize config.json to bootstrap-only if it contains more than the three properties
+                if (!isBootstrapOnly(bootstrapConfig)) {
+                    logger.Info($"{core.logCommonMessage},ServerConfigModel.create, normalizing config.json to bootstrap-only because useSecretManager is true");
+                    var bootstrapOnly = new {
+                        useSecretManager = true,
+                        awsRegionName = bootstrapConfig.awsRegionName,
+                        awsSecretName = secretName
+                    };
+                    FileStream normalizeLock = null;
+                    try {
+                        normalizeLock = AcquireConfigLock(core, "write/normalize-bootstrap");
+                        core.programDataFiles.saveFile("config.json", SerializeObject(bootstrapOnly));
+                    } finally {
+                        normalizeLock?.Dispose();
+                    }
+                }
                 return returnModel;
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "exception in serverConfigModel.getObject");
