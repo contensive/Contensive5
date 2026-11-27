@@ -369,6 +369,10 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
+            addFilterCheckbox(caption, htmlName, htmlValue, selected, false);
+        }
+        //
+        public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected, bool isDefault) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
             includeFilter = true;
@@ -380,20 +384,24 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = htmlValue
             });
-            if (selected) {
+            if (selected && !isDefault) {
                 //
-                // -- filter is selected, add the remove-filter button
+                // -- filter is selected and not the default, add the remove-filter button
                 addActiveFilter(caption, "removeFilter", htmlName);
             }
             //
             // -- add hidden that can be detected in submitted form if checkbox is not selected
-            // -- when an unchecked checkbox is submitted, it is not detected by isProperty(). 
+            // -- when an unchecked checkbox is submitted, it is not detected by isProperty().
             addFormHidden($"{htmlName}-checkbox", "1");
         }
         //
         // ----------------------------------------------------------------------------------------------------
         //
         public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected) {
+            addFilterRadio(caption, htmlName, htmlValue, selected, false);
+        }
+        //
+        public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected, bool isDefault) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
             includeFilter = true;
@@ -405,9 +413,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 name = htmlName,
                 value = htmlValue
             });
-            if (selected) {
+            if (selected && !isDefault) {
                 //
-                // -- filter is selected, add the remove-filter button
+                // -- filter is selected and not the default, add the remove-filter button
                 addActiveFilter(caption, "removeFilter", htmlName);
             }
         }
